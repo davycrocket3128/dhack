@@ -57,7 +57,7 @@ UProgram * UDesktopWidget::SpawnProgramFromClass(TSubclassOf<UProgram> InClass, 
 {
 	UWindow* OutputWindow = nullptr;
 
-	UProgram* Program = UProgram::CreateProgram(this->SystemContext->GetPeacenet()->WindowClass, InClass, this->SystemContext, this->UserID, OutputWindow, InTitle.ToString());
+	UProgram* Program = UProgram::CreateProgram(this->SystemContext->GetPeacenet()->WindowClass, InClass, this->SystemContext->GetUserContext(this->UserID), OutputWindow, InTitle.ToString());
 
 	OutputWindow->WindowTitle = InTitle;
 	OutputWindow->Icon = InIcon;

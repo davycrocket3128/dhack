@@ -35,10 +35,27 @@
 #include "URainbowTable.h"
 #include "UDesktopWidget.h"
 #include "PTerminalWidget.h"
+#include "Exploit.h"
 #include "UConsoleContext.h"
 #include "CommonUtils.h"
 #include "UProgram.h"
 #include "UPeacegateFileSystem.h"
+#include "PayloadAsset.h"
+
+TArray<UPayloadAsset*> UUserContext::GetPayloads()
+{
+	return this->GetOwningSystem()->GetPayloads();
+}
+
+int UUserContext::GetUserID()
+{
+	return this->UserID;
+}
+
+TArray<UExploit*> UUserContext::GetExploits()
+{
+	return this->GetOwningSystem()->GetExploits();
+}
 
 int UUserContext::StartProcess(FString Name, FString FilePath)
 {
@@ -125,6 +142,12 @@ APeacenetWorldStateActor* UUserContext::GetPeacenet()
 
 UDesktopWidget* UUserContext::GetDesktop()
 {
+	// If we're a hacker context we grab desktop from hacking user.
+	if(this->HackingUser)
+	{
+		return this->HackingUser->GetDesktop();
+	}
+
     // TODO: User context should own the desktop, not the system context. This will allow remote desktop hacking.
     return this->OwningSystem->GetDesktop();
 }
@@ -137,6 +160,18 @@ USystemContext* UUserContext::GetOwningSystem()
 bool UUserContext::IsAdministrator()
 {
 	return this->GetUserInfo().IsAdminUser;
+}
+
+UUserContext* UUserContext::GetHacker()
+{
+	return this->HackingUser;
+}
+
+void UUserContext::SetHacker(UUserContext* InHacker)
+{
+	check(InHacker);
+	check(InHacker->GetDesktop());
+	this->HackingUser = InHacker;
 }
 
 bool UUserContext::OpenProgram(FName InExecutableName, UProgram*& OutProgram, bool InCheckForExistingWindow)
@@ -222,7 +257,7 @@ bool UUserContext::OpenFile(const FString& InPath, EFileOpenResult& OutResult)
 	TSubclassOf<UWindow> WindowClass = this->GetPeacenet()->WindowClass;
 
 	UWindow* NewWindow;
-	UProgram* NewProgram = UProgram::CreateProgram(WindowClass, ProgramAsset->ProgramClass, this->GetOwningSystem(), this->UserID, NewWindow, ProgramAsset->ExecutableName.ToString());
+	UProgram* NewProgram = UProgram::CreateProgram(WindowClass, ProgramAsset->ProgramClass, this, NewWindow, ProgramAsset->ExecutableName.ToString());
 
 	NewWindow->WindowTitle = ProgramAsset->AppLauncherItem.Name;
 	NewWindow->Icon = ProgramAsset->AppLauncherItem.Icon;

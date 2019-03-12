@@ -37,6 +37,8 @@
 #include "UDesktopWidget.h"
 #include "EConnectionError.h"
 #include "FManPage.h"
+#include "AssetRegistry/Public/IAssetRegistry.h"
+#include "AssetRegistry/Public/AssetRegistryModule.h"
 #include "EGovernmentAlertStatus.h"
 #include "UPeacenetSaveGame.h"
 #include "FGovernmentAlertInfo.h"
@@ -51,7 +53,9 @@ class UMarkovTrainingDataAsset;
 class UProceduralGenerationEngine;
 class UPeacegateProgramAsset;
 class UTerminalCommand;
+class UExploit;
 class UCommandInfo;
+class UPayloadAsset;
 class UWindow;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerSystemContextReadyEvent, USystemContext*, InSystemContext);
@@ -66,6 +70,12 @@ public: // Constructors
 	APeacenetWorldStateActor();
 
 private: // Properties
+	UPROPERTY()
+	TArray<UExploit*> Exploits;
+
+	UPROPERTY()
+	TArray<UPayloadAsset*> Payloads;
+
 	UPROPERTY()
 	UChatManager* ChatManager;
 
@@ -122,6 +132,7 @@ private: // Functions
 	UFUNCTION()
 	void LoadTerminalCommands();
 
+public:
 	template<typename AssetType>
 	bool LoadAssets(FName ClassName, TArray<AssetType*>& OutArray);
 
@@ -129,13 +140,25 @@ public:	// Functions
 	FText GetTimeOfDay();
 
 	UFUNCTION()
+	TArray<UExploit*> GetExploits();
+
+	UFUNCTION()
+	UProceduralGenerationEngine* GetProcgen();
+
+	UFUNCTION()
 	bool GetOwningIdentity(FComputer& InComputer, int& OutIdentityID);
+
+	UFUNCTION()
+	TArray<UPayloadAsset*> GetAllPayloads();
 
 	UFUNCTION()
 	USystemContext* GetSystemContext(int InIdentityID);
 
 	UFUNCTION()
 	TArray<UComputerService*> GetServicesFor(EComputerType InComputerType);
+
+	UFUNCTION()
+	bool ResolveSystemContext(FString InHost, USystemContext*& OutSystem, EConnectionError& OutError);
 
 	UFUNCTION()
 	void SaveWorld();
@@ -179,4 +202,24 @@ public: // Static functions
 	UFUNCTION(BlueprintCallable, Category = "Peacegate")
 	static APeacenetWorldStateActor* LoadExistingOS(const APlayerController* InPlayerController);
 };
+
+template<typename AssetType>
+inline bool APeacenetWorldStateActor::LoadAssets(FName ClassName, TArray<AssetType*>& OutArray)
+{
+	// Get the Asset Registry
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+
+	// A place to store computer type asset data
+	TArray<FAssetData> Assets;
+
+	if (!AssetRegistryModule.Get().GetAssetsByClass(ClassName, Assets, true))
+		return false;
+
+	for (auto& Asset : Assets)
+	{
+		OutArray.Add((AssetType*)Asset.GetAsset());
+	}
+
+	return true;
+}
 

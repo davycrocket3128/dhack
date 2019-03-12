@@ -49,29 +49,28 @@ void UPiperContext::SetupPiper(UPiperContext* InInput, UConsoleContext* InOutput
     this->Output = InOutput;
 }
 
-FString UPiperContext::SynchronouslyReadLine()
+bool UPiperContext::GetLine(FString& OutLine)
 {
 	if (Input)
 	{
 		if (Input->Log.IsEmpty())
-			return "\0";
+			return false;
 
-		FString OutText;
 		int NewlineIndex = -1;
 		if (Input->Log.FindChar(TEXT('\n'), NewlineIndex))
 		{
-			OutText = Input->Log.Left(NewlineIndex);
+			OutLine = Input->Log.Left(NewlineIndex);
 			Input->Log.RemoveAt(0, NewlineIndex + 1);
 		}
 		else {
-			OutText = FString(Input->Log);
+			OutLine = FString(Input->Log);
 			Input->Log = TEXT("");
 		}
-		return OutText;
+		return true;
 	}
 	else
 	{
-		return Super::SynchronouslyReadLine();
+		return Super::GetLine(OutLine);
 	}
 }
 

@@ -34,8 +34,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "PeacenetWorldStateActor.h"
 #include "UDesktopWidget.h"
+#include "UProceduralGenerationEngine.h"
+#include "Exploit.h"
 #include "UPeacegateFileSystem.h"
-#include "UHackable.h"
 #include "CommonUtils.h"
 #include "UPeacegateProgramAsset.h"
 #include "UUserContext.h"
@@ -45,6 +46,28 @@
 #include "WallpaperAsset.h"
 #include "UGraphicalTerminalCommand.h"
 #include "CommandInfo.h"
+#include "PayloadAsset.h"
+
+TArray<UPayloadAsset*> USystemContext::GetPayloads()
+{
+	TArray<UPayloadAsset*> UnlockedPayloads = this->GetComputer().Payloads;
+
+	for(auto Payload : this->GetPeacenet()->GetAllPayloads())
+	{
+		if(Payload->UnlockedByDefault)
+		{
+			if(!UnlockedPayloads.Contains(Payload))
+				UnlockedPayloads.Add(Payload);
+		}
+	}
+
+	return UnlockedPayloads;
+}
+
+TArray<UExploit*> USystemContext::GetExploits()
+{
+	return this->GetComputer().Exploits;
+}
 
 FString USystemContext::GetProcessUsername(FPeacegateProcess InProcess)
 {
@@ -64,22 +87,7 @@ int USystemContext::GetUserIDFromUsername(FString InUsername)
 
 int USystemContext::GetOpenConnectionCount()
 {
-	return this->InboundConnections.Num() + this->OutboundConnections.Num();
-}
-
-void USystemContext::AddConnection(UHackable* InConnection, bool IsInbound)
-{
-	check(InConnection);
-	check(!InboundConnections.Contains(InConnection));
-	check(!OutboundConnections.Contains(InConnection));
-	
-	if(IsInbound)
-		InboundConnections.Add(InConnection);
-	else
-		OutboundConnections.Add(InConnection);
-
-	// This lets anything running on this system know that something has connected.
-	this->SystemConnected.Broadcast(InConnection, IsInbound);
+	return 0;
 }
 
 bool USystemContext::UsernameExists(FString InUsername)
@@ -93,16 +101,6 @@ bool USystemContext::UsernameExists(FString InUsername)
 	}
 
 	return false;
-}
-
-void USystemContext::Disconnect(UHackable* InConnection)
-{
-	check(InConnection);
-
-	if(InboundConnections.Contains(InConnection))
-		InboundConnections.Remove(InConnection);
-	if(OutboundConnections.Contains(InConnection))
-		OutboundConnections.Remove(InConnection);
 }
 
 FString ReadFirstLine(FString InText)
@@ -455,6 +453,23 @@ FPeacenetIdentity& USystemContext::GetCharacter()
 	return MyPeacenet->SaveGame->Characters[CharacterIndex];
 }
 
+UUserContext* USystemContext::GetHackerContext(int InUserID, UUserContext* HackingUser)
+{
+	for(auto Hacker : Hackers)
+	{
+		if(Hacker->GetUserID() == InUserID && Hacker->GetHacker() == HackingUser)
+		{
+			return Hacker;
+		}
+	}
+
+	UUserContext* NewHacker = NewObject<UUserContext>(this);
+	NewHacker->Setup(this, InUserID);
+	NewHacker->SetHacker(HackingUser);
+	Hackers.Add(NewHacker);
+	return NewHacker;
+}
+
 UUserContext* USystemContext::GetUserContext(int InUserID)
 {
 	if(this->Users.Contains(InUserID))
@@ -661,6 +676,9 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	// Go through every user on the system.
 	for(auto& user : this->GetComputer().Users)
 	{
+		// should we generate loots after this?
+		bool generateLoots = false;
+
 		// Get the home directory for the user.
 		FString home = this->GetUserHomeDirectory(user.ID);
 
@@ -668,6 +686,7 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 		if(!fs->DirectoryExists(home))
 		{
 			fs->CreateDirectory(home, fsStatus);
+			generateLoots = true;
 		}
 
 		// These sub-directories are important too.
@@ -683,7 +702,26 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 		for(auto subDir : homeDirs)
 		{
 			if(!fs->DirectoryExists(home + "/" + subDir))
+			{
+				generateLoots = true;
 				fs->CreateDirectory(home + "/" + subDir, fsStatus);
+			}
+		}
+
+		if(generateLoots)
+		{
+			this->GetPeacenet()->GetProcgen()->PlaceLootableFiles(this->GetUserContext(user.ID));
+		}
+	}
+
+	// Now we go through all the exploits in the game and, if they're
+	// unlocked by default, we unlock them.
+	for(auto exploit : this->GetPeacenet()->GetExploits())
+	{
+		if(exploit->UnlockedByDefault)
+		{
+			if(!this->GetComputer().Exploits.Contains(exploit))
+				this->GetComputer().Exploits.Add(exploit);
 		}
 	}
 }

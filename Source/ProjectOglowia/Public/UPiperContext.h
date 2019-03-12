@@ -69,7 +69,7 @@ public:
 	virtual void OverwriteLine(const FString& InText) override;
 	virtual UConsoleContext* CreateChildContext(USystemContext* InSystemContext, int InUserID) override;
 	virtual void Clear() override;
-	virtual FString SynchronouslyReadLine() override;
+	virtual bool GetLine(FString& OutLine) override;
 	virtual UPTerminalWidget* GetTerminal() override;
 
 	FString GetInputBuffer();

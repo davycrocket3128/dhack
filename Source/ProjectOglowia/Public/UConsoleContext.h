@@ -100,7 +100,7 @@ public:
 		void InjectInput(const FString& Input);
 	
 	UFUNCTION()
-	virtual FString SynchronouslyReadLine();
+	virtual bool GetLine(FString& OutLine);
 
 	UFUNCTION(BlueprintCallable, Category = "Peacegate")
 	virtual UConsoleContext* CreateChildContext(USystemContext* InSystemContext, int InUserID);

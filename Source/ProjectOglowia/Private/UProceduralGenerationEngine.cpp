@@ -36,10 +36,89 @@
 #include "FFirewallRule.h"
 #include "FEntityPosition.h"
 #include "UComputerService.h"
+#include "UUserContext.h"
+#include "LootableFile.h"
+#include "ProtocolVersion.h"
 #include "CommonUtils.h"
 #include "WallpaperAsset.h"
+#include "UPeacegateFileSystem.h"
 #include "UMarkovChain.h"
 #include "PeacenetWorldStateActor.h"
+
+void UProceduralGenerationEngine::PlaceLootableFiles(UUserContext* InUserContext)
+{
+    // If the system is a player, then we stop right now.
+    if(InUserContext->GetOwningSystem()->GetCharacter().CharacterType == EIdentityType::Player) return;
+
+    // The amount of lootables we are EVER allowed to generate in an NPC.
+    int MaxLootables = this->LootableFiles.Num() / 2;
+
+    // If that ends up being 0, then we stop right there.
+    if(!MaxLootables) return;
+
+    // The amount of lootables this NPC gets.
+    int LootableCount = RNG.RandRange(0, MaxLootables);
+
+    // Get a filesystem context for this user.
+    UPeacegateFileSystem* Filesystem = InUserContext->GetFilesystem();
+
+    // Keep going while there are lootables to generate.
+    while(LootableCount)
+    {
+        // Pick a random lootable! Any lootable!
+        ULootableFile* Lootable = this->LootableFiles[RNG.RandRange(0, this->LootableFiles.Num() - 1)];
+
+        // This is where the file will go.
+        FString BaseDirectory = "/";
+
+        // Desktop or documents?
+        int Dice = RNG.RandRange(0, 6);
+
+        // Where should it go?
+        switch(Lootable->SpawnLocation)
+        {
+            case EFileSpawnLocation::Anywhere:
+                // TODO: Support picking of random folders.
+                break;
+            case EFileSpawnLocation::HomeFolder:
+                BaseDirectory = InUserContext->GetHomeDirectory();
+                break;
+            case EFileSpawnLocation::Binaries:
+                BaseDirectory = "/bin";
+                break;
+            case EFileSpawnLocation::DesktopOrDocuments:
+                if(Dice % 2 == 0)
+                    BaseDirectory = InUserContext->GetHomeDirectory() + "/Desktop";
+                else
+                    BaseDirectory = InUserContext->GetHomeDirectory() + "/Documents";
+                break;
+            case EFileSpawnLocation::Pictures:
+                BaseDirectory = InUserContext->GetHomeDirectory() + "/Pictures";
+                break;
+            case EFileSpawnLocation::Downloads:
+                BaseDirectory = InUserContext->GetHomeDirectory() + "/Downloads";
+                break;
+            case EFileSpawnLocation::Music:
+                BaseDirectory = InUserContext->GetHomeDirectory() + "/Music";
+                break;
+            case EFileSpawnLocation::Videos:
+                BaseDirectory = InUserContext->GetHomeDirectory() + "/Videos";
+                break;
+        }
+
+        // Now that we have a base directory, get the file path.
+        FString FilePath = BaseDirectory + "/" + Lootable->FileName.ToString();
+
+        // If the file already exists, continue.
+        if(Filesystem->FileExists(FilePath)) continue;
+
+        // Spawn the file.
+        Lootable->FileContents->SpawnFile(FilePath, Filesystem);
+
+        // Decrease the lootable count.
+        LootableCount--;
+    }
+}
 
 void UProceduralGenerationEngine::GenerateFirewallRules(FComputer& InComputer)
 {
@@ -56,17 +135,49 @@ void UProceduralGenerationEngine::GenerateFirewallRules(FComputer& InComputer)
     {
         if(Services[i]->IsDefault || RNG.RandRange(0, 6) % 2)
         {
-            // Don't spawn if the service's minimum skill level is above our skill.
-            if(Skill < Services[i]->MinimumSkillLevel)
-                continue;
-
             FFirewallRule Rule;
             Rule.Port = Services[i]->Port;
-            Rule.Service = Services[i];
+            Rule.Service = this->GetProtocol(Services[i], Skill);
             Rule.IsFiltered = false;
             InComputer.FirewallRules.Add(Rule);
         }
     }
+}
+
+UProtocolVersion* UProceduralGenerationEngine::GetProtocol(UComputerService* InService, int InSkill)
+{
+    int i = 0;
+    int count = 100;
+    UProtocolVersion* protocol = nullptr;
+
+    while(count > 0)
+    {
+        UProtocolVersion* protocolVersion = this->ProtocolVersions[i];
+        if(protocolVersion->Protocol != InService)
+        {
+            i++;
+            if(i >= this->ProtocolVersions.Num())
+                i=0;
+            continue;
+        }
+        if(protocolVersion->MinimumSkillLevel > InSkill)        
+        {
+            i++;
+            if(i >= this->ProtocolVersions.Num())
+                i=0;
+            continue;
+        }
+
+        protocol = protocolVersion;
+
+        i++;
+        if(i >= this->ProtocolVersions.Num())
+            i=0;
+        
+        count -= RNG.RandRange(0, 10);
+    }
+
+    return protocol;
 }
 
 TArray<FString> UProceduralGenerationEngine::GetMarkovData(EMarkovTrainingDataUsage InUsage)
@@ -425,6 +536,33 @@ void UProceduralGenerationEngine::Initialize(APeacenetWorldStateActor* InPeacene
 
         // PASS 3: GENERATE CHARACTER RELATIONSHIPS
         this->GenerateCharacterRelationships();
+    }
+
+    // Array of temporary file assets.
+    TArray<ULootableFile*> TempFiles;
+
+    // Populate it with ALL lootable files in the game.
+    this->Peacenet->LoadAssets<ULootableFile>("LootableFile", TempFiles);
+
+    // Filter out any files that have bad contents.
+    for(auto File : TempFiles)
+    {
+        if(!File->FileContents)
+            continue;
+
+        // Add it to the REAL lootables list.
+        this->LootableFiles.Add(File);
+    }
+
+    // Now we do that but for all the protocol versions in the game.
+    TArray<UProtocolVersion*> Protocols;
+    this->Peacenet->LoadAssets<UProtocolVersion>("ProtocolVersion", Protocols);
+
+    for(auto Protocol : Protocols)
+    {
+        if(!Protocol->Protocol) continue;
+
+        this->ProtocolVersions.Add(Protocol);
     }
 }
 

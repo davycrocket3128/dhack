@@ -11,11 +11,61 @@
 #include "UMarkovTrainingDataAsset.h"
 #include "CommandInfo.h"
 #include "TerminalCommand.h"
-#include "AssetRegistry/Public/IAssetRegistry.h"
-#include "AssetRegistry/Public/AssetRegistryModule.h"
+#include "PayloadAsset.h"
 #include "Async.h"
+#include "Exploit.h"
 #include "UPeacenetGameInstance.h"
 #include "UWindow.h"
+
+bool APeacenetWorldStateActor::ResolveSystemContext(FString InHost, USystemContext*& OutSystem, EConnectionError& OutError)
+{
+	// What the fuck are we connecting to and does it even exist?
+	FComputer pc;
+	if(!this->ResolveHost(InHost, pc, OutError))
+		return false;
+
+	// Now that we have a Computer ID, we can search existing contexts for a matching ID.
+	for(auto Context : this->SystemContexts)
+	{
+		if(Context->GetComputer().ID == pc.ID)
+		{
+			OutSystem = Context;
+			return true;
+		}
+	}
+
+	// Okay, this is the hard issue. Creating a new context.
+	// Doing this is literally a pain in my ass.
+	// Like my ass is sore.
+	//
+	// I need a character identity.
+	int Identity = -1;
+	if (!this->GetOwningIdentity(pc, Identity))
+	{
+		OutError = EConnectionError::ConnectionTimedOut;
+		return false;
+	}
+	
+	// Now that we have a PC and an identity, we can create a system context.
+	USystemContext* NewContext = NewObject<USystemContext>(this);
+
+	// Assign the context to the identity and computer and this Peacenet.
+	NewContext->Setup(pc.ID, Identity, this);
+
+	// Give it to the caller.
+	OutSystem = NewContext;
+
+	// Keep it from being collected.
+	this->SystemContexts.Add(NewContext);
+
+	// Done!
+	return true;
+}
+
+UProceduralGenerationEngine* APeacenetWorldStateActor::GetProcgen()
+{
+	return this->Procgen;
+}
 
 // Sets default values
 APeacenetWorldStateActor::APeacenetWorldStateActor()
@@ -257,6 +307,16 @@ void APeacenetWorldStateActor::LoadTerminalCommands()
 	}
 }
 
+TArray<UExploit*> APeacenetWorldStateActor::GetExploits()
+{
+	return this->Exploits;
+}
+
+TArray<UPayloadAsset*> APeacenetWorldStateActor::GetAllPayloads()
+{
+	return this->Payloads;
+}
+
 // Called when the game starts or when spawned
 void APeacenetWorldStateActor::BeginPlay()
 {
@@ -264,6 +324,13 @@ void APeacenetWorldStateActor::BeginPlay()
 
 	// Load computer services in.
 	this->LoadAssets<UComputerService>("ComputerService", this->ComputerServices);
+
+	// Yeah, I got paid....and there was definitely a load....
+	this->LoadAssets<UPayloadAsset>("PayloadAsset", this->Payloads);
+
+
+	// Load all exploits.
+	this->LoadAssets<UExploit>("Exploit", this->Exploits);
 
 	// Load wallpaper assets.
 	this->LoadAssets<UWallpaperAsset>(TEXT("WallpaperAsset"), this->Wallpapers);
@@ -415,26 +482,6 @@ FText APeacenetWorldStateActor::GetTimeOfDay()
 	FString HoursString = FString::FromInt((int)Hours);
 
 	return FText::FromString(HoursString + TEXT(":") + MinutesString);
-}
-
-template<typename AssetType>
-bool APeacenetWorldStateActor::LoadAssets(FName ClassName, TArray<AssetType*>& OutArray)
-{
-	// Get the Asset Registry
-	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
-
-	// A place to store computer type asset data
-	TArray<FAssetData> Assets;
-
-	if (!AssetRegistryModule.Get().GetAssetsByClass(ClassName, Assets, true))
-		return false;
-
-	for (auto& Asset : Assets)
-	{
-		OutArray.Add((AssetType*)Asset.GetAsset());
-	}
-
-	return true;
 }
 
 bool APeacenetWorldStateActor::HasExistingOS()

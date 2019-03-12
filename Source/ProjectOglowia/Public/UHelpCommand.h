@@ -44,5 +44,5 @@ class PROJECTOGLOWIA_API AHelpCommand : public ATerminalCommand
 	GENERATED_BODY()
 
 protected:
-	virtual void NativeRunCommand(UConsoleContext* InConsole, const TMap<FString, UDocoptValue*> InArguments) override;
+	virtual void NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) override;
 };

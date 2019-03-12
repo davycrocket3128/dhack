@@ -79,17 +79,21 @@ void UConsoleContext::InjectInput(const FString & Input)
 	}
 }
 
-FString UConsoleContext::SynchronouslyReadLine()
+bool UConsoleContext::GetLine(FString& OutLine)
 {
-	while (!this->GetTerminal()->IsInputLineAvailable) {	} //this is thread safe woo
-	this->Terminal->IsInputLineAvailable = false;
-	FString Input = this->Terminal->GetInputText();
+	if (!this->GetTerminal()->IsInputLineAvailable)
+	{
+		return false;
+	}
+	this->GetTerminal()->IsInputLineAvailable = false;
+	FString Input = this->GetTerminal()->GetInputText();
 	if (Input.EndsWith("\n"))
 	{
 		Input.RemoveFromEnd("\n");
 	}
-	this->Terminal->ClearInput();
-	return Input;
+	this->GetTerminal()->ClearInput();
+	OutLine = Input;
+	return true;
 }
 
 UConsoleContext * UConsoleContext::CreateChildContext(USystemContext* InSystemContext, int InUserID)

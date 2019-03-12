@@ -34,7 +34,7 @@
 #include "CommandInfo.h"
 #include "UUserContext.h"
 
-void AHelpCommand::NativeRunCommand(UConsoleContext* InConsole, const TMap<FString, UDocoptValue*> InArguments)
+void AHelpCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
 {
 	InConsole->WriteLine(TEXT("&*&FCommand help&r&7"));
 	InConsole->WriteLine(TEXT("------------------- \n"));

@@ -29,37 +29,44 @@
  *
  ********************************************************************************/
 
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "TerminalCommand.h"
-#include "UHackable.h"
-#include "DocoptForUnrealBPLibrary.h"
-#include "UConsoleContext.h"
-#include "USystemContext.h"
+#include "Exploit.h"
+#include "Payload.h"
+#include "PayloadAsset.h"
 #include "UUserContext.h"
-#include "BruteForcePasswordCracker.generated.h"
+#include "HackCommand.generated.h"
 
 UCLASS(BlueprintType)
-class PROJECTOGLOWIA_API ABruteForcePasswordCracker : public ATerminalCommand
+class PROJECTOGLOWIA_API AHackCommand : public ATerminalCommand
 {
     GENERATED_BODY()
 
+public:
+    AHackCommand();
+
 private:
     UPROPERTY()
-    FTimerHandle ConnectionTimerHandle;
+    FString EnteredHostname;
 
     UPROPERTY()
-    FTimerHandle CrackTimerHandle;
+    USystemContext* RemoteSystem;
+
+    UPROPERTY()
+    UExploit* CurrentExploit;
+
+    UPROPERTY()
+    UPayloadAsset* CurrentPayload;
+
+    UPROPERTY()
+    bool WaitingForCommand = true;
 
 protected:
-	virtual void NativeRunCommand(UConsoleContext* InConsole, const TMap<FString, UDocoptValue*> InArguments) override;
-
-public:
     UFUNCTION()
-    void Crack(UConsoleContext* InConsole, UHackable* InHackable);
+    void HandleCommand(FString InCommandName, TArray<FString> InArguments);
 
-    UFUNCTION()
-    void Connect(UConsoleContext* InConsole, FString Username, FString Hostname, int Port);
+    virtual void Tick(float InDeltaSeconds) override;
+    virtual void NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) override;
 };

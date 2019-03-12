@@ -108,26 +108,14 @@ TArray<FCommandRunInstruction> UCommandProcessor::ProcessCommand(UConsoleContext
 		FString Name = Tokens[0];
 		FString InternalUsage;
 		FString FriendlyUsage;
-		Tokens.RemoveAt(0);
 
 
 
 		ATerminalCommand* CommandImpl = nullptr;
 		if (InConsole->GetUserContext()->GetOwningSystem()->TryGetTerminalCommand(FName(*Name), CommandImpl, InternalUsage, FriendlyUsage))
 		{
-			bool DocoptError = false;
-			FString DocoptErrorMessage;
-
-			TMap<FString, UDocoptValue*> Args = UDocoptForUnrealBPLibrary::NativeParseArguments(InternalUsage, Tokens, true, TEXT(""), false, DocoptError, DocoptErrorMessage);
-			
-			if (DocoptError)
-			{
-				InConsole->WriteLine(DocoptErrorMessage);
-				return TArray<FCommandRunInstruction>();
-			}
-
 			FCommandRunInstruction NewInst;
-			NewInst.Arguments = Args;
+			NewInst.Arguments = Tokens;
 			NewInst.Command = CommandImpl;
 
 			if (IsPiping)

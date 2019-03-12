@@ -35,7 +35,7 @@
 #include "CoreMinimal.h"
 #include "FFirewallRule.generated.h"
 
-class UComputerService;
+class UProtocolVersion;
 
 USTRUCT(BlueprintType)
 struct PROJECTOGLOWIA_API FFirewallRule
@@ -50,5 +50,5 @@ public:
     bool IsFiltered = false;
 
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-    UComputerService* Service;
+    UProtocolVersion* Service;
 };

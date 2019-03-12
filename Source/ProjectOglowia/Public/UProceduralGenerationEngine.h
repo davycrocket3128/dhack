@@ -40,7 +40,10 @@
 #include "RandomStream.h"
 #include "UProceduralGenerationEngine.generated.h"
 
+class ULootableFile;
 class UMarkovChain;
+class UUserContext;
+class UProtocolVersion;
 class APeacenetWorldStateActor;
 class UPeacenetSaveGame;
 
@@ -57,6 +60,12 @@ private:
     FRandomStream RNG;
 
     UPROPERTY()
+    TArray<UProtocolVersion*> ProtocolVersions;
+
+    UPROPERTY()
+    TArray<ULootableFile*> LootableFiles;
+
+    UPROPERTY()
     UMarkovChain* MaleNameGenerator;
 
     UPROPERTY()
@@ -71,6 +80,9 @@ private:
 public:
     UFUNCTION()
     void GenerateIdentityPosition(FPeacenetIdentity& Pivot, FPeacenetIdentity& Identity);
+
+    UFUNCTION()
+    UProtocolVersion* GetProtocol(UComputerService* InService, int InSkill);
 
     UFUNCTION()
     void GenerateAdjacentNodes(FPeacenetIdentity& InIdentity);
@@ -98,6 +110,9 @@ public:
 
     UFUNCTION()
     FString GenerateIPAddress(ECountry InCountry);
+
+    UFUNCTION()
+    void PlaceLootableFiles(UUserContext* InUserContext);
 
     UFUNCTION()
     void Initialize(APeacenetWorldStateActor* InPeacenet);

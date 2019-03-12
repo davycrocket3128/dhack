@@ -37,9 +37,9 @@
 #include "Engine/Texture2D.h"
 #include "EComputerType.h"
 #include "FFirewallRule.h"
+#include "Exploit.h"
+#include "PayloadAsset.h"
 #include "FComputer.generated.h"
-
-class UVulnerability;
 
 /**
  * Represents a user's permission and authentication domain, dictating what the user can do and how they authenticate.
@@ -114,6 +114,12 @@ struct PROJECTOGLOWIA_API FComputer
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
 	int ID;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Exploits")
+	TArray<UExploit*> Exploits;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Exploits")
+	TArray<UPayloadAsset*> Payloads;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
 	TMap<FString, FString> EnvironmentVariables;

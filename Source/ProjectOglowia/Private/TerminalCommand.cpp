@@ -46,14 +46,41 @@ UConsoleContext* ATerminalCommand::GetConsole()
 	return this->Console;
 }
 
-void ATerminalCommand::RunCommand(UConsoleContext* InConsole, const TMap<FString, UDocoptValue*> InArguments)
+void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Argv)
 {
+	this->CommandName = Argv[0];
 	this->Console = InConsole;	
 	this->ProcessID = this->Console->GetUserContext()->StartProcess(this->CommandInfo->Info.CommandName.ToString(), this->CommandInfo->Info.CommandName.ToString());
-	NativeRunCommand(InConsole, InArguments);
+
+	Argv.RemoveAt(0);
+
+	if(this->CommandInfo->Info.UsageStrings.Num())
+	{
+		FString Usage = "usage: ";
+		for(auto UsageString : this->CommandInfo->Info.UsageStrings)
+		{
+			Usage += "\n    " + this->CommandName + " " + UsageString;
+		}
+
+		FString Error;
+		bool HasError = false;
+
+		this->ArgumentMap = UDocoptForUnrealBPLibrary::ParseArguments(Usage, Argv, false, "", true, HasError, Error);
+
+		if(HasError)
+		{
+			InConsole->WriteLine(CommandName + ": " + Error);
+			this->Complete();
+			return;
+		}
+
+
+	}
+
+	NativeRunCommand(InConsole, Argv);
 }
 
-void ATerminalCommand::NativeRunCommand(UConsoleContext * InConsole, const TMap<FString, UDocoptValue*> InArguments)
+void ATerminalCommand::NativeRunCommand(UConsoleContext * InConsole, TArray<FString> InArguments)
 {
 	// Call into BP to do the rest.
 	this->OnRunCommand(InConsole, InArguments);

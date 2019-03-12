@@ -96,7 +96,7 @@ void UWindow::SetUserContext(UUserContext* InUserContext)
 	check(InUserContext);
 
 	// Crash if we already have a user context.
-	check(!this->GetUserContext());
+	check(this->GetUserContext() != InUserContext);
 
 	// Now we can update the user context.
 	this->UserContext = InUserContext;

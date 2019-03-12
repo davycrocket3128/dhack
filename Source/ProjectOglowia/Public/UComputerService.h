@@ -36,8 +36,6 @@
 #include "Engine/Texture2D.h"
 #include "Engine/DataAsset.h"
 #include "EComputerType.h"
-#include "EAuthenticationType.h"
-#include "UHackable.h"
 #include "UComputerService.generated.h"
 
 UCLASS(BlueprintType, Blueprintable)
@@ -58,9 +56,6 @@ public:
     UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Metadata")
     UTexture2D* Icon;
 
-    UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Authentication")
-    EAuthenticationType AuthenticationType = EAuthenticationType::None;
-
     UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Spawning")
     EComputerType TargetComputerType = EComputerType::Personal;
 
@@ -69,11 +64,4 @@ public:
 
     UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Spawning")
     int Port;
-
-    UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Spawning")
-    int MinimumSkillLevel = 0;
-
-    UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Behaviour")
-    TSubclassOf<UHackable> Hackable;
-
 };

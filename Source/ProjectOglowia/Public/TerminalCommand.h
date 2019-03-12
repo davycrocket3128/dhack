@@ -69,20 +69,26 @@ public:
 	FCommandCompletedEvent Completed;
 
 	UFUNCTION(BlueprintCallable, Category = "Terminal Command")
-	void RunCommand(UPARAM(Ref) UConsoleContext* InConsole, const TMap<FString, UDocoptValue*> InArguments);
+	void RunCommand(UPARAM(Ref) UConsoleContext* InConsole, TArray<FString> Argv);
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Terminal Command")
 	UConsoleContext* GetConsole();
 
 protected:
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Arguments")
+	TMap<FString, UDocoptValue*> ArgumentMap;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Arguments")
+	FString CommandName;
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Terminal Command")
 	UUserContext* GetUserContext();
 
-	virtual void NativeRunCommand(UConsoleContext* InConsole, const TMap<FString, UDocoptValue*> InArguments);
+	virtual void NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Terminal Command")
-	void OnRunCommand(const UConsoleContext* InConsole, const TMap<FString, UDocoptValue*>& InArguments);
+	void OnRunCommand(const UConsoleContext* InConsole, const TArray<FString>& InArguments);
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Terminal Command")

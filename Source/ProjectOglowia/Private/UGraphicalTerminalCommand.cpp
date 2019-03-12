@@ -43,7 +43,7 @@ AGraphicalTerminalCommand::~AGraphicalTerminalCommand()
 {
 }
 
-void AGraphicalTerminalCommand::NativeRunCommand(UConsoleContext * InConsole, const TMap<FString, UDocoptValue*> InArguments)
+void AGraphicalTerminalCommand::NativeRunCommand(UConsoleContext * InConsole, TArray<FString> InArguments)
 {
 	if (!InConsole->GetUserContext()->GetDesktop())
 	{

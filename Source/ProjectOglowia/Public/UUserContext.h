@@ -35,11 +35,12 @@
 #include "CoreMinimal.h"
 #include "USystemContext.h"
 #include "EFileOpenResult.h"
+#include "UserInfo.h"
 #include "FPeacegateProcess.h"
-#include "SecureShell.h"
 #include "FAdjacentNodeInfo.h"
 #include "UUserContext.generated.h"
 
+class UExploit;
 class UPeacegateFileSystem;
 class APeacenetWorldStateActor;
 class UAddressBookContext;
@@ -50,6 +51,7 @@ class UDesktopWidget;
 class UVulnerability;
 class UProgram;
 class UConsoleContext;
+class UPayloadAsset;
 
 /**
  * A System Context that acts as a specific user.
@@ -60,6 +62,9 @@ class PROJECTOGLOWIA_API UUserContext : public UObject
     GENERATED_BODY()
 
 private:
+    UPROPERTY()
+    UUserContext* HackingUser;
+
     // The owning system context.
     UPROPERTY()
     USystemContext* OwningSystem = nullptr;
@@ -69,6 +74,12 @@ private:
     int UserID = 0;
 
 public:
+    UFUNCTION()
+    UUserContext* GetHacker();
+
+    UFUNCTION()
+    void SetHacker(UUserContext* InHacker);
+
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "URL parsing")
     void ParseURL(FString InURL, int InDefaultPort, FString& OutUsername, FString& OutHost, int& OutPort, FString& OutPath);
 
@@ -77,6 +88,12 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
     TArray<UWallpaperAsset*> GetAvailableWallpapers();
+
+    UFUNCTION()
+    TArray<UPayloadAsset*> GetPayloads();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Exploits")
+    TArray<UExploit*> GetExploits();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
     UTexture2D* GetCurrentWallpaper();
@@ -89,6 +106,9 @@ public:
 
     UFUNCTION()
     FUserInfo GetUserInfo();
+
+    UFUNCTION()
+    int GetUserID();
 
     UFUNCTION()
     void Setup(USystemContext* InOwningSystem, int InUserID);

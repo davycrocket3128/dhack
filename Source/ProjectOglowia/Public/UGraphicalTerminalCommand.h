@@ -55,5 +55,5 @@ public:
 	UPeacegateProgramAsset* ProgramAsset;
 
 protected:
-	virtual void NativeRunCommand(UConsoleContext* InConsole, const TMap<FString, UDocoptValue*> InArguments) override;
+	virtual void NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) override;
 };

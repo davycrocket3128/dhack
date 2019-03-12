@@ -35,6 +35,7 @@
 #include "CoreMinimal.h"
 #include "FComputer.h"
 #include "UPeacegateFileSystem.h"
+#include "UserInfo.h"
 #include "FPeacenetIdentity.h"
 #include "FAdjacentNodeInfo.h"
 #include "FPeacegateProcess.h"
@@ -42,27 +43,12 @@
 
 class UHackable;
 class UDesktopWidget;
+class UPayloadAsset;
 class UProgram;
+class UExploit;
 class URainbowTable;
 class APeacenetWorldStateActor;
 class UPeacegateProgramAsset;
-
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FSystemConnectedEvent, UHackable*, InConnection, bool, IsInbound);
-
-USTRUCT(BlueprintType)
-struct PROJECTOGLOWIA_API FUserInfo
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(BlueprintReadOnly)
-	FString Username;
-
-	UPROPERTY(BlueprintReadOnly)
-	bool IsAdminUser = false;
-};
-
 /**
  * Represents the state and allows access/modification of an NPC or player computer in Peacenet.
  */
@@ -89,6 +75,9 @@ protected:
 
 	UPROPERTY()
 	int ComputerID = 0;
+
+	UPROPERTY()
+	TArray<UUserContext*> Hackers;
 	
 	UPROPERTY()
 	int CharacterID = 0;
@@ -99,23 +88,19 @@ protected:
 	UPROPERTY()
 	TMap<int, UUserContext*> Users;
 
-	UPROPERTY()
-	TArray<UHackable*> OutboundConnections;
-
-	UPROPERTY()
-	TArray<UHackable*> InboundConnections;
-
-public:
-	UPROPERTY(BlueprintAssignable, Category = "Networking")
-	FSystemConnectedEvent SystemConnected;
-
 protected:
 	UFUNCTION()
 	void HandleFileSystemEvent(EFilesystemEventType InType, FString InPath);
 
 public: // Property getters
 	UFUNCTION()
+	UUserContext* GetHackerContext(int InUserID, UUserContext* HackingUser);
+
+	UFUNCTION()
 	bool IsEnvironmentVariableSet(FString InVariable);
+
+	UFUNCTION()
+	TArray<UPayloadAsset*> GetPayloads();
 
 	UFUNCTION()
 	bool GetEnvironmentVariable(FString InVariable, FString& OutValue);
@@ -170,13 +155,7 @@ public:
 	int GetOpenConnectionCount();
 
 	UFUNCTION()
-	void AddConnection(UHackable* InConnection, bool IsInbound);
-
-	UFUNCTION()
 	bool UsernameExists(FString InUsername);
-
-	UFUNCTION()
-	void Disconnect(UHackable* InConnection);
 
 	UFUNCTION()
 	bool IsIPAddress(FString InIPAddress);
@@ -189,6 +168,9 @@ public:
 
 	UFUNCTION()
 	TArray<UCommandInfo*> GetInstalledCommands();
+
+	UFUNCTION()
+	TArray<UExploit*> GetExploits();
 
 	UFUNCTION()
 	void Setup(int InComputerID, int InCharacterID, APeacenetWorldStateActor* InPeacenet);

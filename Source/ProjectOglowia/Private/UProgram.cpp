@@ -56,20 +56,15 @@ void UProgram::RequestPlayerAttention(bool PlaySound)
 	this->PlayerAttentionNeeded.Broadcast(PlaySound);
 }
 
-UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSubclassOf<UProgram> InProgramClass, USystemContext* InSystem, const int InUserID, UWindow*& OutWindow, FString InProcessName, bool DoContextSetup)
+UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSubclassOf<UProgram> InProgramClass, UUserContext* InUserContext, UWindow*& OutWindow, FString InProcessName, bool DoContextSetup)
 {
 	// Preventative: make sure the system context isn't null.
-	check(InSystem);
+	check(InUserContext);
 
 	// TODO: Take in a user context instead of a system context and user ID.
-	check(InSystem->GetPeacenet());
+	check(InUserContext->GetPeacenet());
 
-	// Grab a user context and check if it's valid.
-	UUserContext* User = InSystem->GetUserContext(InUserID);
-
-	check(User);
-
-	APlayerController* MyPlayer = UGameplayStatics::GetPlayerController(InSystem->GetPeacenet()->GetWorld(), 0);
+	APlayerController* MyPlayer = UGameplayStatics::GetPlayerController(InUserContext->GetPeacenet()->GetWorld(), 0);
 
 	// The window is what contains the program's UI.
 	UWindow* Window = CreateWidget<UWindow, APlayerController>(MyPlayer, InWindow);
@@ -81,10 +76,10 @@ UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSu
 	ProgramInstance->Window = Window;
 
 	// Window gets our user context.
-	Window->SetUserContext(User);
+	Window->SetUserContext(InUserContext);
 
 	// Start the process for the program.
-	ProgramInstance->ProcessID = User->StartProcess(InProcessName, InProcessName);
+	ProgramInstance->ProcessID = InUserContext->StartProcess(InProcessName, InProcessName);
 
 	// Make sure we get notified when the window closes.
 	TScriptDelegate<> CloseDelegate;

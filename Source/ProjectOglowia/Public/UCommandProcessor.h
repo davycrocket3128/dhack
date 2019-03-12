@@ -52,7 +52,7 @@ public:
 	ATerminalCommand* Command;
 
 	UPROPERTY(BlueprintReadOnly)
-	TMap<FString, UDocoptValue*> Arguments;
+	TArray<FString> Arguments;
 
 	UPROPERTY(BlueprintReadOnly)
 	UConsoleContext* IntendedContext;
