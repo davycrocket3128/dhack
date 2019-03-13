@@ -75,6 +75,22 @@ FString UMapNodeContext::GetNodeName()
     return this->GetIdentity().CharacterName;
 }
 
+bool UMapNodeContext::IsHighlighted()
+{
+    return this->Highlighted;
+}
+
+void UMapNodeContext::Highlight()
+{
+    this->Highlighted = true;
+}
+
+void UMapNodeContext::Unhighlight()
+{
+    this->Highlighted = false;
+}
+
+
 FVector2D UMapNodeContext::GetPosition()
 {
     FVector2D Ret;

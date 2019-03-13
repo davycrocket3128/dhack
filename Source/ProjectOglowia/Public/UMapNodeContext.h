@@ -51,6 +51,9 @@ private:
     UPROPERTY()
     int NodeID = 0;
 
+    UPROPERTY()
+    bool Highlighted = false;
+
 protected:
     UFUNCTION()
     FString CreateBooleanName(FString Extension);
@@ -68,6 +71,15 @@ protected:
     FString GetNodeName();
 
 public:
+    UFUNCTION(BlueprintCallable, blueprintPure)
+    bool IsHighlighted();
+
+    UFUNCTION(BlueprintCallable)
+    void Highlight();
+
+    UFUNCTION(BlueprintCallable)
+    void Unhighlight();
+    
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Map Node")
     FString GetIPAddress();
 
