@@ -36,7 +36,7 @@
 #include "FPeacenetIdentity.h"
 #include "UMapNodeContext.generated.h"
 
-class UMapProgram;
+class UMapWidget;
 class UPeacenetSaveGame;
 
 UCLASS(BlueprintType)
@@ -46,7 +46,7 @@ class PROJECTOGLOWIA_API UMapNodeContext : public UObject
 
 private:
     UPROPERTY()
-    UMapProgram* MapProgram;
+    UMapWidget* MapWidget;
 
     UPROPERTY()
     int NodeID = 0;
@@ -81,5 +81,5 @@ public:
     int GetNodeID();
 
     UFUNCTION()
-    void Setup(UMapProgram* InMapProgram, int InNodeID);
+    void Setup(UMapWidget* InMapWidget, int InNodeID);
 };

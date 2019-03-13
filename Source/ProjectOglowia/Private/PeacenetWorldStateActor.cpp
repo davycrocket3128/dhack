@@ -184,6 +184,11 @@ bool APeacenetWorldStateActor::ScanForServices(FString InIPAddress, TArray<FFire
 	return OutRules.Num();
 }
 
+void APeacenetWorldStateActor::UpdateMaps()
+{
+	MapsUpdated.Broadcast();
+}
+
 TArray<FPeacenetIdentity> APeacenetWorldStateActor::GetAdjacentNodes(FPeacenetIdentity& InIdentity)
 {
 	check(this->SaveGame);

@@ -37,6 +37,7 @@
 #include "FEntityPosition.h"
 #include "UComputerService.h"
 #include "UUserContext.h"
+#include "AdjacentLinkType.h"
 #include "LootableFile.h"
 #include "ProtocolVersion.h"
 #include "CommonUtils.h"
@@ -347,8 +348,9 @@ void UProceduralGenerationEngine::GenerateIdentityPosition(FPeacenetIdentity& Pi
 
 void UProceduralGenerationEngine::GenerateAdjacentNodes(FPeacenetIdentity& InIdentity)
 {   
-    // Don't do this if the entity already has adjacent nodes.
-    if(this->Peacenet->SaveGame->GetAdjacents(InIdentity.ID).Num())
+    // Don't generate any new links if there are any existing links from this NPC.
+    // PATCH: Before, this would check for any links to and from the NPC, that's a problem. Now we only check for links from the NPC.
+    if(this->Peacenet->SaveGame->GetAdjacents(InIdentity.ID, EAdjacentLinkType::AToB).Num())
         return;
 
     const int MIN_ADJACENTS = 2;

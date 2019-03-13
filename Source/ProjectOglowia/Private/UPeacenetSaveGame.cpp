@@ -182,14 +182,14 @@ void UPeacenetSaveGame::SetValue(FString InKey, bool InValue)
 		this->Booleans.Add(InKey, InValue);
 }
 
-TArray<int> UPeacenetSaveGame::GetAdjacents(int Node)
+TArray<int> UPeacenetSaveGame::GetAdjacents(int Node, EAdjacentLinkType LinkType)
 {
 	TArray<int> Ret;
 	for(auto& Adjacent : this->AdjacentNodes)
 	{
-		if(Adjacent.NodeA == Node)
+		if(Adjacent.NodeA == Node && (LinkType == EAdjacentLinkType::Bidirectional || LinkType == EAdjacentLinkType::AToB))
 			Ret.Add(Adjacent.NodeB);
-		else if(Adjacent.NodeB == Node)
+		else if(Adjacent.NodeB == Node && (LinkType == EAdjacentLinkType::Bidirectional || LinkType == EAdjacentLinkType::BToA))
 			Ret.Add(Adjacent.NodeA);
 	}
 	return Ret;

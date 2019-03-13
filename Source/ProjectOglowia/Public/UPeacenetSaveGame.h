@@ -40,6 +40,7 @@
 #include "FAdjacentNode.h"
 #include "FComputer.h"
 #include "UWindow.h"
+#include "AdjacentLinkType.h"
 #include "FEntityPosition.h"
 #include "UPeacenetSaveGame.generated.h"
 
@@ -120,7 +121,7 @@ public:
 	void FixEntityIDs();
 
 	UFUNCTION()
-	TArray<int> GetAdjacents(int Node);
+	TArray<int> GetAdjacents(int Node, EAdjacentLinkType LinkType = EAdjacentLinkType::Bidirectional);
 
 	UFUNCTION()
 	TArray<int> GetAllEntitiesInCountry(ECountry InCountry);

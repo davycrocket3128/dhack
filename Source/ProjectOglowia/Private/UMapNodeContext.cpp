@@ -34,11 +34,11 @@
 #include "PeacenetWorldStateActor.h"
 #include "UPeacenetSaveGame.h"
 #include "UUserContext.h"
-#include "UMapProgram.h"
+#include "MapWidget.h"
 
 UPeacenetSaveGame* UMapNodeContext::GetSaveGame()
 {
-    return this->MapProgram->GetUserContext()->GetPeacenet()->SaveGame;
+    return this->MapWidget->GetUserContext()->GetPeacenet()->SaveGame;
 }
 
 int UMapNodeContext::GetSkill()
@@ -57,7 +57,7 @@ FString UMapNodeContext::GetIPAddress()
     int ComputerIndex;
     bool result = this->GetSaveGame()->GetComputerByID(this->GetIdentity().ComputerID, Computer, ComputerIndex);
     check(result);
-    return this->MapProgram->GetUserContext()->GetPeacenet()->GetIPAddress(Computer);
+    return this->MapWidget->GetUserContext()->GetPeacenet()->GetIPAddress(Computer);
 }
 
 int UMapNodeContext::GetNodeID()
@@ -83,11 +83,11 @@ FVector2D UMapNodeContext::GetPosition()
     return Ret;
 }
 
-void UMapNodeContext::Setup(UMapProgram* InMapProgram, int InNodeID)
+void UMapNodeContext::Setup(UMapWidget* InMapWidget, int InNodeID)
 {
-    check(InMapProgram);
+    check(InMapWidget);
 
-    this->MapProgram = InMapProgram;
+    this->MapWidget = InMapWidget;
     this->NodeID = InNodeID;
 }
 
@@ -95,7 +95,7 @@ FPeacenetIdentity& UMapNodeContext::GetIdentity()
 {
     int IdentityIndex;
     FPeacenetIdentity Identity;
-    bool result = this->MapProgram->GetUserContext()->GetPeacenet()->SaveGame->GetCharacterByID(this->NodeID, Identity, IdentityIndex);
+    bool result = this->MapWidget->GetUserContext()->GetPeacenet()->SaveGame->GetCharacterByID(this->NodeID, Identity, IdentityIndex);
     check(result);
-    return this->MapProgram->GetUserContext()->GetPeacenet()->SaveGame->Characters[IdentityIndex];
+    return this->MapWidget->GetUserContext()->GetPeacenet()->SaveGame->Characters[IdentityIndex];
 }

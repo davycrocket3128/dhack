@@ -59,6 +59,7 @@ class UPayloadAsset;
 class UWindow;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerSystemContextReadyEvent, USystemContext*, InSystemContext);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPeacenetMapUpdateEvent);
 
 UCLASS()
 class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
@@ -92,6 +93,12 @@ private: // Properties
 	TMap<int, FGovernmentAlertInfo> GovernmentAlertInfo;
 
 public: //Properties
+	UPROPERTY()
+	FPeacenetMapUpdateEvent MapsUpdated;
+
+	UFUNCTION()
+	void UpdateMaps();
+
 	UFUNCTION()
 	bool ResolveHost(FString InHost, FComputer& OutComputer, EConnectionError& OutError);
 

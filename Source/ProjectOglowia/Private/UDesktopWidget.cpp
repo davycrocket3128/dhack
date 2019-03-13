@@ -43,6 +43,11 @@
 #include "UProgram.h"
 #include "UConsoleContext.h"
 
+UUserContext* UDesktopWidget::GetUserContext()
+{
+	return this->SystemContext->GetUserContext(this->UserID);
+}
+
 void UDesktopWidget::CloseActiveProgram()
 {
 	this->EventActiveProgramClose.Broadcast();
@@ -98,6 +103,10 @@ void UDesktopWidget::NativeConstruct()
 			}
 		}
 	}
+
+	TScriptDelegate<> MapUpdateDelegate;
+	MapUpdateDelegate.BindUFunction(this, "UpdateMap");
+	this->SystemContext->GetPeacenet()->MapsUpdated.Add(MapUpdateDelegate);
 
 	Super::NativeConstruct();
 }

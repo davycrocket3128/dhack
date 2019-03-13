@@ -43,6 +43,7 @@
 
 class USystemContext;
 class UConsoleContext;
+class UUserContext;
 class UPTerminalWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FActiveProgramCloseEvent);
@@ -101,6 +102,12 @@ public:
 	UProgram* SpawnProgramFromClass(TSubclassOf<UProgram> InClass, const FText& InTitle, UTexture2D* InIcon);
 
 protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateMap();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UUserContext* GetUserContext();
+
 	UPROPERTY(BlueprintReadOnly, Category = "Desktop")
 	FPeacenetIdentity MyCharacter;
 
