@@ -73,7 +73,7 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
 
         for(auto Exploit : Console->GetUserContext()->GetExploits())
         {
-            FString ExploitName = Exploit->Name.ToString();
+            FString ExploitName = Exploit->ID.ToString();
             if(SearchQuery.Len() == 0 || ExploitName.Contains(SearchQuery, ESearchCase::IgnoreCase))
             {
                 FoundExploit = true;
@@ -144,9 +144,9 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
         {
             for(auto Exploit : Console->GetUserContext()->GetExploits())
             {
-                if(Exploit->Name.ToString() == ExploitName)
+                if(Exploit->ID.ToString() == ExploitName)
                 {
-                    Console->WriteLine("Using exploit &F" + ExploitName + "&7.");
+                    Console->WriteLine("Using exploit &F" + Exploit->FullName.ToString() + "&7.");
                     this->CurrentExploit = Exploit;
                     return;
                 }
@@ -252,7 +252,7 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
 
                 if(this->CurrentExploit->Targets.Contains(Service.Service))
                 {
-                    Console->WriteLine("Service is &3&*vulnerable&r&7 to the &6&*" + this->CurrentExploit->Name.ToString() + "&r&7 exploit.");
+                    Console->WriteLine("Service is &3&*vulnerable&r&7 to the &6&*" + this->CurrentExploit->FullName.ToString() + "&r&7 exploit.");
 
                     Console->WriteLine("Deploying &4&*" + this->CurrentPayload->Name.ToString() + "&r&7...");
 
@@ -305,7 +305,7 @@ void AHackCommand::Tick(float InDeltaSeconds)
         this->GetConsole()->Write("&3" + this->EnteredHostname + " &7(");
         if(this->CurrentExploit)
         {
-            this->GetConsole()->Write("&6&*" + this->CurrentExploit->Name.ToString() + "&r&F");
+            this->GetConsole()->Write("&6&*" + this->CurrentExploit->ID.ToString() + "&r&F");
         }
         else
         {
