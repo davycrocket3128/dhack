@@ -32,38 +32,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Text.h"
-#include "TextProperty.h"
-#include "ManualPage.generated.h"
+#include "ManualPageAssetBase.h"
+#include "ManualPageAsset.generated.h"
 
-USTRUCT(BlueprintType)
-struct PROJECTOGLOWIA_API FManualMetadata
+UCLASS(Blueprintable, BlueprintType)
+class PROJECTOGLOWIA_API UManualPageAsset : public UManualPageAssetBase
 {
     GENERATED_BODY()
 
 public:
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)
-    FText Title;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Metadata")
+    TArray<FManualMetadata> AdditionalData;
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)
-    FText Content;
-};
-
-USTRUCT(BlueprintType)
-struct PROJECTOGLOWIA_API FManualPage
-{
-    GENERATED_BODY()
-
-public:
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)
-    FName ID;
-
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)
-    FText FullName;
-
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)
-    FText Summary;
-
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)
-    TArray<FManualMetadata> ManualMetadata;
+protected:
+    virtual void BuildManualPage(UManualPageBuilder* InBuilder) override;
 };
