@@ -259,32 +259,10 @@ void APeacenetWorldStateActor::LoadTerminalCommands()
 	// Load command assets.
 	this->LoadAssets(TEXT("CommandInfo"), Commands);
 
-	// Help command is not processed in blueprint land.
-	UCommandInfo* HelpInfo = NewObject<UCommandInfo>(this);
-	HelpInfo->Info.CommandName = TEXT("help");
-	HelpInfo->Info.Description = TEXT("Shows a list of commands you can run.");
-	HelpInfo->Info.CommandClass = TSubclassOf<ATerminalCommand>(AHelpCommand::StaticClass());
-	HelpInfo->UnlockedByDefault = true;
-	Commands.Add(HelpInfo);
-
 	for (auto Command : Commands)
 	{
 		this->CommandInfo.Add(Command->Info.CommandName, Command);
-	
-		// Compile the command info into Docopt usage strings
-		FString UsageFriendly = UCommandInfo::BuildDisplayUsageString(Command->Info);
-		FString UsageInternal = UCommandInfo::BuildInternalUsageString(Command->Info);
-
-		// Create a manual page for the command
-		FManPage ManPage;
-		ManPage.Description = Command->Info.Description;
-		ManPage.LongDescription = Command->Info.LongDescription;
-		ManPage.InternalUsage = UsageInternal;
-		ManPage.FriendlyUsage = UsageFriendly;
-
-		// Save the manual page for later use
-		ManPages.Add(Command->Info.CommandName, ManPage);
-	}
+		}
 
 	for (auto Program : this->Programs)
 	{
@@ -292,16 +270,6 @@ void APeacenetWorldStateActor::LoadTerminalCommands()
 		FCommandInfoS Info;
 		Info.CommandName = Program->ExecutableName;
 		Info.Description = Program->AppLauncherItem.Description.ToString();
-
-		FString FriendlyUsage = UCommandInfo::BuildDisplayUsageString(Info);
-		FString InternalUsage = UCommandInfo::BuildInternalUsageString(Info);
-
-		FManPage ManPage;
-		ManPage.Description = Info.Description;
-		ManPage.InternalUsage = InternalUsage;
-		ManPage.FriendlyUsage = FriendlyUsage;
-
-		ManPages.Add(Info.CommandName, ManPage);
 
 		UCommandInfo* CoffeeIsCode = NewObject<UCommandInfo>();
 

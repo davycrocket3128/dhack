@@ -254,14 +254,6 @@ bool USystemContext::TryGetTerminalCommand(FName CommandName, ATerminalCommand *
 {
 	check(Peacenet);
 
-	if (!GetPeacenet()->ManPages.Contains(CommandName))
-		return false;
-
-	FManPage ManPage = GetPeacenet()->ManPages[CommandName];
-
-	InternalUsage = ManPage.InternalUsage;
-	FriendlyUsage = ManPage.FriendlyUsage;
-
 	UPeacegateProgramAsset* Program = nullptr;
 	if (GetPeacenet()->FindProgramByName(CommandName, Program))
 	{

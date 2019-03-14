@@ -36,7 +36,6 @@
 #include "GameFramework/Actor.h"
 #include "UDesktopWidget.h"
 #include "EConnectionError.h"
-#include "FManPage.h"
 #include "AssetRegistry/Public/IAssetRegistry.h"
 #include "AssetRegistry/Public/AssetRegistryModule.h"
 #include "EGovernmentAlertStatus.h"
@@ -122,9 +121,6 @@ public: //Properties
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Meta = (ExposeOnSpawn))
 	FString WorldSlot;
-
-	UPROPERTY()
-	TMap<FName, FManPage> ManPages;
 
 	UPROPERTY()
 	UPeacenetSaveGame* SaveGame;
