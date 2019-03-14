@@ -29,26 +29,9 @@
  *
  ********************************************************************************/
 
-#include "ProgramPayload.h"
-#include "PeacenetWorldStateActor.h"
-#include "Uwindow.h"
-#include "USystemContext.h"
+#include "PeacegateProgramAsset.h"
 
-void UProgramPayload::NativePayloadDeployed(UUserContext* OriginUser, UUserContext* TargetUser)
+void UPeacegateProgramAsset::BuildManualPage(UManualPageBuilder* InBuilder)
 {
-    // Make sure the dev wasn't a complete idiot.
-    check(this->ProgramToOpen);
-
-    // Get the window class
-    TSubclassOf<UWindow> WindowClass = OriginUser->GetPeacenet()->WindowClass;
-
-    // Create the new program object.
-    UWindow* Window;
-    UProgram* RemoteProgram = UProgram::CreateProgram(WindowClass, this->ProgramToOpen->ProgramClass, TargetUser, Window, ProgramToOpen->ID.ToString(), false);
-
-    // Get the program to show in its new window.
-    RemoteProgram->SetupContexts();
-
-    // Show it on the origin user's desktop.
-    OriginUser->ShowProgramOnWorkspace(RemoteProgram);
+    InBuilder->SetMetadata(FText::FromString("Category"), this->AppLauncherItem.Category);
 }

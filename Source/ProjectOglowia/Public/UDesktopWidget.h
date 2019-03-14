@@ -34,7 +34,7 @@
 
 #include "CoreMinimal.h"
 #include "UserWidget.h"
-#include "UPeacegateProgramAsset.h" 
+#include "PeacegateProgramAsset.h" 
 #include "EGovernmentAlertStatus.h"
 #include "FGovernmentAlertInfo.h"
 #include "UPeacegateFileSystem.h"

@@ -34,7 +34,7 @@
 #include "CoreMinimal.h"
 #include "Payload.h"
 #include "UUserContext.h"
-#include "UPeacegateProgramAsset.h"
+#include "PeacegateProgramAsset.h"
 #include "UProgram.h"
 #include "ProgramPayload.generated.h"
 

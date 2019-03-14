@@ -257,11 +257,11 @@ bool UUserContext::OpenFile(const FString& InPath, EFileOpenResult& OutResult)
 	TSubclassOf<UWindow> WindowClass = this->GetPeacenet()->WindowClass;
 
 	UWindow* NewWindow;
-	UProgram* NewProgram = UProgram::CreateProgram(WindowClass, ProgramAsset->ProgramClass, this, NewWindow, ProgramAsset->ExecutableName.ToString());
+	UProgram* NewProgram = UProgram::CreateProgram(WindowClass, ProgramAsset->ProgramClass, this, NewWindow, ProgramAsset->ID.ToString());
 
-	NewWindow->WindowTitle = ProgramAsset->AppLauncherItem.Name;
+	NewWindow->WindowTitle = ProgramAsset->FullName;
 	NewWindow->Icon = ProgramAsset->AppLauncherItem.Icon;
-	NewWindow->EnableMinimizeAndMaximize = ProgramAsset->AppLauncherItem.EnableMinimizeAndMaximize;
+	NewWindow->EnableMinimizeAndMaximize = ProgramAsset->EnableMinimizeAndMaximize;
 
 	NewProgram->FileOpened(InPath);
 

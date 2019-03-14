@@ -38,7 +38,7 @@
 #include "Exploit.h"
 #include "UPeacegateFileSystem.h"
 #include "CommonUtils.h"
-#include "UPeacegateProgramAsset.h"
+#include "PeacegateProgramAsset.h"
 #include "UUserContext.h"
 #include "FAdjacentNode.h"
 #include "UProgram.h"
@@ -148,7 +148,7 @@ TArray<UPeacegateProgramAsset*> USystemContext::GetInstalledPrograms()
 	{
 		if(GetPeacenet()->GameType->GameRules.DoUnlockables)
 		{
-			if(!GetComputer().InstalledPrograms.Contains(Program->ExecutableName) && !Program->IsUnlockedByDefault)
+			if(!GetComputer().InstalledPrograms.Contains(Program->ID) && !Program->IsUnlockedByDefault)
 				continue;
 		}
 		OutArray.Add(Program);
@@ -226,7 +226,7 @@ bool USystemContext::OpenProgram(FName InExecutableName, UProgram*& OutProgram, 
 		}
 	}
 
-	UProgram* Program = this->GetDesktop()->SpawnProgramFromClass(PeacegateProgram->ProgramClass, PeacegateProgram->AppLauncherItem.Name, PeacegateProgram->AppLauncherItem.Icon);
+	UProgram* Program = this->GetDesktop()->SpawnProgramFromClass(PeacegateProgram->ProgramClass, PeacegateProgram->FullName, PeacegateProgram->AppLauncherItem.Icon);
 
 	check(Program);
 
@@ -406,7 +406,7 @@ bool USystemContext::GetSuitableProgramForFileExtension(const FString & InExtens
 	{
 		if(this->GetPeacenet()->GameType->GameRules.DoUnlockables)
 		{
-			if(!this->GetComputer().InstalledPrograms.Contains(Program->ExecutableName) && !Program->IsUnlockedByDefault)
+			if(!this->GetComputer().InstalledPrograms.Contains(Program->ID) && !Program->IsUnlockedByDefault)
 			{
 				continue;
 			}

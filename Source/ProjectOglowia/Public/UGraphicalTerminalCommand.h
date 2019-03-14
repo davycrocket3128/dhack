@@ -34,7 +34,7 @@
 
 #include "CoreMinimal.h"
 #include "TerminalCommand.h"
-#include "UPeacegateProgramAsset.h"
+#include "PeacegateProgramAsset.h"
 #include "UGraphicalTerminalCommand.generated.h"
 
 class UProgram;

@@ -30,7 +30,7 @@
  ********************************************************************************/
 
 
-#include "UPeacegateProgramAsset.h"
+#include "PeacegateProgramAsset.h"
 #include "CommonUtils.h"
 #include "PTerminalWidget.h"
 #include "UConsoleContext.h"

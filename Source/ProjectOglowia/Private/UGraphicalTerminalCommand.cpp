@@ -53,7 +53,7 @@ void AGraphicalTerminalCommand::NativeRunCommand(UConsoleContext * InConsole, TA
 	}
 
 	UProgram* OpenedProgram = nullptr;
-	InConsole->GetUserContext()->OpenProgram(this->ProgramAsset->ExecutableName, OpenedProgram, false);
+	InConsole->GetUserContext()->OpenProgram(this->ProgramAsset->ID, OpenedProgram, false);
 
 	this->Complete();
 }

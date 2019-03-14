@@ -239,10 +239,10 @@ void UDesktopWidget::ShowAppLauncherCategory(const FString& InCategoryName)
 			continue;
 
 		// because Blueprints hate strings being passed by-value.
-		FString ProgramName = Program->ExecutableName.ToString();
+		FString ProgramName = Program->ID.ToString();
 
 		// Add the item. Woohoo.
-		this->AddAppLauncherSubMenuItem(Program->AppLauncherItem.Name, Program->AppLauncherItem.Description, ProgramName, Program->AppLauncherItem.Icon);
+		this->AddAppLauncherSubMenuItem(Program->FullName, Program->Summary, ProgramName, Program->AppLauncherItem.Icon);
 	}
 }
 

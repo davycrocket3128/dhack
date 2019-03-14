@@ -29,26 +29,56 @@
  *
  ********************************************************************************/
 
-#include "ProgramPayload.h"
-#include "PeacenetWorldStateActor.h"
-#include "Uwindow.h"
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "UWindow.h"
 #include "USystemContext.h"
+#include "Engine/DataAsset.h"
+#include "ManualPageAssetBase.h"
+#include "PeacegateProgramAsset.generated.h"
 
-void UProgramPayload::NativePayloadDeployed(UUserContext* OriginUser, UUserContext* TargetUser)
+USTRUCT(BlueprintType)
+struct FAppLauncherItemInformation
 {
-    // Make sure the dev wasn't a complete idiot.
-    check(this->ProgramToOpen);
+	GENERATED_BODY()
 
-    // Get the window class
-    TSubclassOf<UWindow> WindowClass = OriginUser->GetPeacenet()->WindowClass;
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FText Category;
 
-    // Create the new program object.
-    UWindow* Window;
-    UProgram* RemoteProgram = UProgram::CreateProgram(WindowClass, this->ProgramToOpen->ProgramClass, TargetUser, Window, ProgramToOpen->ID.ToString(), false);
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UTexture2D* Icon;
+};
 
-    // Get the program to show in its new window.
-    RemoteProgram->SetupContexts();
+/**
+ * Represents a Peacegate OS graphical program.
+ */
+UCLASS(Blueprintable)
+class PROJECTOGLOWIA_API UPeacegateProgramAsset : public UManualPageAssetBase
+{
+	GENERATED_BODY()
 
-    // Show it on the origin user's desktop.
-    OriginUser->ShowProgramOnWorkspace(RemoteProgram);
-}
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "App Launcher")
+	FAppLauncherItemInformation AppLauncherItem;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Program")
+	TSubclassOf<UProgram> ProgramClass;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Window Management")
+	bool EnableMinimizeAndMaximize = true;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Metadata")
+	bool IsUnlockedByDefault = false;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Program")
+	TArray<FString> SupportedFileExtensions;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Program")
+	bool IsSingleInstance = false;
+
+protected:
+	virtual void BuildManualPage(UManualPageBuilder* InBuilder) override;
+};
