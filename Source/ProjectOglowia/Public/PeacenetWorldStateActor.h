@@ -191,6 +191,9 @@ public:	// Functions
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Network Map")
 	bool ScanForServices(FString InIPAddress, TArray<FFirewallRule>& OutRules);
 
+	UFUNCTION()
+	TArray<FManualPage> GetManualPages();
+
 protected: // AActor overrides
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

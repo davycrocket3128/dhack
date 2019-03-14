@@ -291,6 +291,11 @@ TArray<UPayloadAsset*> APeacenetWorldStateActor::GetAllPayloads()
 	return this->Payloads;
 }
 
+TArray<FManualPage> APeacenetWorldStateActor::GetManualPages()
+{
+	return this->ManualPages;
+}
+
 // Called when the game starts or when spawned
 void APeacenetWorldStateActor::BeginPlay()
 {
