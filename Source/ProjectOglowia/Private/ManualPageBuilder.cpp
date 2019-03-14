@@ -29,32 +29,41 @@
  *
  ********************************************************************************/
 
-#pragma once
+#include "ManualPageBuilder.h"
 
-#include "CoreMinimal.h"
-#include "Engine/DataAsset.h"
-#include "ExploitClassification.h"
-#include "Text.h"
-#include "Exploit.generated.h"
-
-UCLASS(Blueprintable, BlueprintType)
-class PROJECTOGLOWIA_API UExploit : public UDataAsset
+void UManualPageBuilder::SetID(FName InManualID)
 {
-    GENERATED_BODY()
+    this->ManualPage.ID = InManualID;
+}
 
-public:
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Metadata")
-    FText Name;
+void UManualPageBuilder::SetFullName(const FText& InFullName)
+{
+    this->ManualPage.FullName = InFullName;
+}
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Metadata")
-    FText Description;
+void UManualPageBuilder::SetSummary(const FText& InSummary)
+{
+    this->ManualPage.Summary = InSummary;
+}
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Unlocks")
-    bool UnlockedByDefault = true;
+void UManualPageBuilder::SetMetadata(const FText& InMetaName, const FText& InMetaContent)
+{
+    for(auto& Metadata : this->ManualPage.ManualMetadata)
+    {
+        if(Metadata.Title.EqualTo(InMetaName))
+        {
+            Metadata.Content = InMetaContent;
+            return;
+        }
+    }
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Attributes")
-    EExploitClassification ExploitClassification = EExploitClassification::BufferExploit;
+    FManualMetadata NewMeta;
+    NewMeta.Title = InMetaName;
+    NewMeta.Content = InMetaContent;
+    this->ManualPage.ManualMetadata.Add(NewMeta);
+}
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Attributes")
-    TArray<UProtocolVersion*> Targets;
-};
+FManualPage UManualPageBuilder::GetManualPage()
+{
+    return this->ManualPage;
+}

@@ -32,29 +32,33 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/DataAsset.h"
-#include "ExploitClassification.h"
 #include "Text.h"
-#include "Exploit.generated.h"
+#include "TextProperty.h"
+#include "ManualPage.h"
+#include "ManualPageBuilder.generated.h"
 
-UCLASS(Blueprintable, BlueprintType)
-class PROJECTOGLOWIA_API UExploit : public UDataAsset
+UCLASS()
+class PROJECTOGLOWIA_API UManualPageBuilder : public UObject
 {
     GENERATED_BODY()
 
+private:
+    UPROPERTY()
+    FManualPage ManualPage;
+
 public:
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Metadata")
-    FText Name;
+    UFUNCTION()
+    void SetID(FName InManualID);
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Metadata")
-    FText Description;
+    UFUNCTION()
+    void SetFullName(const FText& InFullName);
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Unlocks")
-    bool UnlockedByDefault = true;
+    UFUNCTION()
+    void SetSummary(const FText& InSummary);
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Attributes")
-    EExploitClassification ExploitClassification = EExploitClassification::BufferExploit;
+    UFUNCTION()
+    void SetMetadata(const FText& InMetaName, const FText& InMetaContent);
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Attributes")
-    TArray<UProtocolVersion*> Targets;
+    UFUNCTION()
+    FManualPage GetManualPage();
 };
