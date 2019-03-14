@@ -191,7 +191,7 @@ public:	// Functions
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Network Map")
 	bool ScanForServices(FString InIPAddress, TArray<FFirewallRule>& OutRules);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	TArray<FManualPage> GetManualPages();
 
 protected: // AActor overrides
