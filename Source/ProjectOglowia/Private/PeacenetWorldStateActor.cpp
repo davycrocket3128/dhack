@@ -11,6 +11,7 @@
 #include "UMarkovTrainingDataAsset.h"
 #include "CommandInfo.h"
 #include "TerminalCommand.h"
+#include "ManualPageAssetBase.h"
 #include "PayloadAsset.h"
 #include "Async.h"
 #include "Exploit.h"
@@ -294,6 +295,14 @@ TArray<UPayloadAsset*> APeacenetWorldStateActor::GetAllPayloads()
 void APeacenetWorldStateActor::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Load all the manual pages.
+	TArray<UManualPageAssetBase*> ManualAssets;
+	this->LoadAssets<UManualPageAssetBase>("ManualPageAssetBase", ManualAssets);
+	for(auto ManualAsset : ManualAssets)
+	{
+		this->ManualPages.Add(ManualAsset->GetManualPage());
+	}
 
 	// Load computer services in.
 	this->LoadAssets<UComputerService>("ComputerService", this->ComputerServices);

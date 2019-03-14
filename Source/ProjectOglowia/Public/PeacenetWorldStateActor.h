@@ -37,6 +37,7 @@
 #include "UDesktopWidget.h"
 #include "EConnectionError.h"
 #include "AssetRegistry/Public/IAssetRegistry.h"
+#include "ManualPage.h"
 #include "AssetRegistry/Public/AssetRegistryModule.h"
 #include "EGovernmentAlertStatus.h"
 #include "UPeacenetSaveGame.h"
@@ -81,6 +82,9 @@ private: // Properties
 
 	UPROPERTY()
 	TArray<UComputerService*> ComputerServices;
+
+	UPROPERTY()
+	TArray<FManualPage> ManualPages;
 
 	UPROPERTY()
 	UProceduralGenerationEngine* Procgen;
