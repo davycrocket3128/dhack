@@ -532,6 +532,77 @@ bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, 
 	return true;
 }
 
+void UPeacegateFileSystem::SetFileRecord(FString InPath, EFileRecordType RecordType, int ContentID)
+{
+	if (InPath.EndsWith(TEXT("/")))
+		return;
+
+	if (DirectoryExists(InPath))
+		return;
+	
+	FString FolderPath;
+	FString FileName;
+
+	if (!InPath.Split(TEXT("/"), &FolderPath, &FileName, ESearchCase::IgnoreCase, ESearchDir::FromEnd))
+		return;
+
+	if (!DirectoryExists(FolderPath))
+		return;
+
+	FString ResolvedPath = ResolveToAbsolute(FolderPath);
+	TArray<FString> Parts;
+	ResolvedPath.ParseIntoArray(Parts, TEXT("/"), true);
+	UFolderNavigator* Navigator = this->Root;
+
+	for (auto& Part : Parts)
+	{
+		if (Navigator->SubFolders.Contains(Part))
+		{
+			Navigator = Navigator->SubFolders[Part];
+		}
+		else {
+			return;
+		}
+	}
+
+	FFolder Folder = GetFolderByID(Navigator->FolderIndex);
+
+	bool FoundFile = false;
+
+	for (int RecordID : Folder.FileRecords)
+	{
+		for(auto& File : this->SystemContext->GetComputer().FileRecords)
+		{
+			if(File.ID == RecordID && File.Name == FileName)
+			{
+				// Set the record type and content ID of the file.
+				File.RecordType = RecordType;
+				File.ContentID = ContentID;
+
+				FoundFile = true;
+				break;
+			}
+		}
+	}
+
+	if (!FoundFile)
+	{
+		FFileRecord NewFile;
+		NewFile.ID = this->GetNextFileRecordID();
+		NewFile.Name = FileName;
+		NewFile.RecordType = RecordType;
+		NewFile.ContentID = ContentID;
+
+		this->SystemContext->GetComputer().FileRecords.Add(NewFile);
+
+		Folder.FileRecords.Add(NewFile.ID);
+	}
+
+	SetFolderByID(Navigator->FolderIndex, Folder);
+
+	FilesystemOperation.Broadcast(EFilesystemEventType::WriteFile, ResolvedPath + TEXT("/") + FileName);
+}
+
 bool UPeacegateFileSystem::GetDirectories(const FString & InPath, TArray<FString>& OutDirectories, EFilesystemStatusCode& OutStatusCode)
 {
 	// used for logging

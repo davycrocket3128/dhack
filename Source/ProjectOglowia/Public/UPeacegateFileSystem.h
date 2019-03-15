@@ -155,6 +155,9 @@ public:
 	UFUNCTION()
 	void UpdateFileRecord(FFileRecord InRecord);
 
+	UFUNCTION()
+	void SetFileRecord(FString InPath, EFileRecordType RecordType, int ContentID);
+
 public:
 	UFUNCTION(BlueprintCallable, Category="Filesystem")
 	static bool IsValidAsFileName(const FString& InFileName);
