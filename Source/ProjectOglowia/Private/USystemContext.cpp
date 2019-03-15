@@ -295,7 +295,7 @@ bool USystemContext::TryGetTerminalCommand(FName CommandName, ATerminalCommand *
 	FRotator Rotation(0.0f, 0.0f, 0.0f);
  	FActorSpawnParameters SpawnInfo;
 
-	OutCommand = this->GetPeacenet()->GetWorld()->SpawnActor<ATerminalCommand>(Info->Info.CommandClass, Location, Rotation, SpawnInfo);
+	OutCommand = this->GetPeacenet()->GetWorld()->SpawnActor<ATerminalCommand>(Info->CommandClass, Location, Rotation, SpawnInfo);
 
 	OutCommand->CommandInfo = Info;
 

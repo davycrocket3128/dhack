@@ -291,19 +291,16 @@ void APeacenetWorldStateActor::LoadTerminalCommands()
 
 	for (auto Command : Commands)
 	{
-		this->CommandInfo.Add(Command->Info.CommandName, Command);
+		this->CommandInfo.Add(Command->ID, Command);
 		}
 
 	for (auto Program : this->Programs)
 	{
-		// create manual pages for the programs as well.
-		FCommandInfoS Info;
-		Info.CommandName = Program->ID;
-		Info.Description = Program->Summary.ToString();
-
 		UCommandInfo* CoffeeIsCode = NewObject<UCommandInfo>();
 
-		CoffeeIsCode->Info = Info;
+		CoffeeIsCode->ID = Program->ID;
+		CoffeeIsCode->FullName = Program->FullName;
+		CoffeeIsCode->Summary = Program->Summary;
 		CoffeeIsCode->UnlockedByDefault = Program->IsUnlockedByDefault;
 		
 		this->CommandInfo.Add(Program->ID, CoffeeIsCode);

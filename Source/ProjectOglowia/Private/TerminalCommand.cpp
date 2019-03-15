@@ -50,14 +50,14 @@ void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Ar
 {
 	this->CommandName = Argv[0];
 	this->Console = InConsole;	
-	this->ProcessID = this->Console->GetUserContext()->StartProcess(this->CommandInfo->Info.CommandName.ToString(), this->CommandInfo->Info.CommandName.ToString());
+	this->ProcessID = this->Console->GetUserContext()->StartProcess(this->CommandInfo->ID.ToString(), this->CommandInfo->FullName.ToString());
 
 	Argv.RemoveAt(0);
 
-	if(this->CommandInfo->Info.UsageStrings.Num())
+	if(this->CommandInfo->UsageStrings.Num())
 	{
 		FString Usage = "usage: ";
-		for(auto UsageString : this->CommandInfo->Info.UsageStrings)
+		for(auto UsageString : this->CommandInfo->UsageStrings)
 		{
 			Usage += "\n    " + this->CommandName + " " + UsageString;
 		}
