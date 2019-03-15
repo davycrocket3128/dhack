@@ -492,21 +492,31 @@ bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, 
 			return false;
 		}
 
-		// Remove the file at the found index. I'm not wasting CPU cycles comparing file structures.
-		ParentFolder.FileRecords.RemoveAt(FileIndex);
+		// If the file record is a text file we must remove the text file.
+		if(FileToDelete.RecordType == EFileRecordType::Text)
+		{
+			for(int i = 0; i < this->SystemContext->GetComputer().TextFiles.Num(); i++)
+			{
+				if(this->SystemContext->GetComputer().TextFiles[i].ID == FileToDelete.ContentID)
+				{
+					this->SystemContext->GetComputer().TextFiles.RemoveAt(i);
+					break;
+				}
+			}
+		}
 
-		// Get the record ID of the deleted file.
-		int RecordID = FileToDelete.ID;
-
-		// Go through every record in the computer.  If the ID matches, it gets removed.
+		// Now we remove the file record itself from the save file.
 		for(int i = 0; i < this->SystemContext->GetComputer().FileRecords.Num(); i++)
 		{
-			if(this->SystemContext->GetComputer().FileRecords[i].ID == RecordID)
+			if(this->SystemContext->GetComputer().FileRecords[i].ID == FileToDelete.ID)
 			{
 				this->SystemContext->GetComputer().FileRecords.RemoveAt(i);
 				break;
 			}
 		}
+
+		// Remove the file at the found index. I'm not wasting CPU cycles comparing file structures.
+		ParentFolder.FileRecords.RemoveAt(FileIndex);
 
 		// Update the FS.
 		SetFolderByID(ParentNav->FolderIndex, ParentFolder);
@@ -815,6 +825,8 @@ bool UPeacegateFileSystem::MoveFile(const FString & Source, const FString & Dest
 		// Overwrite the destination file.
 		DestFile.RecordType = SourceFile.RecordType;
 		DestFile.ContentID = SourceFile.ContentID;
+
+		this->UpdateFileRecord(DestFile);
 	}
 	else 
 	{
@@ -829,6 +841,16 @@ bool UPeacegateFileSystem::MoveFile(const FString & Source, const FString & Dest
 
 		// add to destination folder
 		DestFolder.FileRecords.Add(DestFile.ID);
+	}
+
+	// We need to remove the file record of the original file from the save game.
+	for(int i = 0; i < this->SystemContext->GetComputer().FileRecords.Num(); i++)
+	{
+		if(this->SystemContext->GetComputer().FileRecords[i].ID == SourceFile.ID)
+		{
+			this->SystemContext->GetComputer().FileRecords.RemoveAt(i);
+			break;
+		}
 	}
 
 	// remove source file from source folder
@@ -934,6 +956,18 @@ bool UPeacegateFileSystem::MoveFolder(const FString & Source, const FString & De
 	return true;
 }
 
+void UPeacegateFileSystem::UpdateFileRecord(FFileRecord InRecord)
+{
+	// This ensures that a file record is successfully updated in the save file.
+	for(int i = 0; i < this->SystemContext->GetComputer().FileRecords.Num(); i++)
+	{
+		if(this->SystemContext->GetComputer().FileRecords[i].ID == InRecord.ID)
+		{
+			this->SystemContext->GetComputer().FileRecords[i] = InRecord;
+			return;
+		}
+	}
+}
 
 bool UPeacegateFileSystem::CopyFile(const FString & Source, const FString & Destination, const bool InOverwrite, EFilesystemStatusCode & OutStatusCode)
 {
@@ -1028,6 +1062,8 @@ bool UPeacegateFileSystem::CopyFile(const FString & Source, const FString & Dest
 
 			// And this re-assigns the file content ID!
 			DestFile.ContentID = TextFile.ID;
+
+			this->UpdateFileRecord(DestFile);
 		}
 		else
 		{

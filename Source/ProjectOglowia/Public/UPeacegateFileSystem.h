@@ -152,6 +152,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Filesystem")
 	bool CopyFile(const FString& Source, const FString& Destination, const bool InOverwrite, EFilesystemStatusCode& OutStatusCode);
 
+	UFUNCTION()
+	void UpdateFileRecord(FFileRecord InRecord);
+
 public:
 	UFUNCTION(BlueprintCallable, Category="Filesystem")
 	static bool IsValidAsFileName(const FString& InFileName);

@@ -46,7 +46,7 @@ AHackCommand::AHackCommand()
 
 void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArguments)
 {
-    UConsoleContext* Console = this->GetConsole();
+    UConsoleContext* MyConsole = this->GetConsole();
 
     if(InCommandName == "exit")
     {
@@ -66,25 +66,25 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
 
         TArray<FString> ExploitNames;
     
-        Console->WriteLine("\t&FAvailable exploits");
-        Console->WriteLine("\t--------------------&7\n");
+        MyConsole->WriteLine("\t&FAvailable exploits");
+        MyConsole->WriteLine("\t--------------------&7\n");
 
         bool FoundExploit = false;
 
-        for(auto Exploit : Console->GetUserContext()->GetExploits())
+        for(auto Exploit : MyConsole->GetUserContext()->GetExploits())
         {
             FString ExploitName = Exploit->ID.ToString();
             if(SearchQuery.Len() == 0 || ExploitName.Contains(SearchQuery, ESearchCase::IgnoreCase))
             {
                 FoundExploit = true;
-                Console->WriteLine("\t" + ExploitName);
+                MyConsole->WriteLine("\t" + ExploitName);
             }
         }
 
         if(!FoundExploit)
-            Console->WriteLine("\t&4No exploits found matching that query.&7");
+            MyConsole->WriteLine("\t&4No exploits found matching that query.&7");
 
-        Console->WriteLine("");
+        MyConsole->WriteLine("");
         return;
     }
 
@@ -100,25 +100,25 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
 
         TArray<FString> ExploitNames;
     
-        Console->WriteLine("\t&FAvailable payloads");
-        Console->WriteLine("\t--------------------&7\n");
+        MyConsole->WriteLine("\t&FAvailable payloads");
+        MyConsole->WriteLine("\t--------------------&7\n");
 
         bool FoundExploit = false;
 
-        for(auto Exploit : Console->GetUserContext()->GetPayloads())
+        for(auto Exploit : MyConsole->GetUserContext()->GetPayloads())
         {
             FString ExploitName = Exploit->Name.ToString();
             if(SearchQuery.Len() == 0 || ExploitName.Contains(SearchQuery, ESearchCase::IgnoreCase))
             {
                 FoundExploit = true;
-                Console->WriteLine("\t" + ExploitName);
+                MyConsole->WriteLine("\t" + ExploitName);
             }
         }
 
         if(!FoundExploit)
-            Console->WriteLine("\t&4No payloads found matching that query.&7");
+            MyConsole->WriteLine("\t&4No payloads found matching that query.&7");
 
-        Console->WriteLine("");
+        MyConsole->WriteLine("");
         return;
     }
 
@@ -126,7 +126,7 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
     {
         if(!InArguments.Num())
         {
-            Console->WriteLine("&4&*error:&r too few arguments given. Do you want to use an exploit or payload?&7");
+            MyConsole->WriteLine("&4&*error:&r too few arguments given. Do you want to use an exploit or payload?&7");
             return;
         }
 
@@ -142,64 +142,64 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
         
         if(ItemType == "exploit")
         {
-            for(auto Exploit : Console->GetUserContext()->GetExploits())
+            for(auto Exploit : MyConsole->GetUserContext()->GetExploits())
             {
                 if(Exploit->ID.ToString() == ExploitName)
                 {
-                    Console->WriteLine("Using exploit &F" + Exploit->FullName.ToString() + "&7.");
+                    MyConsole->WriteLine("Using exploit &F" + Exploit->FullName.ToString() + "&7.");
                     this->CurrentExploit = Exploit;
                     return;
                 }
             }
 
-            Console->WriteLine("&4&*error:&r exploit doesn't exist.&7");
+            MyConsole->WriteLine("&4&*error:&r exploit doesn't exist.&7");
             return;
         }
         else if(ItemType == "payload")
         {
-            for(auto Exploit : Console->GetUserContext()->GetPayloads())
+            for(auto Exploit : MyConsole->GetUserContext()->GetPayloads())
             {
                 if(Exploit->Name.ToString() == ExploitName)
                 {
-                    Console->WriteLine("Using payload &F" + ExploitName + "&7.");
+                    MyConsole->WriteLine("Using payload &F" + ExploitName + "&7.");
                     this->CurrentPayload = Exploit;
                     return;
                 }
             }
 
-            Console->WriteLine("&4&*error:&r payload doesn't exist.&7");
+            MyConsole->WriteLine("&4&*error:&r payload doesn't exist.&7");
             return;
         }
         else
         {
-            Console->WriteLine("&4&*error:&r Invalid item type: &7" + ItemType);
+            MyConsole->WriteLine("&4&*error:&r Invalid item type: &7" + ItemType);
             return;
         }
     }
 
     if(InCommandName == "scan")
     {
-        Console->WriteLine("Performing Nmap scan on remote system...");
-        Console->WriteLine("");
-        Console->WriteLine("PORT\t\tSTATUS\tSERVICE");
-        Console->WriteLine("-----\t\t-------\t--------");
-        Console->WriteLine("");
+        MyConsole->WriteLine("Performing Nmap scan on remote system...");
+        MyConsole->WriteLine("");
+        MyConsole->WriteLine("PORT\t\tSTATUS\tSERVICE");
+        MyConsole->WriteLine("-----\t\t-------\t--------");
+        MyConsole->WriteLine("");
         this->RemoteSystem->GetPeacenet()->GetProcgen()->GenerateFirewallRules(this->RemoteSystem->GetComputer());
         for(auto Service : this->RemoteSystem->GetComputer().FirewallRules)
         {
-            Console->Write(FString::FromInt(Service.Port));
-            Console->Write("\t\t");
+            MyConsole->Write(FString::FromInt(Service.Port));
+            MyConsole->Write("\t\t");
 
             if(Service.IsFiltered)
             {
-                Console->Write("&4filtered&7");
+                MyConsole->Write("&4filtered&7");
             }
             else
             {
-                Console->Write("&3open&7");
+                MyConsole->Write("&3open&7");
             }
-            Console->Write("\t");
-            Console->WriteLine(Service.Service->Name.ToString());
+            MyConsole->Write("\t");
+            MyConsole->WriteLine(Service.Service->Name.ToString());
         }
         return;
     }
@@ -208,19 +208,19 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
     {
         if(!InArguments.Num())
         {
-            Console->WriteLine("&4&*error:&r too few arguments. You must specify a port to attack.&7");
+            MyConsole->WriteLine("&4&*error:&r too few arguments. You must specify a port to attack.&7");
             return;
         }
 
         if(!this->CurrentExploit)
         {
-            Console->WriteLine("&4&*error:&r You must select an exploit to use first.&7");
+            MyConsole->WriteLine("&4&*error:&r You must select an exploit to use first.&7");
             return;
         }
 
         if(!this->CurrentPayload)
         {
-            Console->WriteLine("&4&*error:&r You must select a payload to use first.&7");
+            MyConsole->WriteLine("&4&*error:&r You must select a payload to use first.&7");
             return;
         }
 
@@ -228,11 +228,11 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
         int RealPort = FCString::Atoi(*EnteredPort);
         if(!RealPort && EnteredPort != "0")
         {
-            Console->WriteLine("&4&*error:&r Port is not a number.&7");
+            MyConsole->WriteLine("&4&*error:&r Port is not a number.&7");
             return;
         }
 
-        Console->WriteLine("Finding service on &3" + EnteredHostname + "&7:&6" + EnteredPort + "&7...");
+        MyConsole->WriteLine("Finding service on &3" + EnteredHostname + "&7:&6" + EnteredPort + "&7...");
 
         this->HandleCommand("scan", InArguments);
 
@@ -240,32 +240,32 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
         {
             if(Service.Port == RealPort)
             {
-                Console->WriteLine("Service is &F" + Service.Service->Name.ToString() + "&7.");
+                MyConsole->WriteLine("Service is &F" + Service.Service->Name.ToString() + "&7.");
 
                 if(Service.IsFiltered)
                 {
-                    Console->WriteLine("Service is &4&*FILTERED&r&7! Can't continue with exploit.");
+                    MyConsole->WriteLine("Service is &4&*FILTERED&r&7! Can't continue with exploit.");
                     return;
                 }
 
-                Console->WriteLine("Service is &3OPEN&7.");
+                MyConsole->WriteLine("Service is &3OPEN&7.");
 
                 if(this->CurrentExploit->Targets.Contains(Service.Service))
                 {
-                    Console->WriteLine("Service is &3&*vulnerable&r&7 to the &6&*" + this->CurrentExploit->FullName.ToString() + "&r&7 exploit.");
+                    MyConsole->WriteLine("Service is &3&*vulnerable&r&7 to the &6&*" + this->CurrentExploit->FullName.ToString() + "&r&7 exploit.");
 
-                    Console->WriteLine("Deploying &4&*" + this->CurrentPayload->Name.ToString() + "&r&7...");
+                    MyConsole->WriteLine("Deploying &4&*" + this->CurrentPayload->Name.ToString() + "&r&7...");
 
-                    UUserContext* PayloadUser = this->RemoteSystem->GetHackerContext(0, Console->GetUserContext());
+                    UUserContext* PayloadUser = this->RemoteSystem->GetHackerContext(0, MyConsole->GetUserContext());
 
-                    this->CurrentPayload->Payload->DeployPayload(Console->GetUserContext(), PayloadUser);
+                    this->CurrentPayload->Payload->DeployPayload(MyConsole->GetUserContext(), PayloadUser);
 
                     this->HandleCommand("exit", InArguments);
                     return;
                 }
                 else
                 {
-                    Console->WriteLine("Service is &4&*not vulnerable&r&7 to this exploit. Cannot drop payload.");
+                    MyConsole->WriteLine("Service is &4&*not vulnerable&r&7 to this exploit. Cannot drop payload.");
                     return;
                 }
             }
