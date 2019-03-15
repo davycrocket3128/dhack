@@ -532,6 +532,46 @@ bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, 
 	return true;
 }
 
+FFileRecord UPeacegateFileSystem::GetFileRecord(FString InPath)
+{
+	// used for logging.
+	FString ResolvedPath;
+
+	// retrieve path parts.
+	TArray<FString> Parts = GetPathParts(InPath, ResolvedPath);
+
+	// If path part list is empty, don't read.
+	if (Parts.Num() == 0)
+	{
+		return FFileRecord();
+	}
+
+	// Folder navigator to look up when finding the file.
+	UFolderNavigator* ParentNav = nullptr;
+
+	if (!TraversePath(Parts, Parts.Num() - 1, ParentNav))
+	{
+		return FFileRecord();
+	}
+
+	// File name is always last part in path.
+	FString FileName = Parts[Parts.Num() - 1];
+
+	// Grab the folder data for the parent.
+	FFolder Parent = GetFolderByID(ParentNav->FolderIndex);
+
+	// Places to store found file info
+	FFileRecord FoundFile;
+	int FoundIndex;
+
+	if (!GetFile(Parent, FileName, FoundIndex, FoundFile))
+	{
+		return FFileRecord();
+	}
+
+	return FoundFile;
+}
+
 void UPeacegateFileSystem::SetFileRecord(FString InPath, EFileRecordType RecordType, int ContentID)
 {
 	if (InPath.EndsWith(TEXT("/")))
