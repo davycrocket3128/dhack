@@ -722,18 +722,6 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 		}
 	}
 
-	// Make all programs show in /bin.
-	TArray<UPeacegateProgramAsset*> InstalledPrograms = this->GetInstalledPrograms();
-
-	for(int i = 0; i < this->GetPeacenet()->Programs.Num(); i++)
-	{
-		UPeacegateProgramAsset* ProgramAsset = this->GetPeacenet()->Programs[i];
-		if(ProgramAsset->IsUnlockedByDefault || InstalledPrograms.Contains(ProgramAsset))
-		{
-			fs->SetFileRecord("/bin/" + ProgramAsset->ID.ToString(), EFileRecordType::Program, i);
-		}
-	}
-
 	// Now we'll get all the installed terminal commands to show in /bin.
 	TArray<UCommandInfo*> InstalledCommands = this->GetInstalledCommands();
 	TArray<FName> CommandKeys;
@@ -745,6 +733,19 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 		if(CommandInfo->UnlockedByDefault || InstalledCommands.Contains(CommandInfo))
 		{
 			fs->SetFileRecord("/bin/" + CommandInfo->ID.ToString(), EFileRecordType::Command, i);
+		}
+	}
+
+
+	// Make all programs show in /bin.
+	TArray<UPeacegateProgramAsset*> InstalledPrograms = this->GetInstalledPrograms();
+
+	for(int i = 0; i < this->GetPeacenet()->Programs.Num(); i++)
+	{
+		UPeacegateProgramAsset* ProgramAsset = this->GetPeacenet()->Programs[i];
+		if(ProgramAsset->IsUnlockedByDefault || InstalledPrograms.Contains(ProgramAsset))
+		{
+			fs->SetFileRecord("/bin/" + ProgramAsset->ID.ToString(), EFileRecordType::Program, i);
 		}
 	}
 }

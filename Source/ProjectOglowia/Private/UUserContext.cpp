@@ -238,6 +238,28 @@ bool UUserContext::OpenFile(const FString& InPath, EFileOpenResult& OutResult)
 		return false;
 	}
 
+	// Can we open the file as a program?
+	FFileRecord Record = this->GetFilesystem()->GetFileRecord(InPath);
+	if(Record.RecordType == EFileRecordType::Program)
+	{
+		int ProgramIndex = Record.ContentID;
+		if(this->GetPeacenet()->Programs.Num() > ProgramIndex)
+		{
+			UPeacegateProgramAsset* ProgramAsset = this->GetPeacenet()->Programs[ProgramIndex];
+			// TODO: Shouldn't the CreateProgram function deal with this internally?
+			TSubclassOf<UWindow> WindowClass = this->GetPeacenet()->WindowClass;
+
+			UWindow* NewWindow;
+			UProgram* NewProgram = UProgram::CreateProgram(WindowClass, ProgramAsset->ProgramClass, this, NewWindow, ProgramAsset->ID.ToString());
+
+			NewWindow->WindowTitle = ProgramAsset->FullName;
+			NewWindow->Icon = ProgramAsset->AppLauncherItem.Icon;
+			NewWindow->EnableMinimizeAndMaximize = ProgramAsset->EnableMinimizeAndMaximize;
+
+			return true;
+		}
+	}
+
 	FString Path;
 	FString Extension;
 	if (!InPath.Split(TEXT("."), &Path, &Extension, ESearchCase::IgnoreCase, ESearchDir::FromEnd))
