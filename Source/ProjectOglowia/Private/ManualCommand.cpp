@@ -34,7 +34,7 @@
 void AManualCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
 {
     // Get the name of the manual page to find.
-    FString ManualName = this->ArgumentMap["<manualName>"]->AsString();
+    FString ManualName = this->ArgumentMap["<manualPage>"]->AsString();
 
     // List of "likely wanted" pages in case one isn't found.
     TArray<FManualPage> LikelyPages;
