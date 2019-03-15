@@ -91,8 +91,9 @@ FReply UPTerminalWidget::NativeOnMouseMove( const FGeometry& InGeometry, const F
 		{
 			SelectionEnd = end;
 		}
+		return FReply::Handled().SetUserFocus(this->TakeWidget());
 	}
-	return FReply::Handled().SetUserFocus(this->TakeWidget());
+	return FReply::Unhandled();
 }
 
 int UPTerminalWidget::GetCharIndexAtPosition(const FGeometry InGeometry, FVector2D InPosition)
