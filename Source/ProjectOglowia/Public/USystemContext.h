@@ -33,7 +33,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FComputer.h"
+#include "Computer.h"
 #include "UPeacegateFileSystem.h"
 #include "UserInfo.h"
 #include "FPeacenetIdentity.h"

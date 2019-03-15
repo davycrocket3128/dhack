@@ -38,7 +38,7 @@
 #include "FCharacterRelationship.h"
 #include "UDesktopWidget.h"
 #include "FAdjacentNode.h"
-#include "FComputer.h"
+#include "Computer.h"
 #include "UWindow.h"
 #include "AdjacentLinkType.h"
 #include "FEntityPosition.h"

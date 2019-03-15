@@ -33,7 +33,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FComputer.h"
+#include "Computer.h"
 #include "FPeacenetIdentity.h"
 #include "UMarkovTrainingDataAsset.h"
 #include "ECountry.h"

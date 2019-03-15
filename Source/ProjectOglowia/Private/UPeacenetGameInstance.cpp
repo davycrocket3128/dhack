@@ -34,9 +34,10 @@
 #include "UGameTypeAsset.h"
 #include "PeacenetWorldStateActor.h"
 #include "UPeacenetSaveGame.h"
-#include "FComputer.h"
+#include "Computer.h"
 #include "CommonUtils.h"
-#include "FFolder.h"
+#include "FileUtilities.h"
+#include "Folder.h"
 #include "Base64.h"
 #include "FPeacenetIdentity.h"
 #include "AssetRegistry/Public/IAssetRegistry.h"
@@ -85,12 +86,20 @@ void UPeacenetGameInstance::CreateWorld(FString InCharacterName, UPeacenetGameTy
 	EtcFolder.IsReadOnly = false;
 
 	// Add a file called "hostname" inside this folder.
-	FFile HostnameFile;
-	HostnameFile.FileName = "hostname";
-	HostnameFile.FileContent = FBase64::Encode(Hostname);
+	FFileRecord HostnameFile;
+	HostnameFile.ID = 0;
+	HostnameFile.Name = "hostname";
+	HostnameFile.RecordType = EFileRecordType::Text;
+	HostnameFile.ContentID = 0;
+
+	FTextFile HostnameTextFile;
+	HostnameTextFile.ID = 0;
+	HostnameTextFile.Content = Hostname;
+	PlayerComputer.TextFiles.Add(HostnameTextFile);
+	PlayerComputer.FileRecords.Add(HostnameFile);
 
 	// Write the file to the etc folder.
-	EtcFolder.Files.Add(HostnameFile);
+	EtcFolder.FileRecords.Add(HostnameFile.ID);
 
 	// Write the folder to the computer FS.
 	PlayerComputer.Filesystem.Add(EtcFolder);

@@ -33,7 +33,7 @@
 #include "UDesktopWidget.h"
 #include "PeacenetWorldStateActor.h"
 #include "USystemContext.h"
-#include "FComputer.h"
+#include "Computer.h"
 #include "UUserContext.h"
 #include "PTerminalWidget.h"
 #include "UGameTypeAsset.h"

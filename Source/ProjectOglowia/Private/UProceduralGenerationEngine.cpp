@@ -733,12 +733,20 @@ FComputer& UProceduralGenerationEngine::GenerateComputer(FString InHostname, ECo
     Etc.ParentID = 0;
 
     // Write the hostname to a file.
-    FFile HostnameFile;
-    HostnameFile.FileName = "hostname";
-    HostnameFile.FileContent = FBase64::Encode(InHostname);
+    FFileRecord HostnameFile;
+    HostnameFile.ID = 0;
+    HostnameFile.Name = "hostname";
+    HostnameFile.RecordType = EFileRecordType::Text;
+    HostnameFile.ContentID = 0;
+
+    FTextFile HostnameText;
+    HostnameText.ID = 0;
+    HostnameText.Content = InHostname;
+    Ret.TextFiles.Add(HostnameText);
+    Ret.FileRecords.Add(HostnameFile);
 
     // Write the file in /etc.
-    Etc.Files.Add(HostnameFile);
+    Etc.FileRecords.Add(HostnameFile.ID);
 
     // Link up the three folders to the root.
     Root.SubFolders.Add(RootHome.FolderID);

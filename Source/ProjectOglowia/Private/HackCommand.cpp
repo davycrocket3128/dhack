@@ -33,7 +33,7 @@
 #include "EConnectionError.h"
 #include "FFirewallRule.h"
 #include "PayloadAsset.h"
-#include "FComputer.h"
+#include "Computer.h"
 #include "UProceduralGenerationEngine.h"
 #include "ProtocolVersion.h"
 #include "TerminalCommandParserLibrary.h"

@@ -32,18 +32,39 @@
 
 #include "UPeacegateFileSystem.h"
 #include "Base64.h"
+#include "FileUtilities.h"
 #include "USystemContext.h"
 
-bool UPeacegateFileSystem::GetFile(FFolder Parent, FString FileName, int & Index, FFile & File)
+TArray<FFileRecord> UPeacegateFileSystem::GetFileRecords(FFolder& Folder)
 {
-	for (int i = 0; i < Parent.Files.Num(); i++)
+	TArray<FFileRecord> Records;
+	for(auto RecordID : Folder.FileRecords)
 	{
-		FFile F = Parent.Files[i];
-		if (F.FileName == FileName)
+		for(auto& Record : this->SystemContext->GetComputer().FileRecords)
 		{
-			File = F;
-			Index = i;
-			return true;
+			if(Record.ID == RecordID)
+			{
+				Records.Add(Record);
+			}
+		}
+	}
+	return Records;
+}
+
+bool UPeacegateFileSystem::GetFile(FFolder Parent, FString FileName, int & Index, FFileRecord & File)
+{
+	for (int i = 0; i < Parent.FileRecords.Num(); i++)
+	{
+		int fileID = Parent.FileRecords[i];
+
+		for(auto& record : this->SystemContext->GetComputer().FileRecords)
+		{
+			if(record.ID == fileID && record.Name == FileName)
+			{
+				File = record;
+				Index = i;
+				return true;
+			}
 		}
 	}
 
@@ -379,9 +400,9 @@ bool UPeacegateFileSystem::FileExists(const FString InPath)
 
 	FFolder FileParent = GetFolderByID(Navigator->FolderIndex);
 
-	for (auto& FileRecord : FileParent.Files)
+	for (auto& FileRecord : this->GetFileRecords(FileParent))
 	{
-		if (FileRecord.FileName == Filename)
+		if (FileRecord.Name == Filename)
 			return true;
 
 	}
@@ -461,7 +482,7 @@ bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, 
 
 		// Info about the file
 		int FileIndex;
-		FFile FileToDelete;
+		FFileRecord FileToDelete;
 
 		// Try to find the file.
 		if (!GetFile(ParentFolder, Filename, FileIndex, FileToDelete))
@@ -472,7 +493,20 @@ bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, 
 		}
 
 		// Remove the file at the found index. I'm not wasting CPU cycles comparing file structures.
-		ParentFolder.Files.RemoveAt(FileIndex);
+		ParentFolder.FileRecords.RemoveAt(FileIndex);
+
+		// Get the record ID of the deleted file.
+		int RecordID = FileToDelete.ID;
+
+		// Go through every record in the computer.  If the ID matches, it gets removed.
+		for(int i = 0; i < this->SystemContext->GetComputer().FileRecords.Num(); i++)
+		{
+			if(this->SystemContext->GetComputer().FileRecords[i].ID == RecordID)
+			{
+				this->SystemContext->GetComputer().FileRecords.RemoveAt(i);
+				break;
+			}
+		}
 
 		// Update the FS.
 		SetFolderByID(ParentNav->FolderIndex, ParentFolder);
@@ -539,13 +573,40 @@ bool UPeacegateFileSystem::GetFiles(const FString & InPath, TArray<FString>& Out
 	FFolder Folder = GetFolderByID(Navigator->FolderIndex);
 
 	// loop through each file
-	for (FFile File : Folder.Files)
+	for (FFileRecord File : this->GetFileRecords(Folder))
 	{
-		OutFiles.Add(ResolvedPath + TEXT("/") + File.FileName);
+		OutFiles.Add(ResolvedPath + TEXT("/") + File.Name);
 	}
 
 	return true;
 }
+
+int UPeacegateFileSystem::GetNextFileRecordID()
+{
+	int ID = 0;
+	for(auto& Record : this->SystemContext->GetComputer().FileRecords)
+	{
+		if(Record.ID >= ID)
+		{
+			ID = Record.ID + 1;
+		}
+	}
+	return ID;
+}
+
+int UPeacegateFileSystem::GetNextTextFileID()
+{
+	int ID = 0;
+	for(auto& Record : this->SystemContext->GetComputer().TextFiles)
+	{
+		if(Record.ID >= ID)
+		{
+			ID = Record.ID + 1;
+		}
+	}
+	return ID;
+}
+
 
 void UPeacegateFileSystem::WriteText(const FString & InPath, const FString & InText)
 {
@@ -584,101 +645,64 @@ void UPeacegateFileSystem::WriteText(const FString & InPath, const FString & InT
 
 	bool FoundFile = false;
 
-	for (int i = 0; i < Folder.Files.Num(); i++)
+	for (int RecordID : Folder.FileRecords)
 	{
-		FFile File = Folder.Files[i];
-
-		if (File.FileName == FileName)
+		for(auto& File : this->SystemContext->GetComputer().FileRecords)
 		{
-			File.FileContent = FBase64::Encode(InText);
-			Folder.Files[i] = File;
-			FoundFile = true;
-			break;
-		}
-	}
-
-	if (!FoundFile)
-	{
-		FFile NewFile;
-		NewFile.FileName = FileName;
-		NewFile.FileContent = FBase64::Encode(InText);
-		Folder.Files.Add(NewFile);
-	}
-
-	SetFolderByID(Navigator->FolderIndex, Folder);
-
-	FilesystemOperation.Broadcast(EFilesystemEventType::WriteFile, ResolvedPath + TEXT("/") + FileName);
-}
-
-void UPeacegateFileSystem::WriteBinary(const FString & InPath, TArray<uint8> InBinary)
-{
-	if (InPath.EndsWith(TEXT("/")))
-		return;
-
-	if (DirectoryExists(InPath))
-		return;
-
-	FString FolderPath;
-	FString FileName;
-
-	if (!InPath.Split(TEXT("/"), &FolderPath, &FileName, ESearchCase::IgnoreCase, ESearchDir::FromEnd))
-		return;
-
-	if (!DirectoryExists(FolderPath))
-		return;
-
-	FString ResolvedPath = ResolveToAbsolute(FolderPath);
-	TArray<FString> Parts;
-	ResolvedPath.ParseIntoArray(Parts, TEXT("/"), true);
-	UFolderNavigator* Navigator = this->Root;
-
-	for (auto& Part : Parts)
-	{
-		if (Navigator->SubFolders.Contains(Part))
-		{
-			Navigator = Navigator->SubFolders[Part];
-		}
-		else {
-			return;
-		}
-	}
-
-	FFolder Folder = GetFolderByID(Navigator->FolderIndex);
-
-	bool FoundFile = false;
-
-	for (int i = 0; i < Folder.Files.Num(); i++)
-	{
-		FFile File = Folder.Files[i];
-
-		if (File.FileName == FileName)
-		{
-			FString FileContentB64 = FBase64::Encode(InBinary);
-			if (FileContentB64 == File.FileContent)
+			if(File.ID == RecordID && File.Name == FileName)
 			{
-				// Return. The file's the exact same.
-				return;
+				if(File.RecordType != EFileRecordType::Text)
+				{
+					File.RecordType = EFileRecordType::Text;
+				
+					FTextFile NewTextFile;
+					NewTextFile.ID = this->GetNextTextFileID();
+
+					File.ContentID = NewTextFile.ID;
+					NewTextFile.Content = InText;
+					
+					this->SystemContext->GetComputer().TextFiles.Add(NewTextFile);
+				}
+				else
+				{
+					for(auto& TextFile : this->SystemContext->GetComputer().TextFiles)
+					{
+						if(TextFile.ID == File.ContentID)
+						{
+							TextFile.Content = InText;
+						}
+					}
+				}
+				FoundFile = true;
+				break;
 			}
-			File.FileContent = FileContentB64;
-			Folder.Files[i] = File;
-			FoundFile = true;
-			break;
 		}
 	}
 
 	if (!FoundFile)
 	{
-		FFile NewFile;
-		NewFile.FileName = FileName;
-		NewFile.FileContent = FBase64::Encode(InBinary);
-		Folder.Files.Add(NewFile);
+		FFileRecord NewFile;
+		NewFile.ID = this->GetNextFileRecordID();
+		NewFile.Name = FileName;
+		NewFile.RecordType = EFileRecordType::Text;
+
+		FTextFile TextFile;
+		TextFile.ID = this->GetNextTextFileID();
+		TextFile.Content = InText;
+
+		this->SystemContext->GetComputer().TextFiles.Add(TextFile);
+
+		NewFile.ContentID = TextFile.ID;
+
+		this->SystemContext->GetComputer().FileRecords.Add(NewFile);
+
+		Folder.FileRecords.Add(NewFile.ID);
 	}
 
 	SetFolderByID(Navigator->FolderIndex, Folder);
 
 	FilesystemOperation.Broadcast(EFilesystemEventType::WriteFile, ResolvedPath + TEXT("/") + FileName);
 }
-
 
 bool UPeacegateFileSystem::ReadText(const FString & InPath, FString& OutText, EFilesystemStatusCode& OutStatusCode)
 {
@@ -712,7 +736,7 @@ bool UPeacegateFileSystem::ReadText(const FString & InPath, FString& OutText, EF
 	FFolder Parent = GetFolderByID(ParentNav->FolderIndex);
 
 	// Places to store found file info
-	FFile FoundFile;
+	FFileRecord FoundFile;
 	int FoundIndex;
 
 	if (!GetFile(Parent, FileName, FoundIndex, FoundFile))
@@ -724,54 +748,16 @@ bool UPeacegateFileSystem::ReadText(const FString & InPath, FString& OutText, EF
 
 	OutStatusCode = EFilesystemStatusCode::OK;
 	// File contents are in base 64.
-	FBase64::Decode(FoundFile.FileContent, OutText);
-	return true;
-}
-
-bool UPeacegateFileSystem::ReadBinary(const FString& InPath, TArray<uint8>& OutBinary, EFilesystemStatusCode& OutStatusCode)
-{
-	// used for logging.
-	FString ResolvedPath;
-
-	// retrieve path parts.
-	TArray<FString> Parts = GetPathParts(InPath, ResolvedPath);
-
-	// If path part list is empty, don't read.
-	if (Parts.Num() == 0)
+	if(FoundFile.RecordType == EFileRecordType::Text)
 	{
-		OutStatusCode = EFilesystemStatusCode::PermissionDenied;
-		return false;
+		for(auto& TextFile : this->SystemContext->GetComputer().TextFiles)
+		{
+			if(TextFile.ID == FoundFile.ContentID)
+			{
+				OutText = TextFile.Content;
+			}
+		}
 	}
-
-	// Folder navigator to look up when finding the file.
-	UFolderNavigator* ParentNav = nullptr;
-
-	if (!TraversePath(Parts, Parts.Num() - 1, ParentNav))
-	{
-		// File's parent wasn't found.
-		OutStatusCode = EFilesystemStatusCode::FileOrDirectoryNotFound;
-		return false;
-	}
-
-	// File name is always last part in path.
-	FString FileName = Parts[Parts.Num() - 1];
-
-	// Grab the folder data for the parent.
-	FFolder Parent = GetFolderByID(ParentNav->FolderIndex);
-
-	// Places to store found file info
-	FFile FoundFile;
-	int FoundIndex;
-
-	if (!GetFile(Parent, FileName, FoundIndex, FoundFile))
-	{
-		// File not found.
-		OutStatusCode = EFilesystemStatusCode::FileOrDirectoryNotFound;
-		return false;
-	}
-
-	// File contents are in base 64.
-	FBase64::Decode(FoundFile.FileContent, OutBinary);
 	return true;
 }
 
@@ -805,8 +791,8 @@ bool UPeacegateFileSystem::MoveFile(const FString & Source, const FString & Dest
 
 	int SourceFileIndex;
 	int DestFileIndex;
-	FFile SourceFile;
-	FFile DestFile;
+	FFileRecord SourceFile;
+	FFileRecord DestFile;
 
 	FString SourceName = SourceParts[SourceParts.Num() - 1];
 	FString DestName = DestParts[DestParts.Num() - 1];
@@ -827,24 +813,26 @@ bool UPeacegateFileSystem::MoveFile(const FString & Source, const FString & Dest
 		}
 
 		// Overwrite the destination file.
-		DestFile.FileContent = SourceFile.FileContent;
-	
-		// overwrite the file in the destination folder
-		DestFolder.Files[DestFileIndex] = DestFile;
+		DestFile.RecordType = SourceFile.RecordType;
+		DestFile.ContentID = SourceFile.ContentID;
 	}
 	else 
 	{
 		// Allocate a new destination file
-		DestFile = FFile();
-		DestFile.FileName = DestName;
-		DestFile.FileContent = SourceFile.FileContent;
+		DestFile = FFileRecord();
+		DestFile.ID = this->GetNextFileRecordID();
+		DestFile.Name = DestName;
+		DestFile.RecordType = SourceFile.RecordType;
+		DestFile.ContentID = SourceFile.ContentID;
+
+		this->SystemContext->GetComputer().FileRecords.Add(DestFile);
 
 		// add to destination folder
-		DestFolder.Files.Add(DestFile);
+		DestFolder.FileRecords.Add(DestFile.ID);
 	}
 
 	// remove source file from source folder
-	SourceFolder.Files.RemoveAt(SourceFileIndex);
+	SourceFolder.FileRecords.RemoveAt(SourceFileIndex);
 
 	// update FS
 	SetFolderByID(SourceNav->FolderIndex, SourceFolder);
@@ -977,8 +965,8 @@ bool UPeacegateFileSystem::CopyFile(const FString & Source, const FString & Dest
 
 	int SourceFileIndex;
 	int DestFileIndex;
-	FFile SourceFile;
-	FFile DestFile;
+	FFileRecord SourceFile;
+	FFileRecord DestFile;
 
 	FString SourceName = SourceParts[SourceParts.Num() - 1];
 	FString DestName = DestParts[DestParts.Num() - 1];
@@ -998,21 +986,98 @@ bool UPeacegateFileSystem::CopyFile(const FString & Source, const FString & Dest
 			return false;
 		}
 
-		// Overwrite the destination file.
-		DestFile.FileContent = SourceFile.FileContent;
+		// If the destination file is a text file then we need to remove that
+		// text file entry.
+		if(DestFile.RecordType == EFileRecordType::Text)
+		{
+			for(int i = 0; i < this->SystemContext->GetComputer().TextFiles.Num(); i++)
+			{
+				if(this->SystemContext->GetComputer().TextFiles[i].ID == DestFile.ContentID)
+				{
+					this->SystemContext->GetComputer().TextFiles.RemoveAt(i);
+				}
+			}
+		}
 
-		// overwrite the file in the destination folder
-		DestFolder.Files[DestFileIndex] = DestFile;
+		// Copy over the record types.
+		DestFile.RecordType = SourceFile.RecordType;
+
+		// If the source file is a text file then we need to create a new text file
+		// entry and use that as the destination content ID.  Otherwise, we'll get
+		// an issue where overwriting the destination content overwrites the source
+		// content.  If it's not a text file, we can just copy the content ID over
+		// because anything that isn't text is a UE4 asset (which the player can't write to).
+		if(SourceFile.RecordType == EFileRecordType::Text)
+		{
+			// This creates the new entry ID.
+			FTextFile TextFile;
+			TextFile.ID = this->GetNextTextFileID();
+			
+			// Now we need to read the text of the source file to copy it over.
+			for(auto SourceText : this->SystemContext->GetComputer().TextFiles)
+			{
+				if(SourceText.ID == SourceFile.ContentID)
+				{
+					// Copy over the text.
+					TextFile.Content =  SourceText.Content;
+				}
+			}
+
+			// This actually adds the content to the save file.
+			this->SystemContext->GetComputer().TextFiles.Add(TextFile);
+
+			// And this re-assigns the file content ID!
+			DestFile.ContentID = TextFile.ID;
+		}
+		else
+		{
+			// Just copy over the content ID.
+			DestFile.ContentID = SourceFile.ContentID;
+		}
 	}
 	else
 	{
 		// Allocate a new destination file
-		DestFile = FFile();
-		DestFile.FileName = DestName;
-		DestFile.FileContent = SourceFile.FileContent;
+		DestFile = FFileRecord();
+		DestFile.ID = this->GetNextFileRecordID();
+		DestFile.Name = DestName;
+		DestFile.RecordType = SourceFile.RecordType;
+
+		// Just like above, we need to handle copying over text differently
+		// than other content types.
+		if(SourceFile.RecordType == EFileRecordType::Text)
+		{
+			// This creates the new entry ID.
+			FTextFile TextFile;
+			TextFile.ID = this->GetNextTextFileID();
+			
+			// Now we need to read the text of the source file to copy it over.
+			for(auto SourceText : this->SystemContext->GetComputer().TextFiles)
+			{
+				if(SourceText.ID == SourceFile.ContentID)
+				{
+					// Copy over the text.
+					TextFile.Content =  SourceText.Content;
+				}
+			}
+
+			// This actually adds the content to the save file.
+			this->SystemContext->GetComputer().TextFiles.Add(TextFile);
+
+			// And this re-assigns the file content ID!
+			DestFile.ContentID = TextFile.ID;
+		}
+		else
+		{
+			// Just copy over the content ID.
+			DestFile.ContentID = SourceFile.ContentID;
+		}
+
+		// Writes the destination file record to the save file.
+		this->SystemContext->GetComputer().FileRecords.Add(DestFile);
 
 		// add to destination folder
-		DestFolder.Files.Add(DestFile);
+		DestFolder.FileRecords.Add(DestFile.ID);
 	}
 
 	// update FS

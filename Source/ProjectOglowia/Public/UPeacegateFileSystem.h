@@ -33,8 +33,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FFolder.h"
-#include "FComputer.h"
+#include "Folder.h"
+#include "FileRecord.h"
+#include "Computer.h"
 #include "UPeacegateFileSystem.generated.h"
 
 class USystemContext;
@@ -94,6 +95,15 @@ public:
 	int UserID = 0;
 	
 public:
+	UFUNCTION()
+	TArray<FFileRecord> GetFileRecords(FFolder& InFolder);
+
+	UFUNCTION()
+	int GetNextFileRecordID();
+
+	UFUNCTION()
+	int GetNextTextFileID();
+
 	void BuildFolderNavigator();
 
 	UFUNCTION(BlueprintCallable, Category = "Filesystem")
@@ -131,13 +141,7 @@ public:
 	void WriteText(const FString& InPath, const FString& InText);
 
 	UFUNCTION(BlueprintCallable, Category = "Filesystem")
-	void WriteBinary(const FString& InPath, TArray<uint8> InBinary);
-
-	UFUNCTION(BlueprintCallable, Category = "Filesystem")
 	bool ReadText(const FString& InPath, FString& OutText, EFilesystemStatusCode& OutStatusCode);
-
-	UFUNCTION(BlueprintCallable, Category = "Filesystem")
-	bool ReadBinary(const FString& InPath, TArray<uint8>& OutBinary, EFilesystemStatusCode& OutStatusCode);
 
 	UFUNCTION(BlueprintCallable, Category = "Filesystem")
 	bool MoveFile(const FString& Source, const FString& Destination, const bool InOverwrite, EFilesystemStatusCode& OutStatusCode);
@@ -156,7 +160,7 @@ public:
 	static bool IsValidAsUserName(const FString& InUserName);
 
 private:
-	bool GetFile(FFolder Parent, FString FileName, int& Index, FFile& File);
+	bool GetFile(FFolder Parent, FString FileName, int& Index, FFileRecord& File);
 
 	void RecursiveDelete(FFolder& InFolder);
 
