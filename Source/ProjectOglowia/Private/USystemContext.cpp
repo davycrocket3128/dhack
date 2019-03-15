@@ -665,6 +665,11 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	if(!fs->DirectoryExists("/home"))
 		fs->CreateDirectory("/home", fsStatus);
 
+	// Create the bin directory - which actually means something now.
+	if(!fs->DirectoryExists("/bin"))
+		fs->CreateDirectory("/bin", fsStatus);
+
+
 	// Go through every user on the system.
 	for(auto& user : this->GetComputer().Users)
 	{
@@ -714,6 +719,32 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 		{
 			if(!this->GetComputer().Exploits.Contains(exploit))
 				this->GetComputer().Exploits.Add(exploit);
+		}
+	}
+
+	// Make all programs show in /bin.
+	TArray<UPeacegateProgramAsset*> InstalledPrograms = this->GetInstalledPrograms();
+
+	for(int i = 0; i < this->GetPeacenet()->Programs.Num(); i++)
+	{
+		UPeacegateProgramAsset* ProgramAsset = this->GetPeacenet()->Programs[i];
+		if(ProgramAsset->IsUnlockedByDefault || InstalledPrograms.Contains(ProgramAsset))
+		{
+			fs->SetFileRecord("/bin/" + ProgramAsset->ID.ToString(), EFileRecordType::Program, i);
+		}
+	}
+
+	// Now we'll get all the installed terminal commands to show in /bin.
+	TArray<UCommandInfo*> InstalledCommands = this->GetInstalledCommands();
+	TArray<FName> CommandKeys;
+	this->GetPeacenet()->CommandInfo.GetKeys(CommandKeys);
+	
+	for(int i = 0; i < CommandKeys.Num(); i++)
+	{
+		UCommandInfo* CommandInfo = this->GetPeacenet()->CommandInfo[CommandKeys[i]];
+		if(CommandInfo->UnlockedByDefault || InstalledCommands.Contains(CommandInfo))
+		{
+			fs->SetFileRecord("/bin/" + CommandInfo->ID.ToString(), EFileRecordType::Command, i);
 		}
 	}
 }

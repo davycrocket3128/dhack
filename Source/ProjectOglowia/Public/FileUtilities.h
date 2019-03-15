@@ -34,12 +34,6 @@ public:
 		Root.SubFolders = TArray<int>();
 		Root.FileRecords = TArray<int>();
 
-        FFolder Binaries;
-        Binaries.FolderID = 1;
-        Binaries.FolderName = "bin";
-        Root.SubFolders.Add(Binaries.FolderID);
-
 		InFilesystem.Add(Root);
-        InFilesystem.Add(Binaries);
 	}
 };
