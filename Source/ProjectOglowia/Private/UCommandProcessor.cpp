@@ -34,7 +34,9 @@
 #include "USystemContext.h"
 #include "CommonUtils.h"
 #include "URedirectedConsoleContext.h"
+#include "CommandInfo.h"
 #include "UPiperContext.h"
+#include "UGraphicalTerminalCommand.h"
 #include "UUserContext.h"
 #include "TerminalCommand.h"
 #include "TerminalCommandParserLibrary.h"
@@ -112,7 +114,51 @@ TArray<FCommandRunInstruction> UCommandProcessor::ProcessCommand(UConsoleContext
 
 
 		ATerminalCommand* CommandImpl = nullptr;
-		if (InConsole->GetUserContext()->GetOwningSystem()->TryGetTerminalCommand(FName(*Name), CommandImpl, InternalUsage, FriendlyUsage))
+		
+		UPeacegateFileSystem* UserFilesystem = InConsole->GetUserContext()->GetFilesystem();
+
+		if(UserFilesystem->FileExists(Name))
+		{
+			FFileRecord Record = UserFilesystem->GetFileRecord(Name);
+			if(Record.RecordType == EFileRecordType::Command)
+			{
+				TArray<FName> CommandKeys;
+				InConsole->GetUserContext()->GetPeacenet()->CommandInfo.GetKeys(CommandKeys);
+
+				if(Record.ContentID < CommandKeys.Num())
+				{
+					UCommandInfo* Info = InConsole->GetUserContext()->GetPeacenet()->CommandInfo[CommandKeys[Record.ContentID]];
+ 					FVector Location(0.0f, 0.0f, 0.0f);
+					FRotator Rotation(0.0f, 0.0f, 0.0f);
+ 					FActorSpawnParameters SpawnInfo;
+
+					CommandImpl = InConsole->GetUserContext()->GetPeacenet()->GetWorld()->SpawnActor<ATerminalCommand>(Info->CommandClass, Location, Rotation, SpawnInfo);
+
+					CommandImpl->CommandInfo = Info;
+				}
+			}
+			else if(Record.RecordType == EFileRecordType::Program)
+			{
+				if(Record.ContentID < InConsole->GetUserContext()->GetPeacenet()->Programs.Num())
+				{
+					UPeacegateProgramAsset* ProgramAsset = InConsole->GetUserContext()->GetPeacenet()->Programs[Record.ContentID];
+					FVector Location(0.0f, 0.0f, 0.0f);
+		 			FRotator Rotation(0.0f, 0.0f, 0.0f);
+ 					FActorSpawnParameters SpawnInfo;
+
+					AGraphicalTerminalCommand* GraphicalCommand = InConsole->GetUserContext()->GetPeacenet()->GetWorld()->SpawnActor<AGraphicalTerminalCommand>(Location, Rotation, SpawnInfo);
+					GraphicalCommand->ProgramAsset = ProgramAsset;
+					GraphicalCommand->CommandInfo = InConsole->GetUserContext()->GetPeacenet()->CommandInfo[ProgramAsset->ID];
+					CommandImpl = GraphicalCommand;
+				}
+			}
+		}
+		else if (InConsole->GetUserContext()->GetOwningSystem()->TryGetTerminalCommand(FName(*Name), CommandImpl, InternalUsage, FriendlyUsage))
+		{
+			// Stub.
+		}
+
+		if(CommandImpl)
 		{
 			FCommandRunInstruction NewInst;
 			NewInst.Arguments = Tokens;
