@@ -99,7 +99,7 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Desktop")
-	UProgram* SpawnProgramFromClass(TSubclassOf<UProgram> InClass, const FText& InTitle, UTexture2D* InIcon);
+	UProgram* SpawnProgramFromClass(TSubclassOf<UProgram> InClass, const FText& InTitle, UTexture2D* InIcon, bool InEnableMinimizeMaximize);
 
 protected:
 	UFUNCTION(BlueprintImplementableEvent)

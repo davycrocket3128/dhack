@@ -58,7 +58,7 @@ USystemContext* UDesktopWidget::GetSystemContext()
 	return this->SystemContext;
 }
 
-UProgram * UDesktopWidget::SpawnProgramFromClass(TSubclassOf<UProgram> InClass, const FText& InTitle, UTexture2D* InIcon)
+UProgram * UDesktopWidget::SpawnProgramFromClass(TSubclassOf<UProgram> InClass, const FText& InTitle, UTexture2D* InIcon, bool InEnableMinimizeMaximize)
 {
 	UWindow* OutputWindow = nullptr;
 
@@ -66,7 +66,7 @@ UProgram * UDesktopWidget::SpawnProgramFromClass(TSubclassOf<UProgram> InClass, 
 
 	OutputWindow->WindowTitle = InTitle;
 	OutputWindow->Icon = InIcon;
-	OutputWindow->EnableMinimizeAndMaximize = false;
+	OutputWindow->EnableMinimizeAndMaximize = InEnableMinimizeMaximize;
 
 	return Program;
 }
