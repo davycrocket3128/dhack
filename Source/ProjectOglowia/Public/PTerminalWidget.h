@@ -34,7 +34,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "ETerminalColor.h"
+#include "TerminalColor.h"
 #include "Engine/Font.h"
 #include "ThreadSafeBool.h"
 #include "Fonts/SlateFontInfo.h"

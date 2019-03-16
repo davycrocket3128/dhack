@@ -290,6 +290,29 @@ bool UUserContext::OpenFile(const FString& InPath, EFileOpenResult& OutResult)
 	return true;
 }
 
+ETerminalColor UUserContext::GetUserColor()
+{
+	for(auto& User : this->GetOwningSystem()->GetComputer().Users)
+	{
+		if(User.ID == this->UserID)
+		{
+			return User.UserColor;
+		}
+	}
+	return ETerminalColor::Green;
+}
+
+void UUserContext::SetUserColor(ETerminalColor InColor)
+{
+	for(auto& User : this->GetOwningSystem()->GetComputer().Users)
+	{
+		if(User.ID == this->UserID)
+		{
+			User.UserColor = InColor;
+		}
+	}
+}
+
 TArray<UWallpaperAsset*> UUserContext::GetAvailableWallpapers()
 {
 	return this->GetOwningSystem()->GetAvailableWallpapers();

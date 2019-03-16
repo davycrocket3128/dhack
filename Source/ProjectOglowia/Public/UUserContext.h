@@ -37,6 +37,7 @@
 #include "EFileOpenResult.h"
 #include "UserInfo.h"
 #include "FPeacegateProcess.h"
+#include "TerminalColor.h"
 #include "FAdjacentNodeInfo.h"
 #include "UUserContext.generated.h"
 
@@ -160,6 +161,12 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
     bool IsAdministrator();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
+    ETerminalColor GetUserColor();
+
+    UFUNCTION(BlueprintCallable, Category = "User Context")
+    void SetUserColor(ETerminalColor InColor);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Process List")
     FString GetProcessUsername(FPeacegateProcess InProcess);

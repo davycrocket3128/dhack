@@ -35,7 +35,7 @@
 #include "CoreMinimal.h"
 #include "UPeacegateFileSystem.h"
 #include "SlateFontInfo.h"
-#include "ETerminalColor.h"
+#include "TerminalColor.h"
 #include "EFileOpenResult.h"
 #include "Camera/CameraComponent.h"
 #include "CommonUtils.generated.h"

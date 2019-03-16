@@ -36,7 +36,7 @@
 #include "PTerminalWidget.h"
 #include "PeacenetWorldStateActor.h"
 #include "UPeacegateFileSystem.h"
-#include "ETerminalColor.h"
+#include "TerminalColor.h"
 #include "UConsoleContext.generated.h"
 
 class UUserContext;
