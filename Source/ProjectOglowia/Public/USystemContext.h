@@ -147,6 +147,10 @@ public: // Property getters
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Context")
 	TArray<UPeacegateProgramAsset*> GetInstalledPrograms();
 
+private:
+	UFUNCTION()
+	void AppendLog(FString InLogText);
+
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Process List")
 	TArray<FPeacegateProcess> GetRunningProcesses();

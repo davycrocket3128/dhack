@@ -661,6 +661,14 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	// Any FS errors are reported here.
 	EFilesystemStatusCode fsStatus = EFilesystemStatusCode::OK;
 
+	// Create the logfile directories.
+	if(!fs->DirectoryExists("/var"))
+		fs->CreateDirectory("/var", fsStatus);
+
+	if(!fs->DirectoryExists("/var/log"))
+		fs->CreateDirectory("/var/log", fsStatus);
+
+
 	// Create /home if it doesn't exist.
 	if(!fs->DirectoryExists("/home"))
 		fs->CreateDirectory("/home", fsStatus);
@@ -748,6 +756,23 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 			fs->SetFileRecord("/bin/" + ProgramAsset->ID.ToString(), EFileRecordType::Program, i);
 		}
 	}
+}
+
+void USystemContext::AppendLog(FString InLogText)
+{
+	FString ExistingLog = "";
+	UPeacegateFileSystem* FS = this->GetFilesystem(0);
+	EFilesystemStatusCode EatMyFuckingBurger;
+	if(FS->FileExists("/var/log/system.log"))
+		FS->ReadText("/var/log/system.log", ExistingLog, EatMyFuckingBurger);
+
+	ExistingLog = ExistingLog.TrimStartAndEnd();
+
+	ExistingLog += "\r\n[" + this->GetTimeOfDay().ToString() + "] " + InLogText;
+
+	ExistingLog = ExistingLog.TrimStartAndEnd();
+
+	FS->WriteText("/var/log/system.log", ExistingLog);
 }
 
 TArray<FPeacegateProcess> USystemContext::GetRunningProcesses()
