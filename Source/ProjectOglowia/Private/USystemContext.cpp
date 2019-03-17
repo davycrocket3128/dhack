@@ -505,6 +505,8 @@ void USystemContext::SetupDesktop(int InUserID)
 {
 	check(!this->GetDesktop());
 
+	this->AppendLog("Beginning desktop session - uid: " + FString::FromInt(InUserID));
+
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetPeacenet()->GetWorld(), 0);
 
 	this->Desktop = CreateWidget<UDesktopWidget, APlayerController>(PlayerController, this->GetPeacenet()->DesktopClass);
@@ -548,6 +550,8 @@ void USystemContext::HandleFileSystemEvent(EFilesystemEventType InType, FString 
 			EFilesystemStatusCode err;
 			fs->ReadText("/etc/hostname", this->CurrentHostname, err);
 			CurrentHostname = ReadFirstLine(CurrentHostname);
+
+			this->AppendLog("Hostname changed to " + CurrentHostname);
 		}
 		break;
 	}
@@ -570,10 +574,10 @@ void USystemContext::HandleFileSystemEvent(EFilesystemEventType InType, FString 
 		}
 
 		// Does peacegate.log not exist?
-		if (!RootFS->FileExists("/var/log/peacegate.log"))
+		if (!RootFS->FileExists("/var/log/system.log"))
 		{
 			// write blank log.
-			RootFS->WriteText("/var/log/peacegate.log", "");
+			RootFS->WriteText("/var/log/system.log", "");
 		}
 
 	}
@@ -668,6 +672,10 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	if(!fs->DirectoryExists("/var/log"))
 		fs->CreateDirectory("/var/log", fsStatus);
 
+	this->AppendLog("System online.");
+	this->AppendLog("Welcome to Peacegate OS.");
+	this->AppendLog("IDENTITY: " + this->GetCharacter().CharacterName);
+	this->AppendLog("IP ADDRESS: " + this->GetIPAddress());
 
 	// Create /home if it doesn't exist.
 	if(!fs->DirectoryExists("/home"))
@@ -692,6 +700,8 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 		{
 			fs->CreateDirectory(home, fsStatus);
 			generateLoots = true;
+
+			this->AppendLog("Creating home directory " + home + " for user " + user.Username);
 		}
 
 		// These sub-directories are important too.
@@ -756,6 +766,9 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 			fs->SetFileRecord("/bin/" + ProgramAsset->ID.ToString(), EFileRecordType::Program, i);
 		}
 	}
+
+	// Scan for adjacent identities so the player doesn't have to.
+	this->ScanForAdjacentNodes();
 }
 
 void USystemContext::AppendLog(FString InLogText)
@@ -795,6 +808,9 @@ int USystemContext::StartProcess(FString Name, FString FilePath, int UserID)
 	NewProcess.ProcessName = Name;
 	NewProcess.FilePath = FilePath;
 	this->Processes.Add(NewProcess);
+
+	this->AppendLog("Process started - pid " + FString::FromInt(NewPID) + " - uid " + FString::FromInt(UserID) + " - name " + Name);
+
 	return NewProcess.PID;
 }
 
@@ -806,6 +822,7 @@ void USystemContext::FinishProcess(int ProcessID)
 		if(p.PID == ProcessID)
 		{
 			this->Processes.RemoveAt(i);
+			this->AppendLog("Process " + FString::FromInt(ProcessID) + " killed.");
 			return;
 		}
 	}
