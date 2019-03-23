@@ -64,9 +64,13 @@ void ANonPlayerIntelligence::Tick(float DeltaTime)
         while(Counter > 0 && this->Peacenet->SaveGame->Characters[Index].CharacterType != EIdentityType::NonPlayer)
         {
             FPeacenetIdentity& Identity = this->Peacenet->SaveGame->Characters[Index];
+            
             if(Identity.CharacterType == EIdentityType::NonPlayer)
             {
-                Counter -= this->Peacenet->GetProcgen()->GetRNG().RandRange(1, 10);
+                if(this->Peacenet->SaveGame->GetAdjacents(Identity.ID, EAdjacentLinkType::AToB).Num())
+                {
+                    Counter -= this->Peacenet->GetProcgen()->GetRNG().RandRange(1, 10);
+                }
             }
             
             Index++;

@@ -766,8 +766,12 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 		}
 	}
 
-	// Scan for adjacent identities so the player doesn't have to.
-	this->ScanForAdjacentNodes();
+	// If we are a player, auto-scan for adjacent nodes so the player desktop gets populated.
+	if(this->GetCharacter().CharacterType == EIdentityType::Player)
+	{
+		// Scan for adjacent identities so the player doesn't have to.
+		this->ScanForAdjacentNodes();
+	}
 }
 
 void USystemContext::AppendLog(FString InLogText)
