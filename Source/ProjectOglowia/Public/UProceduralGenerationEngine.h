@@ -68,6 +68,9 @@ private:
     UMarkovChain* MaleNameGenerator;
 
     UPROPERTY()
+    UMarkovChain* UsernameGenerator;
+
+    UPROPERTY()
     UMarkovChain* FemaleNameGenerator;
 
     UPROPERTY()

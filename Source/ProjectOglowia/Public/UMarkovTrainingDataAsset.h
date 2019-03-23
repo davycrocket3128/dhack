@@ -44,7 +44,8 @@ enum class EMarkovTrainingDataUsage : uint8
 	FemaleFirstNames,
 	LastNames,
 	Hostnames,
-	FileNames
+	FileNames,
+	Usernames
 };
 
 /**

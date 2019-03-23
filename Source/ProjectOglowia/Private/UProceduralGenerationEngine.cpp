@@ -431,7 +431,16 @@ FPeacenetIdentity& UProceduralGenerationEngine::GenerateNonPlayerCharacter()
 
     FString Username;
     FString Hostname;
-    UCommonUtils::ParseCharacterName(CharacterName, Username, Hostname);
+
+    if(this->RNG.RandRange(0, 6) % 2)
+    {
+        UCommonUtils::ParseCharacterName(CharacterName, Username, Hostname);
+    }
+    else
+    {
+        Username = this->UsernameGenerator->GetMarkovString(0);
+        Hostname = Username + "-pc";
+    }
 
     FComputer& IdentityComputer = this->GenerateComputer(Hostname, EComputerType::Personal, EComputerOwnerType::NPC);
 
@@ -522,6 +531,12 @@ void UProceduralGenerationEngine::Initialize(APeacenetWorldStateActor* InPeacene
     this->FemaleNameGenerator->Init(this->GetMarkovData(EMarkovTrainingDataUsage::FemaleFirstNames), 3, RNG);
     this->LastNameGenerator->Init(this->GetMarkovData(EMarkovTrainingDataUsage::LastNames), 3, RNG);
     
+    // get username generator.
+    this->UsernameGenerator = NewObject<UMarkovChain>(this);
+
+    // initialize it.
+    this->UsernameGenerator->Init(this->GetMarkovData(EMarkovTrainingDataUsage::Usernames), 2, RNG);
+
     if(this->Peacenet->SaveGame->IsNewGame)
     {
         // PASS 1: GENERATE NPC IDENTITIES.
