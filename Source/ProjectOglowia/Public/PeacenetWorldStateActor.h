@@ -56,6 +56,7 @@ class UTerminalCommand;
 class UExploit;
 class UCommandInfo;
 class UPayloadAsset;
+class ANonPlayerIntelligence;
 class UWindow;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerSystemContextReadyEvent, USystemContext*, InSystemContext);
@@ -73,6 +74,9 @@ public: // Constructors
 private: // Properties
 	UPROPERTY()
 	TArray<UExploit*> Exploits;
+
+	UPROPERTY()
+	ANonPlayerIntelligence* NonPlayerIntelligence;
 
 	UPROPERTY()
 	TArray<UPayloadAsset*> Payloads;

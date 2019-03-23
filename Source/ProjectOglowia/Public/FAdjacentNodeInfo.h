@@ -33,7 +33,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ECountry.h"
 #include "FAdjacentNode.h"
 #include "FAdjacentNodeInfo.generated.h"
 
@@ -45,9 +44,6 @@ struct PROJECTOGLOWIA_API FAdjacentNodeInfo
 public:
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
     FString NodeName;
-
-    UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-    ECountry Country = ECountry::Oglowia;
 
     UPROPERTY()
     FAdjacentNode Link;

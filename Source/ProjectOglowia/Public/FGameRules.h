@@ -33,7 +33,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ECountry.h"
 #include "FGameRules.generated.h"
 
 USTRUCT(BlueprintType)
@@ -71,9 +70,6 @@ public:
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Game Rules")
     bool DoSkillProgression = true;
-
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Game Rules")
-	ECountry SpawnCountry = ECountry::Oglowia;
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Game Rules")
     int MaximumSkillLevel = 15;

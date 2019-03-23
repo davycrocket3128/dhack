@@ -93,9 +93,6 @@ void UMapWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
             if(!result) continue;
 
-            if(Identity.Country != this->OwningUser->GetOwningSystem()->GetCharacter().Country)
-                continue;
-
             UMapNodeContext* Context = this->GetContext(NodeID);
             if(!Context)
             {

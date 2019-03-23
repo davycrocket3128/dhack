@@ -304,13 +304,12 @@ void UPeacenetSaveGame::RemoveAdjacent(int NodeA, int NodeB)
 	}
 }
 
-TArray<int> UPeacenetSaveGame::GetAllEntitiesInCountry(ECountry InCountry)
+TArray<int> UPeacenetSaveGame::GetAllEntities()
 {
 	TArray<int> Ret;
 	for(auto& Identity : Characters)
 	{
-		if(Identity.Country == InCountry)
-			Ret.Add(Identity.ID);
+		Ret.Add(Identity.ID);
 	}
 	return Ret;
 }
@@ -344,7 +343,6 @@ void UPeacenetSaveGame::SetEntityPosition(int EntityID, FVector2D Position)
 
 	FEntityPosition NewPos;
 	NewPos.EntityID = EntityID;
-	NewPos.Country = Identity.Country;
 	NewPos.Position = Position;
 	EntityPositions.Add(NewPos);
 }
@@ -362,16 +360,13 @@ bool UPeacenetSaveGame::GetPosition(int EntityID, FVector2D& OutPosition)
 	return false;
 }
 
-bool UPeacenetSaveGame::LocationTooCloseToEntity(ECountry InCountry, FVector2D InLocation, float InMinimumDistance)
+bool UPeacenetSaveGame::LocationTooCloseToEntity(FVector2D InLocation, float InMinimumDistance)
 {
 	for(auto& Position : EntityPositions)
 	{
-		if(Position.Country == InCountry)
-		{
-			float dist = FMath::Abs(FVector2D::Distance(InLocation, Position.Position));
-			if(dist <= InMinimumDistance)
-				return true;
-		}
+		float dist = FMath::Abs(FVector2D::Distance(InLocation, Position.Position));
+		if(dist <= InMinimumDistance)
+			return true;
 	}
 	return false;
 }

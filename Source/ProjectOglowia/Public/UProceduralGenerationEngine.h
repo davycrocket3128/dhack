@@ -36,7 +36,6 @@
 #include "Computer.h"
 #include "FPeacenetIdentity.h"
 #include "UMarkovTrainingDataAsset.h"
-#include "ECountry.h"
 #include "RandomStream.h"
 #include "UProceduralGenerationEngine.generated.h"
 
@@ -109,11 +108,14 @@ public:
     FComputer& GenerateComputer(FString InHostname, EComputerType InComputerType, EComputerOwnerType InOwnerType);
 
     UFUNCTION()
-    FString GenerateIPAddress(ECountry InCountry);
+    FString GenerateIPAddress();
 
     UFUNCTION()
     void PlaceLootableFiles(UUserContext* InUserContext);
 
     UFUNCTION()
     void Initialize(APeacenetWorldStateActor* InPeacenet);
+
+    UFUNCTION()
+    FRandomStream& GetRNG();
 };

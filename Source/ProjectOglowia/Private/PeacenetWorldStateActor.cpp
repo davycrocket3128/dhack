@@ -35,6 +35,7 @@
 #include "UComputerService.h"
 #include "UHelpCommand.h"
 #include "UChatManager.h"
+#include "NonPlayerIntelligence.h"
 #include "WallpaperAsset.h"
 #include "UProceduralGenerationEngine.h"
 #include "UMarkovTrainingDataAsset.h"
@@ -272,7 +273,7 @@ FString APeacenetWorldStateActor::GetIPAddress(FComputer& InComputer)
 	{
 		if(Identity.ComputerID == InComputer.ID)
 		{
-			FString IP = this->Procgen->GenerateIPAddress(Identity.Country);
+			FString IP = this->Procgen->GenerateIPAddress();
 			this->SaveGame->ComputerIPMap.Add(IP, InComputer.ID);
 			return IP;
 		}
@@ -366,6 +367,14 @@ void APeacenetWorldStateActor::BeginPlay()
 
 	// Spin up the procedural generation engine.
 	this->Procgen = NewObject<UProceduralGenerationEngine>(this);
+
+	// Spawn in the NPC intelligence actor.
+	FVector Location(0.0f, 0.0f, 0.0f);
+	FRotator Rotation(0.0f, 0.0f, 0.0f);
+ 	FActorSpawnParameters SpawnInfo;
+
+	this->NonPlayerIntelligence = this->GetWorld()->SpawnActor<ANonPlayerIntelligence>(Location, Rotation, SpawnInfo);
+	this->NonPlayerIntelligence->LinkToPeacenet(this);
 }
 
 void APeacenetWorldStateActor::EndPlay(const EEndPlayReason::Type InReason)

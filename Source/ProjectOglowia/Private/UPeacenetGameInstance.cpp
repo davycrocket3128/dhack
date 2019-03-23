@@ -186,9 +186,6 @@ void UPeacenetGameInstance::CreateWorld(FString InCharacterName, UPeacenetGameTy
 	PlayerIdentity.Skill = 0;
 	PlayerIdentity.Reputation = 0.f;
 
-	// The game type's rules tells us what country to spawn this character in.
-	PlayerIdentity.Country = InGameType->GameRules.SpawnCountry;
-
 	// Add the character to the save file.
 	SaveGame->Characters.Add(PlayerIdentity);
 

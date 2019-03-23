@@ -33,7 +33,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ECountry.h"
 #include "FPeacenetIdentity.generated.h"
 
 /**
@@ -69,10 +68,7 @@ public:
 	int ComputerID;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float Reputation;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	ECountry Country;
+	float Reputation;	
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	EIdentityType CharacterType;

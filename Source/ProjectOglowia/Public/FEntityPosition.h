@@ -33,7 +33,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ECountry.h"
 #include "FEntityPosition.generated.h"
 
 USTRUCT(BlueprintType)
@@ -47,7 +46,4 @@ public:
 
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
     FVector2D Position;
-
-    UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-    ECountry Country;
 };

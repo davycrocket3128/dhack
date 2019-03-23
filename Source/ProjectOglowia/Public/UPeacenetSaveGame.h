@@ -95,9 +95,6 @@ public:
 	TArray<FName> Missions;
 
 	UPROPERTY(VisibleAnywhere, Category = "Procgen")
-	TMap<ECountry, uint8> CountryIPRanges;
-
-	UPROPERTY(VisibleAnywhere, Category = "Procgen")
 	TMap<FString, int> ComputerIPMap;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Master Password Table")
@@ -124,7 +121,7 @@ public:
 	TArray<int> GetAdjacents(int Node, EAdjacentLinkType LinkType = EAdjacentLinkType::Bidirectional);
 
 	UFUNCTION()
-	TArray<int> GetAllEntitiesInCountry(ECountry InCountry);
+	TArray<int> GetAllEntities();
 
 	UFUNCTION()
 	void AddAdjacent(int NodeA, int NodeB);
@@ -163,5 +160,5 @@ public:
 	int GetSkillOf(FComputer& InComputer);
 
 	UFUNCTION()
-	bool LocationTooCloseToEntity(ECountry InCountry, FVector2D InLocation, float InMinimumDistance);
+	bool LocationTooCloseToEntity(FVector2D InLocation, float InMinimumDistance);
 };

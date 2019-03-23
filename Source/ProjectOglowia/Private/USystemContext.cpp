@@ -193,7 +193,6 @@ TArray<FAdjacentNodeInfo> USystemContext::ScanForAdjacentNodes()
 	{
 		FAdjacentNodeInfo Node;
 		Node.NodeName = OtherIdentity.CharacterName;
-		Node.Country = OtherIdentity.Country;
 		Node.Link = FAdjacentNode();
 		Node.Link.NodeA = CharID;
 		Node.Link.NodeB = OtherIdentity.ID;

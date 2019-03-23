@@ -46,6 +46,11 @@
 #include "UMarkovChain.h"
 #include "PeacenetWorldStateActor.h"
 
+FRandomStream& UProceduralGenerationEngine::GetRNG()
+{
+    return this->RNG;
+}
+
 void UProceduralGenerationEngine::PlaceLootableFiles(UUserContext* InUserContext)
 {
     // If the system is a player, then we stop right now.
@@ -194,40 +199,11 @@ TArray<FString> UProceduralGenerationEngine::GetMarkovData(EMarkovTrainingDataUs
     return Ret;
 }
 
-FString UProceduralGenerationEngine::GenerateIPAddress(ECountry InCountry)
+FString UProceduralGenerationEngine::GenerateIPAddress()
 {
     uint8 Byte1, Byte2, Byte3, Byte4 = 0;
 
-    // First byte is the country range.
-    if(this->Peacenet->SaveGame->CountryIPRanges.Contains(InCountry))
-    {
-        Byte1 = this->Peacenet->SaveGame->CountryIPRanges[InCountry];
-    }
-    else
-    {
-        bool taken = false;
-
-        do
-        {
-            // Reset the taken value so that we don't infinite-loop.
-            taken = false;
-
-            // Generate a new one!
-            Byte1 = (uint8)RNG.RandRange(0, 255);
-
-            for(auto Elem : this->Peacenet->SaveGame->CountryIPRanges)
-            {
-                if(Elem.Value == Byte1)
-                {
-                    taken = true;
-                    break;
-                }
-            }
-
-        } while(taken);
-
-        this->Peacenet->SaveGame->CountryIPRanges.Add(InCountry, Byte1);
-    }
+    Byte1 = (uint8)RNG.RandRange(0, 255);
 
     // The other three are easy.
     Byte2 = (uint8)RNG.RandRange(0, 255);
@@ -322,25 +298,48 @@ void UProceduralGenerationEngine::ClearNonPlayerEntities()
 
 void UProceduralGenerationEngine::GenerateIdentityPosition(FPeacenetIdentity& Pivot, FPeacenetIdentity& Identity)
 {
+    const float MIN_DIST_FROM_PIVOT = 50.f;
+    const float MAX_DIST_FROM_PIVOT = 400.f;
+
+
     FVector2D Test;
     if(this->Peacenet->SaveGame->GetPosition(Identity.ID, Test))
         return;
 
     FVector2D PivotPos;
     bool PivotResult = this->Peacenet->SaveGame->GetPosition(Pivot.ID, PivotPos);
+
+    if(!PivotResult)
+    {
+        for(auto EntityID : this->Peacenet->SaveGame->GetAllEntities())
+        {
+            FVector2D PivotSquared; // the pivot point of the pivot's new position.
+            if(this->Peacenet->SaveGame->GetPosition(EntityID, PivotSquared))
+            {
+                PivotResult = true;
+
+                PivotPos = FVector2D(0.f, 0.f);
+                do
+                {
+                    PivotPos.X = PivotSquared.X + (RNG.FRandRange(MIN_DIST_FROM_PIVOT, MAX_DIST_FROM_PIVOT) - (MAX_DIST_FROM_PIVOT/2.f));
+                    PivotPos.Y = PivotSquared.Y + (RNG.FRandRange(MIN_DIST_FROM_PIVOT, MAX_DIST_FROM_PIVOT) - (MAX_DIST_FROM_PIVOT/2.f));
+                } while(this->Peacenet->SaveGame->LocationTooCloseToEntity(PivotPos, MIN_DIST_FROM_PIVOT));
+
+                this->Peacenet->SaveGame->SetEntityPosition(Pivot.ID, PivotPos);
+
+                break;
+            }
+        }
+    }
+
     check(PivotResult);
-
-    const float MIN_DIST_FROM_PIVOT = 50.f;
-    const float MAX_DIST_FROM_PIVOT = 400.f;
-
-
 
     FVector2D NewPos = FVector2D(0.f, 0.f);
     do
     {
         NewPos.X = PivotPos.X + (RNG.FRandRange(MIN_DIST_FROM_PIVOT, MAX_DIST_FROM_PIVOT) - (MAX_DIST_FROM_PIVOT/2.f));
         NewPos.Y = PivotPos.Y + (RNG.FRandRange(MIN_DIST_FROM_PIVOT, MAX_DIST_FROM_PIVOT) - (MAX_DIST_FROM_PIVOT/2.f));
-    } while(this->Peacenet->SaveGame->LocationTooCloseToEntity(Pivot.Country, NewPos, MIN_DIST_FROM_PIVOT));
+    } while(this->Peacenet->SaveGame->LocationTooCloseToEntity(NewPos, MIN_DIST_FROM_PIVOT));
 
     this->Peacenet->SaveGame->SetEntityPosition(Identity.ID, NewPos);
 
@@ -365,9 +364,6 @@ void UProceduralGenerationEngine::GenerateAdjacentNodes(FPeacenetIdentity& InIde
         FPeacenetIdentity& LinkedIdentity = this->Peacenet->SaveGame->Characters[RNG.RandRange(0, this->Peacenet->SaveGame->Characters.Num()-1)];
 
         if(LinkedIdentity.ID == InIdentity.ID)
-            continue;
-
-        if(LinkedIdentity.Country != InIdentity.Country)
             continue;
 
         if(this->Peacenet->SaveGame->AreAdjacent(InIdentity.ID, LinkedIdentity.ID))
@@ -458,12 +454,10 @@ FPeacenetIdentity& UProceduralGenerationEngine::GenerateNonPlayerCharacter()
     
     Identity.ComputerID = IdentityComputer.ID;
 
-    Identity.Country = (ECountry)RNG.RandRange(0, (int)ECountry::Num_Countries - 1);
-
     FString IPAddress;
     do
     {
-        IPAddress = this->GenerateIPAddress(Identity.Country);
+        IPAddress = this->GenerateIPAddress();
     } while(this->Peacenet->SaveGame->IPAddressAllocated(IPAddress));
 
     this->Peacenet->SaveGame->ComputerIPMap.Add(IPAddress, IdentityComputer.ID);
