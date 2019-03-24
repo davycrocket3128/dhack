@@ -126,6 +126,9 @@ public: // Property getters
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Context")
 	TArray<UWallpaperAsset*> GetAvailableWallpapers();
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Email")
+	FString GetEmailAddress();
+
 	UFUNCTION(BlueprintCallable, Category = "System Context")
 	void SetCurrentWallpaper(UWallpaperAsset* InWallpaperAsset);
 

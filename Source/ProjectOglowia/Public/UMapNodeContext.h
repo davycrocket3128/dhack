@@ -68,6 +68,9 @@ protected:
     FVector2D GetPosition();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Map Node")
+    FString GetEmail();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Map Node")
     FString GetNodeName();
 
 public:

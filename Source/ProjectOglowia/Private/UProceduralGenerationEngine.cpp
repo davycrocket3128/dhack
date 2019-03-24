@@ -384,6 +384,41 @@ void UProceduralGenerationEngine::GenerateAdjacentNodes(FPeacenetIdentity& InIde
     }
 }
 
+FString UProceduralGenerationEngine::ChooseEmailDomain()
+{
+    TArray<FString> Emails;
+    this->Peacenet->SaveGame->DomainNameMap.GetKeys(Emails);
+
+    int Index = 0;
+
+    int Counter = Emails.Num() * 10;
+    while(Counter > 0)
+    {
+        FString Domain = Emails[Index];
+        FString IP = this->Peacenet->SaveGame->DomainNameMap[Domain];
+        int Entity = this->Peacenet->SaveGame->ComputerIPMap[IP];
+
+        FComputer Computer;
+        int CompIndex;
+        if(this->Peacenet->SaveGame->GetComputerByID(Entity, Computer, CompIndex))
+        {
+            if(Computer.ComputerType == EComputerType::EmailServer)
+            {
+                Counter -= RNG.RandRange(5, 10);
+                if(Counter <= 0)
+                    break;
+            }
+        }
+
+        Index++;
+        if(Index >= Emails.Num())
+        {
+            Index = 0;
+        }
+    }
+    return Emails[Index];
+}
+
 void UProceduralGenerationEngine::GenerateNonPlayerCharacters()
 {
     this->ClearNonPlayerEntities();
@@ -419,7 +454,7 @@ FPeacenetIdentity& UProceduralGenerationEngine::GenerateNonPlayerCharacter()
     } while(this->Peacenet->SaveGame->CharacterNameExists(CharacterName));
 
     Identity.CharacterName = CharacterName;
-
+    Identity.PreferredAlias = CharacterName;
     Identity.Skill = RNG.RandRange(1, this->Peacenet->GameType->GameRules.MaximumSkillLevel);
 
     float Reputation = RNG.GetFraction();
@@ -440,7 +475,10 @@ FPeacenetIdentity& UProceduralGenerationEngine::GenerateNonPlayerCharacter()
     {
         Username = this->UsernameGenerator->GetMarkovString(0);
         Hostname = Username + "-pc";
+        Identity.PreferredAlias = Username;
     }
+
+    Identity.EmailAddress = Identity.PreferredAlias.Replace(TEXT(" "), TEXT("_")) + "@" + this->ChooseEmailDomain();
 
     FComputer& IdentityComputer = this->GenerateComputer(Hostname, EComputerType::Personal, EComputerOwnerType::NPC);
 
@@ -525,20 +563,25 @@ void UProceduralGenerationEngine::Initialize(APeacenetWorldStateActor* InPeacene
     this->MaleNameGenerator = NewObject<UMarkovChain>(this);
     this->FemaleNameGenerator = NewObject<UMarkovChain>(this);
     this->LastNameGenerator = NewObject<UMarkovChain>(this);
-    
+    this->DomainGenerator = NewObject<UMarkovChain>(this);
+
     // Set them all up with the data they need.
     this->MaleNameGenerator->Init(this->GetMarkovData(EMarkovTrainingDataUsage::MaleFirstNames), 3, RNG);
     this->FemaleNameGenerator->Init(this->GetMarkovData(EMarkovTrainingDataUsage::FemaleFirstNames), 3, RNG);
     this->LastNameGenerator->Init(this->GetMarkovData(EMarkovTrainingDataUsage::LastNames), 3, RNG);
-    
+    this->DomainGenerator->Init(this->GetMarkovData(EMarkovTrainingDataUsage::Hostnames), 2, this->RNG);
+
     // get username generator.
     this->UsernameGenerator = NewObject<UMarkovChain>(this);
-
+    
     // initialize it.
-    this->UsernameGenerator->Init(this->GetMarkovData(EMarkovTrainingDataUsage::Usernames), 2, RNG);
+    this->UsernameGenerator->Init(this->GetMarkovData(EMarkovTrainingDataUsage::Usernames), 3, RNG);
 
     if(this->Peacenet->SaveGame->IsNewGame)
     {
+        // Generate email servers.
+        this->GenerateEmailServers();
+
         // PASS 1: GENERATE NPC IDENTITIES.
         this->GenerateNonPlayerCharacters();
 
@@ -574,6 +617,36 @@ void UProceduralGenerationEngine::Initialize(APeacenetWorldStateActor* InPeacene
         if(!Protocol->Protocol) continue;
 
         this->ProtocolVersions.Add(Protocol);
+    }
+}
+
+void UProceduralGenerationEngine::GenerateEmailServers()
+{
+    const int MIN_EMAIL_SERVERS = 10;
+    const int MAX_EMAIL_SERVERS = 25;
+
+    int ServersToGenerate = this->RNG.RandRange(MIN_EMAIL_SERVERS, MAX_EMAIL_SERVERS);
+
+    while(ServersToGenerate > 0)
+    {
+        FString NewHostname = this->DomainGenerator->GetMarkovString(0).ToLower() + ".com";
+        while(this->Peacenet->SaveGame->DomainNameMap.Contains(NewHostname))
+        {
+            NewHostname = this->DomainGenerator->GetMarkovString(0).ToLower() + ".com";
+        }
+
+        FComputer& Server = this->GenerateComputer(NewHostname, EComputerType::EmailServer, EComputerOwnerType::None);
+
+        FString IPAddress;
+        do
+        {
+            IPAddress = this->GenerateIPAddress();
+        } while(this->Peacenet->SaveGame->ComputerIPMap.Contains(IPAddress));
+
+        this->Peacenet->SaveGame->ComputerIPMap.Add(IPAddress, Server.ID);
+        this->Peacenet->SaveGame->DomainNameMap.Add(NewHostname, IPAddress);
+
+        ServersToGenerate--;
     }
 }
 

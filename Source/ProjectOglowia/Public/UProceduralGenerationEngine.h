@@ -68,6 +68,9 @@ private:
     UMarkovChain* MaleNameGenerator;
 
     UPROPERTY()
+    UMarkovChain* DomainGenerator;
+
+    UPROPERTY()
     UMarkovChain* UsernameGenerator;
 
     UPROPERTY()
@@ -78,6 +81,9 @@ private:
 
 private:
     TArray<FString> GetMarkovData(EMarkovTrainingDataUsage InUsage);
+
+    UFUNCTION()
+    void GenerateEmailServers();
 
 public:
     UFUNCTION()
@@ -121,4 +127,7 @@ public:
 
     UFUNCTION()
     FRandomStream& GetRNG();
+
+    UFUNCTION()
+    FString ChooseEmailDomain();
 };

@@ -41,6 +41,11 @@ UPeacenetSaveGame* UMapNodeContext::GetSaveGame()
     return this->MapWidget->GetUserContext()->GetPeacenet()->SaveGame;
 }
 
+FString UMapNodeContext::GetEmail()
+{
+    return this->GetIdentity().EmailAddress;
+}
+
 int UMapNodeContext::GetSkill()
 {
     return this->GetIdentity().Skill;

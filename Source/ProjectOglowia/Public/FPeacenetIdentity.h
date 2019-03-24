@@ -62,6 +62,12 @@ public:
 	FString CharacterName;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FString EmailAddress;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FString PreferredAlias;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	int Skill;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)

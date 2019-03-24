@@ -106,7 +106,8 @@ enum class EComputerOwnerType : uint8
 {
 	Player,
 	NPC,
-	Story
+	Story,
+	None
 };
 
 /**

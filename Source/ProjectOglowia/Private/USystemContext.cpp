@@ -658,6 +658,18 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	this->CharacterID = InCharacterID;
 	this->Peacenet = InPeacenet;
 
+	// Do we not have a preferred alias?
+	if(!this->GetCharacter().PreferredAlias.Len())
+	{
+		this->GetCharacter().PreferredAlias = this->GetCharacter().CharacterName;
+	}
+
+	// Do we not have an email address?
+	if(!this->GetCharacter().EmailAddress.Len())
+	{
+		this->GetCharacter().EmailAddress = this->GetCharacter().PreferredAlias.Replace(TEXT(" "), TEXT("_")) + "@" + this->GetPeacenet()->GetProcgen()->ChooseEmailDomain();
+	}
+
 	// Now we need a filesystem.
 	UPeacegateFileSystem* fs = this->GetFilesystem(0);
 
@@ -772,6 +784,11 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 		// Scan for adjacent identities so the player doesn't have to.
 		this->ScanForAdjacentNodes();
 	}
+}
+
+FString USystemContext::GetEmailAddress()
+{
+	return this->GetCharacter().EmailAddress;
 }
 
 void USystemContext::AppendLog(FString InLogText)

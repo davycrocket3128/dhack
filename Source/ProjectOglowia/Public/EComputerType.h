@@ -39,5 +39,6 @@ UENUM(BlueprintType)
 enum class EComputerType : uint8
 {
 	Personal,
-	Hub
+	Hub,
+	EmailServer
 };
