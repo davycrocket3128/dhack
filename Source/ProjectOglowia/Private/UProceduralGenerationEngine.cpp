@@ -565,17 +565,21 @@ void UProceduralGenerationEngine::Initialize(APeacenetWorldStateActor* InPeacene
     this->LastNameGenerator = NewObject<UMarkovChain>(this);
     this->DomainGenerator = NewObject<UMarkovChain>(this);
 
+    // Create mixed markov input for usernames and hostnames.
+    TArray<FString> UsernameData = this->GetMarkovData(EMarkovTrainingDataUsage::Usernames);
+    UsernameData.Append(this->GetMarkovData(EMarkovTrainingDataUsage::Hostnames));
+
     // Set them all up with the data they need.
     this->MaleNameGenerator->Init(this->GetMarkovData(EMarkovTrainingDataUsage::MaleFirstNames), 3, RNG);
     this->FemaleNameGenerator->Init(this->GetMarkovData(EMarkovTrainingDataUsage::FemaleFirstNames), 3, RNG);
     this->LastNameGenerator->Init(this->GetMarkovData(EMarkovTrainingDataUsage::LastNames), 3, RNG);
-    this->DomainGenerator->Init(this->GetMarkovData(EMarkovTrainingDataUsage::Hostnames), 2, this->RNG);
+    this->DomainGenerator->Init(UsernameData, 3, this->RNG);
 
     // get username generator.
     this->UsernameGenerator = NewObject<UMarkovChain>(this);
     
     // initialize it.
-    this->UsernameGenerator->Init(this->GetMarkovData(EMarkovTrainingDataUsage::Usernames), 3, RNG);
+    this->UsernameGenerator->Init(UsernameData, 3, RNG);
 
     if(this->Peacenet->SaveGame->IsNewGame)
     {
