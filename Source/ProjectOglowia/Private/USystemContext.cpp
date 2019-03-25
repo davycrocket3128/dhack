@@ -649,6 +649,11 @@ void USystemContext::UpdateSystemFiles()
 	this->RainbowTable->Setup(this, "/etc/rainbow_table.db", true);
 }
 
+UMailProvider* USystemContext::GetMailProvider()
+{
+	return this->MailProvider;
+}
+
 void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldStateActor* InPeacenet)
 {
 	check(InPeacenet);
@@ -657,6 +662,9 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	this->ComputerID = InComputerID;
 	this->CharacterID = InCharacterID;
 	this->Peacenet = InPeacenet;
+
+	this->MailProvider = NewObject<UMailProvider>(this);
+	this->MailProvider->Setup(this);
 
 	// Do we not have a preferred alias?
 	if(!this->GetCharacter().PreferredAlias.Len())

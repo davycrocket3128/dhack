@@ -36,6 +36,7 @@
 #include "USystemContext.h"
 #include "EFileOpenResult.h"
 #include "UserInfo.h"
+#include "MailProvider.h"
 #include "FPeacegateProcess.h"
 #include "TerminalColor.h"
 #include "FAdjacentNodeInfo.h"
@@ -83,6 +84,9 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "URL parsing")
     void ParseURL(FString InURL, int InDefaultPort, FString& OutUsername, FString& OutHost, int& OutPort, FString& OutPath);
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Email")
+    UMailProvider* GetMailProvider();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Adjacent nodes")
     TArray<FAdjacentNodeInfo> ScanForAdjacentNodes();

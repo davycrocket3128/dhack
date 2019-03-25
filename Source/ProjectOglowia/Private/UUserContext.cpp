@@ -302,6 +302,11 @@ ETerminalColor UUserContext::GetUserColor()
 	return ETerminalColor::Green;
 }
 
+UMailProvider* UUserContext::GetMailProvider()
+{
+	return this->GetOwningSystem()->GetMailProvider();
+}
+
 void UUserContext::SetUserColor(ETerminalColor InColor)
 {
 	for(auto& User : this->GetOwningSystem()->GetComputer().Users)

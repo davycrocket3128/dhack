@@ -37,6 +37,7 @@
 #include "UPeacegateFileSystem.h"
 #include "UserInfo.h"
 #include "FPeacenetIdentity.h"
+#include "MailProvider.h"
 #include "FAdjacentNodeInfo.h"
 #include "FPeacegateProcess.h"
 #include "USystemContext.generated.h"
@@ -56,6 +57,10 @@ UCLASS(BlueprintType)
 class PROJECTOGLOWIA_API USystemContext : public UObject
 {
 	GENERATED_BODY()
+
+private:
+	UPROPERTY()
+	UMailProvider* MailProvider;
 
 protected:
 	UPROPERTY()
@@ -98,6 +103,9 @@ public: // Property getters
 
 	UFUNCTION()
 	bool IsEnvironmentVariableSet(FString InVariable);
+
+	UFUNCTION()
+	UMailProvider* GetMailProvider();
 
 	UFUNCTION()
 	TArray<UPayloadAsset*> GetPayloads();
