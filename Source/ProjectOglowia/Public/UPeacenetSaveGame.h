@@ -40,6 +40,7 @@
 #include "FAdjacentNode.h"
 #include "Computer.h"
 #include "UWindow.h"
+#include "Email.h"
 #include "AdjacentLinkType.h"
 #include "FEntityPosition.h"
 #include "UPeacenetSaveGame.generated.h"
@@ -97,6 +98,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Procgen")
 	TMap<FString, int> ComputerIPMap;
 	
+	UPROPERTY(VisibleAnywhere, Category = "Email")
+	TArray<FEmail> EmailMessages;
+
 	UPROPERTY(VisibleAnywhere, Category = "Master Password Table")
 	TArray<FAdjacentNode> AdjacentNodes;
 
@@ -110,6 +114,9 @@ public:
 
 	UFUNCTION()
 	bool IsTrue(FString InKey);
+
+	UFUNCTION()
+	TArray<FEmail> GetEmailsForIdentity(FPeacenetIdentity& InIdentity);
 
 	UFUNCTION()
 	void SetValue(FString InKey, bool InValue);

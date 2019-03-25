@@ -360,6 +360,21 @@ bool UPeacenetSaveGame::GetPosition(int EntityID, FVector2D& OutPosition)
 	return false;
 }
 
+TArray<FEmail> UPeacenetSaveGame::GetEmailsForIdentity(FPeacenetIdentity& InIdentity)
+{
+	TArray<FEmail> Ret;
+
+	for(auto EmailMessage : this->EmailMessages)
+	{
+		if(EmailMessage.FromEntity == InIdentity.ID || EmailMessage.ToEntities.Contains(InIdentity.ID))
+		{
+			Ret.Add(EmailMessage);
+		}
+	}
+
+	return Ret;
+}
+
 bool UPeacenetSaveGame::LocationTooCloseToEntity(FVector2D InLocation, float InMinimumDistance)
 {
 	for(auto& Position : EntityPositions)
