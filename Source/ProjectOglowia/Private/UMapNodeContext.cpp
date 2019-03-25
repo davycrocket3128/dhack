@@ -77,6 +77,8 @@ FString UMapNodeContext::CreateBooleanName(FString InExtension)
 
 FString UMapNodeContext::GetNodeName()
 {
+    if(this->GetIdentity().PreferredAlias.Len())
+        return this->GetIdentity().PreferredAlias;
     return this->GetIdentity().CharacterName;
 }
 
