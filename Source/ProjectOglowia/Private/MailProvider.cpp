@@ -48,3 +48,27 @@ TArray<FEmail> UMailProvider::GetMailMessages()
 {
     return this->GetSaveGame()->GetEmailsForIdentity(this->OwningSystem->GetCharacter());
 }
+
+TArray<FEmail> UMailProvider::GetInbox()
+{
+    TArray<FEmail> Ret;
+    for(auto Message : this->GetMailMessages())
+    {
+        if(Message.InReplyTo == -1 && Message.ToEntities.Contains(this->OwningSystem->GetCharacter().ID))
+        {
+            Ret.Add(Message);
+        }
+    }
+    return Ret;
+}
+
+TArray<FEmail> UMailProvider::GetOutbox()
+{
+    TArray<FEmail> Ret;
+    for(auto Message : this->GetMailMessages())
+    {
+        if(Message.FromEntity == this->OwningSystem->GetCharacter().ID)
+            Ret.Add(Message);
+    }
+    return Ret;
+}

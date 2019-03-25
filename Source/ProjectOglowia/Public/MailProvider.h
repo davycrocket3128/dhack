@@ -57,4 +57,10 @@ public:
 
     UFUNCTION()
     TArray<FEmail> GetMailMessages();
+
+    UFUNCTION()
+    TArray<FEmail> GetInbox();
+
+    UFUNCTION()
+    TArray<FEmail> GetOutbox();
 };
