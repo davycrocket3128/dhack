@@ -34,6 +34,59 @@
 #include "PeacenetWorldStateActor.h"
 #include "UPeacenetSaveGame.h"
 
+void UMailProvider::SendMailInternal(TArray<int> InRecipients, FString InSubject, FString InMessageText, int InReplyTo)
+{
+    // This is what the message's from value will be.
+    int MyEntityID = this->OwningSystem->GetCharacter().ID;
+
+    // Create the new message and set the from value.
+    FEmail NewMail;
+    NewMail.FromEntity = MyEntityID;
+    
+    // Set the subject and message text values.
+    NewMail.Subject = InSubject;
+    NewMail.MessageBody = InMessageText;
+
+    // Check all entities in recipient list to make sure they exist in the save file.
+    for(auto EntityID : InRecipients)
+    {
+        FPeacenetIdentity Identity;
+        int Index;
+        check(this->GetSaveGame()->GetCharacterByID(EntityID, Identity, Index));
+    }
+
+    // Set the recipient list.
+    NewMail.ToEntities = InRecipients;
+
+    // If "in reply to" is not -1, check to make sure it is a valid message ID.
+    // This will also get us a new message ID.
+    int NewID = 0;
+
+    if(InReplyTo != -1)
+    {
+        bool FoundMail = false;
+
+        for(auto ExistingMessage : this->GetSaveGame()->EmailMessages)
+        {
+            if(ExistingMessage.ID == InReplyTo)
+            {
+                FoundMail = true;
+            }
+
+            if(NewID <= ExistingMessage.ID)
+                NewID = ExistingMessage.ID + 1;
+        }
+
+        check(FoundMail);
+    }
+
+    // Assign the new message ID.
+    NewMail.ID = NewID;
+
+    // Add it to the save file.
+    this->GetSaveGame()->EmailMessages.Add(NewMail);
+}
+
 void UMailProvider::Setup(USystemContext* InOwningSystem)
 {
     this->OwningSystem = InOwningSystem;

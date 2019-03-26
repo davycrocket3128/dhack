@@ -63,4 +63,7 @@ public:
 
     UFUNCTION()
     TArray<FEmail> GetOutbox();
+
+    UFUNCTION()
+    void SendMailInternal(TArray<int> InRecipients, FString InSubject, FString InMessageText, int InReplyTo = -1);
 };
