@@ -56,6 +56,9 @@ private:
 	UPROPERTY()
 	UUserContext* UserContext;
 
+	UPROPERTY()
+	bool IsFocused = false;
+
 public: // Getters
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Window")
 	UUserContext* GetUserContext();
@@ -111,6 +114,7 @@ public:
 
 	virtual void NativeOnAddedToFocusPath(const FFocusEvent& InFocusEvent) override;
 	virtual void NativeOnRemovedFromFocusPath(const FFocusEvent& InFocusEvent) override;
+	virtual FReply NativeOnPreviewKeyDown( const FGeometry& InGeometry, const FKeyEvent& InKeyEvent ) override;
 
 protected:
 	UFUNCTION(BlueprintImplementableEvent)

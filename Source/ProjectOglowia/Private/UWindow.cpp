@@ -33,6 +33,25 @@
 #include "UWindow.h"
 #include "UUserContext.h"
 
+FReply UWindow::NativeOnPreviewKeyDown( const FGeometry& InGeometry, const FKeyEvent& InKeyEvent )
+{
+	// Only respond if keyboard is focused.
+	if(this->IsFocused)
+	{
+		// Close keybind: CTRL+Q
+		if(InKeyEvent.IsControlDown() && InKeyEvent.GetKey().GetFName() == "Q")
+		{
+			if(this->EnableCloseButton)
+			{
+				this->Close();
+				return FReply::Handled();
+			}
+		}
+	}
+
+	return Super::NativeOnPreviewKeyDown(InGeometry, InKeyEvent);
+}
+
 // Show an infobox (no callbacks.)
 void UWindow::ShowInfo(const FText& InTitle, const FText& InMessage, const EInfoboxIcon InIcon)
 {
@@ -75,12 +94,16 @@ void UWindow::SetClientMinimumSize(const FVector2D& InSize)
 
 void UWindow::NativeOnAddedToFocusPath(const FFocusEvent & InFocusEvent)
 {
+	this->IsFocused = true;
+
 	this->WindowFocusEvent.Broadcast(true, this);
 	Super::NativeOnAddedToFocusPath(InFocusEvent);
 }
 
 void UWindow::NativeOnRemovedFromFocusPath(const FFocusEvent & InFocusEvent)
 {
+	this->IsFocused = false;
+
 	this->WindowFocusEvent.Broadcast(false, this);
 	Super::NativeOnRemovedFromFocusPath(InFocusEvent);
 }
