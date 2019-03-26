@@ -360,6 +360,21 @@ bool UPeacenetSaveGame::GetPosition(int EntityID, FVector2D& OutPosition)
 	return false;
 }
 
+bool UPeacenetSaveGame::ResolveEmailAddress(FString InEmailAddress, int& OutEntityID)
+{
+	for(auto& Entity : this->Characters)
+	{
+		if(Entity.EmailAddress == InEmailAddress)
+		{
+			OutEntityID = Entity.ID;
+			return true;
+		}
+	}
+
+	OutEntityID = -1;
+	return false;
+}
+
 TArray<FEmail> UPeacenetSaveGame::GetEmailsForIdentity(FPeacenetIdentity& InIdentity)
 {
 	TArray<FEmail> Ret;

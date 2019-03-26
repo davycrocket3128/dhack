@@ -116,6 +116,9 @@ public:
 	bool IsTrue(FString InKey);
 
 	UFUNCTION()
+	bool ResolveEmailAddress(FString InEmailAddress, int& OutEntityID);
+
+	UFUNCTION()
 	TArray<FEmail> GetEmailsForIdentity(FPeacenetIdentity& InIdentity);
 
 	UFUNCTION()
