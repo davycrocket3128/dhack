@@ -46,6 +46,11 @@ void UProgramPayload::NativePayloadDeployed(UUserContext* OriginUser, UUserConte
     UWindow* Window;
     UProgram* RemoteProgram = UProgram::CreateProgram(WindowClass, this->ProgramToOpen->ProgramClass, TargetUser, Window, ProgramToOpen->ID.ToString(), false);
 
+    // Set Window title and icon.
+    Window->WindowTitle = ProgramToOpen->FullName;
+    Window->Icon = ProgramToOpen->AppLauncherItem.Icon;
+    Window->EnableMinimizeAndMaximize = ProgramToOpen->EnableMinimizeAndMaximize;
+
     // Get the program to show in its new window.
     RemoteProgram->SetupContexts();
 
