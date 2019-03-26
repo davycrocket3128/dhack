@@ -47,6 +47,32 @@ FReply UWindow::NativeOnPreviewKeyDown( const FGeometry& InGeometry, const FKeyE
 				return FReply::Handled();
 			}
 		}
+		
+		if(this->EnableMinimizeAndMaximize)
+		{
+			// Minimize/Restore: CTRL+Down
+			// Maximize: CTRL+Up
+			if(InKeyEvent.IsControlDown())
+			{
+				if(InKeyEvent.GetKey().GetFName() == "Up")
+				{
+					this->Maximize();
+					return FReply::Handled();
+				}
+				if(InKeyEvent.GetKey().GetFName() == "Down")
+				{
+					if(this->IsMaximized)
+					{
+						this->Restore();
+					}
+					else
+					{
+						this->Minimize();
+					}
+					return FReply::Handled();
+				}
+			}
+		}
 	}
 
 	return Super::NativeOnPreviewKeyDown(InGeometry, InKeyEvent);
@@ -74,11 +100,13 @@ void UWindow::Minimize()
 
 void UWindow::Maximize()
 {
+	this->IsMaximized = true;
 	OnWindowMaximized();
 }
 
 void UWindow::Restore()
 {
+	this->IsMaximized = false;
 	OnWindowRestored();
 }
 

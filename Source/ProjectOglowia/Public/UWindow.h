@@ -57,6 +57,9 @@ private:
 	UUserContext* UserContext;
 
 	UPROPERTY()
+	bool IsMaximized = false;
+
+	UPROPERTY()
 	bool IsFocused = false;
 
 public: // Getters
