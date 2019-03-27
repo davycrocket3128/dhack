@@ -38,6 +38,8 @@
 #include "UProgram.h"
 #include "PeacenetSiteWidget.generated.h"
 
+class UPeacenetSiteAsset;
+
 UCLASS(Blueprintable, BlueprintType, Abstract)
 class PROJECTOGLOWIA_API UPeacenetSiteWidget : public UUserWidget
 {
@@ -45,9 +47,12 @@ class PROJECTOGLOWIA_API UPeacenetSiteWidget : public UUserWidget
 
 private:
     UPROPERTY()
+    UPeacenetSiteAsset* SiteAsset;
+
+    UPROPERTY()
     UProgram* OwningProgram;
 
 public:
     UFUNCTION()
-    void Setup(UProgram* InOwningProgram);
+    void Setup(UPeacenetSiteAsset* InSiteAsset, UProgram* InOwningProgram);
 };

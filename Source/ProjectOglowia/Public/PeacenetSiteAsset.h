@@ -30,14 +30,26 @@
  ********************************************************************************/
 
 
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Engine/DataAsset.h"
 #include "PeacenetSiteWidget.h"
-#include "PeacenetSiteAsset.h"
+#include "PeacenetSiteAsset.generated.h"
 
-void UPeacenetSiteWidget::Setup(UPeacenetSiteAsset* InSiteAsset, UProgram* InOwningProgram)
+UCLASS(Blueprintable, BlueprintType)
+class PROJECTOGLOWIA_API UPeacenetSiteAsset : public UDataAsset
 {
-    check(InSiteAsset);
-    check(InOwningProgram);
+    GENERATED_BODY()
 
-    this->SiteAsset = InSiteAsset;
-    this->OwningProgram = InOwningProgram;
-}
+public:
+    // The domain name of this Peacenet Site.  The domain name must be unique, since
+    // it will be resolved to an in-game computer.
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Metadata")
+    FString DomainName;
+
+    // The widget that will appear in the Peacenet Browser when this website is visited.
+    // If invalid, this website will not appear in the game.
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "User Interface")
+    TSubclassOf<UPeacenetSiteWidget> PeacenetSite;
+};
