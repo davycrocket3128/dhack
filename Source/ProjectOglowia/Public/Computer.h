@@ -173,5 +173,5 @@ public:
 	TArray<FFirewallRule> FirewallRules;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Peacenet Sites")
-	UPeacenetSiteAsset* PeacenetSite;
+	UPeacenetSiteAsset* PeacenetSite = nullptr;
 };
