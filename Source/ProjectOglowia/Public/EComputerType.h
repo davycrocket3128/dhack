@@ -40,5 +40,6 @@ enum class EComputerType : uint8
 {
 	Personal,
 	Hub,
-	EmailServer
+	EmailServer,
+	PeacenetSite
 };

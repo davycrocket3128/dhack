@@ -40,6 +40,7 @@
 #include "UProceduralGenerationEngine.generated.h"
 
 class ULootableFile;
+class UPeacenetSiteAsset;
 class UMarkovChain;
 class UUserContext;
 class UProtocolVersion;
@@ -54,6 +55,9 @@ class PROJECTOGLOWIA_API UProceduralGenerationEngine : public UObject
 private:
     UPROPERTY()
     APeacenetWorldStateActor* Peacenet;
+
+    UPROPERTY()
+    TArray<UPeacenetSiteAsset*> PeacenetSites;
 
     UPROPERTY()
     FRandomStream RNG;
@@ -86,6 +90,9 @@ private:
     void GenerateEmailServers();
 
 public:
+    UFUNCTION()
+    void SpawnPeacenetSites();
+
     UFUNCTION()
     void GenerateIdentityPosition(FPeacenetIdentity& Pivot, FPeacenetIdentity& Identity);
 

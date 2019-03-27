@@ -44,6 +44,7 @@
 #include "WallpaperAsset.h"
 #include "UPeacegateFileSystem.h"
 #include "UMarkovChain.h"
+#include "PeacenetSiteAsset.h"
 #include "PeacenetWorldStateActor.h"
 
 FRandomStream& UProceduralGenerationEngine::GetRNG()
@@ -537,6 +538,35 @@ void UProceduralGenerationEngine::Initialize(APeacenetWorldStateActor* InPeacene
 
     this->Peacenet = InPeacenet;
 
+    // Load all the peacenet site assets in the game, checking for duplicate domain names,
+    // and valid website widgets.
+    TArray<UPeacenetSiteAsset*> TempSites;
+    TArray<FString> Domains;
+
+    // Load the assets into the game.
+    this->Peacenet->LoadAssets<UPeacenetSiteAsset>("PeacenetSiteAsset", TempSites);
+
+    // Loop through them to check validity.
+    for(auto Site : TempSites)
+    {
+        // Skip invalid site widgets and empty domain names.
+        if(!Site->PeacenetSite) continue;
+        if(!Site->DomainName.Len()) continue;
+
+        // Debug assert: two assets with the same domain name.
+        check(Domains.Contains(Site->DomainName));
+
+        // Release sanity check: skip duplicate domain names.
+        if(Domains.Contains(Site->DomainName)) continue;
+
+        // Add the domain name to known list.
+        Domains.Add(Site->DomainName);
+
+        // Fully load the site.
+        this->PeacenetSites.Add(Site);
+    }
+
+
     // Initialize the world seed if the game is new.
     if(Peacenet->SaveGame->IsNewGame)
     {
@@ -621,6 +651,84 @@ void UProceduralGenerationEngine::Initialize(APeacenetWorldStateActor* InPeacene
         if(!Protocol->Protocol) continue;
 
         this->ProtocolVersions.Add(Protocol);
+    }
+
+    // This generates all the Peacenet sites in the game as computers.
+    this->SpawnPeacenetSites();
+}
+
+void UProceduralGenerationEngine::SpawnPeacenetSites()
+{
+    // Loop through all the Peacenet sites that we know of.
+    for(auto Site : this->PeacenetSites)
+    {
+        // If the domain name, for some UNGODLY fucking reason, was taken
+        // by a procgen'd system, we're going to give that system a new domain.
+        //
+        // This may result in NPCs ending up with invalid email addresses so we'll
+        // fix those too.
+        if(this->Peacenet->SaveGame->DomainNameMap.Contains(Site->DomainName))
+        {
+            // Back up the IP address that this domain name currently points to.
+            FString IPAddress = this->Peacenet->SaveGame->DomainNameMap[Site->DomainName];
+
+            // This generates a new domain which is guaranteed not to be taken.
+            FString NewDomain;
+            do
+            {
+                NewDomain = this->DomainGenerator->GetMarkovString(0).ToLower() + ".com";
+            } while(NewDomain == Site->DomainName || this->Peacenet->SaveGame->DomainNameMap.Contains(NewDomain));
+
+            // Remove the old domain and add the new domain.
+            this->Peacenet->SaveGame->DomainNameMap.Remove(Site->DomainName);
+            this->Peacenet->SaveGame->DomainNameMap.Add(NewDomain, IPAddress);
+
+            // Get the entity ID of the IP address so we can check the computer to see
+            // if it's an email server.  If that's the case, then we need to reset
+            // all NPCs in the game with the old domain as an email address.
+            int ComputerEntity = this->Peacenet->SaveGame->ComputerIPMap[IPAddress];
+
+            FComputer Computer;
+            int ComputerIndex;
+            bool result = this->Peacenet->SaveGame->GetComputerByID(ComputerEntity, Computer, ComputerIndex);
+            check(result);
+
+            if(Computer.ComputerType == EComputerType::EmailServer)
+            {
+                // Go through all characters in the save file.
+                for(auto& Character : this->Peacenet->SaveGame->Characters)
+                {
+                    // If the character's email address ends with the old domain we need to
+                    // set it to the new domain.
+                    if(Character.EmailAddress.EndsWith(Site->DomainName))
+                    {
+                        FString Alias = Character.CharacterName;
+                        if(Character.PreferredAlias.Len())
+                            Alias = Character.PreferredAlias;
+
+                        Character.EmailAddress = Alias.ToLower().Replace(TEXT(" "), TEXT("_")) + "@" + NewDomain;
+                    }
+                }
+            }
+        }
+
+        // That ordeal should be done now...
+        // The next step is to generate a computer for the Peacenet site.
+        FComputer& SiteComputer = this->GenerateComputer(Site->DomainName, EComputerType::PeacenetSite, EComputerOwnerType::None);
+
+        // Assign the peacenet site asset to the computer.
+        SiteComputer.PeacenetSite = Site;
+
+        // Generate an IP address for the computer.
+        FString NewIP;
+        do
+        {
+            NewIP = this->GenerateIPAddress();
+        } while(this->Peacenet->SaveGame->ComputerIPMap.Contains(NewIP));
+
+        // Assign the IP address to the computer, and the domain name to the IP.
+        this->Peacenet->SaveGame->ComputerIPMap.Add(NewIP, SiteComputer.ID);
+        this->Peacenet->SaveGame->DomainNameMap.Add(Site->DomainName, NewIP);
     }
 }
 
