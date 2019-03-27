@@ -44,6 +44,8 @@
 #include "PayloadAsset.h"
 #include "Computer.generated.h"
 
+class UPeacenetSiteAsset;
+
 /**
  * Represents a user's permission and authentication domain, dictating what the user can do and how they authenticate.
  */
@@ -169,4 +171,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Firewall")
 	TArray<FFirewallRule> FirewallRules;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Peacenet Sites")
+	UPeacenetSiteAsset* PeacenetSite;
 };
