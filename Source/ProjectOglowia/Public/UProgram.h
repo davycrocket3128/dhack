@@ -35,6 +35,7 @@
 #include "CoreMinimal.h"
 #include "Text.h"
 #include "Dialog.h"
+#include "PeacenetSiteWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "UProgram.generated.h"
 
@@ -84,7 +85,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Infobox")
 	void ShowInfoWithCallbacks(const FText& InTitle, const FText& InMessage, const EInfoboxIcon InIcon, const EInfoboxButtonLayout ButtonLayout, const bool ShowTextInput, const FInfoboxDismissedEvent& OnDismissed, const FInfoboxInputValidator& ValidatorFunction);
-	
+
+	UFUNCTION(BlueprintCallable, Category = "Peacenet Sites")
+	bool LoadPeacenetSite(FString InURL, UPeacenetSiteWidget*& OutWidget, EConnectionError& OutConnectionError);
+
 	UFUNCTION(BlueprintCallable, Category = "Infobox")
 	void ShowInfo(const FText& InTitle, const FText& InMessage, const EInfoboxIcon InIcon);
 
