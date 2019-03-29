@@ -554,7 +554,7 @@ void UProceduralGenerationEngine::Initialize(APeacenetWorldStateActor* InPeacene
         if(!Site->DomainName.Len()) continue;
 
         // Debug assert: two assets with the same domain name.
-        check(Domains.Contains(Site->DomainName));
+        check(!Domains.Contains(Site->DomainName));
 
         // Release sanity check: skip duplicate domain names.
         if(Domains.Contains(Site->DomainName)) continue;
