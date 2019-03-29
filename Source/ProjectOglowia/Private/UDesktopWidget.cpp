@@ -242,7 +242,7 @@ void UDesktopWidget::ShowAppLauncherCategory(const FString& InCategoryName)
 		FString ProgramName = Program->ID.ToString();
 
 		// Add the item. Woohoo.
-		this->AddAppLauncherSubMenuItem(Program->FullName, Program->Summary, ProgramName, Program->AppLauncherItem.Icon);
+		this->AddAppLauncherSubMenuItem(Program->FullName, Program->Summary, ProgramName, Program->AppLauncherItem.Icon, Program->AppLauncherItem.Category);
 	}
 }
 

@@ -187,7 +187,7 @@ public:
 	void AddAppLauncherMainMenuItem(const FText& ItemName);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Desktop")
-	void AddAppLauncherSubMenuItem(const FText& ItemName, const FText& ItemDescription, const FString& ExecutableName, const UTexture2D* Icon);
+	void AddAppLauncherSubMenuItem(const FText& ItemName, const FText& ItemDescription, const FString& ExecutableName, const UTexture2D* Icon, const FText& InCategory);
 
 protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
