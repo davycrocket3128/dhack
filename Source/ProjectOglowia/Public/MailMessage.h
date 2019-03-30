@@ -53,4 +53,23 @@ private:
 public:
     UFUNCTION()
     void Setup(UMailProvider* InProvider, int InMessageID);
+
+    UFUNCTION()
+    FEmail GetMainMessage();
+
+    UFUNCTION()
+    TArray<FEmail> GetReplies();
+
+public:
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Message")
+    FText GetSubject();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Message")
+    bool HasMission();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Message")
+    bool HasAttachments();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Message")
+    int GetAttachmentCount();
 };

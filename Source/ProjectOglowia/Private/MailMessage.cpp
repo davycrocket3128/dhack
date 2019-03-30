@@ -40,3 +40,46 @@ void UMailMessage::Setup(UMailProvider* InProvider, int InMessageID)
     this->MessageID = InMessageID;
     this->Provider = InProvider;
 }
+
+FEmail UMailMessage::GetMainMessage()
+{
+    for(auto& Message : this->Provider->GetMailMessages())
+    {
+        if(Message.ID == this->MessageID)
+            return Message;
+    }
+    return FEmail();
+}
+
+TArray<FEmail> UMailMessage::GetReplies()
+{
+    TArray<FEmail> Replies;
+
+    for(auto& Message : this->Provider->GetMailMessages())
+    {
+        if(Message.InReplyTo == this->MessageID)
+            Replies.Add(Message);
+    }
+
+    return Replies;
+}
+
+FText UMailMessage::GetSubject()
+{
+    return FText::FromString(this->GetMainMessage().Subject);
+}
+
+bool UMailMessage::HasMission()
+{
+    return false;
+}
+
+bool UMailMessage::HasAttachments()
+{
+    return this->GetAttachmentCount();
+}
+
+int UMailMessage::GetAttachmentCount()
+{
+    return 0;
+}
