@@ -32,33 +32,33 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MissionAsset.h"
-#include "Email.generated.h"
+#include "Engine/DataAsset.h"
+#include "Text.h"
+#include "TextProperty.h"
+#include "StoryCharacter.h"
+#include "MissionAsset.generated.h"
 
-USTRUCT(BlueprintType)
-struct PROJECTOGLOWIA_API FEmail
+UCLASS(Blueprintable, BlueprintType)
+class PROJECTOGLOWIA_API UMissionAsset : public UDataAsset
 {
     GENERATED_BODY()
 
 public:
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)  
-    int ID;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Metadata")
+    FText Name;
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)  
-    int FromEntity;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Metadata")
+    FText Description;
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)  
-    TArray<int> ToEntities;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Metadata")
+    FText MailMessageText;
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)  
-    int InReplyTo = -1;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Metadata")
+    bool IsSideMission = false;
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)  
-    FString Subject;
-    
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)
-    FString MessageBody;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Metadata")
+    TArray<UMissionAsset*> RequiredMissions;
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)
-    UMissionAsset* Mission = nullptr;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Metadata")
+    UStoryCharacter* Assigner;
 };
