@@ -40,6 +40,7 @@
 #include "FAdjacentNode.h"
 #include "Computer.h"
 #include "UWindow.h"
+#include "StoryCharacterIDMap.h"
 #include "Email.h"
 #include "AdjacentLinkType.h"
 #include "FEntityPosition.h"
@@ -61,6 +62,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = "Peacegate")
 	int PlayerCharacterID = 0;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<FStoryCharacterIDMap> StoryCharacterIDs;
 
 	UPROPERTY(VisibleAnywhere, Category = "Peacegate")
 	int PlayerUserID = 0;
@@ -111,6 +115,12 @@ public:
 	TArray<int> PlayerDiscoveredNodes;
 
 	const float SECONDS_DAY_LENGTH = 86400.f;
+
+	UFUNCTION()
+	bool GetStoryCharacterID(UStoryCharacter* InStoryCharacter, int& OutIdentity);
+
+	UFUNCTION()
+	void AssignStoryCharacterID(UStoryCharacter* InStoryCharacter, int InIdentity);
 
 	UFUNCTION()
 	bool IsTrue(FString InKey);

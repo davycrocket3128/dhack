@@ -360,6 +360,51 @@ bool UPeacenetSaveGame::GetPosition(int EntityID, FVector2D& OutPosition)
 	return false;
 }
 
+bool UPeacenetSaveGame::GetStoryCharacterID(UStoryCharacter* InStoryCharacter, int& OutIdentity)
+{
+	check(InStoryCharacter);
+
+	for(auto& IDMap : this->StoryCharacterIDs)
+	{
+		if(IDMap.CharacterAsset == InStoryCharacter)
+		{
+			FPeacenetIdentity IdentityData;
+			int Index = 0;
+			if(this->GetCharacterByID(IDMap.Identity, IdentityData, Index))
+			{
+				OutIdentity = IDMap.Identity;
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+void UPeacenetSaveGame::AssignStoryCharacterID(UStoryCharacter* InStoryCharacter, int InIdentity)
+{
+	check(InStoryCharacter);
+
+	FPeacenetIdentity IdentityData;
+	int Index = 0;
+	bool result = this->GetCharacterByID(InIdentity, IdentityData, Index);
+	check(result);
+
+	for(auto& Map : this->StoryCharacterIDs)
+	{
+		if(Map.CharacterAsset == InStoryCharacter)
+		{
+			Map.Identity = InIdentity;
+			return;
+		}
+	}
+
+	FStoryCharacterIDMap NewMap;
+	NewMap.Identity = InIdentity;
+	NewMap.CharacterAsset = InStoryCharacter;
+	StoryCharacterIDs.Add(NewMap);
+}
+
 bool UPeacenetSaveGame::ResolveEmailAddress(FString InEmailAddress, int& OutEntityID)
 {
 	for(auto& Entity : this->Characters)
