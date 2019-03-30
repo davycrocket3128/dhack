@@ -302,6 +302,11 @@ ETerminalColor UUserContext::GetUserColor()
 	return ETerminalColor::Green;
 }
 
+FString UUserContext::GetEmailAddress()
+{
+	return this->GetOwningSystem()->GetCharacter().EmailAddress;
+}
+
 UMailProvider* UUserContext::GetMailProvider()
 {
 	return this->GetOwningSystem()->GetMailProvider();

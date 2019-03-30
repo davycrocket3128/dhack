@@ -164,6 +164,9 @@ public:
 	bool OpenFile(const FString& InPath, EFileOpenResult& OutResult);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
+    FString GetEmailAddress();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
     bool IsAdministrator();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")

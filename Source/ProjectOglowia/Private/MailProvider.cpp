@@ -34,6 +34,33 @@
 #include "PeacenetWorldStateActor.h"
 #include "UPeacenetSaveGame.h"
 
+int UMailProvider::GetInboxCount()
+{
+    return this->GetInbox().Num();
+}
+
+TArray<UMailMessage*> UMailProvider::GetMessagesInInbox()
+{
+    TArray<UMailMessage*> Ret;
+    for(auto Message : this->GetInbox())
+    {
+        UMailMessage* NewMessage = NewObject<UMailMessage>(this);
+        NewMessage->Setup(this, Message.ID);
+        Ret.Add(NewMessage);
+    }
+    return Ret;
+}
+
+int UMailProvider::GetOutboxCount()
+{
+    return this->GetOutbox().Num();
+}
+
+int UMailProvider::GetMissionsCount()
+{
+    return 0;
+}
+
 void UMailProvider::SendMailInternal(TArray<int> InRecipients, FString InSubject, FString InMessageText, int InReplyTo)
 {
     // This is what the message's from value will be.

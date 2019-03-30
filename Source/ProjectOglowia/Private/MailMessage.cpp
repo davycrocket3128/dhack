@@ -29,55 +29,14 @@
  *
  ********************************************************************************/
 
-#pragma once
-
-#include "CoreMinimal.h"
-#include "Email.h"
-#include "FPeacenetIdentity.h"
 #include "MailMessage.h"
-#include "MailProvider.generated.h"
+#include "MailProvider.h"
 
-class USystemContext;
-class UPeacenetSaveGame;
-
-UCLASS(BlueprintType)
-class PROJECTOGLOWIA_API UMailProvider : public UObject
+void UMailMessage::Setup(UMailProvider* InProvider, int InMessageID)
 {
-    GENERATED_BODY()
+    check(InProvider);
+    check(InMessageID >= 0);
 
-private:
-    UPROPERTY()
-    USystemContext* OwningSystem;
-
-public:
-    UFUNCTION()
-    void Setup(USystemContext* InOwningSystem);
-
-    UFUNCTION()
-    UPeacenetSaveGame* GetSaveGame();
-
-    UFUNCTION()
-    TArray<FEmail> GetMailMessages();
-
-    UFUNCTION()
-    TArray<FEmail> GetInbox();
-
-    UFUNCTION()
-    TArray<FEmail> GetOutbox();
-
-    UFUNCTION()
-    void SendMailInternal(TArray<int> InRecipients, FString InSubject, FString InMessageText, int InReplyTo = -1);
-
-public:
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Provider")
-    int GetInboxCount();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Provider")
-    int GetOutboxCount();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Provider")
-    int GetMissionsCount();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Provider")
-    TArray<UMailMessage*> GetMessagesInInbox();
-};
+    this->MessageID = InMessageID;
+    this->Provider = InProvider;
+}
