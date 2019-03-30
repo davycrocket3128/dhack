@@ -46,6 +46,7 @@ class UUserContext;
 class UProtocolVersion;
 class APeacenetWorldStateActor;
 class UPeacenetSaveGame;
+class UStoryCharacter;
 
 UCLASS()
 class PROJECTOGLOWIA_API UProceduralGenerationEngine : public UObject
@@ -97,6 +98,9 @@ public:
     void GenerateIdentityPosition(FPeacenetIdentity& Pivot, FPeacenetIdentity& Identity);
 
     UFUNCTION()
+    void UpdateStoryCharacter(UStoryCharacter* InStoryCharacter);
+
+    UFUNCTION()
     UProtocolVersion* GetProtocol(UComputerService* InService, int InSkill);
 
     UFUNCTION()
@@ -125,6 +129,9 @@ public:
 
     UFUNCTION()
     FString GenerateIPAddress();
+
+    UFUNCTION()
+    void UpdateStoryIdentities();
 
     UFUNCTION()
     void PlaceLootableFiles(UUserContext* InUserContext);

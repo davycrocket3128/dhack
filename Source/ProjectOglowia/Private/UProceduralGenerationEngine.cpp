@@ -43,9 +43,105 @@
 #include "CommonUtils.h"
 #include "WallpaperAsset.h"
 #include "UPeacegateFileSystem.h"
+#include "StoryCharacter.h"
 #include "UMarkovChain.h"
 #include "PeacenetSiteAsset.h"
 #include "PeacenetWorldStateActor.h"
+
+void UProceduralGenerationEngine::UpdateStoryIdentities()
+{
+    // Load in all of the story character assets.
+    TArray<UStoryCharacter*> StoryCharacters;
+    this->Peacenet->LoadAssets<UStoryCharacter>("StoryCharacter", StoryCharacters);
+
+    // Updates all the story characters in the game. If one
+    // doesn't exist, it gets created.
+    for(auto Character : StoryCharacters)
+    {
+        this->UpdateStoryCharacter(Character);
+    }
+}
+
+void UProceduralGenerationEngine::UpdateStoryCharacter(UStoryCharacter* InStoryCharacter)
+{
+    // The entity ID and identity of the current (or new)
+    // character.
+    int EntityID = -1;
+    FPeacenetIdentity Identity;
+
+    // Index of the identity in the save file.
+    int IdentityIndex = -1;
+
+    // Does the save file already know about this character?
+    if(this->Peacenet->SaveGame->GetStoryCharacterID(InStoryCharacter, EntityID))
+    {
+        // Fetch the identity from the save file.
+        // Debug builds crash if this fails. The save file should report that it couldn't find
+        // an entity if the entity ID is invalid.
+        bool result = this->Peacenet->SaveGame->GetCharacterByID(EntityID, Identity, IdentityIndex);
+        check(result);
+    }
+    else
+    {
+        // We don't have an existing identity so we'll generate
+        // a new one real quick and add it to the save file.
+        Identity = FPeacenetIdentity();
+
+        // This makes sure there's definitely no computer for the NPC.
+        // This is done later.
+        Identity.ComputerID = -1;
+
+        // This will give us a new ID.
+        for(auto& ExistingIdentity : this->Peacenet->SaveGame->Characters)
+        {
+            if(ExistingIdentity.ID > EntityID)
+                EntityID = ExistingIdentity.ID + 1;
+        }
+
+        // Assign the entity ID to the identity, and make the identity a story character.
+        Identity.ID = EntityID;
+        Identity.CharacterType = EIdentityType::Story;
+
+        // Retrieve the index of the entity in the save file by getting the
+        // length of the characters array before adding the entity.
+        IdentityIndex = this->Peacenet->SaveGame->Characters.Num();
+        this->Peacenet->SaveGame->Characters.Add(Identity);
+    }
+
+    // Update the character's name.
+    Identity.CharacterName = InStoryCharacter->Name.ToString();
+
+    // Preferred alias of the identity is determined by whether we want to use the name
+    // as the email address.
+    if(InStoryCharacter->UseNameForEmail)
+    {
+        // Use the character's name as the alias.
+        Identity.PreferredAlias = Identity.CharacterName;
+    }
+    else
+    {
+        // Use the email alias value as the preferred alias.
+        Identity.PreferredAlias = InStoryCharacter->EmailAlias;
+    }
+
+    // So that the identity's email doesn't keep changing providers
+    // every time the save file is loaded, we're going to check if it starts
+    // with the preferred alias before we choose a new email.  That way we
+    // are forced to preemptively generate the username part of the email.
+    FString EmailUser = Identity.PreferredAlias.ToLower().Replace(TEXT(" "), TEXT("_"));
+
+    if(!Identity.EmailAddress.StartsWith(EmailUser))
+    {
+        // NOW we can re-assign the email address.
+        Identity.EmailAddress = EmailUser + "@" + this->ChooseEmailDomain();
+    }
+
+    // Update the identity in the save file.
+    this->Peacenet->SaveGame->Characters[IdentityIndex] = Identity;
+
+    // Reassign the character's entity ID.
+    this->Peacenet->SaveGame->AssignStoryCharacterID(InStoryCharacter, EntityID);
+}
 
 FRandomStream& UProceduralGenerationEngine::GetRNG()
 {
@@ -655,6 +751,9 @@ void UProceduralGenerationEngine::Initialize(APeacenetWorldStateActor* InPeacene
 
     // This generates all the Peacenet sites in the game as computers.
     this->SpawnPeacenetSites();
+
+    // This spawns in all of the story characters.
+    this->UpdateStoryIdentities();
 }
 
 void UProceduralGenerationEngine::SpawnPeacenetSites()
