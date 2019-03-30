@@ -91,7 +91,8 @@ void UPeacenetSaveGame::FixEntityIDs()
 	{
 		CharacterIDMap.Add(Characters[i].ID, i);
 		Characters[i].ID = i;
-		Characters[i].ComputerID = ComputerIDMap[Characters[i].ComputerID];
+		if(Characters[i].ComputerID != -1)
+			Characters[i].ComputerID = ComputerIDMap[Characters[i].ComputerID];
 	}
 
 	// Fix up player character ID
