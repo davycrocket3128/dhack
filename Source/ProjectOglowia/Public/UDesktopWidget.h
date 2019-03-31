@@ -43,6 +43,7 @@
 
 class USystemContext;
 class UConsoleContext;
+class APeacenetWorldStateActor;
 class UUserContext;
 class UPTerminalWidget;
 
@@ -102,6 +103,9 @@ public:
 	UProgram* SpawnProgramFromClass(TSubclassOf<UProgram> InClass, const FText& InTitle, UTexture2D* InIcon, bool InEnableMinimizeMaximize);
 
 protected:
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	APeacenetWorldStateActor* GetPeacenet();
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateMap();
 

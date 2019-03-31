@@ -43,6 +43,11 @@
 #include "UProgram.h"
 #include "UConsoleContext.h"
 
+APeacenetWorldStateActor* UDesktopWidget::GetPeacenet()
+{
+	return this->GetUserContext()->GetPeacenet();
+}
+
 UUserContext* UDesktopWidget::GetUserContext()
 {
 	return this->SystemContext->GetUserContext(this->UserID);
