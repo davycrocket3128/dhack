@@ -79,6 +79,9 @@ public:
     int GetAttachmentCount();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Message")
+    bool IsInMission();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Message")
     FText GetMissionAcquisition();
 
     UFUNCTION(BlueprintCallable, Category = "Mail Message")

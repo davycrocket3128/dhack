@@ -29,62 +29,55 @@
  *
  ********************************************************************************/
 
-#pragma once
+#include "MissionActor.h"
+#include "PeacenetWorldStateActor.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/SaveGame.h"
 
-#include "CoreMinimal.h"
-#include "Email.h"
-#include "FPeacenetIdentity.h"
-#include "MailMessage.h"
-#include "MailProvider.generated.h"
-
-class USystemContext;
-class UPeacenetSaveGame;
-class APeacenetWorldStateActor;
-
-UCLASS(BlueprintType)
-class PROJECTOGLOWIA_API UMailProvider : public UObject
+AMissionActor::AMissionActor()
 {
-    GENERATED_BODY()
+    // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+}
 
-private:
-    UPROPERTY()
-    USystemContext* OwningSystem;
+void AMissionActor::Setup(APeacenetWorldStateActor* InPeacenet, UMissionAsset* InMission)
+{
+    check(InPeacenet);
+    check(InMission);
 
-public:
-    UFUNCTION()
-    int GetIdentityID();
+    // Assign our mission data.
+    this->Peacenet = InPeacenet;
+    this->Mission = InMission;
 
-    UFUNCTION()
-    void Setup(USystemContext* InOwningSystem);
+    // Back up the save file.
+    UGameplayStatics::SaveGameToSlot(this->Peacenet->SaveGame, TEXT("PeacegateOS_PreMission"), 0);
+}
 
-    UFUNCTION()
-    UPeacenetSaveGame* GetSaveGame();
+void AMissionActor::Abort()
+{
+    // Restore the save file.
+    this->Peacenet->SaveGame = Cast<UPeacenetSaveGame>(UGameplayStatics::LoadGameFromSlot("PeacegateOS_PreMission", 0));
 
-    UFUNCTION()
-    APeacenetWorldStateActor* GetPeacenet();
+    // Delete the backup.
+    UGameplayStatics::DeleteGameInSlot("PeacegateOS_PreMission", 0);
 
-    UFUNCTION()
-    TArray<FEmail> GetMailMessages();
+    // Delete objective backup if it exists.
+    if(UGameplayStatics::DoesSaveGameExist("PeacegateOS_PreMission", 1))
+    {
+        UGameplayStatics::DeleteGameInSlot("PeacegateOS_PreMission", 1);
+    }
 
-    UFUNCTION()
-    TArray<FEmail> GetInbox();
+    // Destroy ourselves.
+    this->Peacenet = nullptr;
+    this->Mission = nullptr;
 
-    UFUNCTION()
-    TArray<FEmail> GetOutbox();
+    this->Destroy();
+}
 
-    UFUNCTION()
-    void SendMailInternal(TArray<int> InRecipients, FString InSubject, FString InMessageText, int InReplyTo = -1);
+void AMissionActor::Tick(float InDeltaSeconds)
+{
+    if(!this->Peacenet) return;
+    if(!this->Mission) return;
 
-public:
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Provider")
-    int GetInboxCount();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Provider")
-    int GetOutboxCount();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Provider")
-    int GetMissionsCount();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Provider")
-    TArray<UMailMessage*> GetMessagesInInbox();
-};
+    Super::Tick(InDeltaSeconds);
+}

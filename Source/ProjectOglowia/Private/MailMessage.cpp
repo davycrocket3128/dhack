@@ -32,15 +32,23 @@
 #include "MailMessage.h"
 #include "MailProvider.h"
 #include "UPeacenetSaveGame.h"
+#include "PeacenetWorldStateActor.h"
 
 UPeacenetSaveGame* UMailMessage::GetSaveGame()
 {
     return this->Provider->GetSaveGame();
 }
 
+bool UMailMessage::IsInMission()
+{
+    return this->Provider->GetPeacenet()->IsInMission();
+}
+
 void UMailMessage::BeginMission()
 {
+    check(this->HasMission());
 
+    this->Provider->GetPeacenet()->StartMission(this->GetMainMessage().Mission);
 }
 
 FText UMailMessage::GetParticipants()

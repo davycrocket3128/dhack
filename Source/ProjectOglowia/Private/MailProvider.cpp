@@ -34,6 +34,11 @@
 #include "PeacenetWorldStateActor.h"
 #include "UPeacenetSaveGame.h"
 
+APeacenetWorldStateActor* UMailProvider::GetPeacenet()
+{
+    return this->OwningSystem->GetPeacenet();
+}
+
 int UMailProvider::GetIdentityID()
 {
     return this->OwningSystem->GetCharacter().ID;

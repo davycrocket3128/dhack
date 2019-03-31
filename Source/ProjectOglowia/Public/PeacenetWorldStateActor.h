@@ -45,6 +45,7 @@
 #include "UGameTypeAsset.h"
 #include "PeacenetWorldStateActor.generated.h"
 
+class AMissionActor;
 class UChatManager;
 class USystemContext;
 class UWallpaperAsset;
@@ -73,6 +74,9 @@ public: // Constructors
 	APeacenetWorldStateActor();
 
 private: // Properties
+	UPROPERTY()
+	AMissionActor* CurrentMission;
+
 	UPROPERTY()
 	TArray<UExploit*> Exploits;
 
@@ -159,6 +163,18 @@ public:	// Functions
 
 	UFUNCTION()
 	TArray<UExploit*> GetExploits();
+
+	UFUNCTION()
+	bool IsInMission();
+
+	UFUNCTION()
+	void AbortMission();
+
+	UFUNCTION()
+	AMissionActor* GetMissionActor();
+
+	UFUNCTION()
+	void StartMission(UMissionAsset* InMission);
 
 	UFUNCTION()
 	UProceduralGenerationEngine* GetProcgen();

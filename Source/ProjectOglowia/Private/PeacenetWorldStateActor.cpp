@@ -46,6 +46,7 @@
 #include "Async.h"
 #include "Exploit.h"
 #include "UPeacenetGameInstance.h"
+#include "MissionActor.h"
 #include "UWindow.h"
 
 bool APeacenetWorldStateActor::ResolveSystemContext(FString InHost, USystemContext*& OutSystem, EConnectionError& OutError)
@@ -104,6 +105,40 @@ APeacenetWorldStateActor::APeacenetWorldStateActor()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+}
+
+bool APeacenetWorldStateActor::IsInMission()
+{
+	return this->CurrentMission;
+}
+
+AMissionActor* APeacenetWorldStateActor::GetMissionActor()
+{
+	return this->CurrentMission;
+}
+
+void APeacenetWorldStateActor::StartMission(UMissionAsset* InMission)
+{
+	check(InMission);
+	check(!this->IsInMission());
+
+	if(!InMission) return;
+	if(this->IsInMission()) return;
+
+	FVector Location(0.0f, 0.0f, 0.0f);
+	 FRotator Rotation(0.0f, 0.0f, 0.0f);
+ 	FActorSpawnParameters SpawnInfo;
+
+	this->CurrentMission = this->GetWorld()->SpawnActor<AMissionActor>(Location, Rotation, SpawnInfo);
+	this->CurrentMission->Setup(this, InMission);
+}
+
+void APeacenetWorldStateActor::AbortMission()
+{
+	check(this->IsInMission());
+
+	this->CurrentMission->Abort();
+	this->CurrentMission = nullptr;
 }
 
 bool APeacenetWorldStateActor::IsPortOpen(FString InIPAddress, int InPort)
@@ -399,6 +434,12 @@ void APeacenetWorldStateActor::BeginPlay()
 
 void APeacenetWorldStateActor::EndPlay(const EEndPlayReason::Type InReason)
 {
+	// If we're in a mission, we're going to abandon ship.
+	if(this->IsInMission())
+	{
+		this->CurrentMission->Abort();
+	}
+
 	this->SaveWorld();
 }
 
@@ -535,6 +576,9 @@ void APeacenetWorldStateActor::SaveWorld()
 {
 	// update game type, window decorator and desktop class
 	SaveGame->GameTypeName = this->GameType->Name;
+
+	// If we're in a mission, back the fuck out.
+	if(this->IsInMission()) return;
 
 	// Actually save the game.
 	UGameplayStatics::SaveGameToSlot(this->SaveGame, TEXT("PeacegateOS"), 0);

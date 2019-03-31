@@ -32,59 +32,34 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Email.h"
-#include "FPeacenetIdentity.h"
-#include "MailMessage.h"
-#include "MailProvider.generated.h"
+#include "GameFramework/Actor.h"
+#include "MissionAsset.h"
+#include "MissionActor.generated.h"
 
-class USystemContext;
-class UPeacenetSaveGame;
 class APeacenetWorldStateActor;
 
-UCLASS(BlueprintType)
-class PROJECTOGLOWIA_API UMailProvider : public UObject
+UCLASS()
+class PROJECTOGLOWIA_API AMissionActor : public AActor
 {
     GENERATED_BODY()
 
+public:
+    AMissionActor();
+
 private:
     UPROPERTY()
-    USystemContext* OwningSystem;
+    APeacenetWorldStateActor* Peacenet;
+
+    UPROPERTY()
+    UMissionAsset* Mission;
 
 public:
     UFUNCTION()
-    int GetIdentityID();
+    void Setup(APeacenetWorldStateActor* InPeacenet, UMissionAsset* InMission);
 
     UFUNCTION()
-    void Setup(USystemContext* InOwningSystem);
-
-    UFUNCTION()
-    UPeacenetSaveGame* GetSaveGame();
-
-    UFUNCTION()
-    APeacenetWorldStateActor* GetPeacenet();
-
-    UFUNCTION()
-    TArray<FEmail> GetMailMessages();
-
-    UFUNCTION()
-    TArray<FEmail> GetInbox();
-
-    UFUNCTION()
-    TArray<FEmail> GetOutbox();
-
-    UFUNCTION()
-    void SendMailInternal(TArray<int> InRecipients, FString InSubject, FString InMessageText, int InReplyTo = -1);
+    void Abort();
 
 public:
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Provider")
-    int GetInboxCount();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Provider")
-    int GetOutboxCount();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Provider")
-    int GetMissionsCount();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Provider")
-    TArray<UMailMessage*> GetMessagesInInbox();
+    virtual void Tick(float InDeltaSeconds) override;
 };
