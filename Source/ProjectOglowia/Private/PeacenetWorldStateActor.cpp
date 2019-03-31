@@ -378,6 +378,9 @@ void APeacenetWorldStateActor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Initialize tutorial state.
+	this->TutorialState = NewObject<UTutorialPromptState>(this);
+
 	// Load all the manual pages.
 	TArray<UManualPageAssetBase*> ManualAssets;
 	this->LoadAssets<UManualPageAssetBase>("ManualPageAssetBase", ManualAssets);
@@ -486,6 +489,16 @@ FGovernmentAlertInfo APeacenetWorldStateActor::GetAlertInfo(int InCharacterId)
 	}
 
 	return GovernmentAlertInfo[Character.ID];
+}
+
+UTutorialPromptState* APeacenetWorldStateActor::GetTutorialState()
+{
+	return this->TutorialState;
+}
+
+bool APeacenetWorldStateActor::IsTutorialActive()
+{
+	return this->GetTutorialState()->IsPromptActive();
 }
 
 void APeacenetWorldStateActor::StartGame(TSubclassOf<UDesktopWidget> InDesktopClass, TSubclassOf<UWindow> InWindowClass)

@@ -41,7 +41,18 @@
 #include "CommonUtils.h"
 #include "WallpaperAsset.h"
 #include "UProgram.h"
+#include "TutorialPromptState.h"
 #include "UConsoleContext.h"
+
+UTutorialPromptState* UDesktopWidget::GetTutorialPrompt()
+{
+	return this->GetUserContext()->GetPeacenet()->GetTutorialState();
+}
+
+bool UDesktopWidget::IsTutorialActive()
+{
+	return this->GetTutorialPrompt()->IsPromptActive();
+}
 
 APeacenetWorldStateActor* UDesktopWidget::GetPeacenet()
 {

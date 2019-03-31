@@ -45,6 +45,7 @@ class USystemContext;
 class UConsoleContext;
 class APeacenetWorldStateActor;
 class UUserContext;
+class UTutorialPromptState;
 class UPTerminalWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FActiveProgramCloseEvent);
@@ -79,6 +80,12 @@ protected:
 
 	UPROPERTY()
 	FGovernmentAlertInfo AlertInfo;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	UTutorialPromptState* GetTutorialPrompt();
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	bool IsTutorialActive();
 
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Government Alert")
 	EGovernmentAlertStatus GetAlertStatus();

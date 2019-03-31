@@ -29,25 +29,32 @@
  *
  ********************************************************************************/
 
-#pragma once
+#include "TutorialPromptState.h"
 
-#include "CoreMinimal.h"
-#include "Text.h"
-#include "TutorialObjective.h"
-#include "TutorialLesson.generated.h"
-
-USTRUCT(BlueprintType)
-struct PROJECTOGLOWIA_API FTutorialLesson
+FText UTutorialPromptState::GetTutorialTitle()
 {
-    GENERATED_BODY()
+    return this->PromptTitle;
+}
 
-public:
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)
-    FText LessonName;
+FText UTutorialPromptState::GetTutorialText()
+{
+    return this->PromptText;
+}
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)
-    FText LessonText;
+void UTutorialPromptState::ActivatePrompt(const FText& InTitle, const FText& InText)
+{
+    this->PromptTitle = InTitle;
+    this->PromptText = InText;
+    this->PromptActive = true;
+}
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Instanced)
-    UTutorialObjective* LessonObjective;
-};
+void UTutorialPromptState::DismissPrompt()
+{
+    this->PromptText = this->PromptTitle = FText::FromString("");
+    this->PromptActive = false;
+}
+
+bool UTutorialPromptState::IsPromptActive()
+{
+    return this->PromptActive;
+}

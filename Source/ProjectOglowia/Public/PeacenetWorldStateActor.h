@@ -43,6 +43,7 @@
 #include "UPeacenetSaveGame.h"
 #include "FGovernmentAlertInfo.h"
 #include "UGameTypeAsset.h"
+#include "TutorialPromptState.h"
 #include "PeacenetWorldStateActor.generated.h"
 
 class AMissionActor;
@@ -74,6 +75,9 @@ public: // Constructors
 	APeacenetWorldStateActor();
 
 private: // Properties
+	UPROPERTY()
+	UTutorialPromptState* TutorialState;
+	
 	UPROPERTY()
 	AMissionActor* CurrentMission;
 
@@ -116,6 +120,12 @@ public: //Properties
 
 	UFUNCTION()
 	void UpdateMaps();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UTutorialPromptState* GetTutorialState();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool IsTutorialActive();
 
 	UFUNCTION()
 	bool ResolveHost(FString InHost, FComputer& OutComputer, EConnectionError& OutError);

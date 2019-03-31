@@ -29,47 +29,42 @@
  *
  ********************************************************************************/
 
-#include "TutorialObjective.h"
+#pragma once
 
+#include "CoreMinimal.h"
+#include "Text.h"
+#include "TextProperty.h"
+#include "TutorialPromptState.generated.h"
+
+UCLASS(BlueprintType)
+class PROJECTOGLOWIA_API UTutorialPromptState : public UObject 
+{
+    GENERATED_BODY()
+
+private:
     UPROPERTY()
-    bool IsCompleted = false;
+    FText PromptTitle;
+    
+    UPROPERTY()
+    FText PromptText;
+    
+    UPROPERTY()
+    bool PromptActive = false;
 
-UUserContext* UTutorialObjective::GetUserContext()
-{
-    return this->UserContext;
-}
+public:
+    UFUNCTION()
+    void ActivatePrompt(const FText& InTitle, const FText& InText);
+    
+    UFUNCTION(BlueprintCallable)
+    void DismissPrompt();
 
-void UTutorialObjective::Complete()
-{
-    this->IsCompleted = true;
-}
+    UFUNCTION()
+    bool IsPromptActive();
 
-void UTutorialObjective::NativeObjectiveStarted()
-{
+public:
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    FText GetTutorialTitle();
 
-}
-
-void UTutorialObjective::NativeTick(float InDeltaSeconds)
-{
-
-}
-
-bool UTutorialObjective::IsObjectiveCompleted()
-{
-    return this->IsCompleted;
-}
-
-void UTutorialObjective::StartObjective(UUserContext* InUserContext)
-{
-    this->UserContext = InUserContext;
-    this->IsCompleted = false;
-
-    this->NativeObjectiveStarted();
-    this->OnObjectiveStarted();
-}
-
-void UTutorialObjective::Tick(float InDeltaSeconds)
-{
-    this->NativeTick(InDeltaSeconds);
-    this->OnTick(InDeltaSeconds);
-}
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    FText GetTutorialText();
+};
