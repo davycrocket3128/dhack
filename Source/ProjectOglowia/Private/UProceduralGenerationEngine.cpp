@@ -66,7 +66,7 @@ void UProceduralGenerationEngine::UpdateStoryCharacter(UStoryCharacter* InStoryC
 {
     // The entity ID and identity of the current (or new)
     // character.
-    int EntityID = -1;
+    int EntityID = 0;
     FPeacenetIdentity Identity;
 
     // Index of the identity in the save file.
@@ -94,7 +94,7 @@ void UProceduralGenerationEngine::UpdateStoryCharacter(UStoryCharacter* InStoryC
         // This will give us a new ID.
         for(auto& ExistingIdentity : this->Peacenet->SaveGame->Characters)
         {
-            if(ExistingIdentity.ID > EntityID)
+            if(ExistingIdentity.ID == EntityID)
                 EntityID = ExistingIdentity.ID + 1;
         }
 
@@ -330,7 +330,7 @@ void UProceduralGenerationEngine::ClearNonPlayerEntities()
     for(int i = 0; i < this->Peacenet->SaveGame->Characters.Num(); i++)
     {
         FPeacenetIdentity& Character = this->Peacenet->SaveGame->Characters[i];
-        if(Character.CharacterType == EIdentityType::NonPlayer)
+        if(Character.CharacterType != EIdentityType::Player)
         {
             CharactersToRemove.Add(i);
         }
