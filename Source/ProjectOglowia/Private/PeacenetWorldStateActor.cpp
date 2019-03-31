@@ -373,6 +373,15 @@ void APeacenetWorldStateActor::SendMissionMail(UMissionAsset* InMission)
 	this->NewMailAdded.Broadcast();
 }
 
+void APeacenetWorldStateActor::EndMission()
+{
+	// Tells the game we're no longer in a mission.
+	this->CurrentMission = nullptr;
+
+	// Saves the game.
+	this->SaveWorld();
+}
+
 // Called when the game starts or when spawned
 void APeacenetWorldStateActor::BeginPlay()
 {

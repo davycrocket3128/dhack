@@ -34,6 +34,59 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/SaveGame.h"
 
+void AMissionActor::Advance()
+{
+    // Advance the current task pointer so the next task
+    // begins.
+    this->CurrentTask++;
+    
+    // Did we go past the total number of tasks? If so,
+    // the mission is completed.
+    if(this->CurrentTask >= this->LoadedTasks.Num())
+    {
+        this->Complete();
+        return;
+    }
+
+    // If we get this far then we can actually continue.
+
+
+    // First we check if the new task is a checkpoint, and if so
+    // we create a save state and allow the player to restore
+    // from this point in the mission.
+    if(this->LoadedTasks[this->CurrentTask].IsCheckpoint)
+    {
+        this->SetCheckpoint();
+    }
+
+    // Now we can tell the new task that it has started.
+    this->LoadedTasks[this->CurrentTask].Task->Start(this);
+}
+
+void AMissionActor::SetCheckpoint()
+{
+    // Set the checkpoint task.
+    this->CheckpointTask = this->CurrentTask;
+
+    // Store the save file as a save state.
+    UGameplayStatics::SaveGameToSlot(this->Peacenet->SaveGame, "PeacegateOS_PreMission", 1);
+}
+
+void AMissionActor::Complete()
+{
+    // Delete the save states.
+    this->DeleteSaveStates();
+
+    // Tell The Peacenet that we've completed.
+    this->Peacenet->EndMission();
+
+    // Clean up and despawn.
+    this->Peacenet = nullptr;
+    this->Mission=  nullptr;
+
+    this->Destroy();
+}
+
 AMissionActor::AMissionActor()
 {
     // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -49,16 +102,25 @@ void AMissionActor::Setup(APeacenetWorldStateActor* InPeacenet, UMissionAsset* I
     this->Peacenet = InPeacenet;
     this->Mission = InMission;
 
+    // Start the mission task pointer at the beginning, then load
+    //  all valid tasks.
+    this->CurrentTask = -1;
+
+    this->LoadedTasks.Empty();
+    for(auto Task : this->Mission->Tasks)
+    {
+        if(!Task.Task) continue;
+
+        this->LoadedTasks.Add(Task);
+    }
+
     // Back up the save file.
     UGameplayStatics::SaveGameToSlot(this->Peacenet->SaveGame, TEXT("PeacegateOS_PreMission"), 0);
 }
 
-void AMissionActor::Abort()
+void AMissionActor::DeleteSaveStates()
 {
-    // Restore the save file.
-    this->Peacenet->SaveGame = Cast<UPeacenetSaveGame>(UGameplayStatics::LoadGameFromSlot("PeacegateOS_PreMission", 0));
-
-    // Delete the backup.
+        // Delete the backup.
     UGameplayStatics::DeleteGameInSlot("PeacegateOS_PreMission", 0);
 
     // Delete objective backup if it exists.
@@ -66,6 +128,15 @@ void AMissionActor::Abort()
     {
         UGameplayStatics::DeleteGameInSlot("PeacegateOS_PreMission", 1);
     }
+}
+
+void AMissionActor::Abort()
+{
+    // Restore the save file.
+    this->Peacenet->SaveGame = Cast<UPeacenetSaveGame>(UGameplayStatics::LoadGameFromSlot("PeacegateOS_PreMission", 0));
+
+    // Delete save states.
+    this->DeleteSaveStates();
 
     // Destroy ourselves.
     this->Peacenet = nullptr;
@@ -78,6 +149,19 @@ void AMissionActor::Tick(float InDeltaSeconds)
 {
     if(!this->Peacenet) return;
     if(!this->Mission) return;
+
+    if(this->CurrentTask == -1)
+    {
+        this->Advance();
+    }
+    else if(this->LoadedTasks[this->CurrentTask].Task->GetIsFinished())
+    {
+        this->Advance();
+    }
+    else
+    {
+        this->LoadedTasks[this->CurrentTask].Task->Tick(InDeltaSeconds);
+    }
 
     Super::Tick(InDeltaSeconds);
 }

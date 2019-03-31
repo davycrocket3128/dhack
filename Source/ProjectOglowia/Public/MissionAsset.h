@@ -36,7 +36,24 @@
 #include "Text.h"
 #include "TextProperty.h"
 #include "StoryCharacter.h"
+#include "MissionTask.h"
 #include "MissionAsset.generated.h"
+
+USTRUCT(BlueprintType)
+struct FMissionTaskInfo
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(Editanywhere, BlueprintReadOnly)
+    FText TaskName;
+
+    UPROPERTY(Editanywhere, BlueprintReadOnly)
+    bool IsCheckpoint = false;
+
+    UPROPERTY(Editanywhere, BlueprintReadOnly, Instanced)
+    UMissionTask* Task;
+};
 
 UCLASS(Blueprintable, BlueprintType)
 class PROJECTOGLOWIA_API UMissionAsset : public UDataAsset
@@ -61,4 +78,7 @@ public:
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Metadata")
     UStoryCharacter* Assigner;
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Tasks")
+    TArray<FMissionTaskInfo> Tasks;
 };

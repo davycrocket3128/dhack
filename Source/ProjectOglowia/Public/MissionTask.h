@@ -32,56 +32,42 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "MissionAsset.h"
-#include "MissionActor.generated.h"
+#include "MissionTask.generated.h"
 
-class APeacenetWorldStateActor;
+class AMissionActor;
 
-UCLASS()
-class PROJECTOGLOWIA_API AMissionActor : public AActor
+UCLASS(Blueprintable, BlueprintType, Abstract, EditInlineNew)
+class PROJECTOGLOWIA_API UMissionTask : public UObject
 {
     GENERATED_BODY()
 
-public:
-    AMissionActor();
-
 private:
     UPROPERTY()
-    TArray<FMissionTaskInfo> LoadedTasks;
+    AMissionActor* Mission;
 
     UPROPERTY()
-    int CurrentTask = -1;
-
-    UPROPERTY()
-    int CheckpointTask = -1;
-
-    UPROPERTY()
-    APeacenetWorldStateActor* Peacenet;
-
-    UPROPERTY()
-    UMissionAsset* Mission;
-
-public:
-    UFUNCTION()
-    void Setup(APeacenetWorldStateActor* InPeacenet, UMissionAsset* InMission);
-
-    UFUNCTION()
-    void Abort();
-
-public:
-    virtual void Tick(float InDeltaSeconds) override;
+    bool IsFinished = false;
 
 protected:
-    UFUNCTION()
-    void Advance();
+    virtual void NativeStart() {}
+    virtual void NativeTick(float InDeltaSeconds) {}
 
-    UFUNCTION()
+    UFUNCTION(BlueprintCallable)
     void Complete();
 
+    UFUNCTION(BlueprintImplementableEvent)
+    void OnStart();
+
+    UFUNCTION(BlueprintImplementableEvent)
+    void OnTick(float InDeltaSeconds);
+
+public:
     UFUNCTION()
-    void SetCheckpoint();
+    void Start(AMissionActor* InMission);
 
     UFUNCTION()
-    void DeleteSaveStates();
+    void Tick(float InDeltaSeconds);
+
+    UFUNCTION()
+    bool GetIsFinished();
 };

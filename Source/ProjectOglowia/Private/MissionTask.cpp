@@ -29,59 +29,32 @@
  *
  ********************************************************************************/
 
-#pragma once
+#include "MissionTask.h"
+#include "MissionActor.h"
 
-#include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "MissionAsset.h"
-#include "MissionActor.generated.h"
-
-class APeacenetWorldStateActor;
-
-UCLASS()
-class PROJECTOGLOWIA_API AMissionActor : public AActor
+void UMissionTask::Complete()
 {
-    GENERATED_BODY()
+    this->IsFinished = true;
+}
 
-public:
-    AMissionActor();
+void UMissionTask::Start(AMissionActor* InMission)
+{
+    check(InMission);
 
-private:
-    UPROPERTY()
-    TArray<FMissionTaskInfo> LoadedTasks;
+    this->Mission = InMission;
 
-    UPROPERTY()
-    int CurrentTask = -1;
+    this->IsFinished = false;
+    this->NativeStart();
+    this->OnStart();
+}
 
-    UPROPERTY()
-    int CheckpointTask = -1;
+void UMissionTask::Tick(float InDeltaSeconds)
+{
+    this->NativeTick(InDeltaSeconds);
+    this->OnTick(InDeltaSeconds);
+}
 
-    UPROPERTY()
-    APeacenetWorldStateActor* Peacenet;
-
-    UPROPERTY()
-    UMissionAsset* Mission;
-
-public:
-    UFUNCTION()
-    void Setup(APeacenetWorldStateActor* InPeacenet, UMissionAsset* InMission);
-
-    UFUNCTION()
-    void Abort();
-
-public:
-    virtual void Tick(float InDeltaSeconds) override;
-
-protected:
-    UFUNCTION()
-    void Advance();
-
-    UFUNCTION()
-    void Complete();
-
-    UFUNCTION()
-    void SetCheckpoint();
-
-    UFUNCTION()
-    void DeleteSaveStates();
-};
+bool UMissionTask::GetIsFinished()
+{
+    return this->IsFinished;
+}

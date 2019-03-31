@@ -128,6 +128,9 @@ public: //Properties
 	bool IsTutorialActive();
 
 	UFUNCTION()
+	void EndMission();
+
+	UFUNCTION()
 	bool ResolveHost(FString InHost, FComputer& OutComputer, EConnectionError& OutError);
 
 	UPROPERTY()
