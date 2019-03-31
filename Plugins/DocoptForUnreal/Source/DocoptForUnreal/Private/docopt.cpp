@@ -622,17 +622,18 @@ docopt::docopt_parse(std::string const& doc,
 {
 	Required pattern;
 	std::vector<Option> options;
-	
-	// FIXME: ERROR HANDLING
-	std::tie(pattern, options) = create_pattern_tree(doc);
-	
+	try {
+		std::tie(pattern, options) = create_pattern_tree(doc);
+	} catch (Tokens::OptionError const& error) {
+		throw DocoptLanguageError(error.what());
+	}
+
 	PatternList argv_patterns;
-	
-	// FIXME: ERROR HANDLING
+	try {
 		argv_patterns = parse_argv(Tokens(argv), options, options_first);
-	/*} catch (Tokens::OptionError const& error) {
+	} catch (Tokens::OptionError const& error) {
 		throw DocoptArgumentError(error.what());
-	}*/
+	}
 
 	extras(help, version, argv_patterns);
 
@@ -667,12 +668,11 @@ docopt::docopt(std::string const& doc,
 	       std::vector<std::string> const& argv,
 	       bool help,
 	       std::string const& version,
-	       bool options_first)
+	       bool options_first) noexcept
 {
-	// FIXME: ERROR HANDLING
-	//try {
+	try {
 		return docopt_parse(doc, argv, help, !version.empty(), options_first);
-	/*} catch (DocoptExitHelp const&) {
+	} catch (DocoptExitHelp const&) {
 		std::cout << doc << std::endl;
 		std::exit(0);
 	} catch (DocoptExitVersion const&) {
@@ -687,6 +687,5 @@ docopt::docopt(std::string const& doc,
 		std::cout << std::endl;
 		std::cout << doc << std::endl;
 		std::exit(-1);
-	}*/
-	 /* Any other exception is unexpected: let std::terminate grab it */
+	} /* Any other exception is unexpected: let std::terminate grab it */
 }

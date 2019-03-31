@@ -58,6 +58,9 @@ namespace UnrealBuildTool.Rules
                 {
                 }
 			);
-		}
+            bEnableExceptions = true;
+        }
+
+        
 	}
 }

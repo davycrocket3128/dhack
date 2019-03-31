@@ -50,6 +50,10 @@ namespace UnrealBuildTool.Rules
                     "PropertyEditor",
                 }
 			);
+
+			bEnableExceptions = true;
 		}
+
+		
 	}
 }
