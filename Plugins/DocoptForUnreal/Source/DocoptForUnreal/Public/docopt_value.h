@@ -34,9 +34,9 @@ namespace docopt {
 
 		~value();
 		value(value const&);
-		value(value&&) noexcept;
+		value(value&&);
 		value& operator=(value const&);
-		value& operator=(value&&) noexcept;
+		value& operator=(value&&);
 		
 		// Test if this object has any contents at all
 		explicit operator bool() const { return kind != Kind::Empty; }
@@ -53,7 +53,7 @@ namespace docopt {
 		std::string const& asString() const;
 		std::vector<std::string> const& asStringList() const;
 
-		size_t hash() const noexcept;
+		size_t hash() const;
 		
 		// equality is based on hash-equality
 		friend bool operator==(value const&, value const&);
@@ -105,7 +105,7 @@ namespace docopt {
 namespace std {
 	template <>
 	struct hash<docopt::value> {
-		size_t operator()(docopt::value const& val) const noexcept {
+		size_t operator()(docopt::value const& val) const {
 			return val.hash();
 		}
 	};
@@ -168,7 +168,7 @@ namespace docopt {
 	}
 
 	inline
-	value::value(value&& other) noexcept
+	value::value(value&& other)
 	: kind(other.kind)
 	{
 		switch (kind) {
@@ -222,9 +222,7 @@ namespace docopt {
 	}
 
 	inline
-	value& value::operator=(value&& other) noexcept {
-		// move of all the types involved is noexcept, so we dont have to worry about 
-		// these two statements throwing, which gives us a consistency guarantee.
+	value& value::operator=(value&& other) {
 		this->~value();
 		new (this) value(std::move(other));
 
@@ -235,7 +233,7 @@ namespace docopt {
 	void hash_combine(std::size_t& seed, const T& v);
 
 	inline
-	size_t value::hash() const noexcept
+	size_t value::hash() const
 	{
 		switch (kind) {
 			case Kind::String:

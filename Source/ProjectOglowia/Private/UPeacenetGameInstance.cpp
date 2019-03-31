@@ -254,11 +254,19 @@ void UPeacenetGameInstance::Init()
 	{
 		this->GameTypes.Add(Cast<UPeacenetGameTypeAsset>(Asset.GetAsset()));
 	}
+
+	Super::Init();
 }
 
 void UPeacenetGameInstance::Shutdown()
 {
 	// Unreal Engine's about to shut down.	
-
 	this->SaveSettings();
+
+	// AND NOW WE'RE GOING TO ABANDON SHIP.
+	this->GameTypes.Empty();
+	this->Settings = nullptr;
+
+	// KILLLLLLLL EVERYTHINGGGGGGGGG
+	Super::Shutdown();
 }

@@ -89,7 +89,8 @@ void UMailProvider::SendMailInternal(TArray<int> InRecipients, FString InSubject
     {
         FPeacenetIdentity Identity;
         int Index;
-        check(this->GetSaveGame()->GetCharacterByID(EntityID, Identity, Index));
+        bool result = this->GetSaveGame()->GetCharacterByID(EntityID, Identity, Index);
+        check(result);
     }
 
     // Set the recipient list.

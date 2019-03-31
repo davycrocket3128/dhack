@@ -16,10 +16,9 @@ TMap<FString, UDocoptValue*> UDocoptForUnrealBPLibrary::NativeParseArguments(con
 
 	std::map<std::string, docopt::value> internal_map;
 
-	try 
-	{
+	// FIXME: ERROR HANDLING
 		internal_map = docopt::docopt_parse(doc, argv, InHelp, !InVersion.IsEmpty(), InOptionsFirst);
-	}
+	/*}
 	catch (docopt::DocoptExitHelp const&) 
 	{
 		OutMessage = InDoc;
@@ -44,7 +43,7 @@ TMap<FString, UDocoptValue*> UDocoptForUnrealBPLibrary::NativeParseArguments(con
 		OutMessage = FString(error.what());
 		OutHasMessage = true;
 		return TMap<FString, UDocoptValue*>();
-	}
+	}*/
 
 	TMap<FString, UDocoptValue*> ret;
 
