@@ -72,6 +72,9 @@ public:
     UFUNCTION()
     void Abort();
 
+    UFUNCTION()
+    void SendGameEvent(FString EventName, TMap<FString, FString> InEventData);
+
 public:
     virtual void Tick(float InDeltaSeconds) override;
 

@@ -36,6 +36,12 @@
 #include "USystemContext.h"
 #include "UUserContext.h"
 
+void UMissionTask::HandleEvent(FString EventName, TMap<FString, FString> InEventArgs)
+{
+    this->NativeEvent(EventName, InEventArgs);
+    this->OnHandleEvent(EventName, InEventArgs);
+}
+
 UUserContext* UMissionTask::GetPlayerUser()
 {
     int PlayerID = this->GetPeacenet()->SaveGame->PlayerCharacterID;

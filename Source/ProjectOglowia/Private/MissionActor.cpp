@@ -145,6 +145,11 @@ void AMissionActor::Abort()
     this->Destroy();
 }
 
+void AMissionActor::SendGameEvent(FString EventName, TMap<FString, FString> InEventData)
+{
+    this->LoadedTasks[this->CurrentTask].Task->HandleEvent(EventName, InEventData);
+}
+
 APeacenetWorldStateActor* AMissionActor::GetPeacenet()
 {
     return this->Peacenet;

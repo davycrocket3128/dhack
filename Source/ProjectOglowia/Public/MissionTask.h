@@ -53,6 +53,7 @@ private:
 protected:
     virtual void NativeStart() {}
     virtual void NativeTick(float InDeltaSeconds) {}
+    virtual void NativeEvent(FString EventName, TMap<FString, FString> InEventArgs) {}
 
     UFUNCTION(BlueprintCallable, BlueprintPure)
     APeacenetWorldStateActor* GetPeacenet();
@@ -69,7 +70,13 @@ protected:
     UFUNCTION(BlueprintImplementableEvent)
     void OnTick(float InDeltaSeconds);
 
+    UFUNCTION(BlueprintImplementableEvent)
+    void OnHandleEvent(const FString& EventName, const TMap<FString, FString>& InEventArgs);
+
 public:
+    UFUNCTION()
+    void HandleEvent(FString EventName, TMap<FString, FString> InEventArgs);
+
     UFUNCTION()
     void Start(AMissionActor* InMission);
 
