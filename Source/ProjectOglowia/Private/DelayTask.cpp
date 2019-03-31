@@ -29,62 +29,18 @@
  *
  ********************************************************************************/
 
-#pragma once
+#include "DelayTask.h"
 
-#include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "MissionAsset.h"
-#include "MissionActor.generated.h"
-
-class APeacenetWorldStateActor;
-
-UCLASS()
-class PROJECTOGLOWIA_API AMissionActor : public AActor
+void UDelayTask::NativeStart()
 {
-    GENERATED_BODY()
+    this->TimeLeft = this->DelayTime;
+}
 
-public:
-    AMissionActor();
-
-private:
-    UPROPERTY()
-    TArray<FMissionTaskInfo> LoadedTasks;
-
-    UPROPERTY()
-    int CurrentTask = -1;
-
-    UPROPERTY()
-    int CheckpointTask = -1;
-
-    UPROPERTY()
-    APeacenetWorldStateActor* Peacenet;
-
-    UPROPERTY()
-    UMissionAsset* Mission;
-
-public:
-    UFUNCTION()
-    void Setup(APeacenetWorldStateActor* InPeacenet, UMissionAsset* InMission);
-
-    UFUNCTION()
-    APeacenetWorldStateActor* GetPeacenet();
-
-    UFUNCTION()
-    void Abort();
-
-public:
-    virtual void Tick(float InDeltaSeconds) override;
-
-protected:
-    UFUNCTION()
-    void Advance();
-
-    UFUNCTION()
-    void Complete();
-
-    UFUNCTION()
-    void SetCheckpoint();
-
-    UFUNCTION()
-    void DeleteSaveStates();
-};
+void UDelayTask::NativeTick(float InDeltaTime)
+{
+    this->TimeLeft -= InDeltaTime;
+    if(this->TimeLeft <= 0.0f)
+    {
+        this->Complete();
+    }
+}

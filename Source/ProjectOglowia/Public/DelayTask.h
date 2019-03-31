@@ -32,59 +32,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "MissionAsset.h"
-#include "MissionActor.generated.h"
+#include "MissionTask.h"
+#include "DelayTask.generated.h"
 
-class APeacenetWorldStateActor;
-
-UCLASS()
-class PROJECTOGLOWIA_API AMissionActor : public AActor
+UCLASS(BlueprintType)
+class PROJECTOGLOWIA_API UDelayTask : public UMissionTask
 {
     GENERATED_BODY()
 
-public:
-    AMissionActor();
-
 private:
     UPROPERTY()
-    TArray<FMissionTaskInfo> LoadedTasks;
-
-    UPROPERTY()
-    int CurrentTask = -1;
-
-    UPROPERTY()
-    int CheckpointTask = -1;
-
-    UPROPERTY()
-    APeacenetWorldStateActor* Peacenet;
-
-    UPROPERTY()
-    UMissionAsset* Mission;
+    float TimeLeft;
 
 public:
-    UFUNCTION()
-    void Setup(APeacenetWorldStateActor* InPeacenet, UMissionAsset* InMission);
-
-    UFUNCTION()
-    APeacenetWorldStateActor* GetPeacenet();
-
-    UFUNCTION()
-    void Abort();
-
-public:
-    virtual void Tick(float InDeltaSeconds) override;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere)
+    float DelayTime = 2.0f;
 
 protected:
-    UFUNCTION()
-    void Advance();
-
-    UFUNCTION()
-    void Complete();
-
-    UFUNCTION()
-    void SetCheckpoint();
-
-    UFUNCTION()
-    void DeleteSaveStates();
+    virtual void NativeStart() override;
+    virtual void NativeTick(float InDeltaTime) override;
 };

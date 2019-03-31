@@ -35,6 +35,8 @@
 #include "MissionTask.generated.h"
 
 class AMissionActor;
+class APeacenetWorldStateActor;
+class UUserContext;
 
 UCLASS(Blueprintable, BlueprintType, Abstract, EditInlineNew)
 class PROJECTOGLOWIA_API UMissionTask : public UObject
@@ -51,6 +53,12 @@ private:
 protected:
     virtual void NativeStart() {}
     virtual void NativeTick(float InDeltaSeconds) {}
+
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    APeacenetWorldStateActor* GetPeacenet();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    UUserContext* GetPlayerUser();
 
     UFUNCTION(BlueprintCallable)
     void Complete();

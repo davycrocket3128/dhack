@@ -550,6 +550,9 @@ void APeacenetWorldStateActor::StartGame(TSubclassOf<UDesktopWidget> InDesktopCl
 	// Set up the desktop.
 	PlayerSystemContext->SetupDesktop(this->SaveGame->PlayerUserID);
 
+	// Keep the player system context loaded.
+	this->SystemContexts.Add(PlayerSystemContext);
+
 	this->PlayerSystemReady.Broadcast(PlayerSystemContext);
 }
 

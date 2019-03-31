@@ -31,6 +31,22 @@
 
 #include "MissionTask.h"
 #include "MissionActor.h"
+#include "PeacenetWorldStateActor.h"
+#include "UPeacenetSaveGame.h"
+#include "USystemContext.h"
+#include "UUserContext.h"
+
+UUserContext* UMissionTask::GetPlayerUser()
+{
+    int PlayerID = this->GetPeacenet()->SaveGame->PlayerCharacterID;
+    USystemContext* PlayerSystem = this->GetPeacenet()->GetSystemContext(PlayerID);
+    return PlayerSystem->GetUserContext(this->GetPeacenet()->SaveGame->PlayerUserID);
+}
+
+APeacenetWorldStateActor* UMissionTask::GetPeacenet()
+{
+    return this->Mission->GetPeacenet();
+}
 
 void UMissionTask::Complete()
 {

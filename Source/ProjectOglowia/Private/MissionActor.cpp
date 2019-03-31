@@ -145,6 +145,11 @@ void AMissionActor::Abort()
     this->Destroy();
 }
 
+APeacenetWorldStateActor* AMissionActor::GetPeacenet()
+{
+    return this->Peacenet;
+}
+
 void AMissionActor::Tick(float InDeltaSeconds)
 {
     if(!this->Peacenet) return;
