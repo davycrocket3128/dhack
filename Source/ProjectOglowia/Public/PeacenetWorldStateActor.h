@@ -57,9 +57,11 @@ class UExploit;
 class UCommandInfo;
 class UPayloadAsset;
 class UWindow;
+class UMissionAsset;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerSystemContextReadyEvent, USystemContext*, InSystemContext);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPeacenetMapUpdateEvent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMailMessageSendEvent);
 
 UCLASS()
 class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
@@ -96,6 +98,15 @@ private: // Properties
 	TMap<int, FGovernmentAlertInfo> GovernmentAlertInfo;
 
 public: //Properties
+	UPROPERTY()
+	FMailMessageSendEvent NewMailAdded;
+
+	UPROPERTY()
+	TArray<UMissionAsset*> Missions;
+
+	UFUNCTION()
+	void SendMissionMail(UMissionAsset* InMission);
+
 	UPROPERTY()
 	FPeacenetMapUpdateEvent MapsUpdated;
 

@@ -32,6 +32,7 @@
 #include "PeacenetWorldStateActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "PeacegateProgramAsset.h"
+#include "MissionAsset.h"
 #include "UComputerService.h"
 #include "UHelpCommand.h"
 #include "UChatManager.h"
@@ -322,6 +323,21 @@ TArray<FManualPage> APeacenetWorldStateActor::GetManualPages()
 	return this->ManualPages;
 }
 
+void APeacenetWorldStateActor::SendMissionMail(UMissionAsset* InMission)
+{
+	check(InMission);
+
+	FEmail MissionEmail;
+	MissionEmail.ID = this->SaveGame->EmailMessages.Num();
+	MissionEmail.InReplyTo = -1;
+	this->SaveGame->GetStoryCharacterID(InMission->Assigner, MissionEmail.FromEntity);
+	MissionEmail.ToEntities.Add(SaveGame->PlayerCharacterID);
+	MissionEmail.Mission = InMission;
+	MissionEmail.Subject = InMission->Name.ToString();
+	this->SaveGame->EmailMessages.Add(MissionEmail);
+	this->NewMailAdded.Broadcast();
+}
+
 // Called when the game starts or when spawned
 void APeacenetWorldStateActor::BeginPlay()
 {
@@ -366,6 +382,19 @@ void APeacenetWorldStateActor::BeginPlay()
 
 	// Spin up the procedural generation engine.
 	this->Procgen = NewObject<UProceduralGenerationEngine>(this);
+
+	// Load all mission assets.
+	TArray<UMissionAsset*> TempMissions;
+
+	this->LoadAssets<UMissionAsset>("MissionAsset", TempMissions);
+
+	for(auto Mission: TempMissions)
+	{
+		if(Mission->Assigner)
+		{
+			this->Missions.Add(Mission);
+		}
+	}
 }
 
 void APeacenetWorldStateActor::EndPlay(const EEndPlayReason::Type InReason)

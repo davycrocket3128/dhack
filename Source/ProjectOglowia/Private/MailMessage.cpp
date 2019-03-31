@@ -31,6 +31,95 @@
 
 #include "MailMessage.h"
 #include "MailProvider.h"
+#include "UPeacenetSaveGame.h"
+
+UPeacenetSaveGame* UMailMessage::GetSaveGame()
+{
+    return this->Provider->GetSaveGame();
+}
+
+void UMailMessage::BeginMission()
+{
+
+}
+
+FText UMailMessage::GetParticipants()
+{
+    FString Ret = "You";
+
+    int FirstOther = -1;
+
+    if(this->GetMainMessage().FromEntity != this->Provider->GetIdentityID())
+    {
+        FirstOther = this->GetMainMessage().FromEntity;
+    }
+    else
+    {
+        FirstOther = this->GetMainMessage().ToEntities[0];
+    }
+
+    FPeacenetIdentity Identity;
+    int Index = -1;
+    bool result = this->GetSaveGame()->GetCharacterByID(this->GetMainMessage().FromEntity, Identity, Index);
+    check(result);
+    Ret += ", " + Identity.CharacterName;
+
+    TArray<int> UniqueOthers;
+
+    if(this->GetMainMessage().FromEntity != FirstOther && this->GetMainMessage().FromEntity != this->Provider->GetIdentityID())
+    {
+        UniqueOthers.Add(this->GetMainMessage().FromEntity);
+    }
+
+    for(int Other: this->GetMainMessage().ToEntities)
+    {
+        if(Other == FirstOther) continue;
+        if(Other == this->Provider->GetIdentityID()) continue;
+        if(UniqueOthers.Contains(Other)) continue;
+
+        UniqueOthers.Add(Other);
+    }
+
+    for(auto& Reply : this->GetReplies())
+    {
+        if(Reply.FromEntity != FirstOther && Reply.FromEntity != this->Provider->GetIdentityID() && !UniqueOthers.Contains(Reply.FromEntity))
+        {
+            UniqueOthers.Add(Reply.FromEntity);
+        }
+
+        for(int Other: Reply.ToEntities)
+        {
+            if(Other == FirstOther) continue;
+            if(Other == this->Provider->GetIdentityID()) continue;
+            if(UniqueOthers.Contains(Other)) continue;
+
+            UniqueOthers.Add(Other);
+        }
+
+    }
+
+    if(UniqueOthers.Num())
+    {
+        if(UniqueOthers.Num() == 1)
+        {
+            Ret += ", 1 other";
+        }
+        else
+        {
+            Ret += ", " + FString::FromInt(UniqueOthers.Num()) + " others";
+        }
+    }
+    return FText::FromString(Ret);
+}
+
+FText UMailMessage::GetMissionAcquisition()
+{
+    if(this->HasMission())
+    {
+        return this->GetMainMessage().Mission->Description;
+    }
+    return FText::FromString("Not a mission.");
+}
 
 void UMailMessage::Setup(UMailProvider* InProvider, int InMessageID)
 {
@@ -66,12 +155,28 @@ TArray<FEmail> UMailMessage::GetReplies()
 
 FText UMailMessage::GetSubject()
 {
+    if(this->HasMission())
+    {
+        return this->GetMainMessage().Mission->Name;
+    }
     return FText::FromString(this->GetMainMessage().Subject);
 }
 
 bool UMailMessage::HasMission()
 {
-    return false;
+    return this->GetMainMessage().Mission;
+}
+
+FText UMailMessage::GetMessageText()
+{
+    if(this->HasMission())
+    {
+        return this->GetMainMessage().Mission->MailMessageText;
+    }
+    else
+    {
+        return FText::FromString(this->GetMainMessage().MessageBody);
+    } 
 }
 
 bool UMailMessage::HasAttachments()

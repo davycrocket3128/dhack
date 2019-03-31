@@ -34,6 +34,11 @@
 #include "PeacenetWorldStateActor.h"
 #include "UPeacenetSaveGame.h"
 
+int UMailProvider::GetIdentityID()
+{
+    return this->OwningSystem->GetCharacter().ID;
+}
+
 int UMailProvider::GetInboxCount()
 {
     return this->GetInbox().Num();

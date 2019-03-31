@@ -37,6 +37,7 @@
 #include "MailMessage.generated.h"
 
 class UMailProvider;
+class UPeacenetSaveGame;
 
 UCLASS(BlueprintType)
 class PROJECTOGLOWIA_API UMailMessage : public UObject
@@ -49,6 +50,10 @@ private:
 
     UPROPERTY()
     int MessageID = 0;
+
+private:
+    UFUNCTION()
+    UPeacenetSaveGame* GetSaveGame();
 
 public:
     UFUNCTION()
@@ -72,4 +77,16 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Message")
     int GetAttachmentCount();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Message")
+    FText GetMissionAcquisition();
+
+    UFUNCTION(BlueprintCallable, Category = "Mail Message")
+    void BeginMission();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Message")
+    FText GetParticipants();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Message")
+    FText GetMessageText();
 };

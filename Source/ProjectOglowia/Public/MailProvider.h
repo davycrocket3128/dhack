@@ -51,6 +51,9 @@ private:
 
 public:
     UFUNCTION()
+    int GetIdentityID();
+
+    UFUNCTION()
     void Setup(USystemContext* InOwningSystem);
 
     UFUNCTION()

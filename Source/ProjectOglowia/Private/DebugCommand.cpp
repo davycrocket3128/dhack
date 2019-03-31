@@ -33,6 +33,7 @@
 #include "UUserContext.h"
 #include "PeacenetWorldStateActor.h"
 #include "CString.h"
+#include "MissionAsset.h"
 #include "UPeacenetSaveGame.h"
 
 void ADebugCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
@@ -120,6 +121,23 @@ void ADebugCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString>
             {
                 InConsole->WriteLine(IP + "\t\t" + FString::FromInt(InConsole->GetUserContext()->GetPeacenet()->SaveGame->ComputerIPMap[IP]));
             }            
+        }
+        else if(action == "missions")
+        {
+            for(auto Mission: InConsole->GetUserContext()->GetPeacenet()->Missions)
+            {
+                InConsole->WriteLine(Mission->GetName());
+            }
+        }
+        else if(action == "unlock_mission")
+        {
+            for(auto Mission: InConsole->GetUserContext()->GetPeacenet()->Missions)
+            {
+                if(Mission->GetName() == id)
+                {
+                    InConsole->GetUserContext()->GetPeacenet()->SendMissionMail(Mission);
+                }
+            }
         }
         else if(action == "possess_comp")
         {
