@@ -121,6 +121,49 @@ void ADebugCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString>
                 InConsole->WriteLine(IP + "\t\t" + FString::FromInt(InConsole->GetUserContext()->GetPeacenet()->SaveGame->ComputerIPMap[IP]));
             }            
         }
+        else if(action == "possess_comp")
+        {
+            int cid = FCString::Atoi(*id);
+
+            FComputer Computer;
+            int Index;
+            bool result = InConsole->GetUserContext()->GetPeacenet()->SaveGame->GetComputerByID(cid, Computer, Index);
+
+            if(result)
+            {
+                InConsole->GetUserContext()->GetOwningSystem()->Setup(cid,InConsole->GetUserContext()->GetOwningSystem()->GetCharacter().ID,  InConsole->GetUserContext()->GetPeacenet());
+                bool HasRoot = false;
+                for(auto& User : Computer.Users)
+                {
+                    if(User.ID == 0)
+                    {
+                        HasRoot = true;
+                    }
+                }
+
+                if(!HasRoot)
+                {
+                    InConsole->WriteLine("WARNING: computer doesn't have a peacegate user, creating new root user. may fuck up the game if michael hasn't had caffeine.");
+                    FUser Root;
+                    Root.ID = 0;
+                    Root.Username = "root";
+                    Root.Domain = EUserDomain::Administrator;
+                    InConsole->GetUserContext()->GetOwningSystem()->GetComputer().Users.Add(Root);
+                }
+                InConsole->GetUserContext()->Setup(InConsole->GetUserContext()->GetOwningSystem(), 0);
+            }
+            else
+            {
+                InConsole->WriteLine("Entity not found.");
+            }
+        }
+        else if(action == "comps")
+        {
+            for(auto& Computer : InConsole->GetUserContext()->GetPeacenet()->SaveGame->Computers)
+            {
+                InConsole->WriteLine(FString::FromInt(Computer.ID));
+            }
+        }
         else if (action == "doms")
         {
             // No, I don't mean the kind of dom that likes bondage.

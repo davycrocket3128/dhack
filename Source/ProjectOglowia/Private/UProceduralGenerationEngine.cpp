@@ -320,7 +320,7 @@ void UProceduralGenerationEngine::ClearNonPlayerEntities()
     for(int i = 0; i < this->Peacenet->SaveGame->Computers.Num(); i++)
     {
         FComputer& Computer = this->Peacenet->SaveGame->Computers[i];
-        if(Computer.OwnerType == EComputerOwnerType::NPC)
+        if(Computer.OwnerType != EComputerOwnerType::Player)
         {
             ComputersToRemove.Add(i);
         }
@@ -519,6 +519,7 @@ FString UProceduralGenerationEngine::ChooseEmailDomain()
 void UProceduralGenerationEngine::GenerateNonPlayerCharacters()
 {
     this->ClearNonPlayerEntities();
+    this->GenerateEmailServers();
     UE_LOG(LogTemp, Display, TEXT("Cleared old NPCs if any..."));
 
     for(int i = 0; i < 1000; i++)
@@ -709,16 +710,16 @@ void UProceduralGenerationEngine::Initialize(APeacenetWorldStateActor* InPeacene
 
     if(this->Peacenet->SaveGame->IsNewGame)
     {
-        // Generate email servers.
-        this->GenerateEmailServers();
-
         // PASS 1: GENERATE NPC IDENTITIES.
         this->GenerateNonPlayerCharacters();
 
         // PASS 2: GENERATE STORY CHARACTERS
-        // TODO
+        this->UpdateStoryIdentities();
 
-        // PASS 3: GENERATE CHARACTER RELATIONSHIPS
+        // PASS 3: SPAWN PEACENET SITES
+        this->SpawnPeacenetSites();
+
+        // PASS 4: GENERATE CHARACTER RELATIONSHIPS
         this->GenerateCharacterRelationships();
     }
 
@@ -748,12 +749,6 @@ void UProceduralGenerationEngine::Initialize(APeacenetWorldStateActor* InPeacene
 
         this->ProtocolVersions.Add(Protocol);
     }
-
-    // This generates all the Peacenet sites in the game as computers.
-    this->SpawnPeacenetSites();
-
-    // This spawns in all of the story characters.
-    this->UpdateStoryIdentities();
 }
 
 void UProceduralGenerationEngine::SpawnPeacenetSites()

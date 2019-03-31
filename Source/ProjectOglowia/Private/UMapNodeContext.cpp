@@ -61,7 +61,10 @@ FString UMapNodeContext::GetIPAddress()
     FComputer Computer;
     int ComputerIndex;
     bool result = this->GetSaveGame()->GetComputerByID(this->GetIdentity().ComputerID, Computer, ComputerIndex);
-    check(result);
+    
+    if(!result)
+        return "<error>";
+
     return this->MapWidget->GetUserContext()->GetPeacenet()->GetIPAddress(Computer);
 }
 

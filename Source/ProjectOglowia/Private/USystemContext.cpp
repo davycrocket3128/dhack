@@ -439,7 +439,8 @@ FPeacenetIdentity& USystemContext::GetCharacter()
 	int CharacterIndex = 0;
 	FPeacenetIdentity Character;
 
-	check(MyPeacenet->SaveGame->GetCharacterByID(this->CharacterID, Character, CharacterIndex));
+	bool result = MyPeacenet->SaveGame->GetCharacterByID(this->CharacterID, Character, CharacterIndex);
+	check(result);
 
 	return MyPeacenet->SaveGame->Characters[CharacterIndex];
 }
@@ -573,11 +574,13 @@ void USystemContext::HandleFileSystemEvent(EFilesystemEventType InType, FString 
 		}
 
 		// Does peacegate.log not exist?
-		if (!RootFS->FileExists("/var/log/system.log"))
-		{
-			// write blank log.
-			RootFS->WriteText("/var/log/system.log", "");
-		}
+		// if (!RootFS->FileExists("/var/log/system.log"))
+		// {
+		//	// write blank log.
+		//	RootFS->WriteText("/var/log/system.log", "");
+		//}
+		// The above code was written during an episode of severe
+		// acute hypocaffiemia in Michael VanOverbeek.
 
 	}
 }

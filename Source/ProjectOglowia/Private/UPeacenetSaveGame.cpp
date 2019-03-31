@@ -166,6 +166,67 @@ void UPeacenetSaveGame::FixEntityIDs()
 		AdjacentsToRemove.RemoveAt(0);
 		AdjacentsRemoved++;
 	}
+
+	// A bug has been found where the game doesn't check
+	// to see if a computer has an IP address before generating
+	// a new one.  This cleanup will fix save files created
+	// while this bug existed.
+	//
+	// A list of duplicate IP addresses to remove:
+	TArray<FString> DuplicateIPs;
+
+	// A list of entity IDs to track when finding duped IPs.
+	TArray<int> DupeComputers;
+
+	// Go through the IP address map to find duplicates.
+	for(auto& IP : this->ComputerIPMap)
+	{
+		if(DupeComputers.Contains(IP.Value))
+			DuplicateIPs.Add(IP.Key);
+		else
+			DupeComputers.Add(IP.Value);
+	}
+
+	// Remove all duplicate IPs.
+	while(DuplicateIPs.Num())
+	{
+		this->ComputerIPMap.Remove(DuplicateIPs[0]);
+		DuplicateIPs.RemoveAt(0);
+	}
+
+	// The above IP duplication cleanup will inherently fix
+	// an issue where the game generates excessive amounts of
+	// domain names.
+
+	// What domain names shall we expire later?
+	TArray<FString> DeadDomains;
+	
+	// Keeps track of domain name IPs so we can remove
+	// any duplicates.
+	//
+	// Two domains shouldn't point to the same IP.
+	TArray<FString> DomainIPs;
+
+	// Loop through all domain names and find ones that
+	// point to invalid IP addresses.
+	for(auto& Domain : this->DomainNameMap)
+	{
+		if(!ComputerIPMap.Contains(Domain.Value))
+			DeadDomains.Add(Domain.Key);
+		
+		if(DomainIPs.Contains(Domain.Value) && !DeadDomains.Contains(Domain.Key))
+			DeadDomains.Add(Domain.Key);
+
+		if(!DomainIPs.Contains(Domain.Value))
+			DomainIPs.Add(Domain.Value);
+	}
+
+	// Removes all dead domain names from the game.
+	while(DeadDomains.Num())
+	{
+		DomainNameMap.Remove(DeadDomains[0]);
+		DeadDomains.RemoveAt(0);
+	}
 }
 
 bool UPeacenetSaveGame::IsTrue(FString InKey)
