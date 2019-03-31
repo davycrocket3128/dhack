@@ -179,7 +179,15 @@ FText UMailMessage::GetMessageText()
 {
     if(this->HasMission())
     {
-        return this->GetMainMessage().Mission->MailMessageText;
+        FString Text = this->GetMainMessage().Mission->MailMessageText.ToString();
+        if(Text.Contains("%agent"))
+        {
+            FPeacenetIdentity Agent;
+            int Index;
+            bool result = this->GetSaveGame()->GetCharacterByID(this->Provider->GetIdentityID(), Agent, Index);
+            Text = Text.Replace(TEXT("%agent"), *Agent.CharacterName);
+        }
+        return FText::FromString(Text);
     }
     else
     {
