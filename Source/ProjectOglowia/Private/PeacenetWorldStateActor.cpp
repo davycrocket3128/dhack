@@ -34,7 +34,6 @@
 #include "PeacegateProgramAsset.h"
 #include "MissionAsset.h"
 #include "UComputerService.h"
-#include "UHelpCommand.h"
 #include "UChatManager.h"
 #include "WallpaperAsset.h"
 #include "UProceduralGenerationEngine.h"
