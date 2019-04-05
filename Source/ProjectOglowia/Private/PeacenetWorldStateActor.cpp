@@ -382,6 +382,9 @@ void APeacenetWorldStateActor::SendMissionMail(UMissionAsset* InMission)
 	MissionEmail.Subject = InMission->Name.ToString();
 	this->SaveGame->EmailMessages.Add(MissionEmail);
 	this->NewMailAdded.Broadcast();
+
+	// Notify the player of the new email message.
+	this->GetSystemContext(this->SaveGame->PlayerCharacterID)->GetMailProvider()->NotifyReceivedMessage(MissionEmail.ID);
 }
 
 void APeacenetWorldStateActor::EndMission()

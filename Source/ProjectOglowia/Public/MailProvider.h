@@ -90,7 +90,7 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Provider")
     TArray<UMailMessage*> GetMessagesInInbox();
 
-protected:
+public:
     UFUNCTION()
     void NotifyReceivedMessage(int InMessageID);
 
