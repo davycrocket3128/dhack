@@ -228,6 +228,9 @@ public:	// Functions
 	UFUNCTION()
 	bool IsPortOpen(FString InIPAddress, int InPort);
 
+	UFUNCTION()
+	bool IdentityHasSystemContext(int InIdentityID);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Network Map")
 	bool ScanForServices(FString InIPAddress, TArray<FFirewallRule>& OutRules);
 

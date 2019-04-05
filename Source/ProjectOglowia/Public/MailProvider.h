@@ -41,6 +41,8 @@ class USystemContext;
 class UPeacenetSaveGame;
 class APeacenetWorldStateActor;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FNewMailMessage, UMailMessage*, InMessage);
+
 UCLASS(BlueprintType)
 class PROJECTOGLOWIA_API UMailProvider : public UObject
 {
@@ -87,4 +89,12 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Provider")
     TArray<UMailMessage*> GetMessagesInInbox();
+
+protected:
+    UFUNCTION()
+    void NotifyReceivedMessage(int InMessageID);
+
+public:
+    UPROPERTY(BlueprintAssignable)
+    FNewMailMessage NewMessageReceived;
 };

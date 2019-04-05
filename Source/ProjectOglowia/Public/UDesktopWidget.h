@@ -226,7 +226,7 @@ public:
 	UFUNCTION()
 	void ResetAppLauncher();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void EnqueueNotification(const FText& InTitle, const FText& InMessage, UTexture2D* InIcon);
 
 	UFUNCTION()

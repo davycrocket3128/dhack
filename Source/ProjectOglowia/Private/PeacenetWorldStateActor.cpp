@@ -48,6 +48,18 @@
 #include "MissionActor.h"
 #include "UWindow.h"
 
+bool APeacenetWorldStateActor::IdentityHasSystemContext(int InIdentityID)
+{
+	for(auto SystemContext : this->SystemContexts)
+	{
+		if(SystemContext->GetCharacter().ID == InIdentityID)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 bool APeacenetWorldStateActor::ResolveSystemContext(FString InHost, USystemContext*& OutSystem, EConnectionError& OutError)
 {
 	// What the fuck are we connecting to and does it even exist?

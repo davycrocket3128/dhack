@@ -123,6 +123,42 @@ void UMailProvider::SendMailInternal(TArray<int> InRecipients, FString InSubject
 
     // Add it to the save file.
     this->GetSaveGame()->EmailMessages.Add(NewMail);
+
+    // Notify all recipients that they've received an email.
+    for(auto Recipient : InRecipients)
+    {
+        // Does the recipient have a loaded system context?
+        // If it doesn't, we don't notify the recipient because we'd need to
+        // create a new system context which means less precious RAM.
+        if(this->OwningSystem->GetPeacenet()->IdentityHasSystemContext(Recipient))
+        {
+            // Get the existing recipient system context.
+            USystemContext* RecSys = this->OwningSystem->GetPeacenet()->GetSystemContext(Recipient);
+
+            // Now we can notify its mail provider of the new message.
+            RecSys->GetMailProvider()->NotifyReceivedMessage(NewMail.ID);
+        }
+    }
+}
+
+void UMailProvider::NotifyReceivedMessage(int InMessageID)
+{
+    bool Exists = false;
+
+    for(auto& Message : this->GetMailMessages())
+    {
+        if(Message.ID == InMessageID)
+        {
+            Exists = true;
+            break;
+        }
+    }
+
+    check(Exists);
+
+    UMailMessage* BlueprintMessage = NewObject<UMailMessage>(this);
+    BlueprintMessage->Setup(this, InMessageID);
+    this->NewMessageReceived.Broadcast(BlueprintMessage);
 }
 
 void UMailProvider::Setup(USystemContext* InOwningSystem)
