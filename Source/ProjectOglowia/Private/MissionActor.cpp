@@ -77,6 +77,11 @@ void AMissionActor::Complete()
     // Delete the save states.
     this->DeleteSaveStates();
 
+    // Adds the mission to the list of completed missions.
+    // If it isn't in there already.
+    if(!this->Peacenet->SaveGame->CompletedMissions.Contains(this->Mission))
+        this->Peacenet->SaveGame->CompletedMissions.Add(this->Mission);
+
     // Tell The Peacenet that we've completed.
     this->Peacenet->EndMission();
 

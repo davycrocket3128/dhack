@@ -387,6 +387,42 @@ void APeacenetWorldStateActor::SendMissionMail(UMissionAsset* InMission)
 	this->GetSystemContext(this->SaveGame->PlayerCharacterID)->GetMailProvider()->NotifyReceivedMessage(MissionEmail.ID);
 }
 
+void APeacenetWorldStateActor::SendAvailableMissions()
+{
+	for(auto Mission : this->Missions)
+	{
+		if(this->SaveGame->CompletedMissions.Contains(Mission)) continue;
+
+		bool IsMissingMission = false;
+
+		for(auto RequiredMission : Mission->RequiredMissions)
+		{
+			if(!this->SaveGame->CompletedMissions.Contains(RequiredMission))
+			{
+				IsMissingMission = true;
+				break;
+			}
+		}
+
+		if(IsMissingMission) continue;
+
+		bool HasMissionMail = false;
+
+		for(auto& MailMessage : this->SaveGame->EmailMessages)
+		{
+			if(MailMessage.ToEntities.Contains(this->SaveGame->PlayerCharacterID) && MailMessage.Mission == Mission)
+			{
+				HasMissionMail = true;
+				break;
+			}
+		}
+
+		if(HasMissionMail) continue;
+
+		this->SendMissionMail(Mission);
+	}
+}
+
 void APeacenetWorldStateActor::EndMission()
 {
 	// Tells the game we're no longer in a mission.
@@ -394,6 +430,9 @@ void APeacenetWorldStateActor::EndMission()
 
 	// Saves the game.
 	this->SaveWorld();
+
+	// Notifies of any new missions.
+	this->SendAvailableMissions();
 }
 
 // Called when the game starts or when spawned
@@ -568,6 +607,9 @@ void APeacenetWorldStateActor::StartGame(TSubclassOf<UDesktopWidget> InDesktopCl
 	this->SystemContexts.Add(PlayerSystemContext);
 
 	this->PlayerSystemReady.Broadcast(PlayerSystemContext);
+
+	// This allows the game to notify the player of any new missions.
+	this->SendAvailableMissions();
 }
 
 bool APeacenetWorldStateActor::FindProgramByName(FName InName, UPeacegateProgramAsset *& OutProgram)

@@ -47,6 +47,7 @@
 #include "UPeacenetSaveGame.generated.h"
 
 class UDesktopWidget;
+class UMissionAsset;
 
 /**
  * Represents a world state within Peacenet
@@ -57,6 +58,9 @@ class PROJECTOGLOWIA_API UPeacenetSaveGame : public USaveGame
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(VisibleAnywhere, Category = "Missions")
+	TArray<UMissionAsset*> CompletedMissions;
+
 	UPROPERTY(VisibleAnywhere, Category = "Peacegate")
 	bool IsNewGame = true;
 

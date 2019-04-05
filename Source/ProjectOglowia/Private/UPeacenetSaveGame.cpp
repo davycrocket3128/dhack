@@ -32,6 +32,7 @@
 
 #include "UPeacenetSaveGame.h"
 #include "Computer.h"
+#include "MissionAsset.h"
 
 bool UPeacenetSaveGame::CharacterNameExists(FString CharacterName)
 {

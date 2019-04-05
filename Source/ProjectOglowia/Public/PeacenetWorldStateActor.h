@@ -196,6 +196,9 @@ public:	// Functions
 	bool GetOwningIdentity(FComputer& InComputer, int& OutIdentityID);
 
 	UFUNCTION()
+	void SendAvailableMissions();
+
+	UFUNCTION()
 	TArray<UPayloadAsset*> GetAllPayloads();
 
 	UFUNCTION()
