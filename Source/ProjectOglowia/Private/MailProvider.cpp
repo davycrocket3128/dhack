@@ -68,7 +68,26 @@ int UMailProvider::GetOutboxCount()
 
 int UMailProvider::GetMissionsCount()
 {
-    return 0;
+    int count = 0;
+
+    TArray<UMissionAsset*> missions;
+
+    for(auto& message : this->GetMailMessages())
+    {
+        if(message.ToEntities.Contains(this->GetIdentityID()) && message.Mission)
+        {
+            if(!missions.Contains(message.Mission))
+            {
+                if(!this->OwningSystem->GetPeacenet()->SaveGame->CompletedMissions.Contains(message.Mission))
+                {
+                    missions.Add(message.Mission);
+                    count++;
+                }
+            }
+        }
+    }
+
+    return count;
 }
 
 void UMailProvider::SendMailInternal(TArray<int> InRecipients, FString InSubject, FString InMessageText, int InReplyTo)
