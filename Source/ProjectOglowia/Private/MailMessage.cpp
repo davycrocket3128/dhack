@@ -39,9 +39,16 @@ UPeacenetSaveGame* UMailMessage::GetSaveGame()
     return this->Provider->GetSaveGame();
 }
 
-bool UMailMessage::IsInMission()
+bool UMailMessage::CanPlayMission()
 {
-    return this->Provider->GetPeacenet()->IsInMission();
+    // Obviously we can't play the mission if it doesn't FUCKING EXIST.
+    // FOR THE LOVE OF <insert person here>
+    if(!this->HasMission()) return false;
+
+    // We also can't play if the player is in a mission.
+    if(this->Provider->GetPeacenet()->IsInMission()) return false;
+
+    return !this->Provider->GetPeacenet()->SaveGame->CompletedMissions.Contains(this->GetMainMessage().Mission);
 }
 
 void UMailMessage::BeginMission()
