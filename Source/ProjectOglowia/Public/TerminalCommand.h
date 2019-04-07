@@ -59,6 +59,9 @@ private:
 	UConsoleContext* Console;
 
 	UPROPERTY()
+	TArray<FString> ArgumentList;
+
+	UPROPERTY()
 	int ProcessID = 0;
 
 public:

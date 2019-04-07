@@ -77,6 +77,8 @@ void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Ar
 
 	}
 
+	this->ArgumentList = Argv;
+
 	NativeRunCommand(InConsole, Argv);
 }
 
@@ -88,6 +90,31 @@ void ATerminalCommand::NativeRunCommand(UConsoleContext * InConsole, TArray<FStr
 
 void ATerminalCommand::Complete()
 {
+	// Join the argument list together.
+	FString ArgListText = "";
+	for(auto Arg : this->ArgumentList)
+	{
+		ArgListText += Arg + " ";
+	}
+	ArgListText = ArgListText.TrimStartAndEnd();
+
+	// Create event data for the mission system.
+	TMap<FString, FString> MissionEventData;
+	MissionEventData.Add("Command", this->CommandName);
+	MissionEventData.Add("Arguments", ArgListText);
+
+	// Add docopt arguments to the event data.
+	for(auto DocoptArg : this->ArgumentMap)
+	{
+		if(!MissionEventData.Contains(DocoptArg.Key))
+		{
+			MissionEventData.Add(DocoptArg.Key, DocoptArg.Value->AsString());
+		}
+	}
+
+	// Broadcast to the mission system that we have just run.
+	this->Console->GetUserContext()->GetPeacenet()->SendGameEvent("CommandComplete", MissionEventData);
+
 	// Tell Peacegate OS that the process has finished.
 	this->Console->GetUserContext()->GetOwningSystem()->FinishProcess(this->ProcessID);
 

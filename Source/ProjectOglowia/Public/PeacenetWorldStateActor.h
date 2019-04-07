@@ -180,6 +180,9 @@ public:	// Functions
 	UFUNCTION()
 	bool IsInMission();
 
+    UFUNCTION()
+    void SendGameEvent(FString EventName, TMap<FString, FString> InEventData);
+
 	UFUNCTION()
 	void AbortMission();
 

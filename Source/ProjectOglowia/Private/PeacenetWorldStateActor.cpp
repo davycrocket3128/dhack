@@ -48,6 +48,14 @@
 #include "MissionActor.h"
 #include "UWindow.h"
 
+void APeacenetWorldStateActor::SendGameEvent(FString EventName, TMap<FString, FString> InEventData)
+{
+	if(this->CurrentMission)
+	{
+		this->CurrentMission->SendGameEvent(EventName, InEventData);
+	}
+}
+
 bool APeacenetWorldStateActor::IdentityHasSystemContext(int InIdentityID)
 {
 	for(auto SystemContext : this->SystemContexts)
