@@ -46,6 +46,11 @@ void URunCommandTask::NativeEvent(FString EventName, TMap<FString, FString> InEv
     // If the argument "Command" matches our command's name, we're finished.
     if(InEventArgs["Command"] == this->Command->ID.ToString())
     {
-        this->Complete();
+        // If the expected arguments are empty or match the event data, then
+        // we're complete.
+        if(!this->ExpectedArguments.Len() || InEventArgs["Arguments"] == this->ExpectedArguments)
+        {
+            this->Complete();
+        }
     }
 }

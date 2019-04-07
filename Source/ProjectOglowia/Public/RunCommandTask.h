@@ -46,6 +46,9 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere)
     UCommandInfo* Command;
 
+    UPROPERTY(BlueprintReadWrite, EditAnywhere)
+    FString ExpectedArguments;
+    
 protected:
     virtual void NativeEvent(FString EventName, TMap<FString, FString> InEventArgs) override;
 };
