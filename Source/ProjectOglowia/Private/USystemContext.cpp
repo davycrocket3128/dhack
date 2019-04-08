@@ -789,6 +789,21 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 		}
 	}
 
+	// If the cryptowallets directory exists, delete it.
+	if(fs->DirectoryExists("/usr/share/wallets"))
+	{
+		fs->Delete("/usr/share/wallets", true, fsStatus);
+	}
+
+	fs->CreateDirectory("/usr/share/wallets", fsStatus);
+
+	for(int i = 0; i < this->GetCharacter().CryptoWallets.Num(); i++)
+	{
+		fs->SetFileRecord("/usr/share/wallets/" + this->GetCharacter().CryptoWallets[i].Address, EFileRecordType::CryptoWallet, i);
+	}
+
+
+
 	// If we are a player, auto-scan for adjacent nodes so the player desktop gets populated.
 	if(this->GetCharacter().CharacterType == EIdentityType::Player)
 	{
