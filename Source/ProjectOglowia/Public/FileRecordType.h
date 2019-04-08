@@ -42,5 +42,6 @@ enum class EFileRecordType : uint8
     Command,
     Exploit,
     Payload,
-    Picture
+    Picture,
+    CryptoWallet
 };
