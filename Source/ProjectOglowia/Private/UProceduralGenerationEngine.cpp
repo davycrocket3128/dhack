@@ -692,7 +692,7 @@ void UProceduralGenerationEngine::GenerateUniqueWalletAddress(FCryptoWallet& InW
         InWallet.Address = "";
         while(InWallet.Address.Len() < 24)
         {
-            TCHAR Char = AllowedChars[this->RNG.RandRange(0, AllowedChars.Len())];
+            TCHAR Char = AllowedChars[this->RNG.RandRange(0, AllowedChars.Len() - 1)];
             InWallet.Address.AppendChar(Char);
         }
     } while(InExistingWallets.Contains(InWallet.Address));
