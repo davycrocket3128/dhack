@@ -795,6 +795,17 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 		fs->Delete("/usr/share/wallets", true, fsStatus);
 	}
 
+	if(!fs->DirectoryExists("/usr"))
+	{
+		fs->CreateDirectory("/usr", fsStatus);
+
+		if(!fs->DirectoryExists("/usr/share"))
+		{
+			fs->CreateDirectory("/usr/share", fsStatus);
+		}
+
+	}
+
 	fs->CreateDirectory("/usr/share/wallets", fsStatus);
 
 	for(int i = 0; i < this->GetCharacter().CryptoWallets.Num(); i++)
