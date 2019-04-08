@@ -33,6 +33,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CryptoWallet.h"
 #include "FPeacenetIdentity.generated.h"
 
 /**
@@ -72,6 +73,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	int ComputerID;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TArray<FCryptoWallet> CryptoWallets;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float Reputation;	
