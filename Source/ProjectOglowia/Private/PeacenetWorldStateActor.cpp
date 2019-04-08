@@ -59,7 +59,13 @@ bool APeacenetWorldStateActor::MakeTransaction(FString InOriginCryptoAddress, FS
 
 	if(!this->SaveGame->RemoveFromWallet(InOriginCryptoAddress, InAmount)) return false;
 
-	if(!this->SaveGame->AddToWallet(InOriginCryptoAddress, InAmount)) return false;
+	if(!this->SaveGame->AddToWallet(InTargetCryptoAddress, InAmount)) return false;
+
+	this->SendGameEvent("CryptoTransaction", {
+		{ "From", InOriginCryptoAddress },
+		{ "To", InTargetCryptoAddress },
+		{ "Amount", FString::FromInt(InAmount) }
+	});
 
 	return true;
 }
