@@ -36,6 +36,11 @@
 #include "UUserContext.h"
 #include "MapWidget.h"
 
+bool UMapNodeContext::IsMissionImportant()
+{
+    return this->GetIdentity().IsMissionImportant;
+}
+
 UPeacenetSaveGame* UMapNodeContext::GetSaveGame()
 {
     return this->MapWidget->GetUserContext()->GetPeacenet()->SaveGame;

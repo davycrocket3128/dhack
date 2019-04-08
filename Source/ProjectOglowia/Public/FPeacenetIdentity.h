@@ -82,4 +82,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	EIdentityType CharacterType;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool IsMissionImportant = false;
 };

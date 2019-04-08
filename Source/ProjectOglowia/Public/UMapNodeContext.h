@@ -92,6 +92,9 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Map Node")
     float GetReputation();
 
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Map Node")
+    bool IsMissionImportant();
+
     UFUNCTION()
     int GetNodeID();
 
