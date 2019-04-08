@@ -77,6 +77,24 @@ void ADebugCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString>
                 InConsole->WriteLine("Email: " + Identity.EmailAddress);
                 InConsole->WriteLine("Skill: " + FString::FromInt(Identity.Skill));
                 InConsole->WriteLine("Comp. ID: " + FString::FromInt(Identity.ComputerID));
+
+                InConsole->WriteLine("Wallets:");
+
+                if(Identity.CryptoWallets.Num())
+                {
+                    for(int i = 0; i < Identity.CryptoWallets.Num(); i++)
+                    {
+                        InConsole->WriteLine(" - " + FString::FromInt(i) + ":");
+                        FCryptoWallet& Wallet = Identity.CryptoWallets[i];
+                        InConsole->WriteLine("   - Address: " + Wallet.Address);
+                        InConsole->WriteLine("   - Amount: " + FString::FromInt(Wallet.Amount));
+                        
+                    }
+                }
+                else
+                {
+                    InConsole->WriteLine(" - Identity has no crypto wallets.");
+                }
             }
             else
             {
