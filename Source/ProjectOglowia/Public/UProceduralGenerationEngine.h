@@ -134,6 +134,12 @@ public:
     void UpdateStoryIdentities();
 
     UFUNCTION()
+    void GenerateUniqueWalletAddress(FCryptoWallet& InWallet, TArray<FString>& InExistingWallets);
+
+    UFUNCTION()
+    void GenerateCryptoWallets();
+
+    UFUNCTION()
     void PlaceLootableFiles(UUserContext* InUserContext);
 
     UFUNCTION()

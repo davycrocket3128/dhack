@@ -614,6 +614,92 @@ FPeacenetIdentity& UProceduralGenerationEngine::GenerateNonPlayerCharacter()
     return this->Peacenet->SaveGame->Characters[this->Peacenet->SaveGame->Characters.Num()-1];
 }
 
+void UProceduralGenerationEngine::GenerateCryptoWallets()
+{
+    // A list of existing crypto addresses.
+    TArray<FString> ExistingAddresses;
+
+    for(auto& Identity : this->Peacenet->SaveGame->Characters)
+    {
+        // Does the identity have any existing crypto wallets?
+        if(Identity.CryptoWallets.Num()) 
+        {
+            // Go through every crypto wallet.
+            for(auto& Wallet : Identity.CryptoWallets)
+            {
+                // Does the wallet's address conflict with any others? Or,
+                // is the address empty?
+                if(ExistingAddresses.Contains(Wallet.Address) || !Wallet.Address.Len())
+                {
+                    // Generate a unique address for the wallet.
+                    this->GenerateUniqueWalletAddress(Wallet, ExistingAddresses);
+                }
+                else
+                {
+                    // Add the wallet's address to the list of existing ones,
+                    // so we don't generate a conflicting address.
+                    ExistingAddresses.Add(Wallet.Address);
+                }
+            }
+            continue;
+        }
+
+        // The above code makes sure that no existing crypto wallets
+        // have conflicting addresses, and that any new ones we generate
+        // below won't conflict with old ones.
+        //
+        // If we get this far then it's time to generate a wallet.
+        FCryptoWallet NewWallet;
+        this->GenerateUniqueWalletAddress(NewWallet, ExistingAddresses);
+
+        // The wallet now has an address.  Now we have to put
+        // an amount in it.
+        // 
+        // This depends on the identity's type.
+        switch(Identity.CharacterType)
+        {
+            case EIdentityType::Player:
+                // Players get 0.
+                NewWallet.Amount = 0;
+                break;
+            case EIdentityType::NonPlayer:
+                // Non players get (rand(1, 15) * skill) * 100000.
+                NewWallet.Amount = (this->RNG.RandRange(1, 15) * Identity.Skill) * 100000;
+                break;
+            case EIdentityType::Story:
+                // Story characters get their wallet amount from their story character asset.
+                for(auto& StoryCharacter : this->Peacenet->SaveGame->StoryCharacterIDs)
+                {
+                    if(StoryCharacter.Identity == Identity.ID)
+                    {
+                        NewWallet.Amount = StoryCharacter.CharacterAsset->CryptoWalletAmount;
+                        break;
+                    }
+                }
+                break;
+        }
+
+        // Add the wallet to the identity.
+        Identity.CryptoWallets.Add(NewWallet);
+    }
+}
+
+void UProceduralGenerationEngine::GenerateUniqueWalletAddress(FCryptoWallet& InWallet, TArray<FString>& InExistingWallets)
+{
+    FString AllowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-+=";
+    do
+    {
+        InWallet.Address = "";
+        while(InWallet.Address.Len() < 24)
+        {
+            TCHAR Char = AllowedChars[this->RNG.RandRange(0, AllowedChars.Len())];
+            InWallet.Address.AppendChar(Char);
+        }
+    } while(InExistingWallets.Contains(InWallet.Address));
+
+    InExistingWallets.Add(InWallet.Address);
+}
+
 FString UProceduralGenerationEngine::GeneratePassword(int InLength)
 {
     FString Chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890`~!@#$%^&*()_+-=[]{}\\|'\":;?.,<>";
@@ -721,6 +807,9 @@ void UProceduralGenerationEngine::Initialize(APeacenetWorldStateActor* InPeacene
 
         // PASS 4: GENERATE CHARACTER RELATIONSHIPS
         this->GenerateCharacterRelationships();
+
+        // PASS 5: CRYPTO WALLETS
+        this->GenerateCryptoWallets();
     }
 
     // Array of temporary file assets.

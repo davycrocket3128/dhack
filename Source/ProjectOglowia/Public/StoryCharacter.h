@@ -57,4 +57,7 @@ public:
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
     FString Hostname = "";
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Cryptocurrency")
+    int CryptoWalletAmount = 0;
 };
