@@ -48,6 +48,22 @@
 #include "MissionActor.h"
 #include "UWindow.h"
 
+bool APeacenetWorldStateActor::MakeTransaction(FString InOriginCryptoAddress, FString InTargetCryptoAddress, int InAmount)
+{
+	bool OriginExists = this->SaveGame->CryptoWalletExists(InOriginCryptoAddress);
+	bool TargetExists = this->SaveGame->CryptoWalletExists(InOriginCryptoAddress);
+	
+	check(OriginExists);
+
+	if(!(OriginExists && TargetExists)) return false;
+
+	if(!this->SaveGame->RemoveFromWallet(InOriginCryptoAddress, InAmount)) return false;
+
+	if(!this->SaveGame->AddToWallet(InOriginCryptoAddress, InAmount)) return false;
+
+	return true;
+}
+
 void APeacenetWorldStateActor::SendGameEvent(FString EventName, TMap<FString, FString> InEventData)
 {
 	if(this->CurrentMission)

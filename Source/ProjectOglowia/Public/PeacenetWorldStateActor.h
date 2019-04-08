@@ -243,6 +243,9 @@ public:	// Functions
 	UFUNCTION(BlueprintCallable)
 	TArray<FManualPage> GetManualPages();
 
+	UFUNCTION(BlueprintCallable)
+	bool MakeTransaction(FString InOriginCryptoAddress, FString InTargetCryptoAddress, int InAmount);
+
 protected: // AActor overrides
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
