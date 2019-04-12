@@ -8,11 +8,11 @@
 			"program": "E:\\Projects\\Unreal\\peacenet-ue\\Binaries\\Win64\\ProjectOglowia-Win64-Debug.exe",
 			"args": [
 			],
-			"cwd": "E:\\UE4\\UE_4.20",
+			"cwd": "E:\\UE4\\UE_4.22",
 			"stopAtEntry": false,
 			"externalConsole": true,
 			"type": "cppvsdbg",
-			"visualizerFile": "E:\\UE4\\UE_4.20\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+			"visualizerFile": "E:\\UE4\\UE_4.22\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
 		},
 		{
 			"name": "ProjectOglowia (DebugGame)",
@@ -21,11 +21,11 @@
 			"program": "E:\\Projects\\Unreal\\peacenet-ue\\Binaries\\Win64\\ProjectOglowia-Win64-DebugGame.exe",
 			"args": [
 			],
-			"cwd": "E:\\UE4\\UE_4.20",
+			"cwd": "E:\\UE4\\UE_4.22",
 			"stopAtEntry": false,
 			"externalConsole": true,
 			"type": "cppvsdbg",
-			"visualizerFile": "E:\\UE4\\UE_4.20\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+			"visualizerFile": "E:\\UE4\\UE_4.22\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
 		},
 		{
 			"name": "ProjectOglowia (Development)",
@@ -34,11 +34,11 @@
 			"program": "E:\\Projects\\Unreal\\peacenet-ue\\Binaries\\Win64\\ProjectOglowia.exe",
 			"args": [
 			],
-			"cwd": "E:\\UE4\\UE_4.20",
+			"cwd": "E:\\UE4\\UE_4.22",
 			"stopAtEntry": false,
 			"externalConsole": true,
 			"type": "cppvsdbg",
-			"visualizerFile": "E:\\UE4\\UE_4.20\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+			"visualizerFile": "E:\\UE4\\UE_4.22\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
 		},
 		{
 			"name": "ProjectOglowia (Shipping)",
@@ -47,11 +47,11 @@
 			"program": "E:\\Projects\\Unreal\\peacenet-ue\\Binaries\\Win64\\ProjectOglowia-Win64-Shipping.exe",
 			"args": [
 			],
-			"cwd": "E:\\UE4\\UE_4.20",
+			"cwd": "E:\\UE4\\UE_4.22",
 			"stopAtEntry": false,
 			"externalConsole": true,
 			"type": "cppvsdbg",
-			"visualizerFile": "E:\\UE4\\UE_4.20\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+			"visualizerFile": "E:\\UE4\\UE_4.22\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
 		},
 		{
 			"name": "ProjectOglowia (Test)",
@@ -60,61 +60,59 @@
 			"program": "E:\\Projects\\Unreal\\peacenet-ue\\Binaries\\Win64\\ProjectOglowia-Win64-Test.exe",
 			"args": [
 			],
-			"cwd": "E:\\UE4\\UE_4.20",
+			"cwd": "E:\\UE4\\UE_4.22",
 			"stopAtEntry": false,
 			"externalConsole": true,
 			"type": "cppvsdbg",
-			"visualizerFile": "E:\\UE4\\UE_4.20\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+			"visualizerFile": "E:\\UE4\\UE_4.22\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
 		},
 		{
 			"name": "ProjectOglowiaEditor (Debug)",
 			"request": "launch",
 			"preLaunchTask": "ProjectOglowiaEditor Win64 Debug Build",
-			"program": "E:\\UE4\\UE_4.20\\Engine\\Binaries\\Win64\\UE4Editor-Win64-Debug.exe",
+			"program": "E:\\UE4\\UE_4.22\\Engine\\Binaries\\Win64\\UE4Editor-Win64-Debug.exe",
 			"args": [
-				"E:\\Projects\\Unreal\\peacenet-ue\\ProjectOglowia.uproject",
-				"-debug"
+				"E:\\Projects\\Unreal\\peacenet-ue\\ProjectOglowia.uproject"
 			],
-			"cwd": "E:\\UE4\\UE_4.20",
+			"cwd": "E:\\UE4\\UE_4.22",
 			"stopAtEntry": false,
 			"externalConsole": true,
 			"type": "cppvsdbg",
-			"visualizerFile": "E:\\UE4\\UE_4.20\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+			"visualizerFile": "E:\\UE4\\UE_4.22\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
 		},
 		{
 			"name": "ProjectOglowiaEditor (DebugGame)",
 			"request": "launch",
 			"preLaunchTask": "ProjectOglowiaEditor Win64 DebugGame Build",
-			"program": "E:\\UE4\\UE_4.20\\Engine\\Binaries\\Win64\\UE4Editor.exe",
+			"program": "E:\\UE4\\UE_4.22\\Engine\\Binaries\\Win64\\UE4Editor.exe",
 			"args": [
-				"E:\\Projects\\Unreal\\peacenet-ue\\ProjectOglowia.uproject",
-				"-debug"
+				"E:\\Projects\\Unreal\\peacenet-ue\\ProjectOglowia.uproject"
 			],
-			"cwd": "E:\\UE4\\UE_4.20",
+			"cwd": "E:\\UE4\\UE_4.22",
 			"stopAtEntry": false,
 			"externalConsole": true,
 			"type": "cppvsdbg",
-			"visualizerFile": "E:\\UE4\\UE_4.20\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+			"visualizerFile": "E:\\UE4\\UE_4.22\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
 		},
 		{
 			"name": "ProjectOglowiaEditor (Development)",
 			"request": "launch",
 			"preLaunchTask": "ProjectOglowiaEditor Win64 Development Build",
-			"program": "E:\\UE4\\UE_4.20\\Engine\\Binaries\\Win64\\UE4Editor.exe",
+			"program": "E:\\UE4\\UE_4.22\\Engine\\Binaries\\Win64\\UE4Editor.exe",
 			"args": [
 				"E:\\Projects\\Unreal\\peacenet-ue\\ProjectOglowia.uproject"
 			],
-			"cwd": "E:\\UE4\\UE_4.20",
+			"cwd": "E:\\UE4\\UE_4.22",
 			"stopAtEntry": false,
 			"externalConsole": true,
 			"type": "cppvsdbg",
-			"visualizerFile": "E:\\UE4\\UE_4.20\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+			"visualizerFile": "E:\\UE4\\UE_4.22\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
 		},
 		{
 			"name": "Generate Project Files",
 			"type": "clr",
 			"request": "launch",
-			"program": "E:\\UE4\\UE_4.20\\Engine\\Binaries\\DotNET\\UnrealBuildTool.exe",
+			"program": "E:\\UE4\\UE_4.22\\Engine\\Binaries\\DotNET\\UnrealBuildTool.exe",
 			"console": "externalTerminal",
 			"args": [
 				"-projectfiles",
@@ -124,7 +122,7 @@
 				"-engine"
 			],
 			"internalConsoleOptions": "openOnSessionStart",
-			"cwd": "E:\\UE4\\UE_4.20"
+			"cwd": "E:\\UE4\\UE_4.22"
 		}
 	]
 }
