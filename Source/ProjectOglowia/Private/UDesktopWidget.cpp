@@ -44,6 +44,17 @@
 #include "TutorialPromptState.h"
 #include "UConsoleContext.h"
 
+void UDesktopWidget::ShowProgramOnWorkspace(UProgram* InProgram)
+{
+	// Make sure nothing is invalid.
+	check(InProgram);
+	check(this->GetWorkspace());
+	check(InProgram->Window);
+
+	// Add the program's window to our workspace.
+	this->GetWorkspace()->AddWindow(InProgram->Window);
+}
+
 UTutorialPromptState* UDesktopWidget::GetTutorialPrompt()
 {
 	return this->GetUserContext()->GetPeacenet()->GetTutorialState();

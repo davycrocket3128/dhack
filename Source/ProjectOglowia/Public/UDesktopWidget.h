@@ -39,6 +39,7 @@
 #include "FGovernmentAlertInfo.h"
 #include "UPeacegateFileSystem.h"
 #include "FGameRules.h"
+#include "Workspace.h"
 #include "UDesktopWidget.generated.h"
 
 class USystemContext;
@@ -104,6 +105,10 @@ public:
 	void CloseActiveProgram();
 
 	FActiveProgramCloseEvent EventActiveProgramClose;
+
+protected:
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Workspaces")
+	UWorkspace* GetWorkspace();
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Desktop")
@@ -185,7 +190,7 @@ protected:
 	FGameRules GameRules;
 
 public:
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION()
 	void ShowProgramOnWorkspace(UProgram* InProgram);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Desktop")
