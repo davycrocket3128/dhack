@@ -31,3 +31,42 @@
 
 #include "Workspace.h"
 #include "Window.h"
+
+bool UWorkspace::AreAnyWindowsVisible()
+{
+    for(auto window : this->GetWindows())
+    {
+        if(window->IsVisible())
+            return true;
+    }
+    return false;
+}
+
+void UWorkspace::ShowDesktop()
+{
+    if(this->AreAnyWindowsVisible())
+    {
+        // Clear existing list of invisible windows.
+        this->InvisibleWindows.Empty();
+
+        // Add all visible windows to invisible list, and hide all windows.
+        for(auto window : this->GetWindows())
+        {
+            if(window->IsVisible())
+            {
+                this->InvisibleWindows.Add(window);
+                window->SetVisibility(ESlateVisibility::Hidden);
+            }
+        }
+    }
+    else
+    {
+        // While the invisible window list is not empty, keep
+        // restoring each window and removing it from the list.
+        while(this->InvisibleWindows.Num())
+        {
+            this->InvisibleWindows[0]->SetVisibility(ESlateVisibility::Visible);
+            this->InvisibleWindows.RemoveAt(0);
+        }
+    }
+}

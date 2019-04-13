@@ -43,10 +43,20 @@ class PROJECTOGLOWIA_API UWorkspace : public UUserWidget
 {
     GENERATED_BODY()
 
+private:
+    UPROPERTY()
+    TArray<UWindow*> InvisibleWindows;
+
 public:
     UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Workspace")
     void AddWindow(UWindow* InWindow);
 
     UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Workspace")
     TArray<UWindow*> GetWindows();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Workspace")
+    bool AreAnyWindowsVisible();
+
+    UFUNCTION(BlueprintCallable, Category = "Workspace")
+    void ShowDesktop();
 };
