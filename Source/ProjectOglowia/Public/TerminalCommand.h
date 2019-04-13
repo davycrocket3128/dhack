@@ -56,6 +56,9 @@ class PROJECTOGLOWIA_API ATerminalCommand : public AActor
 
 private:
 	UPROPERTY()
+	bool IsCompleting = false;
+
+	UPROPERTY()
 	UConsoleContext* Console;
 
 	UPROPERTY()
@@ -63,6 +66,13 @@ private:
 
 	UPROPERTY()
 	int ProcessID = 0;
+
+protected:
+	UFUNCTION()
+	void HandleProcessEnded(const FPeacegateProcess& InProcess);
+
+	UFUNCTION()
+	void CompleteInternal(bool KillProcess = true);
 
 public:
 	UPROPERTY(BlueprintReadOnly, Category = "Terminal Command")

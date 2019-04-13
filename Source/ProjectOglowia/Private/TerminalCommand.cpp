@@ -35,6 +35,14 @@
 #include "PeacenetWorldStateActor.h"
 #include "UserContext.h"
 
+void ATerminalCommand::HandleProcessEnded(const FPeacegateProcess& InProcess)
+{
+	if(InProcess.PID == this->ProcessID && !this->IsCompleting)
+	{
+		this->CompleteInternal(false);
+	}
+}
+
 UUserContext* ATerminalCommand::GetUserContext()
 {
 	check(this->GetConsole());
@@ -48,6 +56,12 @@ UConsoleContext* ATerminalCommand::GetConsole()
 
 void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Argv)
 {
+	// Bind our "process ended" handler to Peacegate's "process ended"
+	// event so that we can see when we get killed by the player.
+	TScriptDelegate<> ProcessEndedDelegate;
+	ProcessEndedDelegate.BindUFunction(this, "HandleProcessEnded");
+	InConsole->GetUserContext()->GetOwningSystem()->ProcessEnded.Add(ProcessEndedDelegate);
+
 	this->CommandName = Argv[0];
 	this->Console = InConsole;	
 	this->ProcessID = this->Console->GetUserContext()->StartProcess(this->CommandInfo->ID.ToString(), this->CommandInfo->FullName.ToString());
@@ -90,33 +104,48 @@ void ATerminalCommand::NativeRunCommand(UConsoleContext * InConsole, TArray<FStr
 
 void ATerminalCommand::Complete()
 {
-	// Join the argument list together.
-	FString ArgListText = "";
-	for(auto Arg : this->ArgumentList)
-	{
-		ArgListText += Arg + " ";
-	}
-	ArgListText = ArgListText.TrimStartAndEnd();
+	this->CompleteInternal(true);
+}
 
-	// Create event data for the mission system.
-	TMap<FString, FString> MissionEventData;
-	MissionEventData.Add("Command", this->CommandName);
-	MissionEventData.Add("Arguments", ArgListText);
+void ATerminalCommand::CompleteInternal(bool KillProcess)
+{
+	// If we end up killing our process, this stops this function
+	// from triggering by the "process ended" handler.
+	this->IsCompleting = true;
 
-	// Add docopt arguments to the event data.
-	for(auto DocoptArg : this->ArgumentMap)
+	// If we're killing the process, we need to tell the game that the command
+	// has finished running.  This gets sent to both Peacegate OS (resulting in
+	// the process being killed) and the mission system that we've finished.
+	if(KillProcess)
 	{
-		if(!MissionEventData.Contains(DocoptArg.Key))
+		// Join the argument list together.
+		FString ArgListText = "";
+		for(auto Arg : this->ArgumentList)
 		{
-			MissionEventData.Add(DocoptArg.Key, DocoptArg.Value->AsString());
+			ArgListText += Arg + " ";
 		}
+		ArgListText = ArgListText.TrimStartAndEnd();
+
+		// Create event data for the mission system.
+		TMap<FString, FString> MissionEventData;
+		MissionEventData.Add("Command", this->CommandName);
+		MissionEventData.Add("Arguments", ArgListText);
+
+		// Add docopt arguments to the event data.
+		for(auto DocoptArg : this->ArgumentMap)
+		{
+			if(!MissionEventData.Contains(DocoptArg.Key))
+			{
+				MissionEventData.Add(DocoptArg.Key, DocoptArg.Value->AsString());
+			}
+		}
+
+		// Broadcast to the mission system that we have just run.
+		this->Console->GetUserContext()->GetPeacenet()->SendGameEvent("CommandComplete", MissionEventData);
+
+		// Tell Peacegate OS that the process has ended.
+		this->Console->GetUserContext()->GetOwningSystem()->FinishProcess(this->ProcessID);
 	}
-
-	// Broadcast to the mission system that we have just run.
-	this->Console->GetUserContext()->GetPeacenet()->SendGameEvent("CommandComplete", MissionEventData);
-
-	// Tell Peacegate OS that the process has finished.
-	this->Console->GetUserContext()->GetOwningSystem()->FinishProcess(this->ProcessID);
 
 	this->Completed.Broadcast();
 	
