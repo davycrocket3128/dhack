@@ -59,11 +59,17 @@ private:
 	UPROPERTY()
 	int ProcessID = 0;
 
+	UPROPERTY()
+	bool IsClosing = false;
+
 public:
 	UFUNCTION()
 	void ActiveProgramCloseEvent();
 
 protected:
+	UFUNCTION()
+	void HandleProcessEnded(const FPeacegateProcess& InProcess);
+
 	UFUNCTION(BlueprintCallable, Category = "Desktop")
 	void PushNotification(const FText& InNotificationMessage);
 

@@ -42,6 +42,14 @@
 #include "PeacenetSiteAsset.h"
 #include "PeacegateFileSystem.h"
 
+void UProgram::HandleProcessEnded(const FPeacegateProcess& InProcess)
+{
+	if(InProcess.PID == this->ProcessID && !this->IsClosing)
+	{
+		this->Window->Close();
+	}
+}
+
 bool UProgram::LoadPeacenetSite(FString InURL, UPeacenetSiteWidget*& OutWidget, EConnectionError& OutConnectionError)
 {
 	FString IPAddress;
@@ -144,6 +152,11 @@ UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSu
 		ProgramInstance->GetUserContext()->ShowProgramOnWorkspace(ProgramInstance);
 	}
 
+	// Let the program handle itself being killed...
+	TScriptDelegate<> ProcessEndedDelegate;
+	ProcessEndedDelegate.BindUFunction(ProgramInstance, "HandleProcessEnded");
+	InUserContext->GetOwningSystem()->ProcessEnded.Add(ProcessEndedDelegate);
+
 	// Return the window and program.
 	OutWindow = Window;
 
@@ -152,8 +165,14 @@ UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSu
 
 void UProgram::OwningWindowClosed()
 {
-    // Finish up our process.
-    this->GetUserContext()->GetOwningSystem()->FinishProcess(this->ProcessID);
+	// If we haven't closed already...
+	if(!this->IsClosing)
+	{
+		this->IsClosing = true;
+
+	    // Finish up our process.
+    	this->GetUserContext()->GetOwningSystem()->FinishProcess(this->ProcessID);
+	}
 }
 
 
