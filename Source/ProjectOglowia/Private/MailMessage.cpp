@@ -34,6 +34,13 @@
 #include "PeacenetSaveGame.h"
 #include "PeacenetWorldStateActor.h"
 
+bool UMailMessage::MissionIsCompleted()
+{
+    if(!this->HasMission()) return false;
+
+    return this->GetSaveGame()->CompletedMissions.Contains(this->GetMainMessage().Mission);
+}
+
 UPeacenetSaveGame* UMailMessage::GetSaveGame()
 {
     return this->Provider->GetSaveGame();

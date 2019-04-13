@@ -34,6 +34,19 @@
 #include "PeacenetWorldStateActor.h"
 #include "PeacenetSaveGame.h"
 
+TArray<UMailMessage*> UMailProvider::GetMessagesWithMissions()
+{
+    TArray<UMailMessage*> ret;
+    for(auto message : this->GetMessagesInInbox())
+    {
+        if(message->HasMission() && !message->MissionIsCompleted())
+        {
+            ret.Add(message);
+        }
+    }
+    return ret;
+}
+
 APeacenetWorldStateActor* UMailProvider::GetPeacenet()
 {
     return this->OwningSystem->GetPeacenet();

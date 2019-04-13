@@ -73,6 +73,9 @@ public:
     bool HasMission();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Message")
+    bool MissionIsCompleted();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Message")
     bool HasAttachments();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Message")
