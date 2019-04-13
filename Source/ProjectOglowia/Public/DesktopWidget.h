@@ -76,6 +76,12 @@ class PROJECTOGLOWIA_API UDesktopWidget : public UUserWidget
 	GENERATED_BODY()
 
 protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	void ProcessStarted(const FPeacegateProcess& InProcess);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ProcessEnded(const FPeacegateProcess& InProcess);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System")
 	USystemContext* GetSystemContext();
 

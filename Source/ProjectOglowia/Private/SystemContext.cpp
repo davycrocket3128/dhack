@@ -895,6 +895,8 @@ int USystemContext::StartProcess(FString Name, FString FilePath, int UserID)
 
 	this->AppendLog("Process started - pid " + FString::FromInt(NewPID) + " - uid " + FString::FromInt(UserID) + " - name " + Name);
 
+	this->ProcessStarted.Broadcast(NewProcess);
+
 	return NewProcess.PID;
 }
 
@@ -905,6 +907,7 @@ void USystemContext::FinishProcess(int ProcessID)
 		FPeacegateProcess p = Processes[i];
 		if(p.PID == ProcessID)
 		{
+			this->ProcessEnded.Broadcast(p);
 			this->Processes.RemoveAt(i);
 			this->AppendLog("Process " + FString::FromInt(ProcessID) + " killed.");
 			return;

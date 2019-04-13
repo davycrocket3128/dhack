@@ -50,6 +50,10 @@ class UExploit;
 class URainbowTable;
 class APeacenetWorldStateActor;
 class UPeacegateProgramAsset;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FProcessEvent, const FPeacegateProcess&, InProcess);
+
+
 /**
  * Represents the state and allows access/modification of an NPC or player computer in Peacenet.
  */
@@ -104,6 +108,12 @@ protected:
 	void HandleFileSystemEvent(EFilesystemEventType InType, FString InPath);
 
 public: // Property getters
+	UPROPERTY(BlueprintAssignable)
+	FProcessEvent ProcessStarted;
+
+	UPROPERTY(BlueprintAssignable)
+	FProcessEvent ProcessEnded;
+
 	UFUNCTION()
 	UUserContext* GetHackerContext(int InUserID, UUserContext* HackingUser);
 
