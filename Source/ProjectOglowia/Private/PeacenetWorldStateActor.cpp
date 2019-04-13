@@ -113,12 +113,14 @@ bool APeacenetWorldStateActor::ResolveSystemContext(FString InHost, USystemConte
 	//
 	// I need a character identity.
 	int Identity = -1;
-	if (!this->GetOwningIdentity(pc, Identity))
+	if(pc.OwnerType != EComputerOwnerType::None)
 	{
-		OutError = EConnectionError::ConnectionTimedOut;
-		return false;
+		if (!this->GetOwningIdentity(pc, Identity))
+		{
+			OutError = EConnectionError::ConnectionTimedOut;
+			return false;
+		}
 	}
-	
 	// Now that we have a PC and an identity, we can create a system context.
 	USystemContext* NewContext = NewObject<USystemContext>(this);
 
@@ -253,6 +255,12 @@ bool APeacenetWorldStateActor::GetOwningIdentity(FComputer& InComputer, int& Out
 
 bool APeacenetWorldStateActor::ResolveHost(FString InHost, FComputer& OutComputer, EConnectionError& OutError)
 {
+	// If it's a domain name, map it to the IP address.
+	if(this->SaveGame->DomainNameMap.Contains(InHost))
+	{
+		return this->ResolveHost(this->SaveGame->DomainNameMap[InHost], OutComputer, OutError);
+	}
+
 	// TODO: Host -> IP (a.k.a DNS).
 	if(!this->SaveGame->ComputerIPMap.Contains(InHost))
 	{

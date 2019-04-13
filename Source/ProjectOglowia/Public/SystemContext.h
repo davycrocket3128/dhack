@@ -60,7 +60,13 @@ class PROJECTOGLOWIA_API USystemContext : public UObject
 
 private:
 	UPROPERTY()
+	FPeacenetIdentity InternalIdentity;
+
+	UPROPERTY()
 	UMailProvider* MailProvider;
+
+	UFUNCTION()
+	void UpdateInternalIdentity();
 
 protected:
 	UPROPERTY()

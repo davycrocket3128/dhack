@@ -48,6 +48,18 @@
 #include "CommandInfo.h"
 #include "PayloadAsset.h"
 
+void USystemContext::UpdateInternalIdentity()
+{
+	this->InternalIdentity.ID = -1;
+	this->InternalIdentity.CharacterName = this->GetHostname();
+	this->InternalIdentity.PreferredAlias = this->GetHostname();
+	this->InternalIdentity.EmailAddress = this->GetHostname() + "@" + this->GetIPAddress();
+	this->InternalIdentity.CharacterType = EIdentityType::NonPlayer;
+	this->InternalIdentity.Skill = 0;
+	this->InternalIdentity.Reputation = 0;
+	this->InternalIdentity.ComputerID = this->GetComputer().ID;
+}
+
 TArray<UPayloadAsset*> USystemContext::GetPayloads()
 {
 	TArray<UPayloadAsset*> UnlockedPayloads = this->GetComputer().Payloads;
@@ -433,6 +445,12 @@ UDesktopWidget* USystemContext::GetDesktop()
 FPeacenetIdentity& USystemContext::GetCharacter()
 {
 	check(this->GetPeacenet());
+
+	if(this->GetComputer().OwnerType == EComputerOwnerType::None)
+	{
+		this->UpdateInternalIdentity();
+		return this->InternalIdentity;
+	}
 
 	auto MyPeacenet = this->GetPeacenet();
 
