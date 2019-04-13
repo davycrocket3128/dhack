@@ -78,6 +78,15 @@ TArray<UPayloadAsset*> USystemContext::GetPayloads()
 
 TArray<UExploit*> USystemContext::GetExploits()
 {
+	for(int i = 0; i < this->GetComputer().Exploits.Num(); i++)
+	{
+		if(!this->GetComputer().Exploits[i])
+		{
+			this->GetComputer().Exploits.RemoveAt(i);
+			i--;
+		}
+	}
+
 	return this->GetComputer().Exploits;
 }
 
