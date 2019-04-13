@@ -33,9 +33,9 @@
 
 #include "CoreMinimal.h"
 #include "Payload.h"
-#include "UUserContext.h"
+#include "UserContext.h"
 #include "PeacegateProgramAsset.h"
-#include "UProgram.h"
+#include "Program.h"
 #include "ProgramPayload.generated.h"
 
 UCLASS(BlueprintType)

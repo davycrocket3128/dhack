@@ -32,7 +32,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UUserContext.h"
+#include "UserContext.h"
 #include "Payload.generated.h"
 
 UCLASS(Blueprintable, BlueprintType, Abstract, EditInlineNew)

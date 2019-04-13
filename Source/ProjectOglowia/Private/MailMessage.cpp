@@ -31,7 +31,7 @@
 
 #include "MailMessage.h"
 #include "MailProvider.h"
-#include "UPeacenetSaveGame.h"
+#include "PeacenetSaveGame.h"
 #include "PeacenetWorldStateActor.h"
 
 UPeacenetSaveGame* UMailMessage::GetSaveGame()

@@ -35,8 +35,8 @@
 #include "TerminalCommand.h"
 #include "ManualPage.h"
 #include "PeacenetWorldStateActor.h"
-#include "UUserContext.h"
-#include "UConsoleContext.h"
+#include "UserContext.h"
+#include "ConsoleContext.h"
 #include "ManualCommand.generated.h"
 
 UCLASS(BlueprintType)

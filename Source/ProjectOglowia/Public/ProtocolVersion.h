@@ -33,8 +33,8 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "UComputerService.h"
-#include "EAuthenticationType.h"
+#include "ComputerService.h"
+#include "AuthenticationType.h"
 #include "Text.h"
 #include "ProtocolVersion.generated.h"
 

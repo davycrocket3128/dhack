@@ -33,7 +33,7 @@
 
 #include "CoreMinimal.h"
 #include "TerminalCommand.h"
-#include "UConsoleContext.h"
+#include "ConsoleContext.h"
 #include "HelpCommand.generated.h"
 
 UCLASS(BlueprintType)

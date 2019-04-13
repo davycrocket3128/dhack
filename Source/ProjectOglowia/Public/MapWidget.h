@@ -33,10 +33,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UProgram.h"
+#include "Program.h"
 #include "Blueprint/UserWidget.h"
-#include "UUserContext.h"
-#include "FPeacenetIdentity.h"
+#include "UserContext.h"
+#include "PeacenetIdentity.h"
 #include "MapWidget.generated.h"
 
 class UMapNodeContext;

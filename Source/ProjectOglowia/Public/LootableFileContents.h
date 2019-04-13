@@ -32,7 +32,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UPeacegateFileSystem.h"
+#include "PeacegateFileSystem.h"
 #include "LootableFileContents.generated.h"
 
 UCLASS(Blueprintable, BlueprintType, Abstract, EditInlineNew)

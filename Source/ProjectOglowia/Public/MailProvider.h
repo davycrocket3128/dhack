@@ -33,7 +33,7 @@
 
 #include "CoreMinimal.h"
 #include "Email.h"
-#include "FPeacenetIdentity.h"
+#include "PeacenetIdentity.h"
 #include "MailMessage.h"
 #include "MailProvider.generated.h"
 

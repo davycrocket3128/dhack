@@ -33,9 +33,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UUserContext.h"
+#include "UserContext.h"
 #include "Blueprint/UserWidget.h"
-#include "UProgram.h"
+#include "Program.h"
 #include "PeacenetSiteWidget.generated.h"
 
 class UPeacenetSiteAsset;

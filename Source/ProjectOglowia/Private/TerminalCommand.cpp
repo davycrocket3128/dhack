@@ -33,7 +33,7 @@
 #include "TerminalCommand.h"
 #include "CommandInfo.h"
 #include "PeacenetWorldStateActor.h"
-#include "UUserContext.h"
+#include "UserContext.h"
 
 UUserContext* ATerminalCommand::GetUserContext()
 {

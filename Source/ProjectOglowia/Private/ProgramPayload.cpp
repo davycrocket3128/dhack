@@ -31,8 +31,8 @@
 
 #include "ProgramPayload.h"
 #include "PeacenetWorldStateActor.h"
-#include "Uwindow.h"
-#include "USystemContext.h"
+#include "window.h"
+#include "SystemContext.h"
 
 void UProgramPayload::NativePayloadDeployed(UUserContext* OriginUser, UUserContext* TargetUser)
 {

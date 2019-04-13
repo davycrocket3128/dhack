@@ -31,10 +31,10 @@
 
 
 #include "PTerminalWidget.h"
-#include "FConsoleReadLineLatentAction.h"
+#include "ConsoleReadLineLatentAction.h"
 #include "CommonUtils.h"
 #include "Rendering/DrawElements.h"
-#include "FTerminalSlowTypeLatentAction.h"
+#include "TerminalSlowTypeLatentAction.h"
 
 FString UPTerminalWidget::Sanitize(FString InDirtyBitch)
 {

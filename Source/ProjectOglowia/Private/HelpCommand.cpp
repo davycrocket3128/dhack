@@ -31,7 +31,7 @@
 
 #include "HelpCommand.h"
 #include "CommandInfo.h"
-#include "UUserContext.h"
+#include "UserContext.h"
 #include "PeacegateProgramAsset.h"
 
 void AHelpCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)

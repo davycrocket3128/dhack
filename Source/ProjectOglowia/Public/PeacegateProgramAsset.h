@@ -33,8 +33,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UWindow.h"
-#include "USystemContext.h"
+#include "Window.h"
+#include "SystemContext.h"
 #include "Engine/DataAsset.h"
 #include "ManualPageAssetBase.h"
 #include "PeacegateProgramAsset.generated.h"

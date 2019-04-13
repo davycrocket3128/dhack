@@ -30,11 +30,11 @@
  ********************************************************************************/
 
 #include "HackCommand.h"
-#include "EConnectionError.h"
-#include "FFirewallRule.h"
+#include "ConnectionError.h"
+#include "FirewallRule.h"
 #include "PayloadAsset.h"
 #include "Computer.h"
-#include "UProceduralGenerationEngine.h"
+#include "ProceduralGenerationEngine.h"
 #include "ProtocolVersion.h"
 #include "TerminalCommandParserLibrary.h"
 

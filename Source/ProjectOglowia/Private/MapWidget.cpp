@@ -31,10 +31,10 @@
 
 
 #include "MapWidget.h"
-#include "USystemContext.h"
-#include "UMapNodeContext.h"
+#include "SystemContext.h"
+#include "MapNodeContext.h"
 #include "PeacenetWorldStateActor.h"
-#include "UPeacenetSaveGame.h"
+#include "PeacenetSaveGame.h"
 
 UMapNodeContext* UMapWidget::GetContext(int InEntityID)
 {

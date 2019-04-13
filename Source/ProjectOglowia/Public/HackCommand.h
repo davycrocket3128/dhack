@@ -36,7 +36,7 @@
 #include "Exploit.h"
 #include "Payload.h"
 #include "PayloadAsset.h"
-#include "UUserContext.h"
+#include "UserContext.h"
 #include "HackCommand.generated.h"
 
 UCLASS(BlueprintType)

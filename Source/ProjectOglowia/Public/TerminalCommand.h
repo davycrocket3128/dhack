@@ -35,9 +35,9 @@
 #include "PTerminalWidget.h"
 #include "CoreMinimal.h"
 #include "DocoptForUnrealBPLibrary.h"
-#include "UConsoleContext.h"
+#include "ConsoleContext.h"
 #include "GameFramework/Actor.h"
-#include "USystemContext.h"
+#include "SystemContext.h"
 #include "TerminalCommand.generated.h"
 
 class UUserContext;

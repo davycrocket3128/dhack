@@ -34,7 +34,7 @@
 
 #include "CoreMinimal.h"
 #include "TerminalCommand.h"
-#include "UConsoleContext.h"
+#include "ConsoleContext.h"
 #include "DebugCommand.generated.h"
 
 UCLASS(BlueprintType)

@@ -30,9 +30,9 @@
  ********************************************************************************/
 
 #include "MailProvider.h"
-#include "USystemContext.h"
+#include "SystemContext.h"
 #include "PeacenetWorldStateActor.h"
-#include "UPeacenetSaveGame.h"
+#include "PeacenetSaveGame.h"
 
 APeacenetWorldStateActor* UMailProvider::GetPeacenet()
 {

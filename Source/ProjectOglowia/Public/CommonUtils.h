@@ -33,10 +33,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UPeacegateFileSystem.h"
+#include "PeacegateFileSystem.h"
 #include "SlateFontInfo.h"
 #include "TerminalColor.h"
-#include "EFileOpenResult.h"
+#include "FileOpenResult.h"
 #include "Camera/CameraComponent.h"
 #include "CommonUtils.generated.h"
 

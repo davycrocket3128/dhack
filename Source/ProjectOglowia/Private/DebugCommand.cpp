@@ -30,11 +30,11 @@
  ********************************************************************************/
 
 #include "DebugCommand.h"
-#include "UUserContext.h"
+#include "UserContext.h"
 #include "PeacenetWorldStateActor.h"
 #include "CString.h"
 #include "MissionAsset.h"
-#include "UPeacenetSaveGame.h"
+#include "PeacenetSaveGame.h"
 
 void ADebugCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
 {

@@ -33,8 +33,8 @@
 
 #include "CoreMinimal.h"
 #include "TerminalCommand.h"
-#include "UUserContext.h"
-#include "FAdjacentNodeInfo.h"
+#include "UserContext.h"
+#include "AdjacentNodeInfo.h"
 #include "ProfilerCommand.generated.h"
 
 UCLASS(BlueprintType)

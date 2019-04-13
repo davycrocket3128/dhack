@@ -30,12 +30,12 @@
  ********************************************************************************/
 
 #include "MarkIdentityAction.h"
-#include "UUserContext.h"
-#include "USystemContext.h"
+#include "UserContext.h"
+#include "SystemContext.h"
 #include "PeacenetWorldStateActor.h"
-#include "UPeacenetSaveGame.h"
-#include "FPeacenetIdentity.h"
-#include "UProceduralGenerationEngine.h"
+#include "PeacenetSaveGame.h"
+#include "PeacenetIdentity.h"
+#include "ProceduralGenerationEngine.h"
 
 void UMarkIdentityAction::NativeStart()
 {
