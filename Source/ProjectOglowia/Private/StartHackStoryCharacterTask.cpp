@@ -29,76 +29,35 @@
  *
  ********************************************************************************/
 
-#include "MissionTask.h"
-#include "MissionActor.h"
+#include "StartHackStoryCharacterTask.h"
 #include "PeacenetWorldStateActor.h"
-#include "PeacenetSaveGame.h"
-#include "SystemContext.h"
-#include "UserContext.h"
 
-bool UMissionTask::GetIsFailed()
+void UStartHackStoryCharacterTask::NativeStart()
 {
-    return this->IsFailed;
+    // Check that we have a story character to hack.
+    check(this->StoryCharacter);
+
+    // Get the target entity.
+    bool result = this->GetPlayerUser()->GetPeacenet()->SaveGame->GetStoryCharacterID(this->StoryCharacter, this->TargetEntity);
+    check(result);
 }
 
-FText UMissionTask::GetFailMessage()
+void UStartHackStoryCharacterTask::NativeEvent(FString EventName, TMap<FString, FString> InEventArgs)
 {
-    return this->FailMessage;
-}
+    if(EventName == "HackStart" && !IsInHack)
+    {
+        if(InEventArgs["Identity"] == FString::FromInt(this->TargetEntity))
+        {
+            this->IsInHack = true;
+        }
+    }
 
-void UMissionTask::Fail(const FText& InFailMessage)
-{
-    check(!this->IsFailed);
-    this->IsFailed = true;
-    this->FailMessage = InFailMessage;
-}
-
-void UMissionTask::HandleEvent(FString EventName, TMap<FString, FString> InEventArgs)
-{
-    if(this->IsFailed) return;
-
-    this->NativeEvent(EventName, InEventArgs);
-    this->OnHandleEvent(EventName, InEventArgs);
-}
-
-UUserContext* UMissionTask::GetPlayerUser()
-{
-    int PlayerID = this->GetPeacenet()->SaveGame->PlayerCharacterID;
-    USystemContext* PlayerSystem = this->GetPeacenet()->GetSystemContext(PlayerID);
-    return PlayerSystem->GetUserContext(this->GetPeacenet()->SaveGame->PlayerUserID);
-}
-
-APeacenetWorldStateActor* UMissionTask::GetPeacenet()
-{
-    return this->Mission->GetPeacenet();
-}
-
-void UMissionTask::Complete()
-{
-    this->IsFinished = true;
-}
-
-void UMissionTask::Start(AMissionActor* InMission)
-{
-    check(InMission);
-
-    this->Mission = InMission;
-
-    this->IsFinished = false;
-    this->IsFailed = false;
-    this->NativeStart();
-    this->OnStart();
-}
-
-void UMissionTask::Tick(float InDeltaSeconds)
-{
-    if(this->IsFailed) return;
-
-    this->NativeTick(InDeltaSeconds);
-    this->OnTick(InDeltaSeconds);
-}
-
-bool UMissionTask::GetIsFinished()
-{
-    return this->IsFinished;
+    if(EventName == "HackAbandon" && this->IsInHack)
+    {
+        if(InEventArgs["Identity"] == FString::FromInt(this->TargetEntity))
+        {
+            this->IsInHack = false;
+            this->Fail(NSLOCTEXT("Failures", "HackAbandonedBeforeTaskCompleted", "The hack was abandoned before your objective was completed."));
+        }
+    }
 }

@@ -137,6 +137,13 @@ bool APeacenetWorldStateActor::ResolveSystemContext(FString InHost, USystemConte
 	return true;
 }
 
+void APeacenetWorldStateActor::FailMission(const FText& InFailMessage)
+{
+	check(this->CurrentMission);
+
+	this->MissionFailed.Broadcast(this->CurrentMission, InFailMessage);
+}
+
 UProceduralGenerationEngine* APeacenetWorldStateActor::GetProcgen()
 {
 	return this->Procgen;

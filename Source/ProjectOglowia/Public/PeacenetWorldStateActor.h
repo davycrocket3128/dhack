@@ -64,6 +64,7 @@ class UMissionAsset;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerSystemContextReadyEvent, USystemContext*, InSystemContext);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPeacenetMapUpdateEvent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMailMessageSendEvent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMissionFailureEvent, AMissionActor*, MissionState, const FText&, FailMessage);
 
 UCLASS()
 class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
@@ -106,6 +107,9 @@ private: // Properties
 	TMap<int, FGovernmentAlertInfo> GovernmentAlertInfo;
 
 public: //Properties
+	UPROPERTY(BlueprintAssignable)
+	FMissionFailureEvent MissionFailed;
+
 	UPROPERTY()
 	FMailMessageSendEvent NewMailAdded;
 
@@ -173,6 +177,9 @@ public:
 
 public:	// Functions
 	FText GetTimeOfDay();
+
+	UFUNCTION()
+	void FailMission(const FText& InFailMessage);
 
 	UFUNCTION()
 	TArray<UExploit*> GetExploits();

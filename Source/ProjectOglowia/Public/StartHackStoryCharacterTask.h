@@ -32,74 +32,29 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Text.h"
-#include "TextProperty.h"
-#include "MissionTask.generated.h"
+#include "MissionTask.h"
+#include "UserContext.h"
+#include "StoryCharacter.h"
+#include "PeacenetSaveGame.h"
+#include "StartHackStoryCharacterTask.generated.h"
 
-class AMissionActor;
-class APeacenetWorldStateActor;
-class UUserContext;
-
-UCLASS(Blueprintable, BlueprintType, Abstract, EditInlineNew)
-class PROJECTOGLOWIA_API UMissionTask : public UObject
+UCLASS(BlueprintType)
+class PROJECTOGLOWIA_API UStartHackStoryCharacterTask : public UMissionTask
 {
     GENERATED_BODY()
 
 private:
     UPROPERTY()
-    AMissionActor* Mission;
+    int TargetEntity = 0;
 
     UPROPERTY()
-    bool IsFailed = false;
-
-    UPROPERTY()
-    FText FailMessage;
-
-    UPROPERTY()
-    bool IsFinished = false;
-
-protected:
-    virtual void NativeStart() {}
-    virtual void NativeTick(float InDeltaSeconds) {}
-    virtual void NativeEvent(FString EventName, TMap<FString, FString> InEventArgs) {}
-
-    UFUNCTION(BlueprintCallable, BlueprintPure)
-    APeacenetWorldStateActor* GetPeacenet();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure)
-    UUserContext* GetPlayerUser();
-
-    UFUNCTION(BlueprintCallable)
-    void Complete();
-
-    UFUNCTION(BlueprintCallable)
-    void Fail(const FText& InFailMessage);
-
-    UFUNCTION(BlueprintImplementableEvent)
-    void OnStart();
-
-    UFUNCTION(BlueprintImplementableEvent)
-    void OnTick(float InDeltaSeconds);
-
-    UFUNCTION(BlueprintImplementableEvent)
-    void OnHandleEvent(const FString& EventName, const TMap<FString, FString>& InEventArgs);
+    bool IsInHack = false;
 
 public:
-    UFUNCTION()
-    bool GetIsFailed();
+    UPROPERTY(BlueprintReadWrite, EditAnywhere)
+    UStoryCharacter* StoryCharacter;
 
-    UFUNCTION()
-    FText GetFailMessage();
-
-    UFUNCTION()
-    void HandleEvent(FString EventName, TMap<FString, FString> InEventArgs);
-
-    UFUNCTION()
-    void Start(AMissionActor* InMission);
-
-    UFUNCTION()
-    void Tick(float InDeltaSeconds);
-
-    UFUNCTION()
-    bool GetIsFinished();
+protected:
+    virtual void NativeStart() override;
+    virtual void NativeEvent(FString EventName, TMap<FString, FString> InEventArgs) override;
 };

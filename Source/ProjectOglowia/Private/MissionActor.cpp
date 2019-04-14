@@ -173,9 +173,15 @@ void AMissionActor::Tick(float InDeltaSeconds)
     {
         this->Advance();
     }
+    else if(this->LoadedTasks[this->CurrentTask].Task->GetIsFailed())
+    {
+        this->Peacenet->FailMission(this->LoadedTasks[this->CurrentTask].Task->GetFailMessage());
+    }
     else
     {
         this->LoadedTasks[this->CurrentTask].Task->Tick(InDeltaSeconds);
+
+        
     }
 
     Super::Tick(InDeltaSeconds);
