@@ -347,4 +347,11 @@ void AHackCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
 
     InConsole->WriteLine("Type &Fhelp&7 for a list of commands.");
     InConsole->WriteLine("Type &Fexploits&7 for a list of your known exploits.");
+
+    // Broadcast a mission event that a hack has started.
+    InConsole->GetUserContext()->GetPeacenet()->SendGameEvent("HackStart", {
+        { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID) },
+        { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID) },
+        { "Host", TargetIP },        
+    });
 }
