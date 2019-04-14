@@ -907,9 +907,9 @@ void USystemContext::FinishProcess(int ProcessID)
 		FPeacegateProcess p = Processes[i];
 		if(p.PID == ProcessID)
 		{
-			this->ProcessEnded.Broadcast(p);
 			this->Processes.RemoveAt(i);
 			this->AppendLog("Process " + FString::FromInt(ProcessID) + " killed.");
+			this->ProcessEnded.Broadcast(p);
 			return;
 		}
 	}
