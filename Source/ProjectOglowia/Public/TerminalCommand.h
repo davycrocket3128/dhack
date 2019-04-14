@@ -89,6 +89,9 @@ public:
 	UConsoleContext* GetConsole();
 
 protected:
+	UFUNCTION()
+	int GetProcessID();
+
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Arguments")
 	TMap<FString, UDocoptValue*> ArgumentMap;
 

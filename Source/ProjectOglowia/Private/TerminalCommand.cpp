@@ -35,6 +35,11 @@
 #include "PeacenetWorldStateActor.h"
 #include "UserContext.h"
 
+int ATerminalCommand::GetProcessID()
+{
+	return this->ProcessID;
+}
+
 void ATerminalCommand::HandleProcessEnded(const FPeacegateProcess& InProcess)
 {
 	if(InProcess.PID == this->ProcessID && !this->IsCompleting)
