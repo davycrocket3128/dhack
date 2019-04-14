@@ -973,15 +973,19 @@ void UProceduralGenerationEngine::SpawnPeacenetSites()
         SiteComputer.PeacenetSite = Site;
 
         // Generate an IP address for the computer.
-        FString NewIP;
-        do
+        FString IPAddress = "";
+        for(auto& IP : this->Peacenet->SaveGame->ComputerIPMap)
         {
-            NewIP = this->GenerateIPAddress();
-        } while(this->Peacenet->SaveGame->ComputerIPMap.Contains(NewIP));
+            if(IP.Value == SiteComputer.ID)
+            {
+                IPAddress = IP.Key;
+                break;
+            }
+        }
+        check(IPAddress.Len());
 
         // Assign the IP address to the computer, and the domain name to the IP.
-        this->Peacenet->SaveGame->ComputerIPMap.Add(NewIP, SiteComputer.ID);
-        this->Peacenet->SaveGame->DomainNameMap.Add(Site->DomainName, NewIP);
+        this->Peacenet->SaveGame->DomainNameMap.Add(Site->DomainName, IPAddress);
     }
 }
 
@@ -1002,13 +1006,17 @@ void UProceduralGenerationEngine::GenerateEmailServers()
 
         FComputer& Server = this->GenerateComputer(NewHostname, EComputerType::EmailServer, EComputerOwnerType::None);
 
-        FString IPAddress;
-        do
+        FString IPAddress = "";
+        for(auto& IP : this->Peacenet->SaveGame->ComputerIPMap)
         {
-            IPAddress = this->GenerateIPAddress();
-        } while(this->Peacenet->SaveGame->ComputerIPMap.Contains(IPAddress));
+            if(IP.Value == Server.ID)
+            {
+                IPAddress = IP.Key;
+                break;
+            }
+        }
+        check(IPAddress.Len());
 
-        this->Peacenet->SaveGame->ComputerIPMap.Add(IPAddress, Server.ID);
         this->Peacenet->SaveGame->DomainNameMap.Add(NewHostname, IPAddress);
 
         ServersToGenerate--;
