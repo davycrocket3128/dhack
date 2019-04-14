@@ -57,9 +57,9 @@ TArray<UExploit*> UUserContext::GetExploits()
 	return this->GetOwningSystem()->GetExploits();
 }
 
-int UUserContext::StartProcess(FString Name, FString FilePath)
+int UUserContext::StartProcess(FString Name, FString FilePath, ERAMUsage InRAMUsage)
 {
-	return this->GetOwningSystem()->StartProcess(Name, FilePath, this->UserID);
+	return this->GetOwningSystem()->StartProcess(Name, FilePath, this->UserID, InRAMUsage);
 }
 
 FString UUserContext::GetProcessUsername(FPeacegateProcess InProcess)
@@ -250,7 +250,7 @@ bool UUserContext::OpenFile(const FString& InPath, EFileOpenResult& OutResult)
 			TSubclassOf<UWindow> WindowClass = this->GetPeacenet()->WindowClass;
 
 			UWindow* NewWindow;
-			UProgram* NewProgram = UProgram::CreateProgram(WindowClass, ProgramAsset->ProgramClass, this, NewWindow, ProgramAsset->ID.ToString());
+			UProgram* NewProgram = UProgram::CreateProgram(WindowClass, ProgramAsset->ProgramClass, this, NewWindow, ProgramAsset->ID.ToString(), ProgramAsset->RAMUsage);
 
 			NewWindow->WindowTitle = ProgramAsset->FullName;
 			NewWindow->Icon = ProgramAsset->AppLauncherItem.Icon;
@@ -279,7 +279,7 @@ bool UUserContext::OpenFile(const FString& InPath, EFileOpenResult& OutResult)
 	TSubclassOf<UWindow> WindowClass = this->GetPeacenet()->WindowClass;
 
 	UWindow* NewWindow;
-	UProgram* NewProgram = UProgram::CreateProgram(WindowClass, ProgramAsset->ProgramClass, this, NewWindow, ProgramAsset->ID.ToString());
+	UProgram* NewProgram = UProgram::CreateProgram(WindowClass, ProgramAsset->ProgramClass, this, NewWindow, ProgramAsset->ID.ToString(), ProgramAsset->RAMUsage);
 
 	NewWindow->WindowTitle = ProgramAsset->FullName;
 	NewWindow->Icon = ProgramAsset->AppLauncherItem.Icon;

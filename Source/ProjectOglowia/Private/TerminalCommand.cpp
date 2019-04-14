@@ -69,7 +69,14 @@ void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Ar
 
 	this->CommandName = Argv[0];
 	this->Console = InConsole;	
-	this->ProcessID = this->Console->GetUserContext()->StartProcess(this->CommandInfo->ID.ToString(), this->CommandInfo->FullName.ToString());
+	this->ProcessID = this->Console->GetUserContext()->StartProcess(this->CommandInfo->ID.ToString(), this->CommandInfo->FullName.ToString(), this->CommandInfo->RAMUsage);
+
+	if(this->ProcessID == -1)
+	{
+		this->Console->WriteLine("&*&4" + NSLOCTEXT("Peacegate", "OutOfMemory", "Out of memory").ToString() + "&r&7");
+		this->CompleteInternal(false);
+		return;
+	}
 
 	Argv.RemoveAt(0);
 

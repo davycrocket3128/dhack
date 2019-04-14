@@ -51,4 +51,7 @@ public:
 
     UPROPERTY(BlueprintReadOnly)
     FString FilePath;
+
+    UPROPERTY(BlueprintReadOnly)
+    int RAM = 0;
 };

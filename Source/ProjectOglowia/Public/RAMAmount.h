@@ -29,31 +29,26 @@
  *
  ********************************************************************************/
 
-#include "ProgramPayload.h"
-#include "PeacenetWorldStateActor.h"
-#include "window.h"
-#include "SystemContext.h"
+#pragma once
 
-void UProgramPayload::NativePayloadDeployed(UUserContext* OriginUser, UUserContext* TargetUser)
+#include "CoreMinimal.h"
+#include "RAMAmount.generated.h"
+
+UENUM(BlueprintType)
+enum class ERAMAmount : uint8
 {
-    // Make sure the dev wasn't a complete idiot.
-    check(this->ProgramToOpen);
-
-    // Get the window class
-    TSubclassOf<UWindow> WindowClass = OriginUser->GetPeacenet()->WindowClass;
-
-    // Create the new program object.
-    UWindow* Window;
-    UProgram* RemoteProgram = UProgram::CreateProgram(WindowClass, this->ProgramToOpen->ProgramClass, TargetUser, Window, ProgramToOpen->ID.ToString(), ProgramToOpen->RAMUsage, false);
-
-    // Set Window title and icon.
-    Window->WindowTitle = ProgramToOpen->FullName;
-    Window->Icon = ProgramToOpen->AppLauncherItem.Icon;
-    Window->EnableMinimizeAndMaximize = ProgramToOpen->EnableMinimizeAndMaximize;
-
-    // Get the program to show in its new window.
-    RemoteProgram->SetupContexts();
-
-    // Show it on the origin user's desktop.
-    OriginUser->ShowProgramOnWorkspace(RemoteProgram);
-}
+    // 256mb
+    Level0,
+    // 512mb
+    Level1,
+    // 1024mb
+    Level2,
+    // 2048mb
+    Level3,
+    // 4096mb
+    Level4,
+    // 8192mb
+    Level5,
+    // 16384mb
+    Level6
+};

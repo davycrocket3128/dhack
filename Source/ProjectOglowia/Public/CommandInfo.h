@@ -34,6 +34,7 @@
 
 #include "CoreMinimal.h"
 #include "TerminalCommand.h"
+#include "RAMUsage.h"
 #include "Engine/DataAsset.h"
 #include "ManualPageAssetBase.h"
 #include "CommandInfo.generated.h"
@@ -57,6 +58,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Help")
 	bool ShowInHelp = true;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Resource Usage")
+	ERAMUsage RAMUsage = ERAMUsage::Low;
 
 protected:
 	virtual void BuildManualPage(UManualPageBuilder* InBuilder) override;

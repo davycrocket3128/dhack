@@ -38,6 +38,7 @@
 #include "UserInfo.h"
 #include "MailProvider.h"
 #include "PeacegateProcess.h"
+#include "RAMUsage.h"
 #include "TerminalColor.h"
 #include "AdjacentNodeInfo.h"
 #include "UserContext.generated.h"
@@ -149,7 +150,7 @@ public:
     bool OpenProgram(FName InExecutableName, UProgram*& OutProgram, bool InCheckForExistingWindow = true);
 
     UFUNCTION()
-    int StartProcess(FString Name, FString FilePath);
+    int StartProcess(FString Name, FString FilePath, ERAMUsage InRAMUsage);
 
     UFUNCTION()
     void ShowProgramOnWorkspace(UProgram* InProgram);

@@ -36,6 +36,7 @@
 #include "UserWidget.h"
 #include "PeacegateProgramAsset.h" 
 #include "GovernmentAlertStatus.h"
+#include "RAMUsage.h"
 #include "GovernmentAlertInfo.h"
 #include "PeacegateFileSystem.h"
 #include "GameRules.h"
@@ -118,7 +119,7 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Desktop")
-	UProgram* SpawnProgramFromClass(TSubclassOf<UProgram> InClass, const FText& InTitle, UTexture2D* InIcon, bool InEnableMinimizeMaximize);
+	UProgram* SpawnProgramFromClass(TSubclassOf<UProgram> InClass, const FText& InTitle, UTexture2D* InIcon, bool InEnableMinimizeMaximize, ERAMUsage InRAMUsage);
 
 protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure)

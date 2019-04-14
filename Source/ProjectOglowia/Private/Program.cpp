@@ -114,7 +114,7 @@ void UProgram::RequestPlayerAttention(bool PlaySound)
 	this->PlayerAttentionNeeded.Broadcast(PlaySound);
 }
 
-UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSubclassOf<UProgram> InProgramClass, UUserContext* InUserContext, UWindow*& OutWindow, FString InProcessName, bool DoContextSetup)
+UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSubclassOf<UProgram> InProgramClass, UUserContext* InUserContext, UWindow*& OutWindow, FString InProcessName, ERAMUsage InRAMUsage, bool DoContextSetup)
 {
 	// Preventative: make sure the system context isn't null.
 	check(InUserContext);
@@ -137,7 +137,9 @@ UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSu
 	Window->SetUserContext(InUserContext);
 
 	// Start the process for the program.
-	ProgramInstance->ProcessID = InUserContext->StartProcess(InProcessName, InProcessName);
+	ProgramInstance->ProcessID = InUserContext->StartProcess(InProcessName, InProcessName, InRAMUsage);
+
+	// That above value will be -1 if the player doesn't have enough RAM for the program to run.
 
 	// Make sure we get notified when the window closes.
 	TScriptDelegate<> CloseDelegate;
@@ -204,7 +206,27 @@ void UProgram::SetupContexts()
 	// Add ourself to the window's client slot.
 	this->Window->AddWindowToClientSlot(this);
 
+	// If our process ID is -1, we don't have enough RAM so we won't
+	// launch.
+	if(this->ProcessID == -1)
+	{
+		this->ShowInfo(NSLOCTEXT("Peacegate", "OutOfMemory", "Out of memory"), NSLOCTEXT("Peacegate", "OutOfMemoryDesc", "There is not enough available memory to start the process."), EInfoboxIcon::Error);
+		this->Window->Close();
+		return;
+	}
+
 	this->NativeProgramLaunched();
+}
+
+void UProgram::NativeTick(const FGeometry& MyGeometry, float InDeltaSeconds)
+{
+	if(this->ProcessID == -1)
+	{
+		this->Window->Close();
+		return;
+	}
+
+	Super::NativeTick(MyGeometry, InDeltaSeconds);
 }
 
 void UProgram::SetWindowMinimumSize(FVector2D InSize)

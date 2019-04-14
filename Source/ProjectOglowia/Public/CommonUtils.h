@@ -37,6 +37,8 @@
 #include "SlateFontInfo.h"
 #include "TerminalColor.h"
 #include "FileOpenResult.h"
+#include "RAMUsage.h"
+#include "RAMAmount.h"
 #include "Camera/CameraComponent.h"
 #include "CommonUtils.generated.h"
 
@@ -100,6 +102,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Clipboard")
 	static void PutClipboardText(FString InText);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Resource Usage")
+	static int GetRAMAmount(ERAMAmount InRAMAmount);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Resource Usage")
+	static int GetRAMUsage(ERAMUsage InRAMUsage);
 
 	UFUNCTION(BlueprintCallable, Category = "Settings")
 	static void SetEnableBloom(UCameraComponent* InCamera, bool InEnableBloom);

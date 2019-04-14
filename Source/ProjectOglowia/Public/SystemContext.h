@@ -36,6 +36,7 @@
 #include "Computer.h"
 #include "PeacegateFileSystem.h"
 #include "UserInfo.h"
+#include "RAMUsage.h"
 #include "PeacenetIdentity.h"
 #include "MailProvider.h"
 #include "AdjacentNodeInfo.h"
@@ -136,7 +137,7 @@ public: // Property getters
 	void UnsetEnvironmentVariable(FString InVariable);
 
 	UFUNCTION()
-	int StartProcess(FString Name, FString FilePath, int UserID);
+	int StartProcess(FString Name, FString FilePath, int UserID, ERAMUsage RAMUsage);
 	
 	UFUNCTION()
 	void FinishProcess(int ProcessID);
