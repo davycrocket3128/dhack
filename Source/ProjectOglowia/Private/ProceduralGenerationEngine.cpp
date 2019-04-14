@@ -136,11 +136,89 @@ void UProceduralGenerationEngine::UpdateStoryCharacter(UStoryCharacter* InStoryC
         Identity.EmailAddress = EmailUser + "@" + this->ChooseEmailDomain();
     }
 
+    // If the identity doesn't have a computer ID, we need to generate one.
+    if(Identity.ComputerID == -1)
+    {
+        // Create the actual computer.
+        FComputer& StoryComputer = this->GenerateComputer("tempsys", EComputerType::Personal, EComputerOwnerType::Story);
+
+        // Assign the computer ID to the identity.
+        Identity.ComputerID = StoryComputer.ID;
+    }
+
     // Update the identity in the save file.
     this->Peacenet->SaveGame->Characters[IdentityIndex] = Identity;
 
     // Reassign the character's entity ID.
     this->Peacenet->SaveGame->AssignStoryCharacterID(InStoryCharacter, EntityID);
+
+    // Now we can update the story computer.
+    this->UpdateStoryComputer(InStoryCharacter);
+}
+
+void UProceduralGenerationEngine::UpdateStoryComputer(UStoryCharacter* InStoryCharacter)
+{
+    // Get the identity of the story character so we can get its computer ID.
+    int StoryEntityID = 0;
+    bool StoryEntityIDResult = this->Peacenet->SaveGame->GetStoryCharacterID(InStoryCharacter, StoryEntityID);
+    check(StoryEntityIDResult);
+
+    // Get the identity using that ID.
+    FPeacenetIdentity Identity;
+    int IdentityIndex = 0;
+    bool result = this->Peacenet->SaveGame->GetCharacterByID(StoryEntityID, Identity, IdentityIndex);
+    check(result);
+
+    // Update the non-root user of the computer so that its username is the same
+    // as what's defined in the story character.
+    for(auto& Computer : this->Peacenet->SaveGame->Computers)
+    {
+        if(Computer.ID == Identity.ComputerID)
+        {
+            for(auto& User : Computer.Users)
+            {
+                if(User.ID == 1)
+                {
+                    if(InStoryCharacter->UseEmailAliasAsUsername)
+                    {
+                        if(InStoryCharacter->UseNameForEmail)
+                        {
+                            User.Username = InStoryCharacter->Name.ToString().ToLower().Replace(TEXT(" "), TEXT("_"));
+                        }
+                        else
+                        {
+                            User.Username = InStoryCharacter->EmailAlias.ToLower().Replace(TEXT(" "), TEXT("_"));
+                        }
+                    }
+                    else
+                    {
+                        User.Username = InStoryCharacter->Username.ToLower().Replace(TEXT(" "), TEXT("_"));
+                    }
+                    break;
+                }
+            }
+            break;
+        }
+    }
+
+    // We have a computer ID, so we're going to create a TEMPORARY System Context to make
+    // updating easier.
+    USystemContext* SystemContext = NewObject<USystemContext>();
+    SystemContext->Setup(Identity.ComputerID, Identity.ID, this->Peacenet);
+
+    // Get a filesystem with root privileges from the system context.
+    UPeacegateFileSystem* RootFS = SystemContext->GetFilesystem(0);
+
+    // Collect filesystem errors.
+    EFilesystemStatusCode Status = EFilesystemStatusCode::OK;
+
+    // Update the hostname.
+    FString Host = InStoryCharacter->Hostname;
+    if(InStoryCharacter->UseNameForHostname)
+    {
+        Host = InStoryCharacter->Name.ToString().ToLower().Replace(TEXT(" "), TEXT("_")) + "-pc";
+    }
+    RootFS->WriteText("/etc/hostname", Host);
 }
 
 FRandomStream& UProceduralGenerationEngine::GetRNG()
@@ -594,18 +672,10 @@ FPeacenetIdentity& UProceduralGenerationEngine::GenerateNonPlayerCharacter()
     RootUser.Password = this->GeneratePassword(Identity.Skill*5);
     NonRootUser.Password = this->GeneratePassword(Identity.Skill*3);
     
-    IdentityComputer.Users.Add(RootUser);
-    IdentityComputer.Users.Add(NonRootUser);
+    IdentityComputer.Users[0] = RootUser;
+    IdentityComputer.Users[1] = NonRootUser;
     
     Identity.ComputerID = IdentityComputer.ID;
-
-    FString IPAddress;
-    do
-    {
-        IPAddress = this->GenerateIPAddress();
-    } while(this->Peacenet->SaveGame->IPAddressAllocated(IPAddress));
-
-    this->Peacenet->SaveGame->ComputerIPMap.Add(IPAddress, IdentityComputer.ID);
 
     this->Peacenet->SaveGame->Characters.Add(Identity);
 
@@ -1136,8 +1206,32 @@ FComputer& UProceduralGenerationEngine::GenerateComputer(FString InHostname, ECo
     Ret.Filesystem.Add(RootHome);
     Ret.Filesystem.Add(UserHome);
     
+    // Create a root user for the system.
+    FUser RootUser;
+    RootUser.ID = 0;
+    RootUser.Domain = EUserDomain::Administrator;
+    RootUser.Username = "root";
+
+    // Create a non-root user for the system.
+    FUser NonRoot;
+    NonRoot.ID = 1;
+    NonRoot.Domain = EUserDomain::PowerUser;
+    NonRoot.Username = "user";
+
+    // Add the two users to the computer.
+    Ret.Users.Add(RootUser);
+    Ret.Users.Add(NonRoot);
+
     // Add the computer to the save file.
     this->Peacenet->SaveGame->Computers.Add(Ret);
+
+    FString IPAddress;
+    do
+    {
+        IPAddress = this->GenerateIPAddress();
+    } while(this->Peacenet->SaveGame->IPAddressAllocated(IPAddress));
+
+    this->Peacenet->SaveGame->ComputerIPMap.Add(IPAddress, Ret.ID);
 
     // Grab the index of that computer in the save.
     int ComputerIndex = this->Peacenet->SaveGame->Computers.Num() - 1;

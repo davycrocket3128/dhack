@@ -128,6 +128,9 @@ public:
     FComputer& GenerateComputer(FString InHostname, EComputerType InComputerType, EComputerOwnerType InOwnerType);
 
     UFUNCTION()
+    void UpdateStoryComputer(UStoryCharacter* InStoryCharacter);
+
+    UFUNCTION()
     FString GenerateIPAddress();
 
     UFUNCTION()

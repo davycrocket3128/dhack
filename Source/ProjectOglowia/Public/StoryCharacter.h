@@ -58,6 +58,12 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
     FString Hostname = "";
 
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
+    bool UseEmailAliasAsUsername = true;
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
+    FString Username;
+
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Cryptocurrency")
     int CryptoWalletAmount = 0;
 };
