@@ -179,6 +179,8 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
 
     if(InCommandName == "scan")
     {
+        MyConsole->GetUserContext()->GetPeacenet()->SaveGame->SetValue("gigasploit.firstScan", true);
+
         MyConsole->WriteLine("Performing Nmap scan on remote system...");
         MyConsole->WriteLine("");
         MyConsole->WriteLine("PORT\t\tSTATUS\tSERVICE");
@@ -201,6 +203,76 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
             MyConsole->Write("\t");
             MyConsole->WriteLine(Service.Service->Name.ToString());
         }
+        return;
+    }
+
+    if(InCommandName == "analyze")
+    {
+        if(!InArguments.Num())
+        {
+            MyConsole->WriteLine("&4&*error:&r too few arguments. You must specify a port to analyze.&7");
+            return;
+        }
+
+        FString EnteredPort = InArguments[0];
+        int RealPort = FCString::Atoi(*EnteredPort);
+        if(!RealPort && EnteredPort != "0")
+        {
+            MyConsole->WriteLine("&4&*error:&r Port is not a number.&7");
+            return;
+        }
+
+        MyConsole->WriteLine("GIGASPLOIT PORT ANALYSIS:");
+        MyConsole->WriteLine("    " + this->RemoteSystem->GetIPAddress() + ":" + EnteredPort + "\n");
+
+        for(auto Service : this->RemoteSystem->GetComputer().FirewallRules)
+        {
+            if(Service.Port == RealPort)
+            {
+                bool FoundVulns = false;
+
+                MyConsole->WriteLine("Protocol: " + Service.Service->Protocol->Name.ToString());
+                MyConsole->WriteLine("Detected implementation: " + Service.Service->Name.ToString() + "\n");
+
+                if(Service.IsFiltered)
+                {
+                    MyConsole->WriteLine("&4&*Service is filtered.&r&7 Firewall detected.");
+                }
+                else
+                {
+                    MyConsole->WriteLine("Known vulnerabilities:\n");
+
+                    for(auto Exp : MyConsole->GetUserContext()->GetExploits())
+                    {
+                        if(Exp->Targets.Contains(Service.Service))
+                        {
+                            FoundVulns = true;
+                            MyConsole->WriteLine(" - " + Exp->ID.ToString());
+                        }
+                    }
+
+                    if(!FoundVulns)
+                    {
+                        MyConsole->WriteLine(" - &4&*Error:&7&r Gigasploit doesn't know any vulnerabilities in this service's implementation.");
+                    }
+                }
+
+                MyConsole->GetUserContext()->GetPeacenet()->SendGameEvent("HackAnalyze", {
+                    { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID) },
+                    { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID) },
+                    { "Port", EnteredPort },
+                    { "Protocol", Service.Service->Protocol->Name.ToString() },
+                    { "Implementation", Service.Service->Name.ToString() },
+                    { "Filtered", (Service.IsFiltered) ? "True" : "False" },
+                    { "Vulnerable", (FoundVulns) ? "True" : "False" }
+                });
+
+                return;
+            }
+        }
+
+        MyConsole->WriteLine("&4&*Analysis failed:&r&7 Remote system not listening on this port.");
+
         return;
     }
 

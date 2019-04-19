@@ -56,5 +56,6 @@ public:
 
 protected:
     virtual void NativeStart() override;
+    virtual void NativeTick(float InDeltaSeconds) override;
     virtual void NativeEvent(FString EventName, TMap<FString, FString> InEventArgs) override;
 };

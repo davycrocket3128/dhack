@@ -84,6 +84,18 @@ protected:
     UFUNCTION(BlueprintImplementableEvent)
     void OnHandleEvent(const FString& EventName, const TMap<FString, FString>& InEventArgs);
 
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    bool IsSet(FString InSaveBoolean);
+
+    UFUNCTION(BlueprintCallable)
+    void SetBoolean(FString InSaveBoolean, bool InValue);
+
+    UFUNCTION(BlueprintCallable)
+    void ShowTutorialIfNotSet(FString InBoolean, const FText& InTitle, const FText& InTutorial);
+
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    bool IsTutorialActive();
+
 public:
     UFUNCTION()
     bool GetIsFailed();

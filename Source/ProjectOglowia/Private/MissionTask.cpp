@@ -36,6 +36,32 @@
 #include "SystemContext.h"
 #include "UserContext.h"
 
+bool UMissionTask::IsTutorialActive()
+{
+    return this->GetPlayerUser()->GetPeacenet()->IsTutorialActive();
+}
+
+void UMissionTask::ShowTutorialIfNotSet(FString InBoolean, const FText& InTitle, const FText& InTutorial)
+{
+    if(this->IsTutorialActive()) return;
+
+    if(!this->IsSet(InBoolean))
+    {
+        this->GetPlayerUser()->GetPeacenet()->GetTutorialState()->ActivatePrompt(InTitle, InTutorial);
+        this->SetBoolean(InBoolean, true);
+    }
+}
+
+bool UMissionTask::IsSet(FString InSaveBoolean)
+{
+    return this->GetPlayerUser()->GetPeacenet()->SaveGame->IsTrue(InSaveBoolean);
+}
+
+void UMissionTask::SetBoolean(FString InSaveBoolean, bool InValue)
+{
+    this->GetPlayerUser()->GetPeacenet()->SaveGame->SetValue(InSaveBoolean, InValue);
+}
+
 bool UMissionTask::GetIsFailed()
 {
     return this->IsFailed;
