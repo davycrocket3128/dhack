@@ -48,6 +48,11 @@
 #include "CommandInfo.h"
 #include "PayloadAsset.h"
 
+bool USystemContext::IsNewGame()
+{
+	return this->GetPeacenet()->IsNewGame();
+}
+
 void USystemContext::UpdateInternalIdentity()
 {
 	this->InternalIdentity.ID = -1;

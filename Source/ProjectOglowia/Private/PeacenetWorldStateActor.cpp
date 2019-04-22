@@ -48,6 +48,11 @@
 #include "MissionActor.h"
 #include "Window.h"
 
+bool APeacenetWorldStateActor::IsNewGame()
+{
+	return this->SaveGame->IsNewGame;
+}
+
 bool APeacenetWorldStateActor::MakeTransaction(FString InOriginCryptoAddress, FString InTargetCryptoAddress, int InAmount)
 {
 	bool OriginExists = this->SaveGame->CryptoWalletExists(InOriginCryptoAddress);

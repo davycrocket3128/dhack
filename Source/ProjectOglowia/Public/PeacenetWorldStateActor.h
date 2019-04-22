@@ -178,6 +178,9 @@ public:
 public:	// Functions
 	FText GetTimeOfDay();
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Peacenet")
+	bool IsNewGame();
+
 	UFUNCTION()
 	void FailMission(const FText& InFailMessage);
 

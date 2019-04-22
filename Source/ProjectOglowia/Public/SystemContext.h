@@ -160,6 +160,9 @@ public: // Property getters
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Context")
 	UDesktopWidget* GetDesktop();
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Context")
+	bool IsNewGame();
+
 	UFUNCTION()
 	FPeacenetIdentity& GetCharacter();
 
