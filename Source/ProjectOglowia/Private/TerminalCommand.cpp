@@ -35,6 +35,24 @@
 #include "PeacenetWorldStateActor.h"
 #include "UserContext.h"
 
+bool ATerminalCommand::IsTutorialActive()
+{
+	return this->Console->GetUserContext()->GetPeacenet()->IsTutorialActive();
+}
+
+bool ATerminalCommand::IsSet(FString InSaveBoolean)
+{
+	return this->Console->GetUserContext()->GetPeacenet()->SaveGame->IsTrue(InSaveBoolean);
+}
+
+void ATerminalCommand::ShowTutorialIfNotSet(FString InSaveBoolean, const FText& InTutorialTitle, const FText& InTutorialText)
+{
+	if(!this->IsSet(InSaveBoolean) && !this->IsTutorialActive())
+	{
+		this->Console->GetUserContext()->GetPeacenet()->GetTutorialState()->ActivatePrompt(InTutorialTitle, InTutorialText);
+	}
+}
+
 int ATerminalCommand::GetProcessID()
 {
 	return this->ProcessID;

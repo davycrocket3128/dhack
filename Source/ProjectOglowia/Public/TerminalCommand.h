@@ -88,6 +88,15 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Terminal Command")
 	UConsoleContext* GetConsole();
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Tutorial")
+	bool IsTutorialActive();
+
+	UFUNCTION(BlueprintCallable, Category = "Tutorial")
+	void ShowTutorialIfNotSet(FString InSaveBoolean, const FText& InTutorialTitle, const FText& InTutorialText);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Save System")
+	bool IsSet(FString InSaveBoolean);
+
 protected:
 	UFUNCTION()
 	int GetProcessID();

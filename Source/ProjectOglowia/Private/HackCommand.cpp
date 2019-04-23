@@ -396,6 +396,33 @@ void AHackCommand::Tick(float InDeltaSeconds)
 
         this->WaitingForCommand = true;
     }
+
+    if(!this->IsTutorialActive())
+    {
+        if(this->IsSet("gigasploit.firstScan"))
+        {
+            this->ShowTutorialIfNotSet("tuts.gigasploit.analyze", 
+                NSLOCTEXT("Tutorials", "GigasploitAnalyzeTitle", "Analyzing a port"),
+                NSLOCTEXT("Tutorials", "GigasploitAnalyze", "Gigasploit Analyze Tutorial")
+            );
+            this->ShowTutorialIfNotSet("tuts.gigasploit.exploits", 
+                NSLOCTEXT("Tutorials", "GigasploitExploitsTitle", "Exploits"),
+                NSLOCTEXT("Tutorials", "GigasploitExploits", "Gigasploit Exploits Tutorial")
+            );
+            this->ShowTutorialIfNotSet("tuts.gigasploit.payloads", 
+                NSLOCTEXT("Tutorials", "GigasploitPayloadsTitle", "Payloads"),
+                NSLOCTEXT("Tutorials", "GigasploitPayloads", "Gigasploit Payloads Tutorial")
+            );
+            this->ShowTutorialIfNotSet("tuts.gigasploit.use", 
+                NSLOCTEXT("Tutorials", "GigasploitUseTitle", "Using"),
+                NSLOCTEXT("Tutorials", "GigasploitUse", "Gigasploit Use Tutorial")
+            );
+            this->ShowTutorialIfNotSet("tuts.gigasploit.attack", 
+                NSLOCTEXT("Tutorials", "GigasploitAttackTitle", "Attack"),
+                NSLOCTEXT("Tutorials", "GigasploitAttack", "Gigasploit Attack Tutorial")
+            );
+        }
+     }
 }
 
 void AHackCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
@@ -426,4 +453,9 @@ void AHackCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
         { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID) },
         { "Host", TargetIP },        
     });
+
+    this->ShowTutorialIfNotSet("tuts.gigasploit.welcome",
+            NSLOCTEXT("CommandNames", "Gigasploit", "Gigasploit Framework Console"),
+            NSLOCTEXT("Tutorials", "GigasploitWelcome", "Gigasploit Welcome Tutorial Text")
+        );
 }
