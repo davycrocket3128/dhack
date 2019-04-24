@@ -58,4 +58,12 @@ void UStartHackStoryCharacterTask::NativeEvent(FString EventName, TMap<FString, 
             this->IsInHack = true;
         }
     }
+
+    if(EventName == "HackSuccess" && IsInHack)
+    {
+        if(InEventArgs["Identity"] == FString::FromInt(this->TargetEntity))
+        {
+            this->Complete();
+        }
+    }
 }
