@@ -5,7 +5,7 @@
 			"name": "ProjectOglowia (Debug)",
 			"request": "launch",
 			"preLaunchTask": "ProjectOglowia Win64 Debug Build",
-			"program": "D:\\Projects\\Unreal\\peacenet-ue\\Binaries\\Win64\\ProjectOglowia-Win64-Debug.exe",
+			"program": "E:\\Priority Projects\\peacenet-ue\\Binaries\\Win64\\ProjectOglowia-Win64-Debug.exe",
 			"args": [
 			],
 			"cwd": "E:\\UE4\\UE_4.22",
@@ -18,7 +18,7 @@
 			"name": "ProjectOglowia (DebugGame)",
 			"request": "launch",
 			"preLaunchTask": "ProjectOglowia Win64 DebugGame Build",
-			"program": "D:\\Projects\\Unreal\\peacenet-ue\\Binaries\\Win64\\ProjectOglowia-Win64-DebugGame.exe",
+			"program": "E:\\Priority Projects\\peacenet-ue\\Binaries\\Win64\\ProjectOglowia-Win64-DebugGame.exe",
 			"args": [
 			],
 			"cwd": "E:\\UE4\\UE_4.22",
@@ -31,7 +31,7 @@
 			"name": "ProjectOglowia (Development)",
 			"request": "launch",
 			"preLaunchTask": "ProjectOglowia Win64 Development Build",
-			"program": "D:\\Projects\\Unreal\\peacenet-ue\\Binaries\\Win64\\ProjectOglowia.exe",
+			"program": "E:\\Priority Projects\\peacenet-ue\\Binaries\\Win64\\ProjectOglowia.exe",
 			"args": [
 			],
 			"cwd": "E:\\UE4\\UE_4.22",
@@ -44,7 +44,7 @@
 			"name": "ProjectOglowia (Shipping)",
 			"request": "launch",
 			"preLaunchTask": "ProjectOglowia Win64 Shipping Build",
-			"program": "D:\\Projects\\Unreal\\peacenet-ue\\Binaries\\Win64\\ProjectOglowia-Win64-Shipping.exe",
+			"program": "E:\\Priority Projects\\peacenet-ue\\Binaries\\Win64\\ProjectOglowia-Win64-Shipping.exe",
 			"args": [
 			],
 			"cwd": "E:\\UE4\\UE_4.22",
@@ -57,7 +57,7 @@
 			"name": "ProjectOglowia (Test)",
 			"request": "launch",
 			"preLaunchTask": "ProjectOglowia Win64 Test Build",
-			"program": "D:\\Projects\\Unreal\\peacenet-ue\\Binaries\\Win64\\ProjectOglowia-Win64-Test.exe",
+			"program": "E:\\Priority Projects\\peacenet-ue\\Binaries\\Win64\\ProjectOglowia-Win64-Test.exe",
 			"args": [
 			],
 			"cwd": "E:\\UE4\\UE_4.22",
@@ -72,7 +72,7 @@
 			"preLaunchTask": "ProjectOglowiaEditor Win64 Debug Build",
 			"program": "E:\\UE4\\UE_4.22\\Engine\\Binaries\\Win64\\UE4Editor-Win64-Debug.exe",
 			"args": [
-				"D:\\Projects\\Unreal\\peacenet-ue\\ProjectOglowia.uproject"
+				"E:\\Priority Projects\\peacenet-ue\\ProjectOglowia.uproject"
 			],
 			"cwd": "E:\\UE4\\UE_4.22",
 			"stopAtEntry": false,
@@ -86,7 +86,7 @@
 			"preLaunchTask": "ProjectOglowiaEditor Win64 DebugGame Build",
 			"program": "E:\\UE4\\UE_4.22\\Engine\\Binaries\\Win64\\UE4Editor.exe",
 			"args": [
-				"D:\\Projects\\Unreal\\peacenet-ue\\ProjectOglowia.uproject"
+				"E:\\Priority Projects\\peacenet-ue\\ProjectOglowia.uproject"
 			],
 			"cwd": "E:\\UE4\\UE_4.22",
 			"stopAtEntry": false,
@@ -100,7 +100,7 @@
 			"preLaunchTask": "ProjectOglowiaEditor Win64 Development Build",
 			"program": "E:\\UE4\\UE_4.22\\Engine\\Binaries\\Win64\\UE4Editor.exe",
 			"args": [
-				"D:\\Projects\\Unreal\\peacenet-ue\\ProjectOglowia.uproject"
+				"E:\\Priority Projects\\peacenet-ue\\ProjectOglowia.uproject"
 			],
 			"cwd": "E:\\UE4\\UE_4.22",
 			"stopAtEntry": false,
@@ -117,7 +117,7 @@
 			"args": [
 				"-projectfiles",
 				"-vscode",
-				"-project=\"D:\\Projects\\Unreal\\peacenet-ue\\ProjectOglowia.uproject\"",
+				"-project=\"E:\\Priority Projects\\peacenet-ue\\ProjectOglowia.uproject\"",
 				"-game",
 				"-engine"
 			],

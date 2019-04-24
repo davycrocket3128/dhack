@@ -48,6 +48,16 @@
 #include "CommandInfo.h"
 #include "PayloadAsset.h"
 
+bool USystemContext::IsSet(FString InSaveBoolean)
+{
+	return this->GetPeacenet()->SaveGame->IsTrue(InSaveBoolean);
+}
+
+void USystemContext::SetSaveBoolean(FString InSaveBoolean, bool InValue)
+{
+	this->GetPeacenet()->SaveGame->SetValue(InSaveBoolean, InValue);
+}
+
 bool USystemContext::IsNewGame()
 {
 	return this->GetPeacenet()->IsNewGame();

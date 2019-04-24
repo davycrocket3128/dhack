@@ -133,6 +133,12 @@ public: // Property getters
 	UFUNCTION()
 	void SetEnvironmentVariable(FString InVariable, FString InValue);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Context")
+	bool IsSet(FString InSaveBoolean);
+
+	UFUNCTION(BlueprintCallable, Category = "System Context")
+	void SetSaveBoolean(FString InSaveBoolean, bool InValue);
+
 	UFUNCTION()
 	void UnsetEnvironmentVariable(FString InVariable);
 
