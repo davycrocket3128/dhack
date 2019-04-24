@@ -69,6 +69,9 @@ private:
 
 protected:
 	UFUNCTION()
+	void SendGameEvent(FString InEventName, TMap<FString, FString> InEventData);
+
+	UFUNCTION()
 	void HandleProcessEnded(const FPeacegateProcess& InProcess);
 
 	UFUNCTION()

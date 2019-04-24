@@ -35,6 +35,11 @@
 #include "PeacenetWorldStateActor.h"
 #include "UserContext.h"
 
+void ATerminalCommand::SendGameEvent(FString InEventName, TMap<FString, FString> InEventData)
+{
+	this->Console->GetUserContext()->GetPeacenet()->SendGameEvent(InEventName, InEventData);
+}
+
 bool ATerminalCommand::IsTutorialActive()
 {
 	return this->Console->GetUserContext()->GetPeacenet()->IsTutorialActive();

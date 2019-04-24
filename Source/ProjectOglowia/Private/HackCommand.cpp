@@ -312,11 +312,33 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
         {
             if(Service.Port == RealPort)
             {
+                this->SendGameEvent("HackAttempt", {
+                    { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID)},
+                    { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID)},
+                    { "Exploit", this->CurrentExploit->ID.ToString()},
+                    { "Payload", this->CurrentPayload->Name.ToString()},
+                    { "Port", FString::FromInt(RealPort)},
+                    { "Protocol", Service.Service->Protocol->Name.ToString()},
+                    { "ServerSoftware", Service.Service->Name.ToString()}
+                });
+
                 MyConsole->WriteLine("Service is &F" + Service.Service->Name.ToString() + "&7.");
 
                 if(Service.IsFiltered)
                 {
                     MyConsole->WriteLine("Service is &4&*FILTERED&r&7! Can't continue with exploit.");
+                    
+                    this->SendGameEvent("HackFail", {
+                        { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID)},
+                        { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID)},
+                        { "Exploit", this->CurrentExploit->ID.ToString()},
+                        { "Payload", this->CurrentPayload->Name.ToString()},
+                        { "Port", FString::FromInt(RealPort)},
+                        { "Protocol", Service.Service->Protocol->Name.ToString()},
+                        { "ServerSoftware", Service.Service->Name.ToString()},
+                        { "Reason", "Firewall"}
+                    });
+                    
                     return;
                 }
 
@@ -331,6 +353,16 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
                     UUserContext* PayloadUser = this->RemoteSystem->GetHackerContext(0, MyConsole->GetUserContext());
 
                     this->CurrentPayload->Payload->DeployPayload(MyConsole->GetUserContext(), PayloadUser);
+
+                    this->SendGameEvent("HackSuccess", {
+                        { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID)},
+                        { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID)},
+                        { "Exploit", this->CurrentExploit->ID.ToString()},
+                        { "Payload", this->CurrentPayload->Name.ToString()},
+                        { "Port", FString::FromInt(RealPort)},
+                        { "Protocol", Service.Service->Protocol->Name.ToString()},
+                        { "ServerSoftware", Service.Service->Name.ToString()}
+                    });
 
                     this->HandleCommand("exit", InArguments);
                     return;
