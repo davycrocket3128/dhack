@@ -29,33 +29,41 @@
  *
  ********************************************************************************/
 
-#pragma once
+#include "HackTask.h"
+#include "PeacenetWorldStateActor.h"
 
-#include "CoreMinimal.h"
-#include "MissionTask.h"
-#include "UserContext.h"
-#include "StoryCharacter.h"
-#include "PeacenetSaveGame.h"
-#include "StartHackStoryCharacterTask.generated.h"
-
-UCLASS(BlueprintType)
-class PROJECTOGLOWIA_API UStartHackStoryCharacterTask : public UMissionTask
+void UHackTask::NativeTick(float InDeltaSeconds)
 {
-    GENERATED_BODY()
+    if(this->IsInHack)
+    {
+    }
+}
 
-private:
-    UPROPERTY()
-    int TargetEntity = 0;
+void UHackTask::NativeStart()
+{
+    // Check that we have a story character to hack.
+    check(this->StoryCharacter);
 
-    UPROPERTY()
-    bool IsInHack = false;
+    // Get the target entity.
+    bool result = this->GetPlayerUser()->GetPeacenet()->SaveGame->GetStoryCharacterID(this->StoryCharacter, this->TargetEntity);
+    check(result);
+}
 
-public:
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)
-    UStoryCharacter* StoryCharacter;
+void UHackTask::NativeEvent(FString EventName, TMap<FString, FString> InEventArgs)
+{
+    if(EventName == "HackStart" && !IsInHack)
+    {
+        if(InEventArgs["Identity"] == FString::FromInt(this->TargetEntity))
+        {
+            this->IsInHack = true;
+        }
+    }
 
-protected:
-    virtual void NativeStart() override;
-    virtual void NativeTick(float InDeltaSeconds) override;
-    virtual void NativeEvent(FString EventName, TMap<FString, FString> InEventArgs) override;
-};
+    if(EventName == "HackSuccess" && IsInHack)
+    {
+        if(InEventArgs["Identity"] == FString::FromInt(this->TargetEntity))
+        {
+            this->Complete();
+        }
+    }
+}
