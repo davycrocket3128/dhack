@@ -34,7 +34,7 @@
 #include "window.h"
 #include "SystemContext.h"
 
-void UProgramPayload::NativePayloadDeployed(UUserContext* OriginUser, UUserContext* TargetUser)
+void UProgramPayload::NativePayloadDeployed(UConsoleContext* Console, UUserContext* OriginUser, UUserContext* TargetUser)
 {
     // Make sure the dev wasn't a complete idiot.
     check(this->ProgramToOpen);

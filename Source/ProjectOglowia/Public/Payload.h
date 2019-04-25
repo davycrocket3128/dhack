@@ -33,7 +33,10 @@
 
 #include "CoreMinimal.h"
 #include "UserContext.h"
+#include "ConsoleContext.h"
 #include "Payload.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDisconnectedEvent);
 
 UCLASS(Blueprintable, BlueprintType, Abstract, EditInlineNew)
 class PROJECTOGLOWIA_API UPayload : public UObject
@@ -42,10 +45,17 @@ class PROJECTOGLOWIA_API UPayload : public UObject
 
 protected:
     UFUNCTION(BlueprintImplementableEvent)
-    void OnPayloadDeployed(UUserContext* OriginUser, UUserContext* TargetUser);
+    void OnPayloadDeployed(UConsoleContext* Console, UUserContext* OriginUser, UUserContext* TargetUser);
 
-    virtual void NativePayloadDeployed(UUserContext* OriginUser, UUserContext* TargetUser) {}
+    virtual void NativePayloadDeployed(UConsoleContext* Console, UUserContext* OriginUser, UUserContext* TargetUser) {}
+
+    UFUNCTION(BlueprintCallable, Category = "Payload")
+    void Disconnect();
+
 public:
+    UPROPERTY()
+    FDisconnectedEvent Disconnected;
+
     UFUNCTION()
-    void DeployPayload(UUserContext* OriginUser, UUserContext* TargetUser);
+    void DeployPayload(UConsoleContext* OriginConsole, UUserContext* OriginUser, UUserContext* TargetUser);
 };

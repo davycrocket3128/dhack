@@ -29,22 +29,27 @@
  *
  ********************************************************************************/
 
-#include "Payload.h"
-#include "NetworkedConsoleContext.h"
+#include "CommandPayload.h"
+#include "TerminalCommand.h"
+#include "PeacenetWorldStateActor.h"
 
-void UPayload::Disconnect()
+void UCommandPayload::NativePayloadDeployed(UConsoleContext* Console, UUserContext* OriginUser, UUserContext* TargetUser)
 {
-    return this->Disconnected.Broadcast();
-}
+    check(this->Command);
 
-void UPayload::DeployPayload(UConsoleContext* OriginConsole, UUserContext* OriginUser, UUserContext* TargetUser)
-{
-    // Create a networked console context that outputs to the origin but uses the hacked user as a means of
-    // gaining a Peacegate context.
-    UNetworkedConsoleContext* HackerContext = NewObject<UNetworkedConsoleContext>();
-    HackerContext->SetupNetworkedConsole(OriginConsole, TargetUser);
+    // Spawn the terminal command actor - similar to how USystemContext does it.
+    FVector Location(0.0f, 0.0f, 0.0f);
+	FRotator Rotation(0.0f, 0.0f, 0.0f);
+ 	FActorSpawnParameters SpawnInfo;
 
-    // This console is passed to the deriving payload methods - the payload is thus run in the context of the hacked system.
-    this->NativePayloadDeployed(HackerContext, OriginUser, TargetUser);
-    this->OnPayloadDeployed(HackerContext, OriginUser, TargetUser);
+	ATerminalCommand* CommandInstance = OriginUser->GetPeacenet()->GetWorld()->SpawnActor<ATerminalCommand>(this->Command->CommandClass, Location, Rotation, SpawnInfo);
+	CommandInstance->CommandInfo = this->Command;
+
+    // Disconnect when the command finishes.
+    TScriptDelegate<> DisconnectedEvent;
+    DisconnectedEvent.BindUFunction(this, "Disconnect");
+    CommandInstance->Completed.Add(DisconnectedEvent);
+
+    // Run the command in the context of the hacked user.
+    CommandInstance->RunCommand(Console, { this->Command->ID.ToString() });
 }

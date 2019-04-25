@@ -48,5 +48,5 @@ public:
     UPeacegateProgramAsset* ProgramToOpen;
 
 protected:
-    virtual void NativePayloadDeployed(UUserContext* OriginUser, UUserContext* TargetUser) override;
+    virtual void NativePayloadDeployed(UConsoleContext* Console, UUserContext* OriginUser, UUserContext* TargetUser) override;
 };

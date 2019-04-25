@@ -55,6 +55,7 @@ void ATerminalCommand::ShowTutorialIfNotSet(FString InSaveBoolean, const FText& 
 	if(!this->IsSet(InSaveBoolean) && !this->IsTutorialActive())
 	{
 		this->Console->GetUserContext()->GetPeacenet()->GetTutorialState()->ActivatePrompt(InTutorialTitle, InTutorialText);
+		this->Console->GetUserContext()->GetPeacenet()->SaveGame->SetValue(InSaveBoolean, true);
 	}
 }
 

@@ -49,6 +49,9 @@ public:
 
 private:
     UPROPERTY()
+    bool IsPayloadActive = false;
+
+    UPROPERTY()
     FString EnteredHostname;
 
     UPROPERTY()
@@ -64,6 +67,9 @@ private:
     bool WaitingForCommand = true;
 
 protected:
+    UFUNCTION()
+    void OnDisconnect();
+
     UFUNCTION()
     void HandleCommand(FString InCommandName, TArray<FString> InArguments);
 

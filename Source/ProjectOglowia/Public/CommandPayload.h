@@ -29,22 +29,22 @@
  *
  ********************************************************************************/
 
+#pragma once
+
+#include "CoreMinimal.h"
 #include "Payload.h"
-#include "NetworkedConsoleContext.h"
+#include "CommandInfo.h"
+#include "CommandPayload.generated.h"
 
-void UPayload::Disconnect()
+UCLASS()
+class PROJECTOGLOWIA_API UCommandPayload : public UPayload
 {
-    return this->Disconnected.Broadcast();
-}
+    GENERATED_BODY()
 
-void UPayload::DeployPayload(UConsoleContext* OriginConsole, UUserContext* OriginUser, UUserContext* TargetUser)
-{
-    // Create a networked console context that outputs to the origin but uses the hacked user as a means of
-    // gaining a Peacegate context.
-    UNetworkedConsoleContext* HackerContext = NewObject<UNetworkedConsoleContext>();
-    HackerContext->SetupNetworkedConsole(OriginConsole, TargetUser);
+public:
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Command Payload")
+    UCommandInfo* Command;
 
-    // This console is passed to the deriving payload methods - the payload is thus run in the context of the hacked system.
-    this->NativePayloadDeployed(HackerContext, OriginUser, TargetUser);
-    this->OnPayloadDeployed(HackerContext, OriginUser, TargetUser);
-}
+protected:
+    virtual void NativePayloadDeployed(UConsoleContext* Console, UUserContext* OriginUser, UUserContext* TargetUser) override;
+};

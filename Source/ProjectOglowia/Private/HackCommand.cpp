@@ -352,7 +352,13 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
 
                     UUserContext* PayloadUser = this->RemoteSystem->GetHackerContext(0, MyConsole->GetUserContext());
 
-                    this->CurrentPayload->Payload->DeployPayload(MyConsole->GetUserContext(), PayloadUser);
+                    TScriptDelegate<> DisconnectedEvent;
+                    DisconnectedEvent.BindUFunction(this, "OnDisconnect");
+                    this->CurrentPayload->Payload->Disconnected.Add(DisconnectedEvent);
+
+                    this->IsPayloadActive = true;
+
+                    this->CurrentPayload->Payload->DeployPayload(this->GetConsole(), MyConsole->GetUserContext(), PayloadUser);
 
                     this->SendGameEvent("HackSuccess", {
                         { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID)},
@@ -364,7 +370,6 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
                         { "ServerSoftware", Service.Service->Name.ToString()}
                     });
 
-                    this->HandleCommand("exit", InArguments);
                     return;
                 }
                 else
@@ -376,6 +381,13 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
         }
 
     }
+}
+
+void AHackCommand::OnDisconnect()
+{
+    this->IsPayloadActive = false;
+    this->CurrentPayload->Payload->Disconnected.Clear();
+    this->HandleCommand("exit", { "" });
 }
 
 void AHackCommand::Tick(float InDeltaSeconds)
@@ -406,27 +418,30 @@ void AHackCommand::Tick(float InDeltaSeconds)
     }
     else
     {
-        this->GetConsole()->Write("&3" + this->EnteredHostname + " &7(");
-        if(this->CurrentExploit)
+        if(!this->IsPayloadActive)
         {
-            this->GetConsole()->Write("&6&*" + this->CurrentExploit->ID.ToString() + "&r&F");
-        }
-        else
-        {
-            this->GetConsole()->Write("&6&*none&r&F");
-        }
-        this->GetConsole()->Write("/");
-        if(this->CurrentPayload)
-        {
-            this->GetConsole()->Write("&C&*" + this->CurrentPayload->Name.ToString() + "&r&7");
-        }
-        else
-        {
-            this->GetConsole()->Write("&C&*none&r&7");
-        }
-        this->GetConsole()->Write(")> ");
+            this->GetConsole()->Write("&3" + this->EnteredHostname + " &7(");
+            if(this->CurrentExploit)
+            {
+                this->GetConsole()->Write("&6&*" + this->CurrentExploit->ID.ToString() + "&r&F");
+            }
+            else
+            {
+                this->GetConsole()->Write("&6&*none&r&F");
+            }
+            this->GetConsole()->Write("/");
+            if(this->CurrentPayload)
+            {
+                this->GetConsole()->Write("&C&*" + this->CurrentPayload->Name.ToString() + "&r&7");
+            }
+            else
+            {
+                this->GetConsole()->Write("&C&*none&r&7");
+            }
+            this->GetConsole()->Write(")> ");
 
-        this->WaitingForCommand = true;
+            this->WaitingForCommand = true;
+        }
     }
 
     if(!this->IsTutorialActive())
