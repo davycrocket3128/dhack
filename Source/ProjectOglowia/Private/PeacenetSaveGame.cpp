@@ -34,6 +34,21 @@
 #include "Computer.h"
 #include "MissionAsset.h"
 
+int UPeacenetSaveGame::GetGameStat(FName InStatName)
+{
+	if(this->GameStats.Contains(InStatName))
+		return this->GameStats[InStatName];
+	return 0;
+}
+
+void UPeacenetSaveGame::SetGameStat(FName InStatName, int InValue)
+{
+	if(this->GameStats.Contains(InStatName))
+		this->GameStats[InStatName] = InValue;
+	else
+		this->GameStats.Add(InStatName, InValue);
+}
+
 bool UPeacenetSaveGame::CryptoWalletExists(FString InAddress)
 {
 	for(auto& Identity : this->Characters)

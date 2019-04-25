@@ -61,6 +61,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Missions")
 	TArray<UMissionAsset*> CompletedMissions;
 
+	UPROPERTY(VisibleAnywhere, Category = "Missions")
+	TMap<FName, int> GameStats;
+
 	UPROPERTY(VisibleAnywhere, Category = "Peacegate")
 	bool IsNewGame = true;
 
@@ -167,6 +170,12 @@ public:
 
 	UFUNCTION()
 	bool RelatesWith(int InFirstEntity, int InSecondEntity);
+
+	UFUNCTION()
+	int GetGameStat(FName InStatName);
+
+	UFUNCTION()
+	void SetGameStat(FName InStatName, int InValue);
 
 	UFUNCTION()
 	bool CharacterNameExists(FString CharacterName);
