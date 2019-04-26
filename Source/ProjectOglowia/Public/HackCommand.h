@@ -68,6 +68,9 @@ private:
 
 protected:
     UFUNCTION()
+    float AssessStealthiness();
+
+    UFUNCTION()
     void OnDisconnect();
 
     UFUNCTION()

@@ -480,6 +480,57 @@ void AHackCommand::Tick(float InDeltaSeconds)
      }
 }
 
+float AHackCommand::AssessStealthiness()
+{
+    // Stealthiness is a percentage value.
+    float stealthiness = 1.f;
+
+    // So basically what we're going to do is...
+    //
+    // 1. Check how many text files in the remote system
+    // contain the local system's IP address compared to how many text files
+    // are actually on the system - and calculate a percentage.  This percentage counts for
+    // 50% of the player's stealthiness value.
+    //
+    // 2. 20% of the stealthiness comes from how many services have crashed compared to the total number of
+    // services on the computer in the first place.
+    //
+    
+    // Start by calculating how many tracks the player left behind.
+    float filesCount = (float) this->RemoteSystem->GetComputer().TextFiles.Num();
+    float filesContainingIPAddress = 0.f;
+
+    for(auto& file : this->RemoteSystem->GetComputer().TextFiles)
+    {
+        if(file.Content.Contains(this->GetUserContext()->GetOwningSystem()->GetIPAddress()))
+        {
+            filesContainingIPAddress += 1.f;
+        }
+    }
+
+    float tracksLeftPercentage = (filesContainingIPAddress / filesCount) * 0.5f;
+
+    // Decrease stealthiness by that amount.
+    stealthiness -= tracksLeftPercentage;
+
+    // Check crashiness percentage.
+    float serviceCount = this->RemoteSystem->GetComputer().FirewallRules.Num();
+    float crashes = 0.f;
+
+    for(auto& rule : this->RemoteSystem->GetComputer().FirewallRules)
+    {
+        if(rule.IsCrashed) crashes += 1.f;
+    }
+
+    stealthiness -= (crashes / serviceCount) * 0.20f;
+
+    // Step 3 would be take off another 20% if the system's owner is currently using the system
+    // but this isn't implemented.
+
+    // Return the stealthiness value as a definite percentage.
+    return FMath::Clamp(stealthiness, 0.f, 1.f);
+}
+
 void AHackCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
 {
     // Get the target IP address from docopt.

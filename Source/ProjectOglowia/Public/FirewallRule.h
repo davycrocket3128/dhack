@@ -51,4 +51,7 @@ public:
 
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
     UProtocolVersion* Service;
+
+    UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+    bool IsCrashed = false;
 };
