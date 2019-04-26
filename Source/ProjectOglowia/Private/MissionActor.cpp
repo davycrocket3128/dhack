@@ -82,6 +82,11 @@ void AMissionActor::Complete()
     if(!this->Peacenet->SaveGame->CompletedMissions.Contains(this->Mission))
         this->Peacenet->SaveGame->CompletedMissions.Add(this->Mission);
 
+    // Tell the rest of the game "HEY MOTHERFUCKERS, THE PLAYER JUST COMPLETED A BLOODY MISSION WOOOOOOOOOOO!"
+    this->Peacenet->SendGameEvent("MissionComplete", {
+        { "MissionID", this->Mission->GetFName().ToString()}
+    });
+
     // Tell The Peacenet that we've completed.
     this->Peacenet->EndMission();
 
