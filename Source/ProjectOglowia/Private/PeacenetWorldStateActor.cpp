@@ -55,7 +55,14 @@ int APeacenetWorldStateActor::GetGameStat(FName InStatName)
 
 void APeacenetWorldStateActor::SetGameStat(FName InStatName, int InValue)
 {
+	int previousValue = this->GetGameStat(InStatName);
 	this->SaveGame->SetGameStat(InStatName, InValue);
+
+	this->SendGameEvent("GameStatChange", {
+		{ "StatName", InStatName.ToString()},
+		{ "PreviousValue", FString::FromInt(previousValue)},
+		{ "Current", FString::FromInt(InValue)}
+	});
 }
 
 void APeacenetWorldStateActor::IncreaseGameStat(FName InStatName)
