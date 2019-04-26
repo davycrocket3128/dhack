@@ -48,6 +48,21 @@
 #include "MissionActor.h"
 #include "Window.h"
 
+int APeacenetWorldStateActor::GetGameStat(FName InStatName)
+{
+	return this->SaveGame->GetGameStat(InStatName);
+}
+
+void APeacenetWorldStateActor::SetGameStat(FName InStatName, int InValue)
+{
+	this->SaveGame->SetGameStat(InStatName, InValue);
+}
+
+void APeacenetWorldStateActor::IncreaseGameStat(FName InStatName)
+{
+	this->SetGameStat(InStatName, this->GetGameStat(InStatName) + 1);
+}
+
 bool APeacenetWorldStateActor::IsNewGame()
 {
 	return this->SaveGame->IsNewGame;

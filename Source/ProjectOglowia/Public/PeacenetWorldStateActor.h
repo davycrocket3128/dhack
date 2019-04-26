@@ -75,6 +75,17 @@ public: // Constructors
 	// Sets default values for this actor's properties
 	APeacenetWorldStateActor();
 
+	UFUNCTION()
+	void SetGameStat(FName InStatName, int InValue);
+
+	UFUNCTION()
+	int GetGameStat(FName InStatName);
+
+	UFUNCTION()
+	void IncreaseGameStat(FName InStatName);
+
+	
+
 private: // Properties
 	UPROPERTY()
 	UTutorialPromptState* TutorialState;
