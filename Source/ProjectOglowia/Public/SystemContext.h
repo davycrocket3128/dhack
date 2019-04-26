@@ -163,6 +163,15 @@ public: // Property getters
 	UFUNCTION(BlueprintCallable, Category = "System Context")
 	void SetCurrentWallpaper(UWallpaperAsset* InWallpaperAsset);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Game Stats")
+	int GetGameStat(FName InStatName);
+
+	UFUNCTION(BlueprintCallable, Category = "Game Stats")
+	void SetGameStat(FName InStatName, int InValue);
+
+	UFUNCTION(BlueprintCallable, Category = "Game Stats")
+	void IncreaseGameStat(FName InStatName);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Context")
 	UDesktopWidget* GetDesktop();
 

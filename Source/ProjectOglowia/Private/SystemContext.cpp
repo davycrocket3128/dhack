@@ -48,6 +48,21 @@
 #include "CommandInfo.h"
 #include "PayloadAsset.h"
 
+int USystemContext::GetGameStat(FName InStatName)
+{
+	return this->GetPeacenet()->GetGameStat(InStatName);
+}
+
+void USystemContext::SetGameStat(FName InStatName, int InValue)
+{
+	this->GetPeacenet()->SetGameStat(InStatName, InValue);
+}
+
+void USystemContext::IncreaseGameStat(FName InStatName)
+{
+	this->GetPeacenet()->IncreaseGameStat(InStatName);
+}
+
 bool USystemContext::IsSet(FString InSaveBoolean)
 {
 	return this->GetPeacenet()->SaveGame->IsTrue(InSaveBoolean);
