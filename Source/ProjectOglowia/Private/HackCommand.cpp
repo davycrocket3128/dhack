@@ -44,6 +44,17 @@ AHackCommand::AHackCommand()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+bool AHackCommand::ShouldCrashService()
+{
+    float volatility = (float)this->CurrentExploit->Volatility / 5.f;
+
+    float crashiness = volatility * 0.5f;
+
+    float chance = FMath::FRandRange(0.f, 1.f);
+
+    return chance < crashiness;
+}
+
 void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArguments)
 {
     UConsoleContext* MyConsole = this->GetConsole();
@@ -189,6 +200,8 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
         this->RemoteSystem->GetPeacenet()->GetProcgen()->GenerateFirewallRules(this->RemoteSystem->GetComputer());
         for(auto Service : this->RemoteSystem->GetComputer().FirewallRules)
         {
+            if(Service.IsCrashed) continue;
+
             MyConsole->Write(FString::FromInt(Service.Port));
             MyConsole->Write("\t\t");
 
@@ -201,7 +214,7 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
                 MyConsole->Write("&3open&7");
             }
             MyConsole->Write("\t");
-            MyConsole->WriteLine(Service.Service->Name.ToString());
+            MyConsole->WriteLine(Service.Service->Protocol->Name.ToString());
         }
         return;
     }
@@ -229,7 +242,7 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
 
         for(auto Service : this->RemoteSystem->GetComputer().FirewallRules)
         {
-            if(Service.Port == RealPort)
+            if(Service.Port == RealPort && !Service.IsCrashed)
             {
                 bool FoundVulns = false;
 
@@ -310,7 +323,7 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
 
         this->HandleCommand("scan", InArguments);
 
-        for(auto Service : this->RemoteSystem->GetComputer().FirewallRules)
+        for(auto& Service : this->RemoteSystem->GetComputer().FirewallRules)
         {
             if(Service.Port == RealPort)
             {
@@ -325,6 +338,24 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
                 });
 
                 MyConsole->WriteLine("Service is &F" + Service.Service->Name.ToString() + "&7.");
+
+                if(Service.IsCrashed)
+                {
+                    MyConsole->WriteLine("Connection refused.");
+
+                    this->SendGameEvent("HackFail", {
+                        { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID)},
+                        { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID)},
+                        { "Exploit", this->CurrentExploit->ID.ToString()},
+                        { "Payload", this->CurrentPayload->Name.ToString()},
+                        { "Port", FString::FromInt(RealPort)},
+                        { "Protocol", Service.Service->Protocol->Name.ToString()},
+                        { "ServerSoftware", Service.Service->Name.ToString()},
+                        { "Reason", "Crash"}
+                    });
+
+                    return;
+                }
 
                 if(Service.IsFiltered)
                 {
@@ -351,6 +382,13 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
                     MyConsole->WriteLine("Service is &3&*vulnerable&r&7 to the &6&*" + this->CurrentExploit->FullName.ToString() + "&r&7 exploit.");
 
                     MyConsole->WriteLine("Deploying &4&*" + this->CurrentPayload->Name.ToString() + "&r&7...");
+
+                    if(this->ShouldCrashService())
+                    {
+                        Service.IsCrashed = true;
+                        MyConsole->WriteLine("Connection refused.");
+                        return;
+                    }
 
                     UUserContext* PayloadUser = this->RemoteSystem->GetHackerContext(0, MyConsole->GetUserContext());
 

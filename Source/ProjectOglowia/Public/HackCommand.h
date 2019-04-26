@@ -71,6 +71,9 @@ protected:
     float AssessStealthiness();
 
     UFUNCTION()
+    bool ShouldCrashService();
+
+    UFUNCTION()
     void OnDisconnect();
 
     UFUNCTION()
