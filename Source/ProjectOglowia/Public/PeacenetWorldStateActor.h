@@ -61,11 +61,21 @@ class UPayloadAsset;
 class UWindow;
 class UMissionAsset;
 
+USTRUCT(BlueprintType)
+struct FGameEventData
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadOnly)
+	TMap<FString, FString> EventData;
+};
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerSystemContextReadyEvent, USystemContext*, InSystemContext);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPeacenetMapUpdateEvent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMailMessageSendEvent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMissionFailureEvent, AMissionActor*, MissionState, const FText&, FailMessage);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FGameEventSent, FString, InEventName, TMap<FString, FString>, InEventData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FGameEventSent, FString, InEventName, FGameEventData, InEventData);
 
 UCLASS()
 class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
