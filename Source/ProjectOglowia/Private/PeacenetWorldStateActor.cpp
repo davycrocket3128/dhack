@@ -103,6 +103,8 @@ void APeacenetWorldStateActor::SendGameEvent(FString EventName, TMap<FString, FS
 	{
 		this->CurrentMission->SendGameEvent(EventName, InEventData);
 	}
+
+	this->GameEventSent.Broadcast(EventName, InEventData);
 }
 
 bool APeacenetWorldStateActor::IdentityHasSystemContext(int InIdentityID)

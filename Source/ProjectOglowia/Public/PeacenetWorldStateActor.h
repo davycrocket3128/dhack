@@ -65,6 +65,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerSystemContextReadyEvent, USys
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPeacenetMapUpdateEvent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMailMessageSendEvent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMissionFailureEvent, AMissionActor*, MissionState, const FText&, FailMessage);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FGameEventSent, FString, InEventName, TMap<FString, FString>, InEventData);
 
 UCLASS()
 class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
@@ -84,7 +85,7 @@ public: // Constructors
 	UFUNCTION()
 	void IncreaseGameStat(FName InStatName);
 
-	
+
 
 private: // Properties
 	UPROPERTY()
@@ -177,6 +178,9 @@ public: //Properties
 
 	UPROPERTY()
 	TMap<FName, UCommandInfo*> CommandInfo;
+
+	UPROPERTY(BlueprintAssignable)
+	FGameEventSent GameEventSent;
 
 private: // Functions
 	UFUNCTION()
