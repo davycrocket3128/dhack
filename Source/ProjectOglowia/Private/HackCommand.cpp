@@ -360,7 +360,7 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
 
                     this->CurrentPayload->Payload->DeployPayload(this->GetConsole(), MyConsole->GetUserContext(), PayloadUser);
 
-                    this->SendGameEvent("HackSuccess", {
+                    this->SendGameEvent("PayloadDeploy", {
                         { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID)},
                         { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID)},
                         { "Exploit", this->CurrentExploit->ID.ToString()},
@@ -387,6 +387,10 @@ void AHackCommand::OnDisconnect()
 {
     this->IsPayloadActive = false;
     this->CurrentPayload->Payload->Disconnected.Clear();
+    this->SendGameEvent("HackSuccess", {
+        { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID)},
+        { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID)}
+    });
     this->HandleCommand("exit", { "" });
 }
 

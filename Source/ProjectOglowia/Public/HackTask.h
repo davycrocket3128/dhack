@@ -54,6 +54,9 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere)
     UStoryCharacter* StoryCharacter;
 
+    UPROPERTY(BlueprintReadWrite, EditAnywhere)
+    bool FailOnCoverBlow = false;
+    
 protected:
     virtual void NativeStart() override;
     virtual void NativeTick(float InDeltaSeconds) override;
