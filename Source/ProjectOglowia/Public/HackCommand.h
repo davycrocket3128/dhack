@@ -75,4 +75,10 @@ protected:
 
     virtual void Tick(float InDeltaSeconds) override;
     virtual void NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) override;
+
+    UFUNCTION()
+    void ShowCoverTutorial();
+
+    UFUNCTION()
+    void ShowPayloadTutorial();
 };

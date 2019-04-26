@@ -222,6 +222,8 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
             return;
         }
 
+        this->ShowCoverTutorial();
+
         MyConsole->WriteLine("GIGASPLOIT PORT ANALYSIS:");
         MyConsole->WriteLine("    " + this->RemoteSystem->GetIPAddress() + ":" + EnteredPort + "\n");
 
@@ -370,6 +372,8 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
                         { "ServerSoftware", Service.Service->Name.ToString()}
                     });
 
+                    this->ShowPayloadTutorial();
+
                     return;
                 }
                 else
@@ -509,4 +513,20 @@ void AHackCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
             NSLOCTEXT("CommandNames", "Gigasploit", "Gigasploit Framework Console"),
             NSLOCTEXT("Tutorials", "GigasploitWelcome", "Gigasploit Welcome Tutorial Text")
         );
+}
+
+void AHackCommand::ShowCoverTutorial()
+{
+    this->ShowTutorialIfNotSet("tuts.gameplay.cover",
+        NSLOCTEXT("Tutorials", "CoverTitle", "Cover"),
+        NSLOCTEXT("Tutorials", "Cover", "Cover tutorial")
+    );
+}
+
+void AHackCommand::ShowPayloadTutorial()
+{
+        this->ShowTutorialIfNotSet("tuts.gameplay.cover.cleanup",
+        NSLOCTEXT("Tutorials", "CoverTitle", "Cover"),
+        NSLOCTEXT("Tutorials", "CoverCleanup", "Cleaning up after yourself")
+    );
 }
