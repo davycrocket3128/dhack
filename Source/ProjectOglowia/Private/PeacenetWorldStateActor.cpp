@@ -521,6 +521,24 @@ void APeacenetWorldStateActor::SetStealthiness(FPeacenetIdentity& InIdentity, fl
 	this->AlertManager->GetStealthStatus(InIdentity.ID).Stealthiness = InValue;
 	this->AlertManager->ResetStealthIncreaseTimer(InIdentity.ID);
 	this->AlertManager->GetStealthStatus(InIdentity.ID).Cooldown = 30.f;
+
+	if(InValue <= 0.7f && !this->AlertManager->GetStealthStatus(InIdentity.ID).IsSuspicious)
+	{
+		this->AlertManager->GetStealthStatus(InIdentity.ID).IsSuspicious = true;
+	
+		this->SendGameEvent("SuspicionRaised", {
+			{ "Identity", FString::FromInt(InIdentity.ID)}
+		});
+	}
+
+	if(InValue <= 0.45f && !this->AlertManager->GetStealthStatus(InIdentity.ID).IsInAlert)
+	{
+		this->AlertManager->GetStealthStatus(InIdentity.ID).IsInAlert = true;
+
+		this->SendGameEvent("CoverBlown", {
+			{ "Identity", FString::FromInt(InIdentity.ID)}
+		});
+	}
 }
 
 // Called when the game starts or when spawned

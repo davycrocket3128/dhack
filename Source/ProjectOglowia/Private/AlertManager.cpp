@@ -103,7 +103,14 @@ void AAlertManager::Tick(float DeltaTime)
 
             if(stealthiness >= 0.70f)
             {
-                StealthStatus.IsSuspicious = false;
+                if(StealthStatus.IsSuspicious)
+                {
+                    StealthStatus.IsSuspicious = false;
+                
+                	this->Peacenet->SendGameEvent("SuspicionLowered", {
+			            { "Identity", FString::FromInt(StealthStatus.EntityID)}
+		            });
+                }
             }
         }
 
