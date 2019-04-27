@@ -44,6 +44,7 @@
 #include "GovernmentAlertInfo.h"
 #include "GameTypeAsset.h"
 #include "TutorialPromptState.h"
+#include "AlertManager.h"
 #include "PeacenetWorldStateActor.generated.h"
 
 class AMissionActor;
@@ -98,6 +99,9 @@ public: // Constructors
 
 
 private: // Properties
+	UPROPERTY()
+	AAlertManager* AlertManager;
+	
 	UPROPERTY()
 	UTutorialPromptState* TutorialState;
 	

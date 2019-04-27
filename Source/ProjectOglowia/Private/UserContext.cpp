@@ -42,6 +42,18 @@
 #include "PeacegateFileSystem.h"
 #include "PayloadAsset.h"
 
+void UUserContext::Destroy()
+{
+	if(this->HackingUser)
+	{
+		this->HackingUser->Destroy();
+	}
+
+	this->HackingUser = nullptr;
+	this->OwningSystem = nullptr;
+	this->UserID = -1;
+}
+
 TArray<UPayloadAsset*> UUserContext::GetPayloads()
 {
 	return this->GetOwningSystem()->GetPayloads();

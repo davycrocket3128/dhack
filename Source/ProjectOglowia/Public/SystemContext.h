@@ -119,6 +119,9 @@ public: // Property getters
 	UUserContext* GetHackerContext(int InUserID, UUserContext* HackingUser);
 
 	UFUNCTION()
+	void Destroy();
+
+	UFUNCTION()
 	bool IsEnvironmentVariableSet(FString InVariable);
 
 	UFUNCTION()

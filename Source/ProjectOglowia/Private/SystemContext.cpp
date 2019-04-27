@@ -48,6 +48,59 @@
 #include "CommandInfo.h"
 #include "PayloadAsset.h"
 
+void USystemContext::Destroy()
+{
+	// Remove the desktop from the screen, thus killing any UI related to this system context.
+	if(this->Desktop)
+	{
+		this->Desktop->RemoveFromParent();
+	}
+
+	// Unlink the context from the Peacenet world.
+	this->Peacenet = nullptr;
+	this->Desktop = nullptr;
+	
+	// Destroy all filesystems.
+	TArray<int> FilesystemKeys;
+	this->RegisteredFilesystems.GetKeys(FilesystemKeys);
+
+	while(this->RegisteredFilesystems.Num())
+	{
+		int key = FilesystemKeys[0];
+		FilesystemKeys.RemoveAt(0);
+
+		this->RegisteredFilesystems.Remove(key);
+	}
+
+	// Kill all hacker contexts.
+	while(this->Hackers.Num())
+	{
+		this->Hackers[0]->Destroy();
+		this->Hackers.RemoveAt(0);
+	}
+
+	// And all user contexts.
+	TArray<int> userKeys;
+	this->Users.GetKeys(userKeys);
+
+	while(this->Users.Num())
+	{
+		int key = userKeys[0];
+		userKeys.RemoveAt(0);
+
+		this->Users[key]->Destroy();
+		this->Users.Remove(key);
+	}
+
+	// Destroy all remaining data in the system context.
+	this->MailProvider = nullptr;
+	this->RainbowTable = nullptr;
+	this->ComputerID = -1;
+	this->CharacterID = -1;
+	this->Processes.Empty();
+
+}
+
 int USystemContext::GetGameStat(FName InStatName)
 {
 	return this->GetPeacenet()->GetGameStat(InStatName);

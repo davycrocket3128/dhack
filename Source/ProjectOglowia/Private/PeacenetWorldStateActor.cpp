@@ -516,6 +516,12 @@ void APeacenetWorldStateActor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Spawn in the alert manager.
+	FVector Location(0.0f, 0.0f, 0.0f);
+	 FRotator Rotation(0.0f, 0.0f, 0.0f);
+ 	FActorSpawnParameters SpawnInfo;
+	this->AlertManager = this->GetWorld()->SpawnActor<AAlertManager>(Location, Rotation, SpawnInfo);
+
 	// Initialize tutorial state.
 	this->TutorialState = NewObject<UTutorialPromptState>(this);
 
@@ -579,6 +585,16 @@ void APeacenetWorldStateActor::EndPlay(const EEndPlayReason::Type InReason)
 	if(this->IsInMission())
 	{
 		this->CurrentMission->Abort();
+	}
+
+	// Destroy the alert state.
+	this->AlertManager->Destroy();
+
+	// Destroy all system contexts.
+	while(this->SystemContexts.Num())
+	{
+		this->SystemContexts[0]->Destroy();
+		this->SystemContexts.RemoveAt(0);
 	}
 
 	this->SaveWorld();

@@ -83,6 +83,9 @@ public:
     UFUNCTION()
     void SetHacker(UUserContext* InHacker);
 
+    UFUNCTION()
+    void Destroy();
+
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "URL parsing")
     void ParseURL(FString InURL, int InDefaultPort, FString& OutUsername, FString& OutHost, int& OutPort, FString& OutPath);
 

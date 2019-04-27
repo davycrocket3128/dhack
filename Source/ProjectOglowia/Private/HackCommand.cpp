@@ -516,6 +516,11 @@ void AHackCommand::Tick(float InDeltaSeconds)
             );
         }
      }
+
+    // How stealthy is the player being?
+     float stealthinessRating = this->AssessStealthiness();
+
+    
 }
 
 float AHackCommand::AssessStealthiness()
