@@ -54,4 +54,7 @@ public:
 
     UPROPERTY()
     float TimeUntilStealthIncrease = 0.f;
+
+    UPROPERTY()
+    float Cooldown = 30.f;
 };

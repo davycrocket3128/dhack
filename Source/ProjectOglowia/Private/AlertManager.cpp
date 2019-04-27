@@ -87,13 +87,19 @@ void AAlertManager::Tick(float DeltaTime)
 
         if(stealthiness >= 1.f) continue;
 
+        if(StealthStatus.Cooldown >= 0.f)
+        {
+            StealthStatus.Cooldown -= DeltaTime;
+            continue;
+        }
+
         StealthStatus.TimeUntilStealthIncrease -= DeltaTime;
 
         if(StealthStatus.TimeUntilStealthIncrease <= 0.f)
         {
             this->ResetStealthIncreaseTimer(StealthStatus.EntityID);
             stealthiness += 0.01f;
-            StealthStatus.Stealthiness = stealthiness;
+            StealthStatus.Stealthiness = FMath::Clamp(stealthiness, 0.f, 1.f);
 
             if(stealthiness >= 0.70f)
             {
