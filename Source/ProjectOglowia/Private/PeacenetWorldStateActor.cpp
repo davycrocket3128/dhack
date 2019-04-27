@@ -519,6 +519,7 @@ float APeacenetWorldStateActor::GetStealthiness(FPeacenetIdentity& InIdentity)
 void APeacenetWorldStateActor::SetStealthiness(FPeacenetIdentity& InIdentity, float InValue)
 {
 	this->AlertManager->GetStealthStatus(InIdentity.ID).Stealthiness = InValue;
+	this->AlertManager->ResetStealthIncreaseTimer(InIdentity.ID);
 }
 
 // Called when the game starts or when spawned

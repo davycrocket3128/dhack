@@ -45,6 +45,12 @@ class PROJECTOGLOWIA_API AAlertManager : public AActor
 
 private:
     UPROPERTY()
+    float StealthIncreaseInterval = 0.5f;
+
+    UPROPERTY()
+    float SuspiciousStealthIncreaseInterval = 5.f;
+
+    UPROPERTY()
     APeacenetWorldStateActor* Peacenet;
 
     UPROPERTY()
@@ -55,8 +61,14 @@ public:
 
 public:
     UFUNCTION()
+    void ResetStealthIncreaseTimer(int EntityID);
+
+    UFUNCTION()
     FStealthStatus& GetStealthStatus(int InEntityID);
 
     UFUNCTION()
     void Setup(APeacenetWorldStateActor* InPeacenet);
+
+public:
+    virtual void Tick(float DeltaTime) override;
 };

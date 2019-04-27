@@ -38,6 +38,20 @@ AAlertManager::AAlertManager()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+void AAlertManager::ResetStealthIncreaseTimer(int EntityID)
+{
+    if(this->GetStealthStatus(EntityID).IsInAlert) return;
+
+    if(this->GetStealthStatus(EntityID).IsSuspicious)
+    {
+        this->GetStealthStatus(EntityID).TimeUntilStealthIncrease = this->SuspiciousStealthIncreaseInterval;
+    }
+    else
+    {
+        this->GetStealthStatus(EntityID).TimeUntilStealthIncrease = this->StealthIncreaseInterval;
+    }
+}
+
 void AAlertManager::Setup(APeacenetWorldStateActor* InPeacenet)
 {
     this->Peacenet = InPeacenet;
@@ -59,4 +73,33 @@ FStealthStatus& AAlertManager::GetStealthStatus(int InEntityID)
     this->StealthStatuses.Add(NewStatus);
 
     return this->StealthStatuses[this->StealthStatuses.Num() - 1];
+}
+
+void AAlertManager::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
+
+    for(auto& StealthStatus : this->StealthStatuses)
+    {
+        if(StealthStatus.IsInAlert) continue;
+
+        float stealthiness = StealthStatus.Stealthiness;
+
+        if(stealthiness >= 1.f) continue;
+
+        StealthStatus.TimeUntilStealthIncrease -= DeltaTime;
+
+        if(StealthStatus.TimeUntilStealthIncrease <= 0.f)
+        {
+            this->ResetStealthIncreaseTimer(StealthStatus.EntityID);
+            stealthiness += 0.01f;
+            StealthStatus.Stealthiness = stealthiness;
+
+            if(stealthiness >= 0.70f)
+            {
+                StealthStatus.IsSuspicious = false;
+            }
+        }
+
+    }
 }

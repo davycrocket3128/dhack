@@ -51,4 +51,7 @@ public:
 
     UPROPERTY()
     bool IsSuspicious = false;
+
+    UPROPERTY()
+    float TimeUntilStealthIncrease = 0.f;
 };
