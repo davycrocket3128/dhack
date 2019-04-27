@@ -511,6 +511,16 @@ void APeacenetWorldStateActor::EndMission()
 	this->SendAvailableMissions();
 }
 
+float APeacenetWorldStateActor::GetStealthiness(FPeacenetIdentity& InIdentity)
+{
+	return this->AlertManager->GetStealthStatus(InIdentity.ID).Stealthiness;
+}
+
+void APeacenetWorldStateActor::SetStealthiness(FPeacenetIdentity& InIdentity, float InValue)
+{
+	this->AlertManager->GetStealthStatus(InIdentity.ID).Stealthiness = InValue;
+}
+
 // Called when the game starts or when spawned
 void APeacenetWorldStateActor::BeginPlay()
 {
@@ -521,6 +531,7 @@ void APeacenetWorldStateActor::BeginPlay()
 	 FRotator Rotation(0.0f, 0.0f, 0.0f);
  	FActorSpawnParameters SpawnInfo;
 	this->AlertManager = this->GetWorld()->SpawnActor<AAlertManager>(Location, Rotation, SpawnInfo);
+	this->AlertManager->Setup(this);
 
 	// Initialize tutorial state.
 	this->TutorialState = NewObject<UTutorialPromptState>(this);

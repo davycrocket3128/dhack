@@ -49,6 +49,9 @@ public:
 
 private:
     UPROPERTY()
+    float LastStealthiness = 1.f;
+
+    UPROPERTY()
     bool IsPayloadActive = false;
 
     UPROPERTY()

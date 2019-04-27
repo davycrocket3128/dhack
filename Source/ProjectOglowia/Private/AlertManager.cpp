@@ -30,9 +30,33 @@
  ********************************************************************************/
 
 #include "AlertManager.h"
+#include "PeacenetWorldStateActor.h"
 
 AAlertManager::AAlertManager()
 {
      	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+}
+
+void AAlertManager::Setup(APeacenetWorldStateActor* InPeacenet)
+{
+    this->Peacenet = InPeacenet;
+}
+
+FStealthStatus& AAlertManager::GetStealthStatus(int InEntityID)
+{
+    for(int i = 0; i < this->StealthStatuses.Num(); i++)
+    {
+        if(this->StealthStatuses[i].EntityID == InEntityID)
+        {
+            return this->StealthStatuses[i];
+        }
+    }
+
+    FStealthStatus NewStatus;
+    NewStatus.EntityID = InEntityID;
+
+    this->StealthStatuses.Add(NewStatus);
+
+    return this->StealthStatuses[this->StealthStatuses.Num() - 1];
 }

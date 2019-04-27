@@ -32,31 +32,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "StealthStatus.h"
-#include "AlertManager.generated.h"
+#include "StealthStatus.generated.h"
 
-class APeacenetWorldStateActor;
-
-UCLASS()
-class PROJECTOGLOWIA_API AAlertManager : public AActor
+USTRUCT()
+struct FStealthStatus
 {
     GENERATED_BODY()
 
-private:
-    UPROPERTY()
-    APeacenetWorldStateActor* Peacenet;
-
-    UPROPERTY()
-    TArray<FStealthStatus> StealthStatuses;
-
 public:
-    AAlertManager();
+    UPROPERTY()
+    int EntityID = 0;
 
-public:
-    UFUNCTION()
-    FStealthStatus& GetStealthStatus(int InEntityID);
+    UPROPERTY()
+    float Stealthiness = 1.0f;
 
-    UFUNCTION()
-    void Setup(APeacenetWorldStateActor* InPeacenet);
+    UPROPERTY()
+    bool IsInAlert = false;
+
+    UPROPERTY()
+    bool IsSuspicious = false;
 };

@@ -44,6 +44,11 @@
 #include "TutorialPromptState.h"
 #include "ConsoleContext.h"
 
+float UDesktopWidget::GetStealthiness()
+{
+	return this->GetUserContext()->GetStealthiness();
+}
+
 void UDesktopWidget::ShowProgramOnWorkspace(UProgram* InProgram)
 {
 	// Make sure nothing is invalid.

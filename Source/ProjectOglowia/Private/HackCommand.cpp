@@ -517,10 +517,20 @@ void AHackCommand::Tick(float InDeltaSeconds)
         }
      }
 
-    // How stealthy is the player being?
-     float stealthinessRating = this->AssessStealthiness();
+    // Assess the player's stealthiness.  If it's different than
+    // before then we need to set the player's stealthiness value
+    // in the world state if the new value is below the current.
+    float stealthiness = this->AssessStealthiness();
 
-    
+    if(this->LastStealthiness != stealthiness)
+    {
+        this->LastStealthiness = stealthiness;
+
+        if(stealthiness < this->GetUserContext()->GetStealthiness())
+        {
+            this->GetUserContext()->SetStealthiness(stealthiness);
+        }
+    }
 }
 
 float AHackCommand::AssessStealthiness()
@@ -543,29 +553,35 @@ float AHackCommand::AssessStealthiness()
     float filesCount = (float) this->RemoteSystem->GetComputer().TextFiles.Num();
     float filesContainingIPAddress = 0.f;
 
-    for(auto& file : this->RemoteSystem->GetComputer().TextFiles)
+    if(filesCount > 0)
     {
-        if(file.Content.Contains(this->GetUserContext()->GetOwningSystem()->GetIPAddress()))
+        for(auto& file : this->RemoteSystem->GetComputer().TextFiles)
         {
-            filesContainingIPAddress += 1.f;
+            if(file.Content.Contains(this->GetUserContext()->GetOwningSystem()->GetIPAddress()))
+            {
+                filesContainingIPAddress += 1.f;
+            }
         }
+
+        float tracksLeftPercentage = (filesContainingIPAddress / filesCount) * 0.5f;
+
+        // Decrease stealthiness by that amount.
+        stealthiness -= tracksLeftPercentage;
     }
-
-    float tracksLeftPercentage = (filesContainingIPAddress / filesCount) * 0.5f;
-
-    // Decrease stealthiness by that amount.
-    stealthiness -= tracksLeftPercentage;
 
     // Check crashiness percentage.
     float serviceCount = this->RemoteSystem->GetComputer().FirewallRules.Num();
     float crashes = 0.f;
 
-    for(auto& rule : this->RemoteSystem->GetComputer().FirewallRules)
+    if(serviceCount > 0)
     {
-        if(rule.IsCrashed) crashes += 1.f;
-    }
+        for(auto& rule : this->RemoteSystem->GetComputer().FirewallRules)
+        {
+            if(rule.IsCrashed) crashes += 1.f;
+        }
 
-    stealthiness -= (crashes / serviceCount) * 0.20f;
+        stealthiness -= (crashes / serviceCount) * 0.20f;
+    }
 
     // Step 3 would be take off another 20% if the system's owner is currently using the system
     // but this isn't implemented.

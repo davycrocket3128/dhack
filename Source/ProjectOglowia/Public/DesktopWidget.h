@@ -105,6 +105,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "System")
 	void SwitchWorkspace(int InWorkspaceNumber);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Stealthiness")
+	float GetStealthiness();
+
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "System")
 	void MoveActiveProgramToWorkspace(int InWorkspaceNumber);
 

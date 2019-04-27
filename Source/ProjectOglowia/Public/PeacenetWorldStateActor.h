@@ -96,7 +96,11 @@ public: // Constructors
 	UFUNCTION()
 	void IncreaseGameStat(FName InStatName);
 
+	UFUNCTION()
+	float GetStealthiness(FPeacenetIdentity& InIdentity);
 
+	UFUNCTION()
+	void SetStealthiness(FPeacenetIdentity& InIdentity, float InValue);
 
 private: // Properties
 	UPROPERTY()

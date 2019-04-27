@@ -42,6 +42,16 @@
 #include "PeacegateFileSystem.h"
 #include "PayloadAsset.h"
 
+float UUserContext::GetStealthiness()
+{
+	return this->GetPeacenet()->GetStealthiness(this->GetOwningSystem()->GetCharacter());
+}
+
+void UUserContext::SetStealthiness(float InValue)
+{
+	this->GetPeacenet()->SetStealthiness(this->GetOwningSystem()->GetCharacter(), InValue);
+}
+
 void UUserContext::Destroy()
 {
 	if(this->HackingUser)

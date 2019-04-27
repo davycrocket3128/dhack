@@ -120,6 +120,12 @@ public:
     int GetUserID();
 
     UFUNCTION()
+    float GetStealthiness();
+
+    UFUNCTION()
+    void SetStealthiness(float InValue);
+
+    UFUNCTION()
     void Setup(USystemContext* InOwningSystem, int InUserID);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
