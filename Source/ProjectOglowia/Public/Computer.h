@@ -178,4 +178,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Resource Usage")
 	ERAMAmount RAMAmount = ERAMAmount::Level0;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Workaround bullshit")
+	bool HasWallpaperBeenSet = false;
 };

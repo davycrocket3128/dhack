@@ -131,7 +131,7 @@ void UDesktopWidget::NativeConstruct()
 	this->SystemContext->GetFilesystem(0)->FilesystemOperation.Add(FSOperation);
 
 	// Set the default wallpaper if our computer doesn't have one.
-	if(!this->GetSystemContext()->GetComputer().CurrentWallpaper)
+	if(!this->GetSystemContext()->GetComputer().CurrentWallpaper && !this->GetSystemContext()->GetComputer().HasWallpaperBeenSet)
 	{
 		// Go through all wallpaper assets.
 		for(auto Wallpaper : this->GetSystemContext()->GetPeacenet()->Wallpapers)
@@ -143,6 +143,8 @@ void UDesktopWidget::NativeConstruct()
 				this->GetSystemContext()->GetComputer().CurrentWallpaper = Wallpaper->WallpaperTexture;
 			}
 		}
+
+		this->GetSystemContext()->GetComputer().HasWallpaperBeenSet = true;
 	}
 
 	TScriptDelegate<> MapUpdateDelegate;
