@@ -166,6 +166,9 @@ public: // Property getters
 	UFUNCTION(BlueprintCallable, Category = "System Context")
 	void SetCurrentWallpaper(UWallpaperAsset* InWallpaperAsset);
 
+	UFUNCTION(BlueprintCallable, Category = "System Context")
+	void DisableWallpaper();
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Game Stats")
 	int GetGameStat(FName InStatName);
 

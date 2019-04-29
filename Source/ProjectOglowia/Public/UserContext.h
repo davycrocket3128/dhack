@@ -110,6 +110,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "User Context")
     void SetCurrentWallpaper(UWallpaperAsset* InWallpaperAsset);
 
+    UFUNCTION(BlueprintCallable, Category = "User Context")
+    void DisableWallpaper();
+
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Process List")
     TArray<FPeacegateProcess> GetRunningProcesses();
 

@@ -355,6 +355,11 @@ UTexture2D* UUserContext::GetCurrentWallpaper()
 	return this->GetOwningSystem()->GetComputer().CurrentWallpaper;
 }
 
+void UUserContext::DisableWallpaper()
+{
+	this->GetOwningSystem()->DisableWallpaper();
+}
+
 TArray<FAdjacentNodeInfo> UUserContext::ScanForAdjacentNodes()
 {
 	check(this->GetOwningSystem());

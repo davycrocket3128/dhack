@@ -709,6 +709,11 @@ TArray<UWallpaperAsset*> USystemContext::GetAvailableWallpapers()
 	return Ret;
 }
 
+void USystemContext::DisableWallpaper()
+{
+	this->GetComputer().CurrentWallpaper = nullptr;
+}
+
 void USystemContext::SetCurrentWallpaper(UWallpaperAsset* InWallpaperAsset)
 {
 	// Make sure it's not null.
