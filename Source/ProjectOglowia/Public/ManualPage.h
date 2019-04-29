@@ -65,5 +65,8 @@ public:
     FText Summary;
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere)
+    FText ItemType;
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere)
     TArray<FManualMetadata> ManualMetadata;
 };

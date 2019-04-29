@@ -31,6 +31,11 @@
 
 #include "ManualPageBuilder.h"
 
+void UManualPageBuilder::SetItemType(const FText& InItemType)
+{
+    this->ManualPage.ItemType = InItemType;
+}
+
 void UManualPageBuilder::SetID(FName InManualID)
 {
     this->ManualPage.ID = InManualID;

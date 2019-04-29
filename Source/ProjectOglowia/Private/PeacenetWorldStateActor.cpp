@@ -603,6 +603,8 @@ void APeacenetWorldStateActor::BeginPlay()
 
 	for(auto Mission: TempMissions)
 	{
+		check(Mission->Assigner);
+
 		if(Mission->Assigner)
 		{
 			this->Missions.Add(Mission);

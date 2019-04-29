@@ -1,10 +1,10 @@
 {
 	"files.exclude": {
-		"E:/Priority Projects/peacenet-ue/.git": true,
-		"E:/Priority Projects/peacenet-ue/.vscode": true,
-		"E:/Priority Projects/peacenet-ue/Content": true,
-		"E:/Priority Projects/peacenet-ue/Intermediate": true,
-		"E:/Priority Projects/peacenet-ue/Readme": true,
-		"E:/Priority Projects/peacenet-ue/Saved": true
+		"E:/Priority Projects/the-peacenet/.git": true,
+		"E:/Priority Projects/the-peacenet/.vscode": true,
+		"E:/Priority Projects/the-peacenet/Content": true,
+		"E:/Priority Projects/the-peacenet/Intermediate": true,
+		"E:/Priority Projects/the-peacenet/Readme": true,
+		"E:/Priority Projects/the-peacenet/Saved": true
 	}
 }

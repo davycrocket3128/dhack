@@ -36,10 +36,11 @@ FManualPage UManualPageAssetBase::GetManualPage()
     // Create the manual page builder which will make generation a lot easier.
     UManualPageBuilder* Builder = NewObject<UManualPageBuilder>();
 
-    // Set the basic stuff from our asset properties.
+    // Set the basic f from our asset properties.
     Builder->SetID(this->ID);
     Builder->SetFullName(this->FullName);
     Builder->SetSummary(this->Summary);
+    Builder->SetItemType(FText::FromString(FName::NameToDisplayString(this->GetClass()->GetFName().ToString(), false)));
 
     // The deriving class can override those if it wants to.
 

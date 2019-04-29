@@ -54,6 +54,9 @@ public:
     void SetFullName(const FText& InFullName);
 
     UFUNCTION()
+    void SetItemType(const FText& InItemType);
+
+    UFUNCTION()
     void SetSummary(const FText& InSummary);
 
     UFUNCTION()
