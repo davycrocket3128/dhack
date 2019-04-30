@@ -496,23 +496,27 @@ void AHackCommand::Tick(float InDeltaSeconds)
         {
             this->ShowTutorialIfNotSet("tuts.gigasploit.analyze", 
                 NSLOCTEXT("Tutorials", "GigasploitAnalyzeTitle", "Analyzing a port"),
-                NSLOCTEXT("Tutorials", "GigasploitAnalyze", "Gigasploit Analyze Tutorial")
+                NSLOCTEXT("Tutorials", "GigasploitAnalyze", "While <ui>scanning</> a system will tell you the active <ui>ports</> of the system, if you'd like to see more details about a <ui>specific port</> you need to <ui>analyze</> it.\r\n\r\nThis can be done by running the <cmd>analyze <port></> command.\r\n\r\nThis will tell you more information about the port, such as what server software is running it and what <ui>exploits</> you can use.\r\n\r\n<bad>WARNING</>: Analyzing a port may result in your IP address being logged, thus decreasing your <ui>cover</>.")
             );
             this->ShowTutorialIfNotSet("tuts.gigasploit.exploits", 
                 NSLOCTEXT("Tutorials", "GigasploitExploitsTitle", "Exploits"),
-                NSLOCTEXT("Tutorials", "GigasploitExploits", "Gigasploit Exploits Tutorial")
+                NSLOCTEXT("Tutorials", "GigasploitExploits", "An <ui>exploit</> is used to tell <ui>Gigasploit</> how to attack a specific <ui>vulnerability</> in a service to allow it to <bad>deploy a payload</>.\r\n\r\nRun the <cmd>exploits</> command to see all of the exploits you currently have available to you.  You will find more exploits as you hack more systems.")
+            );
+            this->ShowTutorialIfNotSet("tuts.gigasploit.exploits.more", 
+                NSLOCTEXT("Tutorials", "GigasploitExploitsTitle", "Exploits"),
+                NSLOCTEXT("Tutorials", "GigasploitExploits", "To see more information about a particular <ui>exploit</>, you can use the <cmd>man <exploit></> command in another Terminal.\r\n\r\nSome exploits are more stable than others, and the more stable an exploit is, the less chance there is of it crashing the service it attacks.\r\n\r\nTo <ui>use</> an exploit, run <cmd>use exploit <exploit></>.")
             );
             this->ShowTutorialIfNotSet("tuts.gigasploit.payloads", 
                 NSLOCTEXT("Tutorials", "GigasploitPayloadsTitle", "Payloads"),
-                NSLOCTEXT("Tutorials", "GigasploitPayloads", "Gigasploit Payloads Tutorial")
+                NSLOCTEXT("Tutorials", "GigasploitPayloads", "<ui>Payloads</> are tiny programs that get deployed to the remote computer using <ui>exploits</>.  You can use any <ui>payload</> you'd like, but there are certain payloads that are better for different jobs.\r\n\r\nThe <ui>most common</> payload you will use is the <ui>reverse shell</> - which will connect to your computer and allow you to take control of the remote computer.\r\n\r\nOther <ui>payloads</> can be used to open <ui>additional services</>, bypass <bad>firewalls</>, or even <bad>crash</> a service or the whole system.\r\n\r\nTo see all of your available payloads, run the <cmd>payloads</> command.  You will find more payloads as you hack more systems.\r\n\r\nTo <ui>use</> a payload, run the <cmd>use payload <payload></> command.")
             );
-            this->ShowTutorialIfNotSet("tuts.gigasploit.use", 
-                NSLOCTEXT("Tutorials", "GigasploitUseTitle", "Using"),
-                NSLOCTEXT("Tutorials", "GigasploitUse", "Gigasploit Use Tutorial")
+            this->ShowTutorialIfNotSet("tuts.gigasploit.hud", 
+                NSLOCTEXT("Tutorials", "GigasploitHudTitle", "Gigasploit HUD"),
+                NSLOCTEXT("Tutorials", "GigasploitHud", "The <ui>remote system</>'s IP address is displayed in <ui>Gigasploit</>'s prompt.  Next to the IP address is the currently-selected <ui>exploit</> in yellow and <ui>payload</> in red.\r\n\r\nBoth an <ui>exploit</> and a <ui>payload</> need to be selected before you can <ui>attack</>.")
             );
             this->ShowTutorialIfNotSet("tuts.gigasploit.attack", 
-                NSLOCTEXT("Tutorials", "GigasploitAttackTitle", "Attack"),
-                NSLOCTEXT("Tutorials", "GigasploitAttack", "Gigasploit Attack Tutorial")
+                NSLOCTEXT("Tutorials", "GigasploitAttackTitle", "Launching the attack"),
+                NSLOCTEXT("Tutorials", "GigasploitAttack", "Once you are ready to <bad>launch the attack</>, run the <cmd>attack <port></> command.  This will attempt to attack the specified port with the selected exploit and deploy the payload.\r\n\r\nIf the specified port is <bad>blocked</> by a <bad>firewall</>, or the service <bad>crashes</> because of the exploit, the attack will <bad>fail</> and you'll need to try a different attack.\r\n\r\nIf the attack <ui>succeeds</>, Gigasploit will exit and, if necessary, let the <ui>payload</> have access to your <ui>Terminal</>.")
             );
         }
      }
@@ -626,7 +630,7 @@ void AHackCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
 
     this->ShowTutorialIfNotSet("tuts.gigasploit.welcome",
             NSLOCTEXT("CommandNames", "Gigasploit", "Gigasploit Framework Console"),
-            NSLOCTEXT("Tutorials", "GigasploitWelcome", "Gigasploit Welcome Tutorial Text")
+            NSLOCTEXT("Tutorials", "GigasploitWelcome", "This is the <ui>Gigasploit Framework Console</>.\r\n\r\nMost <bad>hacking</> operations will be performed here.\r\n\r\nTo <bad>hack</> a system, you must select an <ui>exploit</>, a <ui>payload</>, and attack a <ui>service</>.\r\n\r\nTo <ui>scan</> the system for hack-able <ui>services</>, run the <cmd>scan</> command.")
         );
 }
 
@@ -634,7 +638,7 @@ void AHackCommand::ShowCoverTutorial()
 {
     this->ShowTutorialIfNotSet("tuts.gameplay.cover",
         NSLOCTEXT("Tutorials", "CoverTitle", "Cover"),
-        NSLOCTEXT("Tutorials", "Cover", "Cover tutorial")
+        NSLOCTEXT("Tutorials", "Cover", "During a <bad>hack</>, you must remain under <ui>cover</>.\r\n\r\nYour <ui>cover</> meter is displayed in the top-right corner of the screen.  The lower the percentage, the closer you are to <bad>blowing your cover</>.\r\n\r\nActions such as crashing remote services, analyzing a port, using louder exploits or payloads, and forgetting to delete logs will decrease your <ui>cover meter</>.\r\n\r\nYour cover meter will rise back up to 100% over time if you avoid doing these things.\r\n\r\nIf your cover falls below 45%, you will enter a state of <bad>ALERT</> and will need to <ui>regain your cover</>.")
     );
 }
 
@@ -642,6 +646,6 @@ void AHackCommand::ShowPayloadTutorial()
 {
         this->ShowTutorialIfNotSet("tuts.gameplay.cover.cleanup",
         NSLOCTEXT("Tutorials", "CoverTitle", "Cover"),
-        NSLOCTEXT("Tutorials", "CoverCleanup", "Cleaning up after yourself")
+        NSLOCTEXT("Tutorials", "CoverCleanup", "Every action you perform on a remote system has the potential of <bad>leaving tracks behind</> in the form of <ui>log files</>.\r\n\r\nTo avoid <bad>blowing your cover</>, be sure to <ui>delete</> any logs left in <cmd>/var/log</>.")
     );
 }
