@@ -535,6 +535,11 @@ void AHackCommand::Tick(float InDeltaSeconds)
 
 float AHackCommand::AssessStealthiness()
 {
+    // If the origin system and remote system are the same, never report anything
+    // but pure stealth.  Otherwise the game goes a little apeshit.
+    if(this->GetUserContext()->GetOwningSystem()->GetComputer().ID == this->RemoteSystem->GetComputer().ID)
+        return 1.f;
+
     // Stealthiness is a percentage value.
     float stealthiness = 1.f;
 
