@@ -52,7 +52,7 @@ private:
     bool PromptActive = false;
 
 public:
-    UFUNCTION()
+    UFUNCTION(BlueprintCallable)
     void ActivatePrompt(const FText& InTitle, const FText& InText);
     
     UFUNCTION(BlueprintCallable)
