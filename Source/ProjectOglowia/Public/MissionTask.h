@@ -96,6 +96,9 @@ protected:
     UFUNCTION(BlueprintCallable, BlueprintPure)
     bool IsTutorialActive();
 
+    UFUNCTION()
+    AMissionActor* GetMissionActor();
+
 public:
     UFUNCTION()
     bool GetIsFailed();

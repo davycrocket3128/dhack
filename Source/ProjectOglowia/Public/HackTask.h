@@ -36,6 +36,7 @@
 #include "UserContext.h"
 #include "StoryCharacter.h"
 #include "PeacenetSaveGame.h"
+#include "MissionAsset.h"
 #include "HackTask.generated.h"
 
 UCLASS(BlueprintType)
@@ -50,14 +51,32 @@ private:
     UPROPERTY()
     bool IsInHack = false;
 
+    UPROPERTY()
+    int CurrentSubtask = -1;
+
+    UPROPERTY()
+    TArray<UMissionTask*> RealSubtasks;
+
+    UPROPERTY()
+    bool IsPayloadDeployed = false;
+
+    UPROPERTY()
+    bool AllSubtasksCompleted = false;
+
 public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere)
     UStoryCharacter* StoryCharacter;
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere)
     bool FailOnCoverBlow = false;
-    
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere)
+    TArray<FMissionTaskInfo> SubTasks;
+
 protected:
+    UFUNCTION()
+    void AdvanceSubtask();
+
     virtual void NativeStart() override;
     virtual void NativeTick(float InDeltaSeconds) override;
     virtual void NativeEvent(FString EventName, TMap<FString, FString> InEventArgs) override;

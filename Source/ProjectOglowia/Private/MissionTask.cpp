@@ -36,6 +36,11 @@
 #include "SystemContext.h"
 #include "UserContext.h"
 
+AMissionActor* UMissionTask::GetMissionActor()
+{
+    return this->Mission;
+}
+
 bool UMissionTask::IsTutorialActive()
 {
     return this->GetPlayerUser()->GetPeacenet()->IsTutorialActive();

@@ -46,9 +46,6 @@ struct FMissionTaskInfo
 
 public:
     UPROPERTY(Editanywhere, BlueprintReadOnly)
-    FText TaskName;
-
-    UPROPERTY(Editanywhere, BlueprintReadOnly)
     bool IsCheckpoint = false;
 
     UPROPERTY(Editanywhere, BlueprintReadOnly, Instanced)
