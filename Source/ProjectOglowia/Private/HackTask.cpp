@@ -30,6 +30,7 @@
  ********************************************************************************/
 
 #include "HackTask.h"
+#include "HackSubtask.h"
 #include "PeacenetWorldStateActor.h"
 
 void UHackTask::NativeTick(float InDeltaSeconds)
@@ -79,13 +80,13 @@ void UHackTask::NativeStart()
 
     // Reset the state of the subtasks.
     this->CurrentSubtask = -1;
-    this->RealSubtasks = TArray<UMissionTask*>();
+    this->RealSubtasks = TArray<UHackSubtask*>();
 
     // Load in only VALID subtasks.
     for(auto& Subtask : this->SubTasks)
     {
-        if(Subtask.Task)
-            this->RealSubtasks.Add(Subtask.Task);
+        if(Subtask.Subtask)
+            this->RealSubtasks.Add(Subtask.Subtask);
     }
 
 
@@ -105,7 +106,7 @@ void UHackTask::AdvanceSubtask()
     }
 
     // Start the current subtask.
-    this->RealSubtasks[this->CurrentSubtask]->Start(this->GetMissionActor());
+    this->RealSubtasks[this->CurrentSubtask]->Start(this);
 }
 
 void UHackTask::NativeEvent(FString EventName, TMap<FString, FString> InEventArgs)
@@ -140,5 +141,12 @@ void UHackTask::NativeEvent(FString EventName, TMap<FString, FString> InEventArg
 
             this->Complete();
         }
+    }
+
+    // If we're in a hack and the payload is running, and there is a sub-task currently active,
+    // we're going to forward the game event to the sub-task.
+    if(IsInHack && IsPayloadDeployed && !AllSubtasksCompleted)
+    {
+        this->RealSubtasks[this->CurrentSubtask]->GameEvent(EventName, InEventArgs);
     }
 }

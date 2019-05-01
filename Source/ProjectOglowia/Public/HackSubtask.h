@@ -32,65 +32,73 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MissionTask.h"
 #include "UserContext.h"
-#include "StoryCharacter.h"
+#include "SystemContext.h"
 #include "PeacenetSaveGame.h"
-#include "HackTask.generated.h"
+#include "PeacenetWorldStateActor.h"
+#include "HackTask.h"
+#include "HackSubtask.generated.h"
 
-class UHackSubtask;
-
-USTRUCT(BlueprintType)
-struct FHackSubtaskInfo
+UCLASS(Blueprintable, BlueprintType, EditInlineNew, Abstract)
+class PROJECTOGLOWIA_API UHackSubtask : public UObject
 {
-    GENERATED_BODY()
-
-public:
-    UPROPERTY(Instanced, BlueprintReadOnly, EditAnywhere)
-    UHackSubtask* Subtask;
-};
-
-UCLASS(BlueprintType)
-class PROJECTOGLOWIA_API UHackTask : public UMissionTask
-{
-    friend UHackSubtask; // They're the best of friends. <3
-
     GENERATED_BODY()
 
 private:
     UPROPERTY()
-    int TargetEntity = 0;
+    UHackTask* HackTask;
 
     UPROPERTY()
-    bool IsInHack = false;
+    bool IsFailed = false;
 
     UPROPERTY()
-    int CurrentSubtask = -1;
+    bool IsFinished = false;
 
     UPROPERTY()
-    TArray<UHackSubtask*> RealSubtasks;
-
-    UPROPERTY()
-    bool IsPayloadDeployed = false;
-
-    UPROPERTY()
-    bool AllSubtasksCompleted = false;
-
-public:
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)
-    UStoryCharacter* StoryCharacter;
-
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)
-    bool FailOnCoverBlow = false;
-
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)
-    TArray<FHackSubtaskInfo> SubTasks;
+    FText FailMessage;
 
 protected:
-    UFUNCTION()
-    void AdvanceSubtask();
+    UFUNCTION(BlueprintCallable, Category = "Hacking")
+    void Fail(const FText& InFailMessage);
 
-    virtual void NativeStart() override;
-    virtual void NativeTick(float InDeltaSeconds) override;
-    virtual void NativeEvent(FString EventName, TMap<FString, FString> InEventArgs) override;
+    UFUNCTION(BlueprintCallable, Category = "Hacking")
+    void Finish();
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Hacking")
+    void OnTick(float InDeltaSeconds);
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Hacking")
+    void OnStart();
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Hacking")
+    void OnGameEvent(const FString& EventName, const TMap<FString, FString>& InEventData);
+
+    virtual void NativeTick(float InDeltaSeconds) {}
+    virtual void NativeStart() {}
+    virtual void NativeGameEvent(FString EventName, TMap<FString, FString> InEventData) {}
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Hacking")
+    UUserContext* GetPlayerUser();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Hacking")
+    USystemContext* GetHackedSystem();
+
+public:
+    UFUNCTION()
+    void Start(UHackTask* InHackTask);
+
+    UFUNCTION()
+    void Tick(float InDeltaSeconds);
+
+    UFUNCTION()
+    bool GetIsFinished();
+
+    UFUNCTION()
+    bool GetIsFailed();
+
+    UFUNCTION()
+    FText GetFailMessage();
+
+    UFUNCTION()
+    void GameEvent(FString EventName, TMap<FString, FString> InEventData);
 };
