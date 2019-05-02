@@ -34,9 +34,10 @@
 #include "CoreMinimal.h"
 #include "TerminalCommand.h"
 #include "CommandProcessor.h"
+#include "TerminalCommandParserLibrary.h"
 #include "CommandShell.generated.h"
 
-UCLASS(BlueprintType)
+UCLASS(BlueprintType, Abstract)
 class PROJECTOGLOWIA_API ACommandShell : public ATerminalCommand
 {
     GENERATED_BODY()
@@ -67,6 +68,14 @@ protected:
     virtual void Tick(float InDeltaTime) override;
 
 protected:
+    virtual bool AllowRedirection() { return false; }
+    virtual bool AllowPipes() { return false; }
+    virtual ATerminalCommand* GetCommand(FString Command) { return nullptr; }
+
+protected:
+    UFUNCTION()
+    FPeacegateCommandInstruction ParseCommand(const FString& InCommand, FString InHome, FString& OutputError);
+
     UFUNCTION()
     void ExecuteLine(FString Input);
 

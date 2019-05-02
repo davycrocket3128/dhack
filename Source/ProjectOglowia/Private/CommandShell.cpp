@@ -39,6 +39,175 @@ ACommandShell::ACommandShell()
     PrimaryActorTick.bCanEverTick = true;
 }
 
+FPeacegateCommandInstruction ACommandShell::ParseCommand(const FString& InCommand, FString InHome, FString& OutputError)
+{
+	//This is the list of commands to run in series
+	TArray<FString> commands;
+
+	//Parser state
+	bool escaping = false;
+	bool inQuote = false;
+	FString current = TEXT("");
+	bool isFileName = false;
+
+	//output file name
+	FString fileName = TEXT("");
+
+	//Will the game overwrite the specified file with output?
+	bool shouldOverwriteOnFileRedirect = false;
+
+	//Length of the input command.
+	int cmdLength = InCommand.Len();
+
+	//Iterate through each character in the command.
+	for (int i = 0; i < cmdLength; i++)
+	{
+		//Get the character at the current index.
+		TCHAR c = InCommand[i];
+
+		//If we're a backslash, parse an escape sequence.
+		if (c == TEXT('\\'))
+		{
+			//Ignore escape if we're not in a quote or file.
+			if (!(inQuote || isFileName))
+			{
+				current.AppendChar(c);
+				continue;
+			}
+			//If we're not currently escaping...
+			if (!escaping)
+			{
+				escaping = true;
+				//If we're a filename, append to the filename string.
+				if (isFileName)
+				{
+					fileName.AppendChar(c);
+				}
+				else
+				{
+					current.AppendChar(c);
+				}
+				continue;
+			}
+			else
+			{
+				escaping = false;
+			}
+		}
+		else if (c == TEXT('"'))
+		{
+			if (!isFileName)
+			{
+				if (!escaping)
+				{
+					inQuote = !inQuote;
+				}
+			}
+		}
+		if (c == TEXT('|') && this->AllowPipes())
+		{
+			if (!isFileName)
+			{
+				if (!inQuote)
+				{
+					if (current.TrimStartAndEnd().IsEmpty())
+					{
+						OutputError = TEXT("unexpected token '|' (pipe)");
+						return FPeacegateCommandInstruction::Empty();
+					}
+					commands.Add(current.TrimStartAndEnd());
+					current = TEXT("");
+					continue;
+				}
+			}
+		}
+		else if (FChar::IsWhitespace(c))
+		{
+			if (isFileName)
+			{
+				if (!escaping)
+				{
+					if (fileName.IsEmpty())
+					{
+						continue;
+					}
+					else
+					{
+						OutputError = TEXT("unexpected whitespace in filename.");
+						return FPeacegateCommandInstruction::Empty();
+					}
+				}
+			}
+		}
+		else if (c == TEXT('>') && this->AllowRedirection())
+		{
+			if (!isFileName)
+			{
+				isFileName = true;
+				shouldOverwriteOnFileRedirect = true;
+				continue;
+			}
+			else
+			{
+				if (InCommand[i - 1] == TEXT('>'))
+				{
+					if (!shouldOverwriteOnFileRedirect)
+					{
+						shouldOverwriteOnFileRedirect = false;
+					}
+					else {
+						OutputError = TEXT("unexpected token '>' (redirect) in filename");
+						return FPeacegateCommandInstruction::Empty();
+					}
+					continue;
+				}
+			}
+		}
+		if (isFileName)
+			fileName.AppendChar(c);
+		else
+			current.AppendChar(c);
+		if (escaping)
+			escaping = false;
+
+	}
+	if (inQuote)
+	{
+		OutputError = TEXT("expected closing quotation mark, got end of command.");
+		return FPeacegateCommandInstruction::Empty();
+	}
+	if (escaping)
+	{
+		OutputError = TEXT("expected escape sequence, got end of command.");
+		return FPeacegateCommandInstruction::Empty();
+	}
+	if (!current.IsEmpty())
+	{
+		commands.Add(current.TrimStartAndEnd());
+		current = TEXT("");
+	}
+	if (!fileName.IsEmpty())
+	{
+		if (fileName.StartsWith("~"))
+		{
+			fileName.RemoveAt(0, 1, true);
+			while (fileName.StartsWith("/"))
+			{
+				fileName.RemoveAt(0, 1);
+			}
+			if (InHome.EndsWith("/"))
+			{
+				fileName = InHome + fileName;
+			}
+			else
+			{
+				fileName = InHome + "/" + fileName;
+			}
+		}
+	}
+	return FPeacegateCommandInstruction(commands, fileName, shouldOverwriteOnFileRedirect);
+}
+
 void ACommandShell::Tick(float InDeltaTime)
 {
     Super::Tick(InDeltaTime);
@@ -164,19 +333,163 @@ void ACommandShell::ExecuteLine(FString Input)
         return;
     }
 
-    // Use the command processor methods to get a list of instructions to perform.
-    this->Instructions = UCommandProcessor::ProcessCommand(this->GetConsole(), Input);
+    // Parse the command into a list of instructions.
+    FString Error = "";
+    FPeacegateCommandInstruction InstructionData = this->ParseCommand(Input, this->GetUserContext()->GetHomeDirectory(), Error);
 
-    // Skip if there are no instructions.
-    if(!Instructions.Num()) return;
+    // Output the error if there is any.
+    if(Error.Len())
+    {
+        this->GetConsole()->WriteLine(Error);
+        return;
+    }
 
-    // Keep track of the last console context used by a command.
-    this->LastConsole = this->GetConsole();
+    // Clear the current list of instructions.
+    this->Instructions.Empty();
 
-    // Log the command to .bash_history.
-    this->WriteToHistory(Input);
+    // Are there any commands to actually run?
+    if(!InstructionData.Commands.Num())
+    {
+        return;
+    }
 
+    // If we are to redirect output to a file...
+    if (!InstructionData.OutputFile.IsEmpty())
+	{
+        // Then make DAMN sure the file path doesn't point to a directory.
+		if (this->GetUserContext()->GetFilesystem()->DirectoryExists(InstructionData.OutputFile))
+		{
+			this->GetConsole()->WriteLine("`3`*error: " + InstructionData.OutputFile + ": Directory exists.`1`r");
+			return;
+		}
+	}
 
+    // The last piper console context used by a command.
+    UPiperContext* LastPiper = nullptr;
+
+    // Keep track of the current instruction index.  I'm doing it this way because I don't
+    // like C for loops as much as I do C++ ones.  But I also need to keep track of the loop
+    // index.
+    int i = 0;
+
+    // Iterate through every command and get each command parsed and located.
+    for(auto& Command : InstructionData.Commands)
+    {
+        // Determine if we're piping.
+        bool IsPiping = (i < InstructionData.Commands.Num() - 1);
+
+        // The home directory of the user - so the parser knows what to replace "~" with at the
+        // beginning of tokens.
+        FString Home = this->GetUserContext()->GetHomeDirectory();
+
+        // If the previous command created a piper, we use that piper's home directory instead.
+        if(LastPiper)
+            Home = LastPiper->GetUserContext()->GetHomeDirectory();
+
+        // Parse the command into a list of tokens which will be passed as the argument list.
+        // This also lets us know the name of the command which is used to locate the command object.
+        TArray<FString> Tokens = UTerminalCommandParserLibrary::Tokenize(Command, Home, Error);
+
+        // If there's an error, fail.
+        if(Error.Len())
+        {
+            this->GetConsole()->WriteLine(Error);
+            return;
+        }
+
+        // Get the name of the command.
+        FString CommandNameToken = Tokens[0];
+
+        // Try to get a terminal command object.  If we get nullptr, the command wasn't found.
+        ATerminalCommand* CommandObject = this->GetCommand(CommandNameToken);
+        if(!CommandObject)
+        {
+            this->GetConsole()->WriteLine(CommandNameToken + ": Command not found.");
+            return;
+        }
+
+        // Create an instruction object for the command and place it in our instructions list.
+        FCommandRunInstruction Instruction;
+        Instruction.Arguments = Tokens;
+        Instruction.Command = CommandObject;        
+
+        // Are we piping?
+        if(IsPiping)
+        {
+            // Create a piper context.
+            UPiperContext* Piper = NewObject<UPiperContext>();
+
+            // Set the piper up with a valid user context.
+            if(LastPiper)
+            {
+                Piper->Setup(LastPiper->GetUserContext());
+            }
+            else
+            {
+                Piper->Setup(this->GetUserContext());
+            }
+
+            // Perform further setup.
+            Piper->SetupPiper(LastPiper, nullptr);
+
+            // Use this piper as the instruction's intended console.
+            // Also set it as the last piper.
+            LastPiper = Piper;
+            Instruction.IntendedContext = Piper;
+        }
+        else
+        {
+            // The console that will be used by the command.
+            UPiperContext* Piper = nullptr;
+            
+            // The console which will be used for output.
+            UConsoleContext* StdOut = nullptr;
+
+            // The console used for input.
+            UPiperContext* StdIn = LastPiper;
+
+            // If we're not redirecting output to a file, then output console
+            // becomes the same as our shell console and the command console is
+            // is just a generic piper.
+            if(InstructionData.OutputFile.IsEmpty())
+            {
+                Piper = NewObject<UPiperContext>();
+                StdOut = this->GetConsole();
+            }
+            else
+            {
+                // Otherwise we need to create a redirector console.
+                Piper = NewObject<UPiperContext>(this->GetConsole(), URedirectedConsoleContext::StaticClass());
+                auto Redirected = Cast<URedirectedConsoleContext>(Piper);
+
+                // Set up the redirector so it can output to the file.
+                Redirected->OutputFilePath = InstructionData.OutputFile;
+                Redirected->Overwrite = InstructionData.Overwrites;
+            }
+
+            // Set up the piper's user context.
+            if(LastPiper)
+            {
+                Piper->Setup(LastPiper->GetUserContext());
+            }
+            else
+            {
+                Piper->Setup(this->GetUserContext());
+            }
+
+            // And now we set up the piper's input and output!
+            Piper->SetupPiper(StdIn, StdOut);
+
+            // And use it for the command.
+            Instruction.IntendedContext = Piper;
+        }
+
+        // Add the instruction to the list we're about to run.
+        this->Instructions.Add(Instruction);
+
+        // Annnd the loop index goes up!
+        i++;
+    }
 }
 
 void ACommandShell::WriteToHistory(FString Input)
