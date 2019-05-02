@@ -199,7 +199,7 @@ public: // Property getters
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Context")
 	TArray<UPeacegateProgramAsset*> GetInstalledPrograms();
 
-private:
+public:
 	UFUNCTION()
 	void AppendLog(FString InLogText);
 

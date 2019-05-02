@@ -251,10 +251,12 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
 
                 if(Service.IsFiltered)
                 {
+                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": connection blocked by firewall on port " + FString::FromInt(Service.Port));
                     MyConsole->WriteLine("&4&*Service is filtered.&r&7 Firewall detected.");
                 }
                 else
                 {
+                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": connected to port " + FString::FromInt(Service.Port));
                     MyConsole->WriteLine("Known vulnerabilities:\n");
 
                     for(auto Exp : MyConsole->GetUserContext()->GetExploits())
@@ -270,6 +272,8 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
                     {
                         MyConsole->WriteLine(" - &4&*Error:&7&r Gigasploit doesn't know any vulnerabilities in this service's implementation.");
                     }
+
+                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
                 }
 
                 MyConsole->GetUserContext()->GetPeacenet()->SendGameEvent("HackAnalyze", {
@@ -337,8 +341,6 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
                     { "ServerSoftware", Service.Service->Name.ToString()}
                 });
 
-                MyConsole->WriteLine("Service is &F" + Service.Service->Name.ToString() + "&7.");
-
                 if(Service.IsCrashed)
                 {
                     MyConsole->WriteLine("Connection refused.");
@@ -357,8 +359,12 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
                     return;
                 }
 
+                MyConsole->WriteLine("Service is &F" + Service.Service->Name.ToString() + "&7.");
+
                 if(Service.IsFiltered)
                 {
+                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": connection blocked by firewall on port " + FString::FromInt(Service.Port));
+
                     MyConsole->WriteLine("Service is &4&*FILTERED&r&7! Can't continue with exploit.");
                     
                     this->SendGameEvent("HackFail", {
@@ -377,6 +383,8 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
 
                 MyConsole->WriteLine("Service is &3OPEN&7.");
 
+                this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": connected to port " + FString::FromInt(Service.Port));
+
                 if(this->CurrentExploit->Targets.Contains(Service.Service))
                 {
                     MyConsole->WriteLine("Service is &3&*vulnerable&r&7 to the &6&*" + this->CurrentExploit->FullName.ToString() + "&r&7 exploit.");
@@ -385,6 +393,8 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
 
                     if(this->ShouldCrashService())
                     {
+                        this->RemoteSystem->AppendLog(Service.Service->Name.ToString() + ": service stopped unexpectedly.");
+                        this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
                         Service.IsCrashed = true;
                         MyConsole->WriteLine("Connection refused.");
                         return;
@@ -412,10 +422,13 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
 
                     this->ShowPayloadTutorial();
 
+                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
+
                     return;
                 }
                 else
                 {
+                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
                     MyConsole->WriteLine("Service is &4&*not vulnerable&r&7 to this exploit. Cannot drop payload.");
                     return;
                 }
