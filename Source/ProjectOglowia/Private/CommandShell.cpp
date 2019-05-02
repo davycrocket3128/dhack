@@ -235,6 +235,7 @@ void ACommandShell::Tick(float InDeltaTime)
         if(!this->IsWaitingForCommand && this->Instructions.Num())
         {
             // Wait for the command.
+            
             this->IsWaitingForCommand = true;
 
             // Set the current command that we're waiting for and its intended console.
@@ -242,7 +243,10 @@ void ACommandShell::Tick(float InDeltaTime)
             this->CurrentConsole = this->Instructions[0].IntendedContext;
 
             // Update working directory of next console.
-            this->CurrentConsole->SetWorkingDirectory(this->LastConsole->GetWorkingDirectory());
+            if(this->LastConsole)
+                 this->CurrentConsole->SetWorkingDirectory(this->LastConsole->GetWorkingDirectory());
+            else
+                this->CurrentConsole->SetWorkingDirectory(this->GetConsole()->GetWorkingDirectory());
 
             // Ensure that we advance to the next command when the current one completes.
             TScriptDelegate<> CompletedDelegate;
