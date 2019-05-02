@@ -234,8 +234,7 @@ void ACommandShell::Tick(float InDeltaTime)
         // Are we not waiting for a command, and, is there an instruction available?
         if(!this->IsWaitingForCommand && this->Instructions.Num())
         {
-            // Wait for the command.
-            
+            // Wait for the command.     
             this->IsWaitingForCommand = true;
 
             // Set the current command that we're waiting for and its intended console.
