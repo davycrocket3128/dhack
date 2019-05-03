@@ -212,6 +212,8 @@ void ACommandShell::Tick(float InDeltaTime)
 {
     Super::Tick(InDeltaTime);
 
+    if(this->IsWaitingForCommand) return;
+
     if(this->IsWaitingForInput)
     {
         // Try to read the next line of text from the console.
@@ -227,6 +229,12 @@ void ACommandShell::Tick(float InDeltaTime)
 
             // Execute the line of input as a command.
             this->ExecuteLine(Input);
+
+            if(this->Instructions.Num())
+            {
+                this->ExecuteNextCommand();
+                return;
+            }
         }
     }
     else
@@ -234,27 +242,7 @@ void ACommandShell::Tick(float InDeltaTime)
         // Are we not waiting for a command, and, is there an instruction available?
         if(!this->IsWaitingForCommand && this->Instructions.Num())
         {
-            // Wait for the command.     
-            this->IsWaitingForCommand = true;
-
-            // Set the current command that we're waiting for and its intended console.
-            this->CurrentCommand = this->Instructions[0].Command;
-            this->CurrentConsole = this->Instructions[0].IntendedContext;
-
-            // Update working directory of next console.
-            if(this->LastConsole)
-                 this->CurrentConsole->SetWorkingDirectory(this->LastConsole->GetWorkingDirectory());
-            else
-                this->CurrentConsole->SetWorkingDirectory(this->GetConsole()->GetWorkingDirectory());
-
-            // Ensure that we advance to the next command when the current one completes.
-            TScriptDelegate<> CompletedDelegate;
-            CompletedDelegate.BindUFunction(this, "CommandCompleted");
-            this->CurrentCommand->Completed.Add(CompletedDelegate);
-
-            // Run the command.
-            this->CurrentCommand->RunCommand(this->CurrentConsole, this->Instructions[0].Arguments);
-
+            this->ExecuteNextCommand();
             return;
         }
         else
@@ -283,6 +271,30 @@ void ACommandShell::Tick(float InDeltaTime)
         // Wait for input.
         this->IsWaitingForInput = true;
     }
+}
+
+void ACommandShell::ExecuteNextCommand()
+{
+    // Wait for the command.     
+    this->IsWaitingForCommand = true;
+
+    // Set the current command that we're waiting for and its intended console.
+    this->CurrentCommand = this->Instructions[0].Command;
+    this->CurrentConsole = this->Instructions[0].IntendedContext;
+
+    // Update working directory of next console.
+    if(this->LastConsole)
+        this->CurrentConsole->SetWorkingDirectory(this->LastConsole->GetWorkingDirectory());
+    else
+        this->CurrentConsole->SetWorkingDirectory(this->GetConsole()->GetWorkingDirectory());
+
+    // Ensure that we advance to the next command when the current one completes.
+    TScriptDelegate<> CompletedDelegate;
+    CompletedDelegate.BindUFunction(this, "CommandCompleted");
+    this->CurrentCommand->Completed.Add(CompletedDelegate);
+
+    // Run the command.
+    this->CurrentCommand->RunCommand(this->CurrentConsole, this->Instructions[0].Arguments);
 }
 
 void ACommandShell::CommandCompleted()
@@ -493,6 +505,8 @@ void ACommandShell::ExecuteLine(FString Input)
         // Annnd the loop index goes up!
         i++;
     }
+
+    this->LastConsole = this->GetConsole();
 }
 
 void ACommandShell::WriteToHistory(FString Input)

@@ -74,6 +74,9 @@ protected:
 
 protected:
     UFUNCTION()
+    void ExecuteNextCommand();
+
+    UFUNCTION()
     FPeacegateCommandInstruction ParseCommand(const FString& InCommand, FString InHome, FString& OutputError);
 
     UFUNCTION()

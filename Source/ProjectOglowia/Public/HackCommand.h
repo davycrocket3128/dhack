@@ -67,7 +67,7 @@ private:
     UPayloadAsset* CurrentPayload;
 
     UPROPERTY()
-    bool WaitingForCommand = true;
+    bool WaitingForCommand = false;
 
 protected:
     UFUNCTION()
