@@ -101,6 +101,9 @@ public:
 	bool IsSet(FString InSaveBoolean);
 
 protected:
+	template<typename T>
+	inline ATerminalCommand* SpawnCommand();
+
 	UFUNCTION()
 	int GetProcessID();
 
@@ -122,3 +125,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Terminal Command")
 	void Complete();
 };
+
+template<typename T>
+inline ATerminalCommand* ATerminalCommand::SpawnCommand()
+{
+	FVector Location(0.0f, 0.0f, 0.0f);
+	FRotator Rotation(0.0f, 0.0f, 0.0f);
+ 	FActorSpawnParameters SpawnInfo;
+
+	return Cast<ATerminalCommand>(this->GetWorld()->SpawnActor<T>(Location, Rotation, SpawnInfo));
+}

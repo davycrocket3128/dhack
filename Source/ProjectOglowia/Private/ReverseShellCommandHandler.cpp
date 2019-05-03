@@ -29,10 +29,9 @@
  *
  ********************************************************************************/
 
-#include "ReverseShell.h"
 #include "ReverseShellCommandHandler.h"
 
-ATerminalCommand* AReverseShell::GetCommand(FString Command)
+void AReverseShellCommandHandler::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> Arguments)
 {
-    return this->SpawnCommand<AReverseShellCommandHandler>();
+    this->Complete();
 }

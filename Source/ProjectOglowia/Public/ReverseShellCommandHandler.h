@@ -29,10 +29,17 @@
  *
  ********************************************************************************/
 
-#include "ReverseShell.h"
-#include "ReverseShellCommandHandler.h"
+#pragma once
 
-ATerminalCommand* AReverseShell::GetCommand(FString Command)
+#include "CoreMinimal.h"
+#include "TerminalCommand.h"
+#include "ReverseShellCommandHandler.generated.h"
+
+UCLASS()
+class PROJECTOGLOWIA_API AReverseShellCommandHandler : public ATerminalCommand
 {
-    return this->SpawnCommand<AReverseShellCommandHandler>();
-}
+    GENERATED_BODY()
+
+protected:
+    virtual void NativeRunCommand(UConsoleContext* InConsole, TArray<FString> Arguments) override;
+};
