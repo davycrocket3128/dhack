@@ -145,7 +145,7 @@ void UHackTask::NativeEvent(FString EventName, TMap<FString, FString> InEventArg
 
     // If we're in a hack and the payload is running, and there is a sub-task currently active,
     // we're going to forward the game event to the sub-task.
-    if(IsInHack && IsPayloadDeployed && !AllSubtasksCompleted)
+    if(IsInHack && IsPayloadDeployed && !AllSubtasksCompleted && this->RealSubtasks.Num() && this->CurrentSubtask >= 0 && this->CurrentSubtask < this->RealSubtasks.Num())
     {
         this->RealSubtasks[this->CurrentSubtask]->GameEvent(EventName, InEventArgs);
     }

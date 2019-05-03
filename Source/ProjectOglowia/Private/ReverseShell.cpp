@@ -52,7 +52,7 @@ bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InComm
 
         // Get the source and destination from the argument list.  Docopt is no bueno for these commands.
         FString Source = Arguments[1];
-        FString Destination = Arguments[2];
+        FString Destination = InConsole->CombineWithWorkingDirectory(Arguments[2]);
 
         // Get the filesystem of the source computer.
         UPeacegateFileSystem* SourceFileSystem = this->GetUserContext()->GetHacker()->GetFilesystem();
@@ -123,7 +123,7 @@ bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InComm
         }
 
         // Get the source and destination from the argument list.  Docopt is no bueno for these commands.
-        FString Source = Arguments[1];
+        FString Source = InConsole->CombineWithWorkingDirectory(Arguments[1]);
         FString Destination = Arguments[2];
 
         // Get the filesystem of the source computer.
