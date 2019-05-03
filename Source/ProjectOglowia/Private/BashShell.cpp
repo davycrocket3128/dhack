@@ -40,9 +40,9 @@ ATerminalCommand* ABashShell::GetCommand(FString Command)
     FString InternalUsage;
     FString FriendlyUsage;
 
-    if(this->GetUserContext()->GetFilesystem()->FileExists(Command))
+    if(this->GetUserContext()->GetFilesystem()->FileExists(this->GetConsole()->CombineWithWorkingDirectory(Command)))
 	{
-		FFileRecord Record = this->GetUserContext()->GetFilesystem()->GetFileRecord(Command);
+		FFileRecord Record = this->GetUserContext()->GetFilesystem()->GetFileRecord(this->GetConsole()->CombineWithWorkingDirectory(Command));
 		if(Record.RecordType == EFileRecordType::Command)
 		{
 			TArray<FName> CommandKeys;
