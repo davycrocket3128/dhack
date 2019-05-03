@@ -84,3 +84,22 @@ ATerminalCommand* ABashShell::GetCommand(FString Command)
 	}
     return nullptr;
 }
+
+FString ABashShell::GetShellPrompt()
+{
+	    // Get the username, hostname and current working directory.
+    FString Username = this->GetUserContext()->GetUsername();
+    FString Hostname = this->GetUserContext()->GetHostname();
+    FString WorkingDirectory = this->GetConsole()->GetDisplayWorkingDirectory();
+
+	// The little thingy that tells whether we're root or not.
+	FString UserStatus = "$";
+
+    // Are we root?
+    if(this->GetUserContext()->IsAdministrator())
+    {
+        UserStatus = "#";
+    }
+
+	return "[" + Username + "@" + Hostname + " " + WorkingDirectory + "]" + UserStatus + " ";
+}

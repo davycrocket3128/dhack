@@ -32,7 +32,21 @@
 #include "ReverseShell.h"
 #include "ReverseShellCommandHandler.h"
 
-ATerminalCommand* AReverseShell::GetCommand(FString Command)
+bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InCommand, TArray<FString> Arguments) 
 {
-    return this->SpawnCommand<AReverseShellCommandHandler>();
+    // Commands should work no matter what the case is.
+    InCommand = InCommand.ToLower();
+
+    if(InCommand == "upload")
+    {
+
+        return true;
+    }
+    if(InCommand == "download")
+    {
+
+        return true;
+    }
+    
+    return false;
 }

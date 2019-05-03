@@ -208,6 +208,11 @@ FPeacegateCommandInstruction ACommandShell::ParseCommand(const FString& InComman
 	return FPeacegateCommandInstruction(commands, fileName, shouldOverwriteOnFileRedirect);
 }
 
+void ACommandShell::FinishSpecialCommand()
+{
+    this->CommandCompleted();
+}
+
 void ACommandShell::Tick(float InDeltaTime)
 {
     Super::Tick(InDeltaTime);
@@ -278,8 +283,7 @@ void ACommandShell::ExecuteNextCommand()
     // Wait for the command.     
     this->IsWaitingForCommand = true;
 
-    // Set the current command that we're waiting for and its intended console.
-    this->CurrentCommand = this->Instructions[0].Command;
+    // Set the current console to the command's intended console.
     this->CurrentConsole = this->Instructions[0].IntendedContext;
 
     // Update working directory of next console.
@@ -288,13 +292,28 @@ void ACommandShell::ExecuteNextCommand()
     else
         this->CurrentConsole->SetWorkingDirectory(this->GetConsole()->GetWorkingDirectory());
 
-    // Ensure that we advance to the next command when the current one completes.
-    TScriptDelegate<> CompletedDelegate;
-    CompletedDelegate.BindUFunction(this, "CommandCompleted");
-    this->CurrentCommand->Completed.Add(CompletedDelegate);
+    // Try to run the command as a special command.  If this is successful then the game will
+    // wait for that command to complete.
+    if(this->RunSpecialCommand(this->CurrentConsole, this->Instructions[0].Command, this->Instructions[0].Arguments)) return;
 
-    // Run the command.
-    this->CurrentCommand->RunCommand(this->CurrentConsole, this->Instructions[0].Arguments);
+    // If the above ends up failing then we'll try to spawn in a terminal command actor.
+    this->CurrentCommand = this->GetCommand(this->Instructions[0].Command);
+
+    if(this->CurrentCommand)
+    {
+        // Ensure that we advance to the next command when the current one completes.
+        TScriptDelegate<> CompletedDelegate;
+        CompletedDelegate.BindUFunction(this, "CommandCompleted");
+        this->CurrentCommand->Completed.Add(CompletedDelegate);
+
+        // Run the command.
+        this->CurrentCommand->RunCommand(this->CurrentConsole, this->Instructions[0].Arguments);
+        return;
+    }
+    
+    // Command not found.
+    this->CurrentConsole->WriteLine(this->Instructions[0].Command + ": Command not found.");
+    this->CommandCompleted();
 }
 
 void ACommandShell::CommandCompleted()
@@ -314,26 +333,7 @@ void ACommandShell::CommandCompleted()
 
 void ACommandShell::WriteShellPrompt()
 {
-    // Get the username, hostname and current working directory.
-    FString Username = this->GetUserContext()->GetUsername();
-    FString Hostname = this->GetUserContext()->GetHostname();
-    FString WorkingDirectory = this->GetConsole()->GetDisplayWorkingDirectory();
-
-    // Output them to the screen.
-    this->GetConsole()->Write(Username + "@" + Hostname + ":" + WorkingDirectory);
-
-    // Are we root?
-    if(this->GetUserContext()->IsAdministrator())
-    {
-        this->GetConsole()->Write("#");
-    }
-    else
-    {
-        this->GetConsole()->Write("$");
-    }
-
-    // Write a space.
-    this->GetConsole()->Write(" ");
+    this->GetConsole()->Write(this->GetShellPrompt());
 }
 
 void ACommandShell::ExecuteLine(FString Input)
@@ -415,18 +415,10 @@ void ACommandShell::ExecuteLine(FString Input)
         // Get the name of the command.
         FString CommandNameToken = Tokens[0];
 
-        // Try to get a terminal command object.  If we get nullptr, the command wasn't found.
-        ATerminalCommand* CommandObject = this->GetCommand(CommandNameToken);
-        if(!CommandObject)
-        {
-            this->GetConsole()->WriteLine(CommandNameToken + ": Command not found.");
-            return;
-        }
-
         // Create an instruction object for the command and place it in our instructions list.
         FCommandRunInstruction Instruction;
         Instruction.Arguments = Tokens;
-        Instruction.Command = CommandObject;        
+        Instruction.Command = CommandNameToken; 
 
         // Are we piping?
         if(IsPiping)

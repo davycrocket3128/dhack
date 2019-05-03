@@ -33,7 +33,7 @@
 
 #include "CoreMinimal.h"
 #include "TerminalCommand.h"
-#include "CommandProcessor.h"
+#include "CommandRunInstruction.h"
 #include "TerminalCommandParserLibrary.h"
 #include "CommandShell.generated.h"
 
@@ -71,8 +71,13 @@ protected:
     virtual bool AllowRedirection() { return false; }
     virtual bool AllowPipes() { return false; }
     virtual ATerminalCommand* GetCommand(FString Command) { return nullptr; }
+    virtual bool RunSpecialCommand(UConsoleContext* InConsole, FString Command, TArray<FString> Arguments) { return false; }
+    virtual FString GetShellPrompt() { return "> "; }
 
 protected:
+    UFUNCTION()
+    void FinishSpecialCommand();
+
     UFUNCTION()
     void ExecuteNextCommand();
 

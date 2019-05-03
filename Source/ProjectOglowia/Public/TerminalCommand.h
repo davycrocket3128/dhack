@@ -124,6 +124,10 @@ protected:
 public:
 	UFUNCTION(BlueprintCallable, Category = "Terminal Command")
 	void Complete();
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "Terminal")
+	static ATerminalCommand* CreateCommandFromAsset(UUserContext* InUserContext, UCommandInfo* InCommandInfo);
 };
 
 template<typename T>

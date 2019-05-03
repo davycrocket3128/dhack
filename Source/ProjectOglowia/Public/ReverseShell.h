@@ -33,14 +33,15 @@
 
 #include "CoreMinimal.h"
 #include "CommandShell.h"
+#include "BashShell.h"
 #include "ReverseShell.generated.h"
 
 UCLASS(BlueprintType)
-class PROJECTOGLOWIA_API AReverseShell : public ACommandShell
+class PROJECTOGLOWIA_API AReverseShell : public ABashShell
 {
     GENERATED_BODY()
 
 protected:
-    virtual ATerminalCommand* GetCommand(FString Command) override;
+    virtual bool RunSpecialCommand(UConsoleContext* InConsole, FString InCommand, TArray<FString> Arguments) override;
 };
 

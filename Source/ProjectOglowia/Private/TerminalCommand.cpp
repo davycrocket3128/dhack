@@ -191,3 +191,22 @@ void ATerminalCommand::CompleteInternal(bool KillProcess)
 	// also wouldn't have access to "Delay" in Blueprint.
 	this->Destroy();
 }
+
+ATerminalCommand* ATerminalCommand::CreateCommandFromAsset(UUserContext* InUserContext, UCommandInfo* InCommandInfo)
+{
+	// Return nullptr if the command asset or user context are invalid.
+	if(!InUserContext) return nullptr;
+	if(!InCommandInfo) return nullptr;
+
+	FVector Location(0.0f, 0.0f, 0.0f);
+	FRotator Rotation(0.0f, 0.0f, 0.0f);
+ 	FActorSpawnParameters SpawnInfo;
+
+	ATerminalCommand* Command = InUserContext->GetPeacenet()->GetWorld()->SpawnActor<ATerminalCommand>(InCommandInfo->CommandClass, Location, Rotation, SpawnInfo);
+
+	Command->CommandInfo = InCommandInfo;
+
+	return Command;
+
+	
+}

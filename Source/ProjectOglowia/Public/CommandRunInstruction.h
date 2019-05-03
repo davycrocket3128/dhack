@@ -32,14 +32,9 @@
 
 #pragma once
 
-#include "LatentActions.h"
 #include "CoreMinimal.h"
 #include "ConsoleContext.h"
-#include "DocoptForUnrealBPLibrary.h"
-#include "CommandProcessor.generated.h"
-
-class UPiperContext;
-class URedirectedConsoleContext;
+#include "CommandRunInstruction.generated.h"
 
 USTRUCT(BlueprintType)
 struct PROJECTOGLOWIA_API FCommandRunInstruction
@@ -48,7 +43,7 @@ struct PROJECTOGLOWIA_API FCommandRunInstruction
 
 public:
 	UPROPERTY(BlueprintReadOnly)
-	ATerminalCommand* Command;
+	FString Command;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FString> Arguments;
@@ -56,16 +51,4 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	UConsoleContext* IntendedContext;
 
-};
-/**
- * 
- */
-UCLASS(Blueprintable)
-class PROJECTOGLOWIA_API UCommandProcessor : public UObject
-{
-	GENERATED_BODY()
-
-public:
-	UFUNCTION(BlueprintCallable, Category="Bash")
-	static TArray<FCommandRunInstruction> ProcessCommand(UPARAM(Ref) UConsoleContext* InConsole, const FString& InCommand);
 };
