@@ -92,6 +92,7 @@ private:
 	void BuildChildNavigators(UFolderNavigator* RootNav);
 
 public:
+	UPROPERTY()
 	int UserID = 0;
 	
 public:

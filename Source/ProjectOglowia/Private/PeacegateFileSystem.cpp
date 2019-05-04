@@ -33,6 +33,7 @@
 #include "PeacegateFileSystem.h"
 #include "Base64.h"
 #include "FileUtilities.h"
+#include "PeacenetWorldStateActor.h"
 #include "SystemContext.h"
 
 TArray<FFileRecord> UPeacegateFileSystem::GetFileRecords(FFolder& Folder)
@@ -460,6 +461,14 @@ bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, 
 			}
 		}
 
+		// Broadcast to the mission system that a file will be deleted before we actually delete it.
+		// Doing this BEFORE the delete operation allows some mission objectives to check the contents
+		// of the file before it disappears, allowing for more elaborate missions.
+		this->SystemContext->GetPeacenet()->SendGameEvent("DirectoryDeleted", {
+			{ "Identity", FString::FromInt(this->SystemContext->GetCharacter().ID) },
+			{ "Path", InPath }
+		});
+
 		// Recursively delete everything inside the folder.
 		RecursiveDelete(FolderToDelete);
 
@@ -491,6 +500,14 @@ bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, 
 			OutStatusCode = EFilesystemStatusCode::FileOrDirectoryNotFound;
 			return false;
 		}
+
+		// Broadcast to the mission system that a file will be deleted before we actually delete it.
+		// Doing this BEFORE the delete operation allows some mission objectives to check the contents
+		// of the file before it disappears, allowing for more elaborate missions.
+		this->SystemContext->GetPeacenet()->SendGameEvent("FileDeleted", {
+			{ "Identity", FString::FromInt(this->SystemContext->GetCharacter().ID) },
+			{ "Path", InPath }
+		});
 
 		// If the file record is a text file we must remove the text file.
 		if(FileToDelete.RecordType == EFileRecordType::Text)
