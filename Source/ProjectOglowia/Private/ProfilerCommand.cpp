@@ -71,6 +71,11 @@ void AProfilerCommand::Tick(float InDeltaSeconds)
             }
             else
             {
+                // Send a game event that we've scanned for nodes.
+                this->SendGameEvent("NodeScanComplete", {
+                    { "Identity", FString::FromInt(this->GetUserContext()->GetOwningSystem()->GetCharacter().ID)}
+                });
+
                 this->Complete();
                 return;
             }
