@@ -109,6 +109,15 @@ bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InComm
 
         InConsole->WriteLine("Uploaded " + Source + " to " + Destination + " successfully.");
         this->FinishSpecialCommand();
+
+        // Let the game event system know we've just uploaded a file.
+        this->SendGameEvent("FileUpload", {
+            { "SourceIdentity", FString::FromInt(this->GetUserContext()->GetHacker()->GetOwningSystem()->GetCharacter().ID) },
+            { "SourcePath", Source },
+            { "DestinationIdentity", FString::FromInt(this->GetUserContext()->GetOwningSystem()->GetCharacter().ID) },
+            { "DestinationPath", Destination }
+        });
+
         return true;
     }
     if(InCommand == "download")
@@ -179,8 +188,17 @@ bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InComm
             DestinationFileSystem->SetFileRecord(Destination, SourceRecord.RecordType, SourceRecord.ContentID);
         }
 
-        InConsole->WriteLine("Uploaded " + Source + " to " + Destination + " successfully.");
+        InConsole->WriteLine("Downloaded " + Source + " to " + Destination + " successfully.");
         this->FinishSpecialCommand();
+
+        // Let the game event system know we've just downloaded a file.
+        this->SendGameEvent("FileDownload", {
+            { "SourceIdentity", FString::FromInt(this->GetUserContext()->GetOwningSystem()->GetCharacter().ID) },
+            { "SourcePath", Source },
+            { "DestinationIdentity", FString::FromInt(this->GetUserContext()->GetHacker()->GetOwningSystem()->GetCharacter().ID) },
+            { "DestinationPath", Destination }
+        });
+
         return true;
     }
     
