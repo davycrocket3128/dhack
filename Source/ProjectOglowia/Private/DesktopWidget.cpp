@@ -42,6 +42,7 @@
 #include "WallpaperAsset.h"
 #include "Program.h"
 #include "TutorialPromptState.h"
+#include "MissionActor.h"
 #include "ConsoleContext.h"
 
 float UDesktopWidget::GetStealthiness()
@@ -162,6 +163,19 @@ void UDesktopWidget::NativeConstruct()
 	this->SystemContext->GetPeacenet()->MapsUpdated.Add(MapUpdateDelegate);
 
 	Super::NativeConstruct();
+}
+
+bool UDesktopWidget::IsMissionActive()
+{
+	return this->GetPeacenet()->IsInMission();
+}
+
+void UDesktopWidget::AbandonMission()
+{
+	if(this->IsMissionActive())
+	{
+		this->GetPeacenet()->GetMissionActor()->FailCurrentTask(NSLOCTEXT("Mission", "Abandoned", "The mission was abandoned."));
+	}
 }
 
 UConsoleContext * UDesktopWidget::CreateConsole(UPTerminalWidget* InTerminal)

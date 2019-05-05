@@ -78,6 +78,12 @@ class PROJECTOGLOWIA_API UDesktopWidget : public UUserWidget
 	GENERATED_BODY()
 
 protected:
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
+	bool IsMissionActive();
+
+	UFUNCTION(BlueprintCallable, Category = "Mission")
+	void AbandonMission();
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void ProcessStarted(const FPeacegateProcess& InProcess);
 

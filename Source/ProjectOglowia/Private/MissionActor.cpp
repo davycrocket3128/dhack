@@ -245,6 +245,12 @@ void AMissionActor::RestartMission()
     this->IsFailed = false;
 }
 
+void AMissionActor::FailCurrentTask(const FText& InFailReason)
+{
+    this->IsFailed = true;
+    this->Peacenet->FailMission(InFailReason);
+}
+
 void AMissionActor::AbandonMission()
 {
     // Only allow this if the mission is failed.

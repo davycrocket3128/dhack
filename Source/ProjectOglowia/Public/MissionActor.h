@@ -95,6 +95,9 @@ protected:
     void DeleteSaveStates();
 
 public:
+    UFUNCTION()
+    void FailCurrentTask(const FText& InFailReason);
+
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
     bool HasCheckpoint();
 
