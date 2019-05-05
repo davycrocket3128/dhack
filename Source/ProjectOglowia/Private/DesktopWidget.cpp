@@ -113,6 +113,11 @@ void UDesktopWidget::NativeConstruct()
 	this->SystemContext->ProcessStarted.Add(ProcessStartedDelegate);
 	this->SystemContext->ProcessEnded.Add(ProcessEndedDelegate);
 
+	// Notify Blueprint when a mission is completed.
+	TScriptDelegate<> MissionCompleteDelegate;
+	MissionCompleteDelegate.BindUFunction(this, "OnMissionComplete");
+	this->SystemContext->GetPeacenet()->MissionCompleteEvent.Add(MissionCompleteDelegate);
+
 
 	// Reset the app launcher.
 	this->ResetAppLauncher();

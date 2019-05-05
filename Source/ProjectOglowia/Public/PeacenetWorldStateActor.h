@@ -77,6 +77,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPeacenetMapUpdateEvent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMailMessageSendEvent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMissionFailureEvent, AMissionActor*, MissionState, const FText&, FailMessage);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FGameEventSent, FString, InEventName, FGameEventData, InEventData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMissionCompleteEvent, UMissionAsset*, InMission);
 
 UCLASS()
 class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
@@ -86,6 +87,12 @@ class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
 public: // Constructors
 	// Sets default values for this actor's properties
 	APeacenetWorldStateActor();
+
+	UPROPERTY()
+	FMissionCompleteEvent MissionCompleteEvent;
+
+	UFUNCTION()
+	void BroadcastMissionComplete(UMissionAsset* InMissionAsset);
 
 	UFUNCTION()
 	void SetGameStat(FName InStatName, int InValue);

@@ -85,7 +85,10 @@ void AMissionActor::Complete()
     // Tell The Peacenet that we've completed.
     this->Peacenet->EndMission();
 
-// Tell the rest of the game "HEY MOTHERFUCKERS, THE PLAYER JUST COMPLETED A BLOODY MISSION WOOOOOOOOOOO!"
+    // Allow the game to show a "mission completed" UI.
+    this->Peacenet->BroadcastMissionComplete(this->Mission);
+
+    // Tell the rest of the game "HEY MOTHERFUCKERS, THE PLAYER JUST COMPLETED A BLOODY MISSION WOOOOOOOOOOO!"
     this->Peacenet->SendGameEvent("MissionComplete", {
         { "MissionID", this->Mission->GetFName().ToString()}
     });

@@ -35,6 +35,7 @@
 #include "Engine/DataAsset.h"
 #include "Text.h"
 #include "TextProperty.h"
+#include "Exploit.h"
 #include "StoryCharacter.generated.h"
 
 UCLASS(Blueprintable, BlueprintType)

@@ -48,6 +48,11 @@
 #include "MissionActor.h"
 #include "Window.h"
 
+void APeacenetWorldStateActor::BroadcastMissionComplete(UMissionAsset* InMissionAsset)
+{
+	this->MissionCompleteEvent.Broadcast(InMissionAsset);
+}
+
 int APeacenetWorldStateActor::GetGameStat(FName InStatName)
 {
 	return this->SaveGame->GetGameStat(InStatName);

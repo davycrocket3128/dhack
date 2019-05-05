@@ -92,6 +92,9 @@ protected:
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	UTutorialPromptState* GetTutorialPrompt();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnMissionComplete(UMissionAsset* InMission);
+
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsTutorialActive();
 
