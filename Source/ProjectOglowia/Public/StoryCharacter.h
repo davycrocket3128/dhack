@@ -66,4 +66,8 @@ public:
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Cryptocurrency")
     int CryptoWalletAmount = 0;
+
+    // A list of exploits which the resulting character's computer will definitely spawn with.
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Loots")
+    TArray<UExploit*> Exploits;
 };

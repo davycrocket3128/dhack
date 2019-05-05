@@ -219,6 +219,47 @@ void UProceduralGenerationEngine::UpdateStoryComputer(UStoryCharacter* InStoryCh
         Host = InStoryCharacter->Name.ToString().ToLower().Replace(TEXT(" "), TEXT("_")) + "-pc";
     }
     RootFS->WriteText("/etc/hostname", Host);
+
+    // Now we'll start looking at exploits.
+    for(auto Exploit : InStoryCharacter->Exploits)
+    {
+        // Do we already have a file on the system that refers to this exploit?
+        bool ExploitExists = false;
+
+        // Go through all file records within the system.
+        for(auto& Record : SystemContext->GetComputer().FileRecords)
+        {
+            // Only check exploit records.
+            if(Record.RecordType == EFileRecordType::Exploit)
+            {
+                // Check the ID first.
+                if(Record.ContentID >= 0 && Record.ContentID < this->Peacenet->GetExploits().Num())
+                {
+                    // Get the file exploit data.
+                    UExploit* FileExploit = this->Peacenet->GetExploits()[Record.ContentID];
+                    
+                    // If the exploit IDs match, then this exploit DOES NOT need to spawn.
+                    if(FileExploit->ID == Exploit->ID)
+                    {
+                        ExploitExists = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // DO NOT SPAWN THE EXPLOIT if the exploit already exists.
+        if(ExploitExists) continue;
+
+        // TODO: random exploit spawn folders.
+        for(int i = 0; i < this->Peacenet->GetExploits().Num(); i++)
+        {
+            if(this->Peacenet->GetExploits()[i]->ID == Exploit->ID)
+            {
+                RootFS->SetFileRecord("/root/" + Exploit->ID.ToString() + ".gsf", EFileRecordType::Exploit, i);
+            }
+        }
+    }
 }
 
 FRandomStream& UProceduralGenerationEngine::GetRNG()
