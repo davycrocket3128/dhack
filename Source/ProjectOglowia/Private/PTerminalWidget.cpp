@@ -450,23 +450,23 @@ UPTerminalWidget * UPTerminalWidget::SlowlyOverwriteLine(UObject * WorldContextO
 	return SlowlyWriteText(WorldContextObject, LatentInfo, InText + TEXT("\r"), InDelayTime);
 }
 
-UPTerminalWidget* UPTerminalWidget::Write(FString InText)
+UPTerminalWidget* UPTerminalWidget::Write(FString InText, float DelaySeconds)
 {
 	FTerminalWriteRequest Request;
 	Request.TextToWrite = FText::FromString(InText);
-	Request.DelayInSeconds = 0.f;
+	Request.DelayInSeconds = DelaySeconds;
 	this->WriteStack.Add(Request);
 	return this;
 }
 
-UPTerminalWidget* UPTerminalWidget::WriteLine(FString InText)
+UPTerminalWidget* UPTerminalWidget::WriteLine(FString InText, float DelaySeconds)
 {
-	return Write(InText + TEXT("\n"));
+	return Write(InText + TEXT("\n"), DelaySeconds);
 }
 
-UPTerminalWidget* UPTerminalWidget::OverwriteLine(FString InText)
+UPTerminalWidget* UPTerminalWidget::OverwriteLine(FString InText, float DelaySeconds)
 {
-	return Write(InText + TEXT("\r"));
+	return Write(InText + TEXT("\r"), DelaySeconds);
 }
 
 UPTerminalWidget* UPTerminalWidget::Clear()

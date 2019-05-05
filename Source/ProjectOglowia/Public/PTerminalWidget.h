@@ -179,13 +179,13 @@ public: //functions
 		virtual UPTerminalWidget* SlowlyOverwriteLine(UObject* WorldContextObject, struct FLatentActionInfo LatentInfo, const FString& InText, float InDelayTime = 0.05);
 
 	UFUNCTION(BlueprintCallable, Category = "Console IO|Output")
-		UPTerminalWidget* Write(FString InText);
+		UPTerminalWidget* Write(FString InText, float DelaySeconds = 0.f);
 
 	UFUNCTION(BlueprintCallable, Category = "Console IO|Output")
-		UPTerminalWidget* WriteLine(FString InText);
+		UPTerminalWidget* WriteLine(FString InText, float DelaySeconds = 0.f);
 
 	UFUNCTION(BlueprintCallable, Category = "Console IO|Output")
-		UPTerminalWidget* OverwriteLine(FString InText);
+		UPTerminalWidget* OverwriteLine(FString InText, float DelaySeconds = 0.f);
 
 	UFUNCTION(BlueprintCallable, Category = "Console IO|Output")
 		UPTerminalWidget* Clear();
