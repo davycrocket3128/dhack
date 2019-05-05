@@ -192,9 +192,9 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
     {
         MyConsole->GetUserContext()->GetPeacenet()->SaveGame->SetValue("gigasploit.firstScan", true);
 
-        MyConsole->WriteLine("Performing Nmap scan on remote system...");
+        MyConsole->WriteLine("Performing Nmap scan on remote system...", 0.3f);
         MyConsole->WriteLine("");
-        MyConsole->WriteLine("PORT\t\tSTATUS\tSERVICE");
+        MyConsole->WriteLine("PORT\t\tSTATUS\tSERVICE", 0.5f);
         MyConsole->WriteLine("-----\t\t-------\t--------");
         MyConsole->WriteLine("");
         this->RemoteSystem->GetPeacenet()->GetProcgen()->GenerateFirewallRules(this->RemoteSystem->GetComputer());
@@ -202,7 +202,7 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
         {
             if(Service.IsCrashed) continue;
 
-            MyConsole->Write(FString::FromInt(Service.Port));
+            MyConsole->Write(FString::FromInt(Service.Port), 1.f);
             MyConsole->Write("\t\t");
 
             if(Service.IsFiltered)
