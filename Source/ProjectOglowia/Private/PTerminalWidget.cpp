@@ -452,12 +452,10 @@ UPTerminalWidget * UPTerminalWidget::SlowlyOverwriteLine(UObject * WorldContextO
 
 UPTerminalWidget* UPTerminalWidget::Write(FString InText)
 {
-	TextBuffer.Append(InText);
-	NewTextAdded = true;
-
-	bCursorActive = true;
-	cursorTime = 0;
-
+	FTerminalWriteRequest Request;
+	Request.TextToWrite = FText::FromString(InText);
+	Request.DelayInSeconds = 0.f;
+	this->WriteStack.Add(Request);
 	return this;
 }
 
@@ -722,6 +720,37 @@ void UPTerminalWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
+	// Are there any items left in the write stack?
+	if(this->WriteStack.Num())
+	{
+		// Are we waiting for the next item's delay to tick?
+		if(this->WaitingForWrite)
+		{
+			// Tick the next write request down by delta seconds.
+			this->WriteStack[0].DelayInSeconds -= InDeltaTime;
+
+			// If the delay is at or below 0 seconds then we perform the write!
+			if(this->WriteStack[0].DelayInSeconds <= 0.f)
+			{
+				// Write the text to our text buffer.
+				TextBuffer.Append(this->WriteStack[0].TextToWrite.ToString());
+				NewTextAdded = true;
+
+				// Reset the cursor blink.
+				bCursorActive = true;
+				cursorTime = 0;
+
+				// Remove the write request from the list and stop waiting.
+				this->WriteStack.RemoveAt(0);
+				this->WaitingForWrite = false;
+			}
+		}
+		else
+		{
+			this->WaitingForWrite = true;
+		}
+	}
+
 	if (HasAnyUserFocus())
 	{
 		cursorTime += InDeltaTime;
@@ -773,6 +802,12 @@ FReply UPTerminalWidget::NativeOnMouseWheel(const FGeometry & InGeometry, const 
 FReply UPTerminalWidget::NativeOnKeyChar(const FGeometry & InGeometry, const FCharacterEvent & InCharEvent)
 {	
 	TCHAR c = InCharEvent.GetCharacter();
+
+	// Skip any events if we are waiting for a write.
+	if(this->WaitingForWrite)
+	{
+		return FReply::Handled();
+	}
 
 	if (c == TEXT('\b'))
 	{

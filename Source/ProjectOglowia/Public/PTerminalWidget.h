@@ -40,6 +40,7 @@
 #include "Fonts/SlateFontInfo.h"
 #include "Slate/SlateBrushAsset.h"
 #include "Misc/Parse.h"
+#include "TerminalWriteRequest.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
 #include "PTerminalWidget.generated.h"
@@ -55,7 +56,13 @@ class PROJECTOGLOWIA_API UPTerminalWidget : public UUserWidget
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitEvent);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FTerminalZoomedEvent, float, InNewCharWidth, float, InNewCharHeight);
 
-	
+private:
+	UPROPERTY()
+	TArray<FTerminalWriteRequest> WriteStack;
+
+	UPROPERTY()
+	bool WaitingForWrite = false;
+
 public: //variables
 	FThreadSafeBool IsInputLineAvailable = false;
 
