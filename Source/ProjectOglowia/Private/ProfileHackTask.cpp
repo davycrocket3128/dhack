@@ -31,6 +31,11 @@
 
 #include "ProfileHackTask.h"
 
+void UProfileHackTask::NativeStart()
+{
+    this->SetObjectiveText(NSLOCTEXT("Objectives", "Profile", "Profile the system to scan for adjacent Peacenet identities."));
+}
+
 void UProfileHackTask::NativeGameEvent(FString Event, TMap<FString, FString> Data)
 {
     // Is this even the event we want?

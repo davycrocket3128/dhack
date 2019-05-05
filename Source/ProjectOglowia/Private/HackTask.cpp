@@ -89,7 +89,15 @@ void UHackTask::NativeStart()
             this->RealSubtasks.Add(Subtask.Subtask);
     }
 
-
+    // Tell the player to hack the system.
+    if(this->FailOnCoverBlow)
+    {
+        this->SetObjectiveText(FText::Format(NSLOCTEXT("Objectives", "HackUndercover", "Hack {0} without blowing your cover."), this->StoryCharacter->Name));
+    }
+    else
+    {
+        this->SetObjectiveText(FText::Format(NSLOCTEXT("Objectives", "Hack", "Hack {0}."), this->StoryCharacter->Name));
+    }
 }
 
 void UHackTask::AdvanceSubtask()

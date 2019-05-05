@@ -31,6 +31,11 @@
 
 #include "DeleteLogsHackTask.h"
 
+void UDeleteLogsHackTask::NativeStart()
+{
+    this->SetObjectiveText(NSLOCTEXT("Objectives", "DeleteLogs", "Delete system logs to clear your tracks."));
+}
+
 void UDeleteLogsHackTask::NativeGameEvent(FString Event, TMap<FString, FString> Data)
 {
     if(Event == "FileDeleted")

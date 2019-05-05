@@ -41,5 +41,6 @@ class PROJECTOGLOWIA_API UDeleteLogsHackTask : public UHackSubtask
     GENERATED_BODY()
 
 protected:
+    virtual void NativeStart() override;
     virtual void NativeGameEvent(FString Event, TMap<FString, FString> Data) override;
 };

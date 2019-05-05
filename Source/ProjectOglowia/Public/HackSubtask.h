@@ -59,7 +59,7 @@ private:
 
 protected:
     UFUNCTION(BlueprintCallable, Category = "Hacking")
-    void SetObjectiveText(const FText& InObjectiveText);
+    void SetObjectiveText(const FText& InObjectiveText); 
 
     UFUNCTION(BlueprintCallable, Category = "Hacking")
     void Fail(const FText& InFailMessage);

@@ -37,9 +37,9 @@ void URunCommandTask::NativeStart()
 {
     FString CommandText = this->Command->ID.ToString();
 
-    for(auto& Arg : this->ExpectedArguments)
+    if(ExpectedArguments.Len())
     {
-        CommandText += " " + Arg;
+        CommandText += " " + ExpectedArguments;
     }
 
     this->SetObjectiveText(FText::Format(NSLOCTEXT("Objectives", "RunCommand", "Run {0}."), FText::FromString(CommandText)));
