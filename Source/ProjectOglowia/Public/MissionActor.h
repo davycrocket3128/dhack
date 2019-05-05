@@ -48,6 +48,9 @@ public:
 
 private:
     UPROPERTY()
+    bool IsFailed = false;
+
+    UPROPERTY()
     TArray<FMissionTaskInfo> LoadedTasks;
 
     UPROPERTY()
@@ -90,4 +93,20 @@ protected:
 
     UFUNCTION()
     void DeleteSaveStates();
+
+public:
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
+    bool HasCheckpoint();
+
+    UFUNCTION(BlueprintCallable, Category = "Mission")
+    void RestoreCheckpoint();
+
+    UFUNCTION(BlueprintCallable, Category = "Mission")
+    void RestartMission();
+
+    UFUNCTION(BlueprintCallable, Category = "Mission")
+    void AbandonMission();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
+    FText GetMissionName();
 };

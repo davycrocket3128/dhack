@@ -173,6 +173,8 @@ void AMissionActor::Tick(float InDeltaSeconds)
     if(!this->Peacenet) return;
     if(!this->Mission) return;
 
+    if(this->IsFailed) return;
+
     if(this->CurrentTask == -1)
     {
         this->Advance();
@@ -183,6 +185,7 @@ void AMissionActor::Tick(float InDeltaSeconds)
     }
     else if(this->LoadedTasks[this->CurrentTask].Task->GetIsFailed())
     {
+        this->IsFailed = true;
         this->Peacenet->FailMission(this->LoadedTasks[this->CurrentTask].Task->GetFailMessage());
     }
     else
@@ -193,4 +196,65 @@ void AMissionActor::Tick(float InDeltaSeconds)
     }
 
     Super::Tick(InDeltaSeconds);
+}
+
+bool AMissionActor::HasCheckpoint()
+{
+    return this->CheckpointTask != -1;
+}
+
+void AMissionActor::RestoreCheckpoint()
+{
+    // DO NOT DO THIS if the mission isn't failed!
+    check(this->IsFailed);
+
+    // Restoring the checkpoint is essentially doing the reverse of setting the checkpoint.
+    // But we can only do it if there is a checkpoint in the first place.
+    if(this->HasCheckpoint())
+    {
+        // Instead of setting the checkpoint task to the current task, we set the current task to the
+        // checkpoint task.
+        this->CurrentTask = this->CheckpointTask;
+
+        // And instead of saving the game to the shadow save file, we load the game from it.
+        UPeacenetSaveGame* ShadowGame = Cast<UPeacenetSaveGame>(UGameplayStatics::LoadGameFromSlot("PeacegateOS_PreMission", 1));
+        this->Peacenet->SaveGame = ShadowGame;
+
+        // Then we basically act like we completed the objective before the checkpoint one.
+        this->LoadedTasks[this->CurrentTask].Task->Start(this);
+
+        // And we resume the mission.
+        this->IsFailed = false;
+    }
+}
+
+void AMissionActor::RestartMission()
+{
+    // Do not allow restarting of the mission if we're not failed.
+    check(this->IsFailed);
+
+    // Load the premission shadow save into the main save game.
+    UPeacenetSaveGame* ShadowSave = Cast<UPeacenetSaveGame>(UGameplayStatics::LoadGameFromSlot("PeacegateOS_PreMission", 0));
+    this->Peacenet->SaveGame = ShadowSave;
+
+    // Set the checkpoint task AND the current task to -1 causing a complete mission reset.
+    this->CheckpointTask = -1;
+    this->CurrentTask = -1;
+
+    // We're no longer failed.
+    this->IsFailed = false;
+}
+
+void AMissionActor::AbandonMission()
+{
+    // Only allow this if the mission is failed.
+    check(this->IsFailed);
+
+    // Bye bye mo'fo's.
+    this->Abort();
+}
+
+FText AMissionActor::GetMissionName()
+{
+    return this->Mission->Name;
 }
