@@ -118,6 +118,11 @@ void UDesktopWidget::NativeConstruct()
 	MissionCompleteDelegate.BindUFunction(this, "OnMissionComplete");
 	this->SystemContext->GetPeacenet()->MissionCompleteEvent.Add(MissionCompleteDelegate);
 
+	// Let Blueprint know when a mission is failed.
+	TScriptDelegate<> MissionFailDelegate;
+	MissionFailDelegate.BindUFunction(this, "OnMissionFailed");
+	this->SystemContext->GetPeacenet()->MissionFailed.Add(MissionFailDelegate);
+
 
 	// Reset the app launcher.
 	this->ResetAppLauncher();

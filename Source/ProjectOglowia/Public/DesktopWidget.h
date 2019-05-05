@@ -43,6 +43,7 @@
 #include "Workspace.h"
 #include "DesktopWidget.generated.h"
 
+class AMissionActor;
 class USystemContext;
 class UConsoleContext;
 class APeacenetWorldStateActor;
@@ -94,6 +95,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnMissionComplete(UMissionAsset* InMission);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnMissionFailed(AMissionActor* InMissionActor, const FText& InFailReason);
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsTutorialActive();
