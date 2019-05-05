@@ -33,6 +33,18 @@
 #include "TerminalCommandParserLibrary.h"
 #include "UserContext.h"
 
+void URunCommandTask::NativeStart()
+{
+    FString CommandText = this->Command->ID.ToString();
+
+    for(auto& Arg : this->ExpectedArguments)
+    {
+        CommandText += " " + Arg;
+    }
+
+    this->SetObjectiveText(FText::Format(NSLOCTEXT("Objectives", "RunCommand", "Run {0}."), FText::FromString(CommandText)));
+}
+
 void URunCommandTask::NativeEvent(FString EventName, TMap<FString, FString> InEventArgs)
 {
     // Only handle "Command Complete" events.

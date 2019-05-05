@@ -50,5 +50,6 @@ public:
     FString ExpectedArguments;
     
 protected:
+    virtual void NativeStart() override;
     virtual void NativeEvent(FString EventName, TMap<FString, FString> InEventArgs) override;
 };
