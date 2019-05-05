@@ -88,7 +88,7 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
             if(SearchQuery.Len() == 0 || ExploitName.Contains(SearchQuery, ESearchCase::IgnoreCase))
             {
                 FoundExploit = true;
-                MyConsole->WriteLine("\t" + ExploitName);
+                MyConsole->WriteLine("\t" + ExploitName, 0.2f);
             }
         }
 
@@ -122,7 +122,7 @@ void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArgume
             if(SearchQuery.Len() == 0 || ExploitName.Contains(SearchQuery, ESearchCase::IgnoreCase))
             {
                 FoundExploit = true;
-                MyConsole->WriteLine("\t" + ExploitName);
+                MyConsole->WriteLine("\t" + ExploitName, 0.2f);
             }
         }
 
