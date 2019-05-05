@@ -34,6 +34,7 @@
 void UDownloadFileHackTask::NativeStart()
 {
     check(this->FileRecordChecker);
+    this->SetObjectiveText(this->ObjectiveText);
 }
 
 void UDownloadFileHackTask::NativeGameEvent(FString Event, TMap<FString, FString> Arguments)

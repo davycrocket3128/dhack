@@ -45,6 +45,9 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Instanced)
     UFileRecordChecker* FileRecordChecker;
 
+    UPROPERTY(BlueprintReadWrite, EditAnywhere)
+    FText ObjectiveText;
+
 protected:
     virtual void NativeStart() override;
     virtual void NativeGameEvent(FString Event, TMap<FString, FString> Data) override;

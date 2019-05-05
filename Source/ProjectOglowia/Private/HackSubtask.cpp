@@ -69,6 +69,7 @@ void UHackSubtask::Finish()
     check(!this->IsFinished);
 
     this->IsFinished = true;
+    this->SetObjectiveText(FText::GetEmpty());
 }
 
 void UHackSubtask::Start(UHackTask* InHackTask)

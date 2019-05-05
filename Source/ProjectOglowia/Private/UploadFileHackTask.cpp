@@ -34,6 +34,7 @@
 void UUploadFileHackTask::NativeStart()
 {
     check(this->FileRecordChecker);
+    this->SetObjectiveText(this->ObjectiveText);
 }
 
 void UUploadFileHackTask::NativeGameEvent(FString Event, TMap<FString, FString> Arguments)
