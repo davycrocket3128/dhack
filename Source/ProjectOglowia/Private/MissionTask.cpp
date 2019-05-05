@@ -112,6 +112,7 @@ APeacenetWorldStateActor* UMissionTask::GetPeacenet()
 void UMissionTask::Complete()
 {
     this->IsFinished = true;
+    this->SetObjectiveText(FText::GetEmpty());
 }
 
 void UMissionTask::Start(AMissionActor* InMission)
