@@ -730,7 +730,7 @@ void UPTerminalWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 			this->WriteStack[0].DelayInSeconds -= InDeltaTime;
 
 			// If the delay is at or below 0 seconds then we perform the write!
-			if(this->WriteStack[0].DelayInSeconds <= 0.f)
+			while(this->WriteStack.Num() && this->WriteStack[0].DelayInSeconds <= 0.f)
 			{
 				// Write the text to our text buffer.
 				TextBuffer.Append(this->WriteStack[0].TextToWrite.ToString());
