@@ -81,6 +81,12 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
 	bool IsMissionActive();
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
+	FText GetMissionName();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
+	FText GetMissionAcquisition();
+
 	UFUNCTION(BlueprintCallable, Category = "Mission")
 	void AbandonMission();
 

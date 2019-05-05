@@ -96,6 +96,9 @@ protected:
 
 public:
     UFUNCTION()
+    UMissionAsset* GetMissionAsset();
+
+    UFUNCTION()
     void FailCurrentTask(const FText& InFailReason);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")

@@ -245,6 +245,11 @@ void AMissionActor::RestartMission()
     this->IsFailed = false;
 }
 
+UMissionAsset* AMissionActor::GetMissionAsset()
+{
+    return this->Mission;
+}
+
 void AMissionActor::FailCurrentTask(const FText& InFailReason)
 {
     this->IsFailed = true;

@@ -165,6 +165,16 @@ void UDesktopWidget::NativeConstruct()
 	Super::NativeConstruct();
 }
 
+FText UDesktopWidget::GetMissionAcquisition()
+{
+	return this->GetPeacenet()->GetMissionActor()->GetMissionAsset()->Description;
+}
+
+FText UDesktopWidget::GetMissionName()
+{
+	return this->GetPeacenet()->GetMissionActor()->GetMissionName();
+}
+
 bool UDesktopWidget::IsMissionActive()
 {
 	return this->GetPeacenet()->IsInMission();
