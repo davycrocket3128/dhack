@@ -36,6 +36,11 @@
 #include "SystemContext.h"
 #include "UserContext.h"
 
+void UMissionTask::SetObjectiveText(const FText& InObjectiveText)
+{
+    this->GetPlayerUser()->GetOwningSystem()->GetDesktop()->SetObjectiveText(InObjectiveText);
+}
+
 AMissionActor* UMissionTask::GetMissionActor()
 {
     return this->Mission;

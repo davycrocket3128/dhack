@@ -31,6 +31,11 @@
 
 #include "HackSubtask.h"
 
+void UHackSubtask::SetObjectiveText(const FText& InObjectiveText)
+{
+    this->GetPlayerUser()->GetOwningSystem()->GetDesktop()->SetObjectiveText(InObjectiveText);
+}
+
 UUserContext* UHackSubtask::GetPlayerUser()
 {
     return this->HackTask->GetPlayerUser();

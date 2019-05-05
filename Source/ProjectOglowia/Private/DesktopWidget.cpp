@@ -165,6 +165,16 @@ void UDesktopWidget::NativeConstruct()
 	Super::NativeConstruct();
 }
 
+FText UDesktopWidget::GetObjectiveText()
+{
+	return this->ObjectiveText;
+}
+
+void UDesktopWidget::SetObjectiveText(const FText& InObjectiveText)
+{
+	this->ObjectiveText = InObjectiveText;
+}
+
 FText UDesktopWidget::GetMissionAcquisition()
 {
 	return this->GetPeacenet()->GetMissionActor()->GetMissionAsset()->Description;

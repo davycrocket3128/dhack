@@ -63,6 +63,9 @@ protected:
     virtual void NativeTick(float InDeltaSeconds) {}
     virtual void NativeEvent(FString EventName, TMap<FString, FString> InEventArgs) {}
 
+    UFUNCTION(BlueprintCallable)
+    void SetObjectiveText(const FText& InObjectiveText);
+
     UFUNCTION(BlueprintCallable, BlueprintPure)
     APeacenetWorldStateActor* GetPeacenet();
 

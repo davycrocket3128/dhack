@@ -34,6 +34,8 @@
 
 #include "CoreMinimal.h"
 #include "UserWidget.h"
+#include "Text.h"
+#include "TextProperty.h"
 #include "PeacegateProgramAsset.h" 
 #include "GovernmentAlertStatus.h"
 #include "RAMUsage.h"
@@ -77,9 +79,16 @@ class PROJECTOGLOWIA_API UDesktopWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
+private:
+	UPROPERTY()
+	FText ObjectiveText;
+
 protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
 	bool IsMissionActive();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
+	FText GetObjectiveText();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
 	FText GetMissionName();
@@ -118,6 +127,9 @@ protected:
 	EGovernmentAlertStatus GetAlertStatus();
 
 public:
+	UFUNCTION()
+	void SetObjectiveText(const FText& InObjectiveText);
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "System")
 	void ExecuteCommand(const FString& InCommand);
 

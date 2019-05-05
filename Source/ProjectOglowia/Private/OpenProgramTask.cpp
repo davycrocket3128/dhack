@@ -36,6 +36,8 @@ void UOpenProgramTask::NativeStart()
 {
     check(this->Program);
     if(!this->Program) this->Complete();
+
+    this->SetObjectiveText(FText::Format(NSLOCTEXT("Objectives", "OpenProgram", "Open {0}."), this->Program->FullName));
 }
 
 void UOpenProgramTask::NativeTick(float InDeltaSeconds)
