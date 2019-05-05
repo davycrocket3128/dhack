@@ -75,11 +75,11 @@ bool UPiperContext::GetLine(FString& OutLine)
 }
 
 
-void UPiperContext::Write(const FString& InText)
+void UPiperContext::Write(const FString& InText, float DeltaSeconds)
 {
 	if (Output)
 	{
-		Output->Write(InText);
+		Output->Write(InText, DeltaSeconds);
 	}
 	else {
 		Log += InText;
@@ -107,9 +107,9 @@ void UPiperContext::Clear()
 		Log = TEXT("");
 }
 
-void UPiperContext::WriteLine(const FString& InText)
+void UPiperContext::WriteLine(const FString& InText, float DeltaSeconds)
 {
-    Write(InText + "\n");
+    Write(InText + "\n", DeltaSeconds);
 }
 
 UConsoleContext* UPiperContext::CreateChildContext(USystemContext* InSystemContext, int InUserID)
@@ -127,15 +127,15 @@ UConsoleContext* UPiperContext::CreateChildContext(USystemContext* InSystemConte
 }
 
 
-void UPiperContext::OverwriteLine(const FString& InText)
+void UPiperContext::OverwriteLine(const FString& InText, float DeltaSeconds)
 {
 	if (Output)
 	{
-		Output->OverwriteLine(InText);
+		Output->OverwriteLine(InText, DeltaSeconds);
 	}
 	else 
     {
-		WriteLine(InText);
+		WriteLine(InText, DeltaSeconds);
 	}
 }
 

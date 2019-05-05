@@ -115,13 +115,13 @@ public:
 	FString GetDisplayWorkingDirectory();
 	
 	UFUNCTION(BlueprintCallable, Category = "Console")
-		virtual void WriteLine(const FString& InText) { Terminal->WriteLine(InText); }
+		virtual void WriteLine(const FString& InText, float DelaySeconds = 0.f) { Terminal->WriteLine(InText, DelaySeconds); }
 
 	UFUNCTION(BlueprintCallable, Category = "Console")
-	virtual void Write(const FString& InText) { Terminal->Write(InText); }
+	virtual void Write(const FString& InText, float DelaySeconds = 0.f) { Terminal->Write(InText, DelaySeconds); }
 
 	UFUNCTION(BlueprintCallable, Category = "Console")
-	virtual void OverwriteLine(const FString& InText) { Terminal->OverwriteLine(InText); }
+	virtual void OverwriteLine(const FString& InText, float DeltaSeconds = 0.f) { Terminal->OverwriteLine(InText, DeltaSeconds); }
 
 	UFUNCTION(BlueprintCallable, Category="Console")
 	virtual void Clear() { Terminal->Clear(); }

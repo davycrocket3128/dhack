@@ -64,9 +64,9 @@ public:
     UFUNCTION()
     FString GetLog();
 
-	virtual void Write(const FString& InText) override;
-	virtual void WriteLine(const FString& InText) override;
-	virtual void OverwriteLine(const FString& InText) override;
+	virtual void Write(const FString& InText, float DeltaSeconds) override;
+	virtual void WriteLine(const FString& InText, float DeltaSeconds) override;
+	virtual void OverwriteLine(const FString& InText, float DeltaSeconds) override;
 	virtual UConsoleContext* CreateChildContext(USystemContext* InSystemContext, int InUserID) override;
 	virtual void Clear() override;
 	virtual bool GetLine(FString& OutLine) override;
