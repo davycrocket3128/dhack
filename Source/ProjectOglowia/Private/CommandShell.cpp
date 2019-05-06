@@ -292,9 +292,14 @@ void ACommandShell::ExecuteNextCommand()
     else
         this->CurrentConsole->SetWorkingDirectory(this->GetConsole()->GetWorkingDirectory());
 
+    // For special commands, make a copy of the arguments and remove the command name from the copy.
+    // The special commands already get their command name.
+    TArray<FString> SpecialArgs = this->Instructions[0].Arguments;
+    SpecialArgs.RemoveAt(0);
+
     // Try to run the command as a special command.  If this is successful then the game will
     // wait for that command to complete.
-    if(this->RunSpecialCommand(this->CurrentConsole, this->Instructions[0].Command, this->Instructions[0].Arguments))
+    if(this->RunSpecialCommand(this->CurrentConsole, this->Instructions[0].Command, SpecialArgs))
     {
         // If we're supposed to auto-complete after the command's done, then we'll do that now.
         if(this->AutoCompleteSpecials())
