@@ -38,12 +38,6 @@
 #include "ProtocolVersion.h"
 #include "TerminalCommandParserLibrary.h"
 
-AHackCommand::AHackCommand()
-{
-    // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-}
-
 bool AHackCommand::ShouldCrashService()
 {
     float volatility = (float)this->CurrentExploit->Volatility / 5.f;
@@ -55,389 +49,6 @@ bool AHackCommand::ShouldCrashService()
     return chance < crashiness;
 }
 
-void AHackCommand::HandleCommand(FString InCommandName, TArray<FString> InArguments)
-{
-    UConsoleContext* MyConsole = this->GetConsole();
-
-    if(InCommandName == "exit")
-    {
-        this->Complete();
-        return;
-    }
-
-    if(InCommandName == "exploits")
-    {
-        FString SearchQuery = "";
-        for(auto Arg : InArguments)
-        {
-            SearchQuery += Arg + " ";
-        }
-
-        SearchQuery = SearchQuery.TrimStartAndEnd();
-
-        TArray<FString> ExploitNames;
-    
-        MyConsole->WriteLine("\t&FAvailable exploits");
-        MyConsole->WriteLine("\t--------------------&7\n");
-
-        bool FoundExploit = false;
-
-        for(auto Exploit : MyConsole->GetUserContext()->GetExploits())
-        {
-            FString ExploitName = Exploit->ID.ToString();
-            if(SearchQuery.Len() == 0 || ExploitName.Contains(SearchQuery, ESearchCase::IgnoreCase))
-            {
-                FoundExploit = true;
-                MyConsole->WriteLine("\t" + ExploitName, 0.2f);
-            }
-        }
-
-        if(!FoundExploit)
-            MyConsole->WriteLine("\t&4No exploits found matching that query.&7");
-
-        MyConsole->WriteLine("");
-        return;
-    }
-
-    if(InCommandName == "payloads")
-    {
-        FString SearchQuery = "";
-        for(auto Arg : InArguments)
-        {
-            SearchQuery += Arg + " ";
-        }
-
-        SearchQuery = SearchQuery.TrimStartAndEnd();
-
-        TArray<FString> ExploitNames;
-    
-        MyConsole->WriteLine("\t&FAvailable payloads");
-        MyConsole->WriteLine("\t--------------------&7\n");
-
-        bool FoundExploit = false;
-
-        for(auto Exploit : MyConsole->GetUserContext()->GetPayloads())
-        {
-            FString ExploitName = Exploit->Name.ToString();
-            if(SearchQuery.Len() == 0 || ExploitName.Contains(SearchQuery, ESearchCase::IgnoreCase))
-            {
-                FoundExploit = true;
-                MyConsole->WriteLine("\t" + ExploitName, 0.2f);
-            }
-        }
-
-        if(!FoundExploit)
-            MyConsole->WriteLine("\t&4No payloads found matching that query.&7");
-
-        MyConsole->WriteLine("");
-        return;
-    }
-
-    if(InCommandName == "use")
-    {
-        if(!InArguments.Num())
-        {
-            MyConsole->WriteLine("&4&*error:&r too few arguments given. Do you want to use an exploit or payload?&7");
-            return;
-        }
-
-        FString ItemType = InArguments[0].ToLower();
-        InArguments.RemoveAt(0);
-
-        FString ExploitName = "";
-        for(FString Arg : InArguments)
-        {
-            ExploitName += Arg + " ";
-        }
-        ExploitName = ExploitName.TrimStartAndEnd();
-        
-        if(ItemType == "exploit")
-        {
-            for(auto Exploit : MyConsole->GetUserContext()->GetExploits())
-            {
-                if(Exploit->ID.ToString() == ExploitName)
-                {
-                    MyConsole->WriteLine("Using exploit &F" + Exploit->FullName.ToString() + "&7.");
-                    this->CurrentExploit = Exploit;
-                    return;
-                }
-            }
-
-            MyConsole->WriteLine("&4&*error:&r exploit doesn't exist.&7");
-            return;
-        }
-        else if(ItemType == "payload")
-        {
-            for(auto Exploit : MyConsole->GetUserContext()->GetPayloads())
-            {
-                if(Exploit->Name.ToString() == ExploitName)
-                {
-                    MyConsole->WriteLine("Using payload &F" + ExploitName + "&7.");
-                    this->CurrentPayload = Exploit;
-                    return;
-                }
-            }
-
-            MyConsole->WriteLine("&4&*error:&r payload doesn't exist.&7");
-            return;
-        }
-        else
-        {
-            MyConsole->WriteLine("&4&*error:&r Invalid item type: &7" + ItemType);
-            return;
-        }
-    }
-
-    if(InCommandName == "scan")
-    {
-        MyConsole->GetUserContext()->GetPeacenet()->SaveGame->SetValue("gigasploit.firstScan", true);
-
-        MyConsole->WriteLine("Performing Nmap scan on remote system...", 0.3f);
-        MyConsole->WriteLine("");
-        MyConsole->WriteLine("PORT\t\tSTATUS\tSERVICE", 0.5f);
-        MyConsole->WriteLine("-----\t\t-------\t--------");
-        MyConsole->WriteLine("");
-        this->RemoteSystem->GetPeacenet()->GetProcgen()->GenerateFirewallRules(this->RemoteSystem->GetComputer());
-        for(auto Service : this->RemoteSystem->GetComputer().FirewallRules)
-        {
-            if(Service.IsCrashed) continue;
-
-            MyConsole->Write(FString::FromInt(Service.Port), 1.f);
-            MyConsole->Write("\t\t");
-
-            if(Service.IsFiltered)
-            {
-                MyConsole->Write("&4filtered&7");
-            }
-            else
-            {
-                MyConsole->Write("&3open&7");
-            }
-            MyConsole->Write("\t");
-            MyConsole->WriteLine(Service.Service->Protocol->Name.ToString());
-        }
-        return;
-    }
-
-    if(InCommandName == "analyze")
-    {
-        if(!InArguments.Num())
-        {
-            MyConsole->WriteLine("&4&*error:&r too few arguments. You must specify a port to analyze.&7");
-            return;
-        }
-
-        FString EnteredPort = InArguments[0];
-        int RealPort = FCString::Atoi(*EnteredPort);
-        if(!RealPort && EnteredPort != "0")
-        {
-            MyConsole->WriteLine("&4&*error:&r Port is not a number.&7");
-            return;
-        }
-
-        this->ShowCoverTutorial();
-
-        MyConsole->WriteLine("GIGASPLOIT PORT ANALYSIS:");
-        MyConsole->WriteLine("    " + this->RemoteSystem->GetIPAddress() + ":" + EnteredPort + "\n");
-
-        for(auto Service : this->RemoteSystem->GetComputer().FirewallRules)
-        {
-            if(Service.Port == RealPort && !Service.IsCrashed)
-            {
-                bool FoundVulns = false;
-
-                MyConsole->WriteLine("Protocol: " + Service.Service->Protocol->Name.ToString());
-                MyConsole->WriteLine("Detected implementation: " + Service.Service->Name.ToString() + "\n");
-
-                if(Service.IsFiltered)
-                {
-                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": connection blocked by firewall on port " + FString::FromInt(Service.Port));
-                    MyConsole->WriteLine("&4&*Service is filtered.&r&7 Firewall detected.");
-                }
-                else
-                {
-                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": connected to port " + FString::FromInt(Service.Port));
-                    MyConsole->WriteLine("Known vulnerabilities:\n");
-
-                    for(auto Exp : MyConsole->GetUserContext()->GetExploits())
-                    {
-                        if(Exp->Targets.Contains(Service.Service))
-                        {
-                            FoundVulns = true;
-                            MyConsole->WriteLine(" - " + Exp->ID.ToString());
-                        }
-                    }
-
-                    if(!FoundVulns)
-                    {
-                        MyConsole->WriteLine(" - &4&*Error:&7&r Gigasploit doesn't know any vulnerabilities in this service's implementation.");
-                    }
-
-                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
-                }
-
-                MyConsole->GetUserContext()->GetPeacenet()->SendGameEvent("HackAnalyze", {
-                    { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID) },
-                    { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID) },
-                    { "Port", EnteredPort },
-                    { "Protocol", Service.Service->Protocol->Name.ToString() },
-                    { "Implementation", Service.Service->Name.ToString() },
-                    { "Filtered", (Service.IsFiltered) ? "True" : "False" },
-                    { "Vulnerable", (FoundVulns) ? "True" : "False" }
-                });
-
-                return;
-            }
-        }
-
-        MyConsole->WriteLine("&4&*Analysis failed:&r&7 Remote system not listening on this port.");
-
-        return;
-    }
-
-    if(InCommandName == "attack")
-    {
-        if(!InArguments.Num())
-        {
-            MyConsole->WriteLine("&4&*error:&r too few arguments. You must specify a port to attack.&7");
-            return;
-        }
-
-        if(!this->CurrentExploit)
-        {
-            MyConsole->WriteLine("&4&*error:&r You must select an exploit to use first.&7");
-            return;
-        }
-
-        if(!this->CurrentPayload)
-        {
-            MyConsole->WriteLine("&4&*error:&r You must select a payload to use first.&7");
-            return;
-        }
-
-        FString EnteredPort = InArguments[0];
-        int RealPort = FCString::Atoi(*EnteredPort);
-        if(!RealPort && EnteredPort != "0")
-        {
-            MyConsole->WriteLine("&4&*error:&r Port is not a number.&7");
-            return;
-        }
-
-        MyConsole->WriteLine("Finding service on &3" + EnteredHostname + "&7:&6" + EnteredPort + "&7...");
-
-        this->HandleCommand("scan", InArguments);
-
-        for(auto& Service : this->RemoteSystem->GetComputer().FirewallRules)
-        {
-            if(Service.Port == RealPort)
-            {
-                this->SendGameEvent("HackAttempt", {
-                    { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID)},
-                    { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID)},
-                    { "Exploit", this->CurrentExploit->ID.ToString()},
-                    { "Payload", this->CurrentPayload->Name.ToString()},
-                    { "Port", FString::FromInt(RealPort)},
-                    { "Protocol", Service.Service->Protocol->Name.ToString()},
-                    { "ServerSoftware", Service.Service->Name.ToString()}
-                });
-
-                if(Service.IsCrashed)
-                {
-                    MyConsole->WriteLine("Connection refused.");
-
-                    this->SendGameEvent("HackFail", {
-                        { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID)},
-                        { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID)},
-                        { "Exploit", this->CurrentExploit->ID.ToString()},
-                        { "Payload", this->CurrentPayload->Name.ToString()},
-                        { "Port", FString::FromInt(RealPort)},
-                        { "Protocol", Service.Service->Protocol->Name.ToString()},
-                        { "ServerSoftware", Service.Service->Name.ToString()},
-                        { "Reason", "Crash"}
-                    });
-
-                    return;
-                }
-
-                MyConsole->WriteLine("Service is &F" + Service.Service->Name.ToString() + "&7.");
-
-                if(Service.IsFiltered)
-                {
-                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": connection blocked by firewall on port " + FString::FromInt(Service.Port));
-
-                    MyConsole->WriteLine("Service is &4&*FILTERED&r&7! Can't continue with exploit.");
-                    
-                    this->SendGameEvent("HackFail", {
-                        { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID)},
-                        { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID)},
-                        { "Exploit", this->CurrentExploit->ID.ToString()},
-                        { "Payload", this->CurrentPayload->Name.ToString()},
-                        { "Port", FString::FromInt(RealPort)},
-                        { "Protocol", Service.Service->Protocol->Name.ToString()},
-                        { "ServerSoftware", Service.Service->Name.ToString()},
-                        { "Reason", "Firewall"}
-                    });
-                    
-                    return;
-                }
-
-                MyConsole->WriteLine("Service is &3OPEN&7.");
-
-                this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": connected to port " + FString::FromInt(Service.Port));
-
-                if(this->CurrentExploit->Targets.Contains(Service.Service))
-                {
-                    MyConsole->WriteLine("Service is &3&*vulnerable&r&7 to the &6&*" + this->CurrentExploit->FullName.ToString() + "&r&7 exploit.");
-
-                    MyConsole->WriteLine("Deploying &4&*" + this->CurrentPayload->Name.ToString() + "&r&7...");
-
-                    if(this->ShouldCrashService())
-                    {
-                        this->RemoteSystem->AppendLog(Service.Service->Name.ToString() + ": service stopped unexpectedly.");
-                        this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
-                        Service.IsCrashed = true;
-                        MyConsole->WriteLine("Connection refused.");
-                        return;
-                    }
-
-                    UUserContext* PayloadUser = this->RemoteSystem->GetHackerContext(0, MyConsole->GetUserContext());
-
-                    TScriptDelegate<> DisconnectedEvent;
-                    DisconnectedEvent.BindUFunction(this, "OnDisconnect");
-                    this->CurrentPayload->Payload->Disconnected.Add(DisconnectedEvent);
-
-                    this->IsPayloadActive = true;
-
-                    this->CurrentPayload->Payload->DeployPayload(this->GetConsole(), MyConsole->GetUserContext(), PayloadUser);
-
-                    this->SendGameEvent("PayloadDeploy", {
-                        { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID)},
-                        { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID)},
-                        { "Exploit", this->CurrentExploit->ID.ToString()},
-                        { "Payload", this->CurrentPayload->Name.ToString()},
-                        { "Port", FString::FromInt(RealPort)},
-                        { "Protocol", Service.Service->Protocol->Name.ToString()},
-                        { "ServerSoftware", Service.Service->Name.ToString()}
-                    });
-
-                    this->ShowPayloadTutorial();
-
-                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
-
-                    return;
-                }
-                else
-                {
-                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
-                    MyConsole->WriteLine("Service is &4&*not vulnerable&r&7 to this exploit. Cannot drop payload.");
-                    return;
-                }
-            }
-        }
-
-    }
-}
-
 void AHackCommand::OnDisconnect()
 {
     this->IsPayloadActive = false;
@@ -446,63 +57,36 @@ void AHackCommand::OnDisconnect()
         { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID)},
         { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID)}
     });
-    this->HandleCommand("exit", { "" });
+    this->RunSpecialCommand(this->GetConsole(), "exit", {""});
+}
+
+FString AHackCommand::GetShellPrompt()
+{
+    FString Prompt = "&3" + this->EnteredHostname + " &7(";
+    
+    if(this->CurrentExploit)
+    {
+        Prompt += "&6&*" + this->CurrentExploit->ID.ToString() + "&r&F";
+    }
+    else
+    {
+        Prompt += "&6&*none&r&F";
+    }
+    Prompt += "/";
+    if(this->CurrentPayload)
+    {
+        Prompt += "&C&*" + this->CurrentPayload->Name.ToString() + "&r&7";
+    }
+    else
+    {
+        Prompt += "&C&*none&r&7";
+    }
+    Prompt += ")> ";
+    return Prompt;
 }
 
 void AHackCommand::Tick(float InDeltaSeconds)
 {
-    if(this->WaitingForCommand)
-    {
-        FString Command;
-        if(this->GetConsole()->GetLine(Command))
-        {
-            FString OutputError;
-            TArray<FString> Tokens = UTerminalCommandParserLibrary::Tokenize(Command, this->GetConsole()->GetUserContext()->GetHomeDirectory(), OutputError);
-            this->WaitingForCommand = false;
-
-            if(OutputError.Len())
-            {
-                this->GetConsole()->WriteLine("error: " + OutputError);
-                return;
-            }
-
-            if(Tokens.Num())
-            {
-                FString SubCommandName = Tokens[0].ToLower();
-                Tokens.RemoveAt(0);
-                this->HandleCommand(SubCommandName, Tokens);
-            }
-            
-        }
-    }
-    else
-    {
-        if(!this->IsPayloadActive)
-        {
-            this->GetConsole()->Write("&3" + this->EnteredHostname + " &7(");
-            if(this->CurrentExploit)
-            {
-                this->GetConsole()->Write("&6&*" + this->CurrentExploit->ID.ToString() + "&r&F");
-            }
-            else
-            {
-                this->GetConsole()->Write("&6&*none&r&F");
-            }
-            this->GetConsole()->Write("/");
-            if(this->CurrentPayload)
-            {
-                this->GetConsole()->Write("&C&*" + this->CurrentPayload->Name.ToString() + "&r&7");
-            }
-            else
-            {
-                this->GetConsole()->Write("&C&*none&r&7");
-            }
-            this->GetConsole()->Write(")> ");
-
-            this->WaitingForCommand = true;
-        }
-    }
-
     if(!this->IsTutorialActive())
     {
         if(this->IsSet("gigasploit.firstScan"))
@@ -547,6 +131,13 @@ void AHackCommand::Tick(float InDeltaSeconds)
         {
             this->GetUserContext()->SetStealthiness(stealthiness);
         }
+    }
+
+    // If the payload is NOT active then we'll call up to our base Tick method to let the
+    // shell system take over.
+    if(!this->IsPayloadActive)
+    {
+        Super::Tick(InDeltaSeconds);
     }
 }
 
@@ -661,4 +252,381 @@ void AHackCommand::ShowPayloadTutorial()
         NSLOCTEXT("Tutorials", "CoverTitle", "Cover"),
         NSLOCTEXT("Tutorials", "CoverCleanup", "Every action you perform on a remote system has the potential of <bad>leaving tracks behind</> in the form of <ui>log files</>.\r\n\r\nTo avoid <bad>blowing your cover</>, be sure to <ui>delete</> any logs left in <cmd>/var/log</>.")
     );
+}
+
+bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command, TArray<FString> Arguments)
+{
+    if(Command == "exploits")
+    {
+        FString SearchQuery = "";
+        for(auto Arg : Arguments)
+        {
+            SearchQuery += Arg + " ";
+        }
+
+        SearchQuery = SearchQuery.TrimStartAndEnd();
+
+        TArray<FString> ExploitNames;
+    
+        InConsole->WriteLine("\t&FAvailable exploits");
+        InConsole->WriteLine("\t--------------------&7\n");
+
+        bool FoundExploit = false;
+
+        for(auto Exploit : InConsole->GetUserContext()->GetExploits())
+        {
+            FString ExploitName = Exploit->ID.ToString();
+            if(SearchQuery.Len() == 0 || ExploitName.Contains(SearchQuery, ESearchCase::IgnoreCase))
+            {
+                FoundExploit = true;
+                InConsole->WriteLine("\t" + ExploitName, 0.2f);
+            }
+        }
+
+        if(!FoundExploit)
+            InConsole->WriteLine("\t&4No exploits found matching that query.&7");
+
+        InConsole->WriteLine("");
+        return true;
+    }
+
+    if(Command == "payloads")
+    {
+        FString SearchQuery = "";
+        for(auto Arg : Arguments)
+        {
+            SearchQuery += Arg + " ";
+        }
+
+        SearchQuery = SearchQuery.TrimStartAndEnd();
+
+        TArray<FString> ExploitNames;
+    
+        InConsole->WriteLine("\t&FAvailable payloads");
+        InConsole->WriteLine("\t--------------------&7\n");
+
+        bool FoundExploit = false;
+
+        for(auto Exploit : InConsole->GetUserContext()->GetPayloads())
+        {
+            FString ExploitName = Exploit->Name.ToString();
+            if(SearchQuery.Len() == 0 || ExploitName.Contains(SearchQuery, ESearchCase::IgnoreCase))
+            {
+                FoundExploit = true;
+                InConsole->WriteLine("\t" + ExploitName, 0.2f);
+            }
+        }
+
+        if(!FoundExploit)
+            InConsole->WriteLine("\t&4No payloads found matching that query.&7");
+
+        InConsole->WriteLine("");
+        return true;
+    }
+
+    if(Command == "use")
+    {
+        if(!Arguments.Num())
+        {
+            InConsole->WriteLine("&4&*error:&r too few arguments given. Do you want to use an exploit or payload?&7");
+            return true;
+        }
+
+        FString ItemType = Arguments[0].ToLower();
+        Arguments.RemoveAt(0);
+
+        FString ExploitName = "";
+        for(FString Arg : Arguments)
+        {
+            ExploitName += Arg + " ";
+        }
+        ExploitName = ExploitName.TrimStartAndEnd();
+        
+        if(ItemType == "exploit")
+        {
+            for(auto Exploit : InConsole->GetUserContext()->GetExploits())
+            {
+                if(Exploit->ID.ToString() == ExploitName)
+                {
+                    InConsole->WriteLine("Using exploit &F" + Exploit->FullName.ToString() + "&7.");
+                    this->CurrentExploit = Exploit;
+                    return true;
+                }
+            }
+
+            InConsole->WriteLine("&4&*error:&r exploit doesn't exist.&7");
+            return true;
+        }
+        else if(ItemType == "payload")
+        {
+            for(auto Exploit : InConsole->GetUserContext()->GetPayloads())
+            {
+                if(Exploit->Name.ToString() == ExploitName)
+                {
+                    InConsole->WriteLine("Using payload &F" + ExploitName + "&7.");
+                    this->CurrentPayload = Exploit;
+                    return true;
+                }
+            }
+
+            InConsole->WriteLine("&4&*error:&r payload doesn't exist.&7");
+            return true;
+        }
+        else
+        {
+            InConsole->WriteLine("&4&*error:&r Invalid item type: &7" + ItemType);
+            return true;
+        }
+    }
+
+    if(Command == "scan")
+    {
+        InConsole->GetUserContext()->GetPeacenet()->SaveGame->SetValue("gigasploit.firstScan", true);
+
+        InConsole->WriteLine("Performing Nmap scan on remote system...", 0.3f);
+        InConsole->WriteLine("");
+        InConsole->WriteLine("PORT\t\tSTATUS\tSERVICE", 0.5f);
+        InConsole->WriteLine("-----\t\t-------\t--------");
+        InConsole->WriteLine("");
+        this->RemoteSystem->GetPeacenet()->GetProcgen()->GenerateFirewallRules(this->RemoteSystem->GetComputer());
+        for(auto Service : this->RemoteSystem->GetComputer().FirewallRules)
+        {
+            if(Service.IsCrashed) continue;
+
+            InConsole->Write(FString::FromInt(Service.Port), 1.f);
+            InConsole->Write("\t\t");
+
+            if(Service.IsFiltered)
+            {
+                InConsole->Write("&4filtered&7");
+            }
+            else
+            {
+                InConsole->Write("&3open&7");
+            }
+            InConsole->Write("\t");
+            InConsole->WriteLine(Service.Service->Protocol->Name.ToString());
+        }
+        return true;
+    }
+
+    if(Command == "analyze")
+    {
+        if(!Arguments.Num())
+        {
+            InConsole->WriteLine("&4&*error:&r too few arguments. You must specify a port to analyze.&7");
+            return true;
+        }
+
+        FString EnteredPort = Arguments[0];
+        int RealPort = FCString::Atoi(*EnteredPort);
+        if(!RealPort && EnteredPort != "0")
+        {
+            InConsole->WriteLine("&4&*error:&r Port is not a number.&7");
+            return true;
+        }
+
+        this->ShowCoverTutorial();
+
+        InConsole->WriteLine("GIGASPLOIT PORT ANALYSIS:");
+        InConsole->WriteLine("    " + this->RemoteSystem->GetIPAddress() + ":" + EnteredPort + "\n");
+
+        for(auto Service : this->RemoteSystem->GetComputer().FirewallRules)
+        {
+            if(Service.Port == RealPort && !Service.IsCrashed)
+            {
+                bool FoundVulns = false;
+
+                InConsole->WriteLine("Protocol: " + Service.Service->Protocol->Name.ToString());
+                InConsole->WriteLine("Detected implementation: " + Service.Service->Name.ToString() + "\n");
+
+                if(Service.IsFiltered)
+                {
+                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": connection blocked by firewall on port " + FString::FromInt(Service.Port));
+                    InConsole->WriteLine("&4&*Service is filtered.&r&7 Firewall detected.");
+                }
+                else
+                {
+                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": connected to port " + FString::FromInt(Service.Port));
+                    InConsole->WriteLine("Known vulnerabilities:\n");
+
+                    for(auto Exp : InConsole->GetUserContext()->GetExploits())
+                    {
+                        if(Exp->Targets.Contains(Service.Service))
+                        {
+                            FoundVulns = true;
+                            InConsole->WriteLine(" - " + Exp->ID.ToString());
+                        }
+                    }
+
+                    if(!FoundVulns)
+                    {
+                        InConsole->WriteLine(" - &4&*Error:&7&r Gigasploit doesn't know any vulnerabilities in this service's implementation.");
+                    }
+
+                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
+                }
+
+                InConsole->GetUserContext()->GetPeacenet()->SendGameEvent("HackAnalyze", {
+                    { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID) },
+                    { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID) },
+                    { "Port", EnteredPort },
+                    { "Protocol", Service.Service->Protocol->Name.ToString() },
+                    { "Implementation", Service.Service->Name.ToString() },
+                    { "Filtered", (Service.IsFiltered) ? "True" : "False" },
+                    { "Vulnerable", (FoundVulns) ? "True" : "False" }
+                });
+
+                return true;
+            }
+        }
+
+        InConsole->WriteLine("&4&*Analysis failed:&r&7 Remote system not listening on this port.");
+
+        return true;
+    }
+
+    if(Command == "attack")
+    {
+        if(!Arguments.Num())
+        {
+            InConsole->WriteLine("&4&*error:&r too few arguments. You must specify a port to attack.&7");
+            return true;
+        }
+
+        if(!this->CurrentExploit)
+        {
+            InConsole->WriteLine("&4&*error:&r You must select an exploit to use first.&7");
+            return true;
+        }
+
+        if(!this->CurrentPayload)
+        {
+            InConsole->WriteLine("&4&*error:&r You must select a payload to use first.&7");
+            return true;
+        }
+
+        FString EnteredPort = Arguments[0];
+        int RealPort = FCString::Atoi(*EnteredPort);
+        if(!RealPort && EnteredPort != "0")
+        {
+            InConsole->WriteLine("&4&*error:&r Port is not a number.&7");
+            return true;
+        }
+
+        InConsole->WriteLine("Finding service on &3" + EnteredHostname + "&7:&6" + EnteredPort + "&7...");
+
+        this->RunSpecialCommand(InConsole, "scan", Arguments);
+
+        for(auto& Service : this->RemoteSystem->GetComputer().FirewallRules)
+        {
+            if(Service.Port == RealPort)
+            {
+                this->SendGameEvent("HackAttempt", {
+                    { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID)},
+                    { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID)},
+                    { "Exploit", this->CurrentExploit->ID.ToString()},
+                    { "Payload", this->CurrentPayload->Name.ToString()},
+                    { "Port", FString::FromInt(RealPort)},
+                    { "Protocol", Service.Service->Protocol->Name.ToString()},
+                    { "ServerSoftware", Service.Service->Name.ToString()}
+                });
+
+                if(Service.IsCrashed)
+                {
+                    InConsole->WriteLine("Connection refused.");
+
+                    this->SendGameEvent("HackFail", {
+                        { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID)},
+                        { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID)},
+                        { "Exploit", this->CurrentExploit->ID.ToString()},
+                        { "Payload", this->CurrentPayload->Name.ToString()},
+                        { "Port", FString::FromInt(RealPort)},
+                        { "Protocol", Service.Service->Protocol->Name.ToString()},
+                        { "ServerSoftware", Service.Service->Name.ToString()},
+                        { "Reason", "Crash"}
+                    });
+
+                    return true; 
+                }
+
+                InConsole->WriteLine("Service is &F" + Service.Service->Name.ToString() + "&7.");
+
+                if(Service.IsFiltered)
+                {
+                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": connection blocked by firewall on port " + FString::FromInt(Service.Port));
+
+                    InConsole->WriteLine("Service is &4&*FILTERED&r&7! Can't continue with exploit.");
+                    
+                    this->SendGameEvent("HackFail", {
+                        { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID)},
+                        { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID)},
+                        { "Exploit", this->CurrentExploit->ID.ToString()},
+                        { "Payload", this->CurrentPayload->Name.ToString()},
+                        { "Port", FString::FromInt(RealPort)},
+                        { "Protocol", Service.Service->Protocol->Name.ToString()},
+                        { "ServerSoftware", Service.Service->Name.ToString()},
+                        { "Reason", "Firewall"}
+                    });
+                    
+                    return true;
+                }
+
+                InConsole->WriteLine("Service is &3OPEN&7.");
+
+                this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": connected to port " + FString::FromInt(Service.Port));
+
+                if(this->CurrentExploit->Targets.Contains(Service.Service))
+                {
+                    InConsole->WriteLine("Service is &3&*vulnerable&r&7 to the &6&*" + this->CurrentExploit->FullName.ToString() + "&r&7 exploit.");
+
+                    InConsole->WriteLine("Deploying &4&*" + this->CurrentPayload->Name.ToString() + "&r&7...");
+
+                    if(this->ShouldCrashService())
+                    {
+                        this->RemoteSystem->AppendLog(Service.Service->Name.ToString() + ": service stopped unexpectedly.");
+                        this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
+                        Service.IsCrashed = true;
+                        InConsole->WriteLine("Connection refused.");
+                        return true;
+                    }
+
+                    UUserContext* PayloadUser = this->RemoteSystem->GetHackerContext(0, InConsole->GetUserContext());
+
+                    TScriptDelegate<> DisconnectedEvent;
+                    DisconnectedEvent.BindUFunction(this, "OnDisconnect");
+                    this->CurrentPayload->Payload->Disconnected.Add(DisconnectedEvent);
+
+                    this->IsPayloadActive = true;
+
+                    this->CurrentPayload->Payload->DeployPayload(this->GetConsole(), InConsole->GetUserContext(), PayloadUser);
+
+                    this->SendGameEvent("PayloadDeploy", {
+                        { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID)},
+                        { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID)},
+                        { "Exploit", this->CurrentExploit->ID.ToString()},
+                        { "Payload", this->CurrentPayload->Name.ToString()},
+                        { "Port", FString::FromInt(RealPort)},
+                        { "Protocol", Service.Service->Protocol->Name.ToString()},
+                        { "ServerSoftware", Service.Service->Name.ToString()}
+                    });
+
+                    this->ShowPayloadTutorial();
+
+                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
+
+                    return true;
+                }
+                else
+                {
+                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
+                    InConsole->WriteLine("Service is &4&*not vulnerable&r&7 to this exploit. Cannot drop payload.");
+                    return true;
+                }
+            }
+        }
+        return true;
+    }
+
+    return false;
 }

@@ -33,6 +33,7 @@
 
 #include "CoreMinimal.h"
 #include "TerminalCommand.h"
+#include "CommandShell.h"
 #include "Exploit.h"
 #include "Payload.h"
 #include "PayloadAsset.h"
@@ -40,12 +41,9 @@
 #include "HackCommand.generated.h"
 
 UCLASS(BlueprintType)
-class PROJECTOGLOWIA_API AHackCommand : public ATerminalCommand
+class PROJECTOGLOWIA_API AHackCommand : public ACommandShell
 {
     GENERATED_BODY()
-
-public:
-    AHackCommand();
 
 private:
     UPROPERTY()
@@ -66,9 +64,6 @@ private:
     UPROPERTY()
     UPayloadAsset* CurrentPayload;
 
-    UPROPERTY()
-    bool WaitingForCommand = false;
-
 protected:
     UFUNCTION()
     float AssessStealthiness();
@@ -79,11 +74,12 @@ protected:
     UFUNCTION()
     void OnDisconnect();
 
-    UFUNCTION()
-    void HandleCommand(FString InCommandName, TArray<FString> InArguments);
-
+    virtual bool AllowRedirection() override { return false; }
+    virtual bool AllowPipes() override { return false; }
+    virtual FString GetShellPrompt() override;
     virtual void Tick(float InDeltaSeconds) override;
     virtual void NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) override;
+    virtual bool RunSpecialCommand(UConsoleContext* InConsole, FString Command, TArray<FString> Arguments) override;
 
     UFUNCTION()
     void ShowCoverTutorial();
