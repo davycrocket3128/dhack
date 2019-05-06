@@ -70,6 +70,7 @@ protected:
 protected:
     virtual bool AllowRedirection() { return false; }
     virtual bool AllowPipes() { return false; }
+    virtual bool AutoCompleteSpecials() { return true; }
     virtual ATerminalCommand* GetCommand(FString Command) { return nullptr; }
     virtual bool RunSpecialCommand(UConsoleContext* InConsole, FString Command, TArray<FString> Arguments) { return false; }
     virtual FString GetShellPrompt() { return "> "; }

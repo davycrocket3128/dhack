@@ -294,7 +294,15 @@ void ACommandShell::ExecuteNextCommand()
 
     // Try to run the command as a special command.  If this is successful then the game will
     // wait for that command to complete.
-    if(this->RunSpecialCommand(this->CurrentConsole, this->Instructions[0].Command, this->Instructions[0].Arguments)) return;
+    if(this->RunSpecialCommand(this->CurrentConsole, this->Instructions[0].Command, this->Instructions[0].Arguments))
+    {
+        // If we're supposed to auto-complete after the command's done, then we'll do that now.
+        if(this->AutoCompleteSpecials())
+        {
+            this->FinishSpecialCommand();
+        }
+        return;
+    }
 
     // If the above ends up failing then we'll try to spawn in a terminal command actor.
     this->CurrentCommand = this->GetCommand(this->Instructions[0].Command);
