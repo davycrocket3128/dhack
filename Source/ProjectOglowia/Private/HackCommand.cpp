@@ -236,6 +236,9 @@ void AHackCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
             NSLOCTEXT("CommandNames", "Gigasploit", "Gigasploit Framework Console"),
             NSLOCTEXT("Tutorials", "GigasploitWelcome", "This is the <ui>Gigasploit Framework Console</>.\r\n\r\nMost <bad>hacking</> operations will be performed here.\r\n\r\nTo <bad>hack</> a system, you must select an <ui>exploit</>, a <ui>payload</>, and attack a <ui>service</>.\r\n\r\nTo <ui>scan</> the system for hack-able <ui>services</>, run the <cmd>scan</> command.")
         );
+
+    // Generate all the firewall rules for our remote system if necessary.
+    this->RemoteSystem->GetPeacenet()->GetProcgen()->GenerateFirewallRules(this->RemoteSystem->GetComputer());
 }
 
 void AHackCommand::ShowCoverTutorial()
@@ -388,7 +391,6 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
         InConsole->WriteLine("PORT\t\tSTATUS\tSERVICE", 0.5f);
         InConsole->WriteLine("-----\t\t-------\t--------");
         InConsole->WriteLine("");
-        this->RemoteSystem->GetPeacenet()->GetProcgen()->GenerateFirewallRules(this->RemoteSystem->GetComputer());
         for(auto Service : this->RemoteSystem->GetComputer().FirewallRules)
         {
             if(Service.IsCrashed) continue;
