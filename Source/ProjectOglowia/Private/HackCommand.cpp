@@ -57,7 +57,9 @@ void AHackCommand::OnDisconnect()
         { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID)},
         { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID)}
     });
-    this->RunSpecialCommand(this->GetConsole(), "exit", {""});
+    
+    // Finish up.
+    this->Complete();
 }
 
 FString AHackCommand::GetShellPrompt()
