@@ -78,4 +78,8 @@ public:
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Tasks")
     TArray<FMissionTaskInfo> Tasks;
+
+    // Whether or not the game should change the song(s) played during Free Roam.
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "When The Fucking Mission Is Completed")
+    bool UpdateFreeRoamMusicState = false;
 };

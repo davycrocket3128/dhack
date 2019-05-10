@@ -85,6 +85,15 @@ void AMissionActor::Complete()
     // Tell The Peacenet that we've completed.
     this->Peacenet->EndMission();
 
+    // If the mission says "update the music state" then we'll do that now.
+    if(this->Mission->UpdateFreeRoamMusicState)
+    {
+        // Because I'm a good programmer with a ton of confidence and happiness thanks to
+        // a certain friend of mine with red hair, I have already created a function in the public
+        // API for doing EXACTLY what this if statement needs to do on truth.  NO. CODE. DUPLICATION.
+        this->Peacenet->IncreaseGameStat("StoryMusicState");        
+    }
+
     // Allow the game to show a "mission completed" UI.
     this->Peacenet->BroadcastMissionComplete(this->Mission);
 
