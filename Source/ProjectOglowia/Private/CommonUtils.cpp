@@ -36,6 +36,91 @@
 #include "PlatformApplicationMisc.h"
 #include "SystemContext.h"
 
+FText UCommonUtils::GetRichTextSegment(const FText& InSourceText, int InEndIndex, bool& FoundIncompleteTag, int& TrueEndIndex)
+{
+	// Convert the source text to a string, that way we can more easily perform parsing
+	// on it.
+	FString SourceString = InSourceText.ToString();
+
+	// Are we currently in a rich tag?
+	bool InRichTag = false;
+
+	// The current tag text.
+	FString TagIdentifier = "";
+
+	// Keep track of the loop index outside of the loop.
+	int i = 0;
+
+	// Go through every character in the source string UNTIL THE END INDEX.
+	for(i = 0; i < SourceString.Len() && i < InEndIndex; i++)
+	{
+		// Get the current character.
+		TCHAR c = SourceString[i];
+
+		// Are we outside of a tag?
+		if(!InRichTag)
+		{
+			// Check if the current character is the start of a tag.
+			if(c == '<')
+			{
+				// We're now in a tag.
+				InRichTag = true;
+				TagIdentifier = FString::Chr(c);
+				continue;
+			}
+		}
+		else
+		{
+			// If we are in a tag, add the current character to the identifier...
+			TagIdentifier = TagIdentifier.AppendChar(c);
+
+			// And check if the current character is the ending of a tag.
+			if(c == '>')
+			{
+				// We're no longer in the tag.
+				InRichTag = false;
+			}
+		}
+	}
+
+	// If we're still in a tag then continue until we hit the end tag.
+	if(InRichTag)
+	{
+		FoundIncompleteTag = true;
+		for(i = i; i < SourceString.Len(); i++)
+		{
+			TCHAR c = SourceString[i];
+			TagIdentifier = TagIdentifier.AppendChar(c);
+			if(c == '>')
+			{
+				InRichTag = false;
+				break;
+			}
+		}	
+	}
+	else
+	{
+		FoundIncompleteTag = false;
+	}
+
+	// Wherever i is now, we can grab a substring starting from index 0 to i and that's
+	// the text we're going to return.
+	FString ReturnedText = SourceString.Left(i);
+
+	// Unless the tag identifier isn't empty and is not equal to "</>".
+	if(TagIdentifier.Len() && TagIdentifier != "</>")
+	{
+		// Then we append "</>" to the end of returned text.
+		ReturnedText = ReturnedText.Append("</>");
+	}
+
+	// Output where we left off in the string.
+	TrueEndIndex = i;
+
+	// And then we return it.
+	return FText::FromString(ReturnedText);
+}
+
 int UCommonUtils::GetRAMAmount(ERAMAmount InRAMAmount)
 {
 	switch(InRAMAmount)

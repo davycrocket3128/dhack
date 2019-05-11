@@ -111,6 +111,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Settings")
 	static void SetEnableBloom(UCameraComponent* InCamera, bool InEnableBloom);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Cool Shit")
+	static FText GetRichTextSegment(const FText& InSourceText, int InEndIndex, bool& FoundIncompleteTag, int& TrueEndIndex);
 };
 
 template<typename T>
