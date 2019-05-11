@@ -34,6 +34,8 @@
 
 #include "CoreMinimal.h"
 #include "ConsoleContext.h"
+#include "Text.h"
+#include "TextProperty.h"
 #include "PlaceboLatentAction.h"
 #include "PiperContext.generated.h"
 
@@ -55,18 +57,18 @@ private:
 	UConsoleContext* Output;
 
     UPROPERTY()
-	FString Log;
+	FText Log;
 
 public:	
     UFUNCTION()
     void SetupPiper(UPiperContext* InInput, UConsoleContext* InOutput);
 
     UFUNCTION()
-    FString GetLog();
+    FText GetLog();
 
-	virtual void Write(const FString& InText, float DeltaSeconds) override;
-	virtual void WriteLine(const FString& InText, float DeltaSeconds) override;
-	virtual void OverwriteLine(const FString& InText, float DeltaSeconds) override;
+	virtual void Write(const FText& InText, float DeltaSeconds) override;
+	virtual void WriteLine(const FText& InText, float DeltaSeconds) override;
+	virtual void OverwriteLine(const FText& InText, float DeltaSeconds) override;
 	virtual UConsoleContext* CreateChildContext(USystemContext* InSystemContext, int InUserID) override;
 	virtual void Clear() override;
 	virtual bool GetLine(FString& OutLine) override;

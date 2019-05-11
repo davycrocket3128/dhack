@@ -39,7 +39,7 @@ ACommandShell::ACommandShell()
     PrimaryActorTick.bCanEverTick = true;
 }
 
-FPeacegateCommandInstruction ACommandShell::ParseCommand(const FString& InCommand, FString InHome, FString& OutputError)
+FPeacegateCommandInstruction ACommandShell::ParseCommand(const FString& InCommand, FString InHome, FText& OutputError)
 {
 	//This is the list of commands to run in series
 	TArray<FString> commands;
@@ -112,7 +112,7 @@ FPeacegateCommandInstruction ACommandShell::ParseCommand(const FString& InComman
 				{
 					if (current.TrimStartAndEnd().IsEmpty())
 					{
-						OutputError = TEXT("unexpected token '|' (pipe)");
+						OutputError = NSLOCTEXT("Shell", "UnexpectedPipe", "unexpected token '|' (pipe)");
 						return FPeacegateCommandInstruction::Empty();
 					}
 					commands.Add(current.TrimStartAndEnd());
@@ -133,7 +133,7 @@ FPeacegateCommandInstruction ACommandShell::ParseCommand(const FString& InComman
 					}
 					else
 					{
-						OutputError = TEXT("unexpected whitespace in filename.");
+						OutputError = NSLOCTEXT("Shell", "UnexpectedWhitespace", "unexpected whitespace in filename.");
 						return FPeacegateCommandInstruction::Empty();
 					}
 				}
@@ -156,7 +156,7 @@ FPeacegateCommandInstruction ACommandShell::ParseCommand(const FString& InComman
 						shouldOverwriteOnFileRedirect = false;
 					}
 					else {
-						OutputError = TEXT("unexpected token '>' (redirect) in filename");
+						OutputError = NSLOCTEXT("Shell", "UnexpectedRedirect", "unexpected token '>' (redirect) in filename");
 						return FPeacegateCommandInstruction::Empty();
 					}
 					continue;
@@ -173,12 +173,12 @@ FPeacegateCommandInstruction ACommandShell::ParseCommand(const FString& InComman
 	}
 	if (inQuote)
 	{
-		OutputError = TEXT("expected closing quotation mark, got end of command.");
+		OutputError = NSLOCTEXT("Shell", "ExpectedQuote", "expected closing quotation mark, got end of command.");
 		return FPeacegateCommandInstruction::Empty();
 	}
 	if (escaping)
 	{
-		OutputError = TEXT("expected escape sequence, got end of command.");
+		OutputError = NSLOCTEXT("Shell", "UnfinishedEscape", "expected escape sequence, got end of command.");
 		return FPeacegateCommandInstruction::Empty();
 	}
 	if (!current.IsEmpty())
@@ -325,7 +325,7 @@ void ACommandShell::ExecuteNextCommand()
     }
     
     // Command not found.
-    this->CurrentConsole->WriteLine(this->Instructions[0].Command + ": Command not found.");
+    this->CurrentConsole->WriteLine(FText::Format(NSLOCTEXT("Shell", "CommandNotFound", "{0}: Command not found."), FText::FromString(this->Instructions[0].Command)));
     this->CommandCompleted();
 }
 
@@ -362,11 +362,11 @@ void ACommandShell::ExecuteLine(FString Input)
     }
 
     // Parse the command into a list of instructions.
-    FString Error = "";
+    FText Error = FText::GetEmpty();
     FPeacegateCommandInstruction InstructionData = this->ParseCommand(Input, this->GetUserContext()->GetHomeDirectory(), Error);
 
     // Output the error if there is any.
-    if(Error.Len())
+    if(!Error.IsEmpty())
     {
         this->GetConsole()->WriteLine(Error);
         return;
@@ -387,7 +387,7 @@ void ACommandShell::ExecuteLine(FString Input)
         // Then make DAMN sure the file path doesn't point to a directory.
 		if (this->GetUserContext()->GetFilesystem()->DirectoryExists(InstructionData.OutputFile))
 		{
-			this->GetConsole()->WriteLine("`3`*error: " + InstructionData.OutputFile + ": Directory exists.`1`r");
+			this->GetConsole()->WriteLine(FText::Format(NSLOCTEXT("Shell", "OutputFileIsDirectory", "error: {0}: Directory exists."), FText::FromString(InstructionData.OutputFile)));
 			return;
 		}
 	}
@@ -416,10 +416,10 @@ void ACommandShell::ExecuteLine(FString Input)
 
         // Parse the command into a list of tokens which will be passed as the argument list.
         // This also lets us know the name of the command which is used to locate the command object.
-        TArray<FString> Tokens = UTerminalCommandParserLibrary::Tokenize(Command, Home, Error);
+        TArray<FString> Tokens = this->Tokenize(Command, Home, Error);
 
         // If there's an error, fail.
-        if(Error.Len())
+        if(!Error.IsEmpty())
         {
             this->GetConsole()->WriteLine(Error);
             return;
@@ -538,4 +538,118 @@ void ACommandShell::WriteToHistory(FString Input)
 
     // Write it to disk.
     FileSystem->WriteText(HistoryPath, History);
+}
+
+TArray<FString> ACommandShell::Tokenize(const FString& InCommand, const FString& Home, FText& OutputError) 
+{
+	TArray<FString> tokens;
+	FString current = TEXT("");
+	bool escaping = false;
+	bool inQuote = false;
+
+	int cmdLength = InCommand.Len();
+
+	TArray<TCHAR> cmd = InCommand.GetCharArray();
+
+	for (int i = 0; i < cmdLength; i++)
+	{
+		TCHAR c = cmd[i];
+		if (c == TEXT('\\'))
+		{
+			if (escaping == false)
+				escaping = true;
+			else
+			{
+				escaping = false;
+				current.AppendChar(c);
+			}
+			continue;
+		}
+		if (escaping == true)
+		{
+			switch (c)
+			{
+			case TEXT(' '):
+				current.AppendChar(TEXT(' '));
+				break;
+			case TEXT('~'):
+				current.AppendChar(TEXT('~'));
+				break;
+			case TEXT('n'):
+				current.AppendChar(TEXT('\n'));
+				break;
+			case TEXT('r'):
+				current.AppendChar(TEXT('\r'));
+				break;
+			case TEXT('t'):
+				current.AppendChar(TEXT('\t'));
+				break;
+			case TEXT('"'):
+				current.AppendChar(TEXT('"'));
+				break;
+			default:
+				OutputError = NSLOCTEXT("Shell", "UnrecognizedEscape", "unrecognized escape sequence.");
+				return TArray<FString>();
+			}
+			escaping = false;
+			continue;
+		}
+		if (c == TEXT('~'))
+		{
+			if (inQuote == false && current.IsEmpty())
+			{
+				current = current.Append(Home);
+				continue;
+			}
+		}
+		if (FChar::IsWhitespace(c))
+		{
+			if (inQuote)
+			{
+				current.AppendChar(c);
+			}
+			else
+			{
+				if (!current.IsEmpty())
+				{
+					tokens.Add(current);
+					current = TEXT("");
+				}
+			}
+			continue;
+		}
+		if (c == TEXT('"'))
+		{
+			inQuote = !inQuote;
+			if (!inQuote)
+			{
+				if (i + 1 < cmdLength)
+				{
+					if (cmd[i + 1] == TEXT('"'))
+					{
+						OutputError = NSLOCTEXT("Shell", "StringSplice", "String splice detected. Did you mean to use a literal double-quote (\\\")?");
+						return TArray<FString>();
+					}
+				}
+			}
+			continue;
+		}
+		current.AppendChar(c);
+	}
+	if (inQuote)
+	{
+		OutputError = NSLOCTEXT("Shell", "ExpectedDoubleQuote", "expected ending double-quote, got end of command instead.");
+		return TArray<FString>();
+	}
+	if (escaping)
+	{
+		OutputError = NSLOCTEXT("Shell", "ExpectedEscapeSequence", "expected escape sequence, got end of command instead.");
+		return TArray<FString>();
+	}
+	if (!current.IsEmpty())
+	{
+		tokens.Add(current);
+		current = TEXT("");
+	}
+	return tokens;
 }

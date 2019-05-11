@@ -51,12 +51,12 @@ public:
 	float Countdown;
 	float CountdownTime;
 
-	FTerminalSlowTypeLatentAction(UPTerminalWidget* InTerminal, const FLatentActionInfo& InLatentInfo, const FString& InText, float InCountdown)
+	FTerminalSlowTypeLatentAction(UPTerminalWidget* InTerminal, const FLatentActionInfo& InLatentInfo, const FText& InText, float InCountdown)
 		: TerminalWidgetInstance(InTerminal)
 		, ExecutionFunction(InLatentInfo.ExecutionFunction)
 		, OutputLink(InLatentInfo.Linkage)
 		, CallbackTarget(InLatentInfo.CallbackTarget)
-		, TextToWrite(InText.GetCharArray())
+		, TextToWrite(InText.ToString().GetCharArray())
 		, Countdown(InCountdown)
 		, CountdownTime(InCountdown)
 		{}

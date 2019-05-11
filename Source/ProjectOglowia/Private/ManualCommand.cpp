@@ -45,20 +45,20 @@ void AManualCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString
         if(ManualPage.ID.ToString() == ManualName)
         {
             // We have a match.
-            InConsole->WriteLine("&*&3" + ManualPage.FullName.ToString());
+            InConsole->WriteLine(ManualPage.FullName);
             for(int i = 0; i < ManualPage.FullName.ToString().Len(); i++)
             {
-                InConsole->Write("=");
+                InConsole->Write(FText::FromString("="));
             }
-            InConsole->WriteLine("&r&7\r\n");
-            InConsole->WriteLine("&f&*Summary&r&7");
-            InConsole->WriteLine(ManualPage.Summary.ToString());
-            InConsole->WriteLine("");
+            InConsole->WriteLine(FText::GetEmpty());
+            InConsole->WriteLine(NSLOCTEXT("Manual", "Summary", "&f&*Summary&r&7"));
+            InConsole->WriteLine(ManualPage.Summary);
+            InConsole->WriteLine(FText::GetEmpty());
             for(auto Metadata : ManualPage.ManualMetadata)
             {
-                InConsole->WriteLine("&f&*" + Metadata.Title.ToString() + "&r&7");
-                InConsole->WriteLine(Metadata.Content.ToString());
-                InConsole->WriteLine("");    
+                InConsole->WriteLine(FText::Format(NSLOCTEXT("Manual", "MetadataTitle", "&f&*{0}&r&7"), Metadata.Title));
+                InConsole->WriteLine(Metadata.Content);
+                InConsole->WriteLine(FText::GetEmpty());    
             }
             this->Complete();
             return;
@@ -79,7 +79,7 @@ void AManualCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString
         }
     }
 
-    InConsole->WriteLine("No manual page named &3&*" + ManualName + "&7&r was found.");
+    InConsole->WriteLine(FText::Format(NSLOCTEXT("Manual", "NoPagesFound", "No manual page named &3&*{0}&7&r was found."), FText::FromString(ManualName)));
 
     if(!LikelyPages.Num())
     {
@@ -87,11 +87,11 @@ void AManualCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString
         return;
     }
     
-    InConsole->WriteLine("However, these manual pages might have what you're looking for:\r\n");
+    InConsole->WriteLine(NSLOCTEXT("Manual", "Likelies", "However, these manual pages might have what you're looking for:\r\n"));
     for(auto ManualPage : LikelyPages)
     {
-        InConsole->WriteLine(" - &3&*" + ManualPage.ID.ToString() + "&r&7");
+        InConsole->WriteLine(FText::Format(NSLOCTEXT("Manual", "LikelyPage", " - &3&*{0}&r&7"), FText::FromName(ManualPage.ID)));
     }
-    InConsole->WriteLine("");
+    InConsole->WriteLine(FText::GetEmpty());
     this->Complete();
 }

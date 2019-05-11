@@ -138,7 +138,6 @@ private: //functions
 
 
 public: //functions
-	void InjectInput(const FString& Input);
 	virtual FReply NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent) override;
 	virtual void NativeConstruct() override;
 	virtual int32 NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
@@ -168,24 +167,24 @@ public: //functions
 
 	UFUNCTION(BlueprintCallable, Category = "Console IO|Fancy Output",
 		meta = (Latent, LatentInfo = "LatentInfo", HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
-		virtual UPTerminalWidget* SlowlyWriteText(UObject* WorldContextObject, struct FLatentActionInfo LatentInfo, const FString& InText, float InDelayTime = 0.05);
+		virtual UPTerminalWidget* SlowlyWriteText(UObject* WorldContextObject, struct FLatentActionInfo LatentInfo, const FText& InText, float InDelayTime = 0.05);
 
 	UFUNCTION(BlueprintCallable, Category = "Console IO|Fancy Output",
 		meta = (Latent, LatentInfo = "LatentInfo", HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
-		virtual UPTerminalWidget* SlowlyWriteLine(UObject* WorldContextObject, struct FLatentActionInfo LatentInfo, const FString& InText, float InDelayTime = 0.05);
+		virtual UPTerminalWidget* SlowlyWriteLine(UObject* WorldContextObject, struct FLatentActionInfo LatentInfo, const FText& InText, float InDelayTime = 0.05);
 
 	UFUNCTION(BlueprintCallable, Category = "Console IO|Fancy Output",
 		meta = (Latent, LatentInfo = "LatentInfo", HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
-		virtual UPTerminalWidget* SlowlyOverwriteLine(UObject* WorldContextObject, struct FLatentActionInfo LatentInfo, const FString& InText, float InDelayTime = 0.05);
+		virtual UPTerminalWidget* SlowlyOverwriteLine(UObject* WorldContextObject, struct FLatentActionInfo LatentInfo, const FText& InText, float InDelayTime = 0.05);
 
 	UFUNCTION(BlueprintCallable, Category = "Console IO|Output")
-		UPTerminalWidget* Write(FString InText, float DelaySeconds = 0.f);
+		UPTerminalWidget* Write(const FText& InText, float DelaySeconds = 0.f);
 
 	UFUNCTION(BlueprintCallable, Category = "Console IO|Output")
-		UPTerminalWidget* WriteLine(FString InText, float DelaySeconds = 0.f);
+		UPTerminalWidget* WriteLine(const FText& InText, float DelaySeconds = 0.f);
 
 	UFUNCTION(BlueprintCallable, Category = "Console IO|Output")
-		UPTerminalWidget* OverwriteLine(FString InText, float DelaySeconds = 0.f);
+		UPTerminalWidget* OverwriteLine(const FText& InText, float DelaySeconds = 0.f);
 
 	UFUNCTION(BlueprintCallable, Category = "Console IO|Output")
 		UPTerminalWidget* Clear();
@@ -198,12 +197,12 @@ public: //functions
 
 public: //static functions
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Common Utils|Terminal")
-		static FString NewLine();
+		static FText NewLine();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Common Utils|Terminal")
-		static FString CarriageReturn();
+		static FText CarriageReturn();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Common Utils|Terminal")
-		static FString Tab();
+		static FText Tab();
 
 };

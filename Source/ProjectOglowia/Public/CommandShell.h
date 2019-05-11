@@ -73,7 +73,7 @@ protected:
     virtual bool AutoCompleteSpecials() { return true; }
     virtual ATerminalCommand* GetCommand(FString Command) { return nullptr; }
     virtual bool RunSpecialCommand(UConsoleContext* InConsole, FString Command, TArray<FString> Arguments) { return false; }
-    virtual FString GetShellPrompt() { return "> "; }
+    virtual FText GetShellPrompt() { return NSLOCTEXT("Shell", "DefaultPrompt", "> "); }
 
 protected:
     UFUNCTION()
@@ -83,7 +83,7 @@ protected:
     void ExecuteNextCommand();
 
     UFUNCTION()
-    FPeacegateCommandInstruction ParseCommand(const FString& InCommand, FString InHome, FString& OutputError);
+    FPeacegateCommandInstruction ParseCommand(const FString& InCommand, FString InHome, FText& OutputError);
 
     UFUNCTION()
     void ExecuteLine(FString Input);
@@ -96,4 +96,9 @@ protected:
 
     UFUNCTION()
     void WriteToHistory(FString Input);
+
+public:
+        UFUNCTION()
+    static TArray<FString> Tokenize(const FString& InCommand, const FString& Home, FText& OutputError);	
+
 };

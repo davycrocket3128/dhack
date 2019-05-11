@@ -97,7 +97,7 @@ void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Ar
 
 	if(this->ProcessID == -1)
 	{
-		this->Console->WriteLine("&*&4" + NSLOCTEXT("Peacegate", "OutOfMemory", "Out of memory").ToString() + "&r&7");
+		this->Console->WriteLine(NSLOCTEXT("Peacegate", "OutOfMemory", "Out of memory"));
 		this->CompleteInternal(false);
 		return;
 	}
@@ -119,7 +119,7 @@ void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Ar
 
 		if(HasError)
 		{
-			InConsole->WriteLine(CommandName + ": " + Error);
+			InConsole->WriteLine(FText::Format(NSLOCTEXT("TerminalCommand", "DocoptError", "{0}: {1}"), FText::FromString(CommandName), FText::FromString(Error)));
 			this->Complete();
 			return;
 		}

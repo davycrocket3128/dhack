@@ -63,7 +63,7 @@ void ACowsay::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArg
     FString Cow = this->MakeSpeech(SpeechText, this->GetCow());
 
     // Write it to the console.
-    InConsole->WriteLine(Cow);
+    InConsole->WriteLine(FText::FromString(Cow));
 
     // We're done.
     this->Complete();

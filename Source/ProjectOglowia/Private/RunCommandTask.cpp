@@ -30,7 +30,7 @@
  ********************************************************************************/
 
 #include "RunCommandTask.h"
-#include "TerminalCommandParserLibrary.h"
+#include "CommandShell.h"
 #include "UserContext.h"
 
 void URunCommandTask::NativeStart()
@@ -85,11 +85,11 @@ void URunCommandTask::NativeEvent(FString EventName, TMap<FString, FString> InEv
 
             // Use bash to tokenize the command into a list of arguments. Each token
             // will have "~" replaced with the home directory if said token starts ith "~".
-            FString error;
-            TArray<FString> tokens = UTerminalCommandParserLibrary::Tokenize(expected, home, error);
+            FText error;
+            TArray<FString> tokens = ACommandShell::Tokenize(expected, home, error);
 
             // Check that there was no error.
-            check(!error.Len());
+            check(error.IsEmpty());
 
             // Now we combine the tokens back into an argument string.
             FString newExpected = "";

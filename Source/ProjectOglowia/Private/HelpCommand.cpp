@@ -41,8 +41,8 @@ void AHelpCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
     TArray<UCommandInfo*> Commands = InConsole->GetUserContext()->GetOwningSystem()->GetInstalledCommands();
 
     // user interface bullshitfucks
-    InConsole->WriteLine("Help Command");
-    InConsole->WriteLine("--------------\n");
+    InConsole->WriteLine(NSLOCTEXT("Help", "HelpTitle", "Help Command"));
+    InConsole->WriteLine(NSLOCTEXT("Help", "HelpUnderline", "--------------\n"));
 
     // All the descriptions of each command name.
     TMap<FString, FString> NameMap;
@@ -77,11 +77,11 @@ void AHelpCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
     // Loop through them.
     for(auto& Key : Keys)
     {
-        InConsole->Write("&F&*" + Key + ":");
+        InConsole->Write(FText::Format(NSLOCTEXT("Help", "HelpKey", "&F&*{0}:&r&7"), FText::FromString(Key)));
         int Spaces = (NameLength - Key.Len()) + 1;
         for(int i = 0; i < Spaces; i++)
-            InConsole->Write(" ");
-        InConsole->WriteLine("&r&7" + NameMap[Key]);
+            InConsole->Write(FText::FromString(" "));
+        InConsole->WriteLine(FText::FromString(NameMap[Key]));
     }
     
     this->Complete();

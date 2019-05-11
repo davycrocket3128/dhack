@@ -38,9 +38,9 @@ AProfilerCommand::AProfilerCommand()
 
 void AProfilerCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
 {
-    InConsole->WriteLine("Discovering new people and hubs based off identity of &6&*" + InConsole->GetUserContext()->GetCharacterName() + "&7&r...");
+    InConsole->WriteLine(FText::Format(NSLOCTEXT("Profiler", "Discovering", "Discovering new people and hubs based off identity of &6&*{0}&7&r..."), FText::FromString(this->GetUserContext()->GetCharacterName())));
     this->NodesLeft = InConsole->GetUserContext()->ScanForAdjacentNodes();
-    InConsole->WriteLine("");
+    InConsole->WriteLine(FText::GetEmpty());
 }
 
 void AProfilerCommand::Tick(float InDeltaSeconds)
@@ -65,7 +65,7 @@ void AProfilerCommand::Tick(float InDeltaSeconds)
                 FAdjacentNodeInfo Node = NodesLeft[0];
                 this->NodesLeft.RemoveAt(0);
 
-                this->GetConsole()->WriteLine("Discovered person &3&*" + Node.NodeName + "&7&r.");
+                this->GetConsole()->WriteLine(FText::Format(NSLOCTEXT("Profiler", "DiscoveredPerson", "Discovered person &3&*{0}&7&r."), FText::FromString(Node.NodeName)));
 
                 this->GetConsole()->GetUserContext()->GetPeacenet()->UpdateMaps();
             }

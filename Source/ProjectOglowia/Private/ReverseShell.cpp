@@ -45,7 +45,7 @@ bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InComm
         // First argument is source. Second argument is destination.
         if(Arguments.Num() < 3)
         {
-            InConsole->WriteLine("Usage: upload <source> <destination>");
+            InConsole->WriteLine(NSLOCTEXT("ReverseShell", "UploadUsage", "Usage: upload <source> <destination>"));
             this->FinishSpecialCommand();
             return true;
         }
@@ -63,7 +63,7 @@ bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InComm
         // Check if the source file actually exists.
         if(!SourceFileSystem->FileExists(Source))
         {
-            InConsole->WriteLine("Error: File not found: " + Source);
+            InConsole->WriteLine(FText::Format(NSLOCTEXT("ReverseShell", "FileNotFound", "Error: File not found: {0}"), FText::FromString(Source)));
             this->FinishSpecialCommand();
             return true;
         }
@@ -96,7 +96,7 @@ bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InComm
             }
             else
             {
-                InConsole->WriteLine("Error occured while reading source file text.");
+                InConsole->WriteLine(NSLOCTEXT("ReverseShell", "SourceFileError", "Error occured while reading source file text."));
                 this->FinishSpecialCommand();
                 return true;
             }
@@ -107,7 +107,7 @@ bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InComm
             DestinationFileSystem->SetFileRecord(Destination, SourceRecord.RecordType, SourceRecord.ContentID);
         }
 
-        InConsole->WriteLine("Uploaded " + Source + " to " + Destination + " successfully.");
+        InConsole->WriteLine(FText::Format(NSLOCTEXT("ReverseShell", "UploadSuccess", "Uploaded {0} to {1} successfully."), FText::FromString(Source), FText::FromString(Destination)));
         this->FinishSpecialCommand();
 
         // Let the game event system know we've just uploaded a file.
@@ -126,7 +126,7 @@ bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InComm
         // First argument is source. Second argument is destination.
         if(Arguments.Num() < 3)
         {
-            InConsole->WriteLine("Usage: download <source> <destination>");
+            InConsole->WriteLine(NSLOCTEXT("ReverseShell", "DownloadUsage", "Usage: download <source> <destination>"));
             this->FinishSpecialCommand();
             return true;
         }
@@ -144,7 +144,7 @@ bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InComm
         // Check if the source file actually exists.
         if(!SourceFileSystem->FileExists(Source))
         {
-            InConsole->WriteLine("Error: File not found: " + Source);
+            InConsole->WriteLine(FText::Format(NSLOCTEXT("ReverseShell", "FileNotFound", "Error: File not found: {0}"), FText::FromString(Source)));
             this->FinishSpecialCommand();
             return true;
         }
@@ -177,7 +177,7 @@ bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InComm
             }
             else
             {
-                InConsole->WriteLine("Error occured while reading source file text.");
+                InConsole->WriteLine(NSLOCTEXT("ReverseShell", "SourceFileError", "Error occured while reading source file text."));
                 this->FinishSpecialCommand();
                 return true;
             }
@@ -188,7 +188,7 @@ bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InComm
             DestinationFileSystem->SetFileRecord(Destination, SourceRecord.RecordType, SourceRecord.ContentID);
         }
 
-        InConsole->WriteLine("Downloaded " + Source + " to " + Destination + " successfully.");
+        InConsole->WriteLine(FText::Format(NSLOCTEXT("ReverseShell", "DownloadSuccess", "Downloaded {0} to {1} successfully."), FText::FromString(Source), FText::FromString(Destination)));
         this->FinishSpecialCommand();
 
         // Let the game event system know we've just downloaded a file.

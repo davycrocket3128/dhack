@@ -57,14 +57,17 @@ bool UPiperContext::GetLine(FString& OutLine)
 			return false;
 
 		int NewlineIndex = -1;
-		if (Input->Log.FindChar(TEXT('\n'), NewlineIndex))
+		if (Input->Log.ToString().FindChar(TEXT('\n'), NewlineIndex))
 		{
-			OutLine = Input->Log.Left(NewlineIndex);
-			Input->Log.RemoveAt(0, NewlineIndex + 1);
+			OutLine = Input->Log.ToString().Left(NewlineIndex);
+			
+			FString InputLogStr = Input->Log.ToString();
+			InputLogStr.RemoveAt(0, NewlineIndex + 1);
+			Input->Log = FText::FromString(InputLogStr);
 		}
 		else {
-			OutLine = FString(Input->Log);
-			Input->Log = TEXT("");
+			OutLine = Input->Log.ToString();
+			Input->Log = FText::GetEmpty();
 		}
 		return true;
 	}
@@ -75,14 +78,14 @@ bool UPiperContext::GetLine(FString& OutLine)
 }
 
 
-void UPiperContext::Write(const FString& InText, float DeltaSeconds)
+void UPiperContext::Write(const FText& InText, float DeltaSeconds)
 {
 	if (Output)
 	{
 		Output->Write(InText, DeltaSeconds);
 	}
 	else {
-		Log += InText;
+		Log = FText::Format(NSLOCTEXT("Terminal", "Line", "{0}{1}"), Log, InText);
 	}
 }
 
@@ -90,7 +93,7 @@ FString UPiperContext::GetInputBuffer()
 {
 	if(this->Input)
 	{
-		return this->Input->GetLog();
+		return this->Input->GetLog().ToString();
 	}
 	else
 	{
@@ -104,12 +107,12 @@ void UPiperContext::Clear()
 	if (Output)
 		Output->Clear();
 	else
-		Log = TEXT("");
+		Log = FText::GetEmpty();
 }
 
-void UPiperContext::WriteLine(const FString& InText, float DeltaSeconds)
+void UPiperContext::WriteLine(const FText& InText, float DeltaSeconds)
 {
-    Write(InText + "\n", DeltaSeconds);
+    Write(FText::Format(NSLOCTEXT("Terminal", "Line", "{0}{1}"), InText, UPTerminalWidget::NewLine()), DeltaSeconds);
 }
 
 UConsoleContext* UPiperContext::CreateChildContext(USystemContext* InSystemContext, int InUserID)
@@ -127,7 +130,7 @@ UConsoleContext* UPiperContext::CreateChildContext(USystemContext* InSystemConte
 }
 
 
-void UPiperContext::OverwriteLine(const FString& InText, float DeltaSeconds)
+void UPiperContext::OverwriteLine(const FText& InText, float DeltaSeconds)
 {
 	if (Output)
 	{
@@ -140,7 +143,7 @@ void UPiperContext::OverwriteLine(const FString& InText, float DeltaSeconds)
 }
 
 
-FString UPiperContext::GetLog()
+FText UPiperContext::GetLog()
 {
     return this->Log;
 }
@@ -149,16 +152,7 @@ void UPiperContext::ReadLine(UObject* WorldContextObject, struct FLatentActionIn
 {
 	if (Input)
 	{
-		int NewlineIndex = -1;
-		if (Input->Log.FindChar(TEXT('\n'), NewlineIndex))
-		{
-			OutText = Input->Log.Left(NewlineIndex);
-			Input->Log.RemoveAt(0, NewlineIndex + 1);
-		}
-		else {
-			OutText = FString(Input->Log);
-			Input->Log = TEXT("");
-		}
+		this->GetLine(OutText);
 		UWorld* world = WorldContextObject->GetWorld();
 		if (world)
 		{

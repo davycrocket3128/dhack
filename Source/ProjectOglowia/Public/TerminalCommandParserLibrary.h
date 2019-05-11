@@ -66,21 +66,3 @@ struct FPeacegateCommandInstruction
 	UPROPERTY(BlueprintReadWrite)
 		bool Overwrites;
 };
-
-
-/**
- * Provides functions for tokenizing and parsing Peacegate OS commands.
- */
-UCLASS()
-class PROJECTOGLOWIA_API UTerminalCommandParserLibrary : public UBlueprintFunctionLibrary
-{
-	GENERATED_BODY()
-
-public:
-	UFUNCTION(BlueprintCallable, Category = Bash, meta = (DisplayName = "Get Command Instruction Data"))
-	static FPeacegateCommandInstruction GetCommandList(const FString& InCommand, FString InHome, FString& OutputError);
-
-	UFUNCTION(BlueprintCallable, Category = Bash, meta = (DisplayName = "Tokenize"))
-	static TArray<FString> Tokenize(const FString& InCommand, const FString& Home, FString& OutputError);
-	
-};

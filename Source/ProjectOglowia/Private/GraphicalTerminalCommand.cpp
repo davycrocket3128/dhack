@@ -47,7 +47,7 @@ void AGraphicalTerminalCommand::NativeRunCommand(UConsoleContext * InConsole, TA
 {
 	if (!InConsole->GetUserContext()->GetDesktop())
 	{
-		InConsole->WriteLine("error: cannot connect to Xorg server (Is Peacegate Desktop running?)");
+		InConsole->WriteLine(NSLOCTEXT("Peacegate", "NoGUI", "error: cannot connect to Xorg server (Is Peacegate Desktop running?)"));
 		this->Complete();
 		return;
 	}

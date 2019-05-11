@@ -46,7 +46,7 @@ void URedirectedConsoleContext::DumpToFile(UConsoleContext* InConsole)
 	EFilesystemStatusCode StatusCode = EFilesystemStatusCode::OK;
 	if (Overwrite || !DumpFS->FileExists(OutputFilePath))
 	{
-		DumpFS->WriteText(OutputFilePath, this->GetLog());
+		DumpFS->WriteText(OutputFilePath, this->GetLog().ToString());
 	}
 	else
 	{
@@ -54,10 +54,10 @@ void URedirectedConsoleContext::DumpToFile(UConsoleContext* InConsole)
 		DumpFS->ReadText(OutputFilePath, OldText, StatusCode);
 		if (StatusCode != EFilesystemStatusCode::OK)
 		{
-			InConsole->WriteLine("`3`*error: " + OutputFilePath + ": " + UCommonUtils::GetFriendlyFilesystemStatusCode(StatusCode).ToString() + "`1`r");
+			InConsole->WriteLine(UCommonUtils::GetFriendlyFilesystemStatusCode(StatusCode));
 			return;
 		}
-		DumpFS->WriteText(OutputFilePath, OldText + this->GetLog());
+		DumpFS->WriteText(OutputFilePath, OldText + this->GetLog().ToString());
 	}
 
 }

@@ -96,9 +96,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
 	virtual void SetAttention();
 
-	UFUNCTION(BlueprintCallable)
-		void InjectInput(const FString& Input);
-	
 	UFUNCTION()
 	virtual bool GetLine(FString& OutLine);
 
@@ -115,13 +112,13 @@ public:
 	FString GetDisplayWorkingDirectory();
 	
 	UFUNCTION(BlueprintCallable, Category = "Console")
-		virtual void WriteLine(const FString& InText, float DelaySeconds = 0.f) { Terminal->WriteLine(InText, DelaySeconds); }
+		virtual void WriteLine(const FText& InText, float DelaySeconds = 0.f) { Terminal->WriteLine(InText, DelaySeconds); }
 
 	UFUNCTION(BlueprintCallable, Category = "Console")
-	virtual void Write(const FString& InText, float DelaySeconds = 0.f) { Terminal->Write(InText, DelaySeconds); }
+	virtual void Write(const FText& InText, float DelaySeconds = 0.f) { Terminal->Write(InText, DelaySeconds); }
 
 	UFUNCTION(BlueprintCallable, Category = "Console")
-	virtual void OverwriteLine(const FString& InText, float DeltaSeconds = 0.f) { Terminal->OverwriteLine(InText, DeltaSeconds); }
+	virtual void OverwriteLine(const FText& InText, float DeltaSeconds = 0.f) { Terminal->OverwriteLine(InText, DeltaSeconds); }
 
 	UFUNCTION(BlueprintCallable, Category="Console")
 	virtual void Clear() { Terminal->Clear(); }

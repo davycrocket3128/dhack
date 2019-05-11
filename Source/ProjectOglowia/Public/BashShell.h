@@ -44,5 +44,5 @@ protected:
     virtual bool AllowPipes() override { return true; }
     virtual bool AllowRedirection() override { return true; }
     virtual ATerminalCommand* GetCommand(FString Command) override;
-    virtual FString GetShellPrompt() override;
+    virtual FText GetShellPrompt() override;
 };

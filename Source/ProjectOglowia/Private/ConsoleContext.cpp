@@ -71,14 +71,6 @@ void UConsoleContext::SetTerminal(UPTerminalWidget* InTerminalWidget)
 	this->Terminal = InTerminalWidget;
 }
 
-void UConsoleContext::InjectInput(const FString & Input)
-{
-	if (this->Terminal)
-	{
-		this->Terminal->InjectInput(Input);
-	}
-}
-
 bool UConsoleContext::GetLine(FString& OutLine)
 {
 	if (!this->GetTerminal()->IsInputLineAvailable)
@@ -142,37 +134,37 @@ FString UConsoleContext::GetDisplayWorkingDirectory()
 
 void UConsoleContext::MakeBold()
 {
-	Write("&*");
+	Write(FText::FromString("&*"));
 }
 
 void UConsoleContext::MakeBoldItalic()
 {
-	Write("&-");
+	Write(FText::FromString("&-"));
 }
 
 void UConsoleContext::MakeItalic()
 {
-	Write("&_");
+	Write(FText::FromString("&_"));
 }
 
 void UConsoleContext::ResetFormatting()
 {
-	Write("&r");
+	Write(FText::FromString("&r"));
 }
 
 void UConsoleContext::SetAttention()
 {
-	Write("&!");
+	Write(FText::FromString("&!"));
 }
 
 void UConsoleContext::InvertColors()
 {
-	Write("&~");
+	Write(FText::FromString("&~"));
 }
 
 void UConsoleContext::SetColor(ETerminalColor InColor)
 {
-	Write(UCommonUtils::GetTerminalColorCode(InColor));
+	Write(FText::FromString(UCommonUtils::GetTerminalColorCode(InColor)));
 }
 
 void UConsoleContext::ReadLine(UObject* WorldContextObject, FLatentActionInfo LatentInfo, FString& OutText)

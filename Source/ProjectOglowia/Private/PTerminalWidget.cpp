@@ -420,7 +420,7 @@ void UPTerminalWidget::ReadLine(UObject* WorldContextObject, struct FLatentActio
 	}
 }
 
-UPTerminalWidget * UPTerminalWidget::SlowlyWriteText(UObject * WorldContextObject, FLatentActionInfo LatentInfo, const FString & InText, float InDelayTime)
+UPTerminalWidget * UPTerminalWidget::SlowlyWriteText(UObject * WorldContextObject, FLatentActionInfo LatentInfo, const FText & InText, float InDelayTime)
 {
 	if (WorldContextObject)
 	{
@@ -440,33 +440,33 @@ UPTerminalWidget * UPTerminalWidget::SlowlyWriteText(UObject * WorldContextObjec
 
 }
 
-UPTerminalWidget * UPTerminalWidget::SlowlyWriteLine(UObject * WorldContextObject, FLatentActionInfo LatentInfo, const FString & InText, float InDelayTime)
+UPTerminalWidget * UPTerminalWidget::SlowlyWriteLine(UObject * WorldContextObject, FLatentActionInfo LatentInfo, const FText & InText, float InDelayTime)
 {
-	return SlowlyWriteText(WorldContextObject, LatentInfo, InText + TEXT("\n"), InDelayTime);
+	return SlowlyWriteText(WorldContextObject, LatentInfo, FText::Format(NSLOCTEXT("Terminal", "Line", "{0}{1}"), InText, UPTerminalWidget::NewLine()), InDelayTime);
 }
 
-UPTerminalWidget * UPTerminalWidget::SlowlyOverwriteLine(UObject * WorldContextObject, FLatentActionInfo LatentInfo, const FString & InText, float InDelayTime)
+UPTerminalWidget * UPTerminalWidget::SlowlyOverwriteLine(UObject * WorldContextObject, FLatentActionInfo LatentInfo, const FText & InText, float InDelayTime)
 {
-	return SlowlyWriteText(WorldContextObject, LatentInfo, InText + TEXT("\r"), InDelayTime);
+	return SlowlyWriteText(WorldContextObject, LatentInfo, FText::Format(NSLOCTEXT("Terminal", "Line", "{0}{1}"), InText, UPTerminalWidget::CarriageReturn()), InDelayTime);
 }
 
-UPTerminalWidget* UPTerminalWidget::Write(FString InText, float DelaySeconds)
+UPTerminalWidget* UPTerminalWidget::Write(const FText& InText, float DelaySeconds)
 {
 	FTerminalWriteRequest Request;
-	Request.TextToWrite = FText::FromString(InText);
+	Request.TextToWrite = InText;
 	Request.DelayInSeconds = DelaySeconds;
 	this->WriteStack.Add(Request);
 	return this;
 }
 
-UPTerminalWidget* UPTerminalWidget::WriteLine(FString InText, float DelaySeconds)
+UPTerminalWidget* UPTerminalWidget::WriteLine(const FText& InText, float DelaySeconds)
 {
-	return Write(InText + TEXT("\n"), DelaySeconds);
+	return Write(FText::Format(NSLOCTEXT("Terminal", "Line", "{0}{1}"), InText, UPTerminalWidget::NewLine()), DelaySeconds);
 }
 
-UPTerminalWidget* UPTerminalWidget::OverwriteLine(FString InText, float DelaySeconds)
+UPTerminalWidget* UPTerminalWidget::OverwriteLine(const FText& InText, float DelaySeconds)
 {
-	return Write(InText + TEXT("\r"), DelaySeconds);
+	return Write(FText::Format(NSLOCTEXT("Terminal", "Line", "{0}{1}"), InText, UPTerminalWidget::CarriageReturn()), DelaySeconds);
 }
 
 UPTerminalWidget* UPTerminalWidget::Clear()
@@ -705,15 +705,6 @@ int32 UPTerminalWidget::NativePaint(const FPaintArgs& Args, const FGeometry& All
 
 
 	return LayerId;
-}
-
-void UPTerminalWidget::InjectInput(const FString& Input)
-{
-	this->TextInputBuffer = Input + "\n";
-	if (this->EchoInputText)
-	{
-		this->WriteLine(Input);
-	}
 }
 
 void UPTerminalWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -1024,18 +1015,18 @@ float UPTerminalWidget::GetLineHeight()
 	return char_y + char_h;
 }
 
-FString UPTerminalWidget::NewLine()
+FText UPTerminalWidget::NewLine()
 {
-	return TEXT("\n");
+	return FText::FromString("\n");
 }
 
-FString UPTerminalWidget::CarriageReturn()
+FText UPTerminalWidget::CarriageReturn()
 {
-	return TEXT("\r");
+	return FText::FromString("\r");
 }
 
-FString UPTerminalWidget::Tab()
+FText UPTerminalWidget::Tab()
 {
-	return TEXT("\t");
+	return FText::FromString("\t");
 }
 

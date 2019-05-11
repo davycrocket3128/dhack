@@ -74,7 +74,7 @@ void AGrep::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArgum
             }
         }
 
-        InConsole->WriteLine(Line);
+        InConsole->WriteLine(FText::FromString(Line));
     }
 
     this->Complete();

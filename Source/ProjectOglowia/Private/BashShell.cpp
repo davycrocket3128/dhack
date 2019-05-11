@@ -85,7 +85,7 @@ ATerminalCommand* ABashShell::GetCommand(FString Command)
     return nullptr;
 }
 
-FString ABashShell::GetShellPrompt()
+FText ABashShell::GetShellPrompt()
 {
 	    // Get the username, hostname and current working directory.
     FString Username = this->GetUserContext()->GetUsername();
@@ -101,5 +101,5 @@ FString ABashShell::GetShellPrompt()
         UserStatus = "#";
     }
 
-	return "[" + Username + "@" + Hostname + " " + WorkingDirectory + "]" + UserStatus + " ";
+	return FText::Format(NSLOCTEXT("Bash", "Prompt", "[{0}@{1} {2}]{3} "), FText::FromString(Username), FText::FromString(Hostname), FText::FromString(WorkingDirectory), FText::FromString(UserStatus));
 }

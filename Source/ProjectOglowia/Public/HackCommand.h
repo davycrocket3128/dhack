@@ -76,7 +76,7 @@ protected:
 
     virtual bool AllowRedirection() override { return false; }
     virtual bool AllowPipes() override { return false; }
-    virtual FString GetShellPrompt() override;
+    virtual FText GetShellPrompt() override;
     virtual void Tick(float InDeltaSeconds) override;
     virtual void NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) override;
     virtual bool RunSpecialCommand(UConsoleContext* InConsole, FString Command, TArray<FString> Arguments) override;

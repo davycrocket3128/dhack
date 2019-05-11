@@ -45,7 +45,7 @@ void FTerminalSlowTypeLatentAction::UpdateOperation(FLatentResponse & Response)
 	{
 		Countdown = CountdownTime;
 		TCHAR Character = TextToWrite[CharIndex];
-		TerminalWidgetInstance->Write(FString::Chr(Character));
+		TerminalWidgetInstance->Write(FText::FromString(FString::Chr(Character)));
 		CharIndex++;
 	}
 }
