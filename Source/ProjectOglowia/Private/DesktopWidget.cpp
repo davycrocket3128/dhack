@@ -271,6 +271,21 @@ void UDesktopWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	// Set our wallpaper.
 	this->WallpaperTexture = this->GetSystemContext()->GetComputer().CurrentWallpaper;
 
+	// Is the game in a tutorial?
+	if(this->GetPeacenet()->GetTutorialState()->IsPromptActive())
+	{
+		// Get the current prompt text. Compare it to the last prompt text.
+		FText CurrentPrompt = this->GetPeacenet()->GetTutorialState()->GetTutorialText();
+		if(!CurrentPrompt.EqualTo(this->LastTutorialText))
+		{
+			// If they're not equal then make them equal and tell Blueprint to get its shit in order.
+			this->LastTutorialText = CurrentPrompt;
+			this->UpdateTutorial(this->LastTutorialText);
+		}
+		
+
+	}
+
 	Super::NativeTick(MyGeometry, InDeltaTime);
 }
 

@@ -81,9 +81,15 @@ class PROJECTOGLOWIA_API UDesktopWidget : public UUserWidget
 
 private:
 	UPROPERTY()
+	FText LastTutorialText;
+
+	UPROPERTY()
 	FText ObjectiveText;
 
 protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateTutorial(const FText& InNewText);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
 	bool IsMissionActive();
 
