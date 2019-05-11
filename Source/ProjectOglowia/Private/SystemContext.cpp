@@ -401,6 +401,8 @@ bool USystemContext::TryGetTerminalCommand(FName CommandName, ATerminalCommand *
 
 	OutCommand = this->GetPeacenet()->GetWorld()->SpawnActor<ATerminalCommand>(Info->CommandClass, Location, Rotation, SpawnInfo);
 
+	if(!OutCommand) return false;
+
 	OutCommand->CommandInfo = Info;
 
 	return true;
