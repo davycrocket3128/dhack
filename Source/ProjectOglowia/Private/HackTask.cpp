@@ -89,6 +89,9 @@ void UHackTask::NativeStart()
             this->RealSubtasks.Add(Subtask.Subtask);
     }
 
+    // Do we need to start a disconnect objective when the subtasks are completed?
+    this->HasSubtasks = this->RealSubtasks.Num();
+
     // Tell the player to hack the system.
     if(this->FailOnCoverBlow)
     {
@@ -109,6 +112,9 @@ void UHackTask::AdvanceSubtask()
     // without failing the mission.
     if(this->CurrentSubtask >= this->RealSubtasks.Num())
     {
+        // Push a "Disconnect" objective
+        this->SetObjectiveText(NSLOCTEXT("Objectives", "Disconnect", "Disconnect from the remote system."));
+
         this->AllSubtasksCompleted = true;
         return;
     }

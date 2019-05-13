@@ -62,6 +62,9 @@ private:
     int TargetEntity = 0;
 
     UPROPERTY()
+    bool HasSubtasks = false;
+
+    UPROPERTY()
     bool IsInHack = false;
 
     UPROPERTY()
