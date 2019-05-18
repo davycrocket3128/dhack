@@ -284,6 +284,11 @@ namespace ThePeacenet.Backend.Shell
 
         protected void CommandCompleted()
         {
+            if(this._currentConsole is Pipe)
+            {
+                (_currentConsole as Pipe).WriteRedirect();
+            }
+
             this._lastConsoleContext = this._currentConsole;
             this._currentConsole = null;
             this._instructions.RemoveAt(0);
@@ -325,6 +330,16 @@ namespace ThePeacenet.Backend.Shell
             {
                 var instructionData = ParseCommand(text, HomeFolder);
 
+                if(!string.IsNullOrWhiteSpace(instructionData.OutputFile))
+                {
+                    string abs = GetAbsolutePath(instructionData.OutputFile);
+                    if(FileSystem.DirectoryExists(abs))
+                    {
+                        Console.WriteLine("{0}: {1}: Directory exists.", CommandName, abs);
+                        return;
+                    }
+                }
+
                 if (instructionData.Commands.Length == 0) return;
 
                 Pipe LastPipe = null;
@@ -352,7 +367,16 @@ namespace ThePeacenet.Backend.Shell
                     }
                     else
                     {
-                        intendedConsole = new Pipe(LastPipe, Console, Console);
+                        if(!string.IsNullOrWhiteSpace(instructionData.OutputFile))
+                        {
+                            intendedConsole = new Pipe(LastPipe, Console, null);
+                            string abs = GetAbsolutePath(instructionData.OutputFile);
+                            (intendedConsole as Pipe).Redirect(abs, instructionData.Overwrites);
+                        }
+                        else
+                        {
+                            intendedConsole = new Pipe(LastPipe, Console, Console);
+                        }
                     }
 
                     CommandInstruction instruction = new CommandInstruction(commandName, tokens, intendedConsole);

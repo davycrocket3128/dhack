@@ -13,6 +13,29 @@ namespace ThePeacenet.Backend.Shell
         private Pipe _input = null;
         private IConsoleContext _owner = null;
         private IConsoleContext _output = null;
+        private string _redirectPath = "";
+        private bool _redirectOverwrite = false;
+
+        internal void Redirect(string path, bool overwrite)
+        {
+            _redirectPath = path;
+            _redirectOverwrite = overwrite;
+        }
+
+        internal void WriteRedirect()
+        {
+            if (string.IsNullOrWhiteSpace(_redirectPath)) return;
+
+            if(_redirectOverwrite)
+            {
+                FileSystem.WriteText(_redirectPath, Log.ToString());
+            }
+            else
+            {
+                string text = FileSystem.ReadText(_redirectPath);
+                FileSystem.WriteText(_redirectPath, text + Log.ToString());
+            }
+        }
 
         public string WorkingDirectory { get => _owner.WorkingDirectory; set => _owner.WorkingDirectory = value; }
 
