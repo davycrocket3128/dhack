@@ -1,0 +1,44 @@
+
+#----------------------------- Global Properties ----------------------------#
+
+/outputDir:bin/$(Platform)
+/intermediateDir:obj/$(Platform)
+/platform:DesktopGL
+/config:
+/profile:HiDef
+/compress:True
+
+#-------------------------------- References --------------------------------#
+
+/reference:..\..\packages\GeonBit.UI.3.4.0.1\lib\geonbitui\DataTypes.dll
+
+#---------------------------------- Content ---------------------------------#
+
+#begin Gui/Fonts/Terminal/Bold.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Gui/Fonts/Terminal/Bold.spritefont
+
+#begin Gui/Fonts/Terminal/BoldItalic.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Gui/Fonts/Terminal/BoldItalic.spritefont
+
+#begin Gui/Fonts/Terminal/Regular.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Gui/Fonts/Terminal/Regular.spritefont;Gui/Fonts/Terminal/Regular.spritefont
+
+#begin Gui/Fonts/Terminal/Italic.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Gui/Fonts/Terminal/Italic.spritefont
+
