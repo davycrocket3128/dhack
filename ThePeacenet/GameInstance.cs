@@ -28,10 +28,14 @@ namespace ThePeacenet
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+            
         }
 
         protected override void Initialize()
         {
+            GraphicsDevice.PresentationParameters.BackBufferWidth = 1920;
+            GraphicsDevice.PresentationParameters.BackBufferHeight = 1080;
+            GraphicsDevice.PresentationParameters.IsFullScreen = true;
             base.Initialize();
         }
 

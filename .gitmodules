@@ -1,0 +1,3 @@
+[submodule "MonoHack"]
+	path = MonoHack
+	url = https://github.com/bitphoenixsoftware/MonoHack
