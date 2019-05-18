@@ -129,6 +129,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MonoHack\MonoHack.Engine\MonoHack.Engine.csproj">
+      <Project>{b5211612-049f-4555-9551-7d9f8eb86135}</Project>
+      <Name>MonoHack.Engine</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ThePeacenet.Backend\ThePeacenet.Backend.csproj">
       <Project>{137c6e21-12da-4948-9e38-bd436fd15571}</Project>
       <Name>ThePeacenet.Backend</Name>
