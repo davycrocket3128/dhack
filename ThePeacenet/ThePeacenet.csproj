@@ -42,7 +42,11 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Commands\Cat.cs" />
+    <Compile Include="Commands\Cd.cs" />
     <Compile Include="Commands\Grep.cs" />
+    <Compile Include="Commands\Ls.cs" />
+    <Compile Include="Commands\Mkdir.cs" />
     <Compile Include="Console\ViewportConsole.cs" />
     <Compile Include="Core\IRenderable.cs" />
     <Compile Include="GameInstance.cs" />

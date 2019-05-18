@@ -14,6 +14,8 @@ namespace ThePeacenet.Backend.Shell
         private IConsoleContext _owner = null;
         private IConsoleContext _output = null;
 
+        public string WorkingDirectory { get => _owner.WorkingDirectory; set => _owner.WorkingDirectory = value; }
+
         public Pipe(Pipe inputPipe, IConsoleContext owner, IConsoleContext output)
         {
             _output = output;

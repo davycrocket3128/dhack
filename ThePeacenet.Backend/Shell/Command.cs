@@ -56,6 +56,13 @@ namespace ThePeacenet.Backend.Shell
 
         public virtual void Update(float deltaSeconds) { }
 
+        public string GetAbsolutePath(string path)
+        {
+            if (path.StartsWith("/"))
+                return FileSystem.GetAbsolutePath(path);
+            return FileSystem.GetAbsolutePath(Console.WorkingDirectory + "/" + path);
+        }
+
         public Argument GetArgument(string argument)
         {
             return new Argument(_argMap[argument]);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ThePeacenet.Backend.FileSystem;
 
 namespace ThePeacenet.Backend.Data
 {
@@ -29,6 +30,9 @@ namespace ThePeacenet.Backend.Data
         public int Id { get; set; }
         public List<string> Commands { get; set; } = new List<string>();
         public List<User> Users { get; set; } = new List<User>();
+        public List<Folder> Folders { get; set; } = new List<Folder>();
+        public List<FileRecord> Files { get; set; } = new List<FileRecord>();
+        public List<TextFile> TextFiles { get; set; } = new List<TextFile>();
         public RamAmount RamAmount { get; set; } = RamAmount.Level0;
     }
 }

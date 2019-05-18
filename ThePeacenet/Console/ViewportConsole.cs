@@ -35,6 +35,7 @@ namespace ThePeacenet.Console
             }
         }
 
+        private string _work = "/";
         private IUserLand _owner = null;
         private ViewportAdapter _viewportAdapter = null;
         private SpriteBatch _spriteBatch = null;
@@ -49,6 +50,18 @@ namespace ThePeacenet.Console
         private MouseListener _mouseListener = null;
         private KeyboardListener _keyboardListener = null;
         private string _textInputBuffer = "";
+
+        public string WorkingDirectory
+        {
+            get => _work;
+            set
+            {
+                if(value != _work && FileSystem.DirectoryExists(value))
+                {
+                    _work = value;
+                }
+            }
+        }
 
         public ViewportConsole(ViewportAdapter viewport, ContentManager content, IUserLand owner)
         {

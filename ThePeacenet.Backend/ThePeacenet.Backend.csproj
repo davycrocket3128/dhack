@@ -69,6 +69,9 @@
     <Compile Include="Data\RamUsage.cs" />
     <Compile Include="Data\SaveGame.cs" />
     <Compile Include="Data\User.cs" />
+    <Compile Include="FileSystem\FileRecord.cs" />
+    <Compile Include="FileSystem\Folder.cs" />
+    <Compile Include="FileSystem\TextFile.cs" />
     <Compile Include="IConsoleContext.cs" />
     <Compile Include="ITickable.cs" />
     <Compile Include="Manual\ManualPage.cs" />

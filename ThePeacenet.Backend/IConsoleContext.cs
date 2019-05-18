@@ -19,5 +19,7 @@ namespace ThePeacenet.Backend
         bool GetLine(out string text);
 
         void Clear();
+
+        string WorkingDirectory { get; set; }
     }
 }

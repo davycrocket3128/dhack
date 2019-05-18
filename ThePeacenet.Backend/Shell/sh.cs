@@ -22,7 +22,7 @@ namespace ThePeacenet.Backend.Shell
                 string shebang = "$";
                 if (IsAdmin) shebang = "#";
 
-                return $"{Username}@{Hostname}:{HomeFolder}{shebang} ";
+                return $"{Username}@{Hostname}:{Console.WorkingDirectory.Replace(HomeFolder, "~")}{shebang} ";
             }
         }
 
