@@ -17,7 +17,7 @@ namespace ThePeacenet.Commands
         protected override void OnRun(string[] args)
         {
             // The pattern used for matching.
-            string pattern = args[0];
+            string pattern = this.GetArgument("<pattern>").ToString();
 
             // Read all of the text from standard input.
             List<string> input = new List<string>();
