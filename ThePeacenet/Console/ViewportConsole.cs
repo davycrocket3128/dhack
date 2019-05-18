@@ -76,6 +76,7 @@ namespace ThePeacenet.Console
         private void _mouseListener_MouseWheelMoved(object sender, MouseEventArgs e)
         {
             _scrollOffsetY -= e.ScrollWheelDelta;
+            if (_scrollOffsetY < 0) _scrollOffsetY = 0;
         }
 
         private void DrawCharacter(RectangleF rect, SpriteFont font, Color bg, Color fg, char c)
@@ -105,6 +106,8 @@ namespace ThePeacenet.Console
                 _textInputBuffer += c;
                 _textData += c;
             }
+
+            _scrollOffsetY = -1;
         }
 
         private void _keyboardListener_KeyPressed(object sender, KeyboardEventArgs e)
@@ -119,6 +122,7 @@ namespace ThePeacenet.Console
                 {
                     if (_zoomFactor - 0.25f >= 1) _zoomFactor -= 0.25f;
                 }
+                _scrollOffsetY = -1;
             }
         }
 
@@ -265,7 +269,8 @@ namespace ThePeacenet.Console
 
         public void OverWrite(string text)
         {
-            _textData += text + "\r";
+            Write(text + "\r");
+            
         }
 
         public void OverWrite(string format, params object[] args)
@@ -280,12 +285,18 @@ namespace ThePeacenet.Console
 
             var info = GetTerminalInfo(false);
 
+            if(_scrollOffsetY < 0)
+            {
+                _scrollOffsetY = info.Height - BoundingRectangle.Height;
+            }
+
             _scrollOffsetY = MathHelper.Clamp(_scrollOffsetY, 0, info.Height - BoundingRectangle.Height);
         }
 
         public void Write(string text)
         {
             _textData += text;
+            _scrollOffsetY = -1;
         }
 
         public void Write(string format, params object[] args)
