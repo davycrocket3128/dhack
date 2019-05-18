@@ -37,6 +37,23 @@ namespace ThePeacenet.Backend.Shell
             return null;
         }
 
+        protected override bool RunSpecialCommand(string name, string[] args)
+        {
+            if(name == "help")
+            {
+                Console.WriteLine("Built-In Commands");
+                Console.WriteLine("-----------------");
+                Console.WriteLine(@"
+exit:   Exits the shell.
+clear:  Clears the screen of all text.
+echo:   Writes the given text to the screen.
+");
+
+                return false; // Pass execution to the true help command.
+            }
+            return base.RunSpecialCommand(name, args);
+        }
+
         protected override void OnRun(string[] args)
         {
         }
