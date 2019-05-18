@@ -19,6 +19,22 @@ namespace ThePeacenet.Console
 {
     public class ViewportConsole : IRenderable, IRectangular, IConsoleContext, IDisposable
     {
+        private struct TerminalInfo
+        {
+            public int Lines;
+            public float Height;
+            public float CharWidth;
+            public float CharHeight;
+
+            public TerminalInfo(int lines, float height, float cw, float ch)
+            {
+                Lines = lines;
+                Height = height;
+                CharWidth = cw;
+                CharHeight = ch;
+            }
+        }
+
         private IUserLand _owner = null;
         private ViewportAdapter _viewportAdapter = null;
         private SpriteBatch _spriteBatch = null;
@@ -30,6 +46,7 @@ namespace ThePeacenet.Console
         private SpriteFont _italicFont = null;
         private float _scrollOffsetY = 0;
         private float _zoomFactor = 1;
+        private MouseListener _mouseListener = null;
         private KeyboardListener _keyboardListener = null;
         private string _textInputBuffer = "";
 
@@ -51,6 +68,20 @@ namespace ThePeacenet.Console
             _keyboardListener = new KeyboardListener();
             _keyboardListener.KeyPressed += _keyboardListener_KeyPressed;
             _keyboardListener.KeyTyped += _keyboardListener_KeyTyped;
+
+            _mouseListener = new MouseListener(_viewportAdapter);
+            _mouseListener.MouseWheelMoved += _mouseListener_MouseWheelMoved;
+        }
+
+        private void _mouseListener_MouseWheelMoved(object sender, MouseEventArgs e)
+        {
+            _scrollOffsetY -= e.ScrollWheelDelta;
+        }
+
+        private void DrawCharacter(RectangleF rect, SpriteFont font, Color bg, Color fg, char c)
+        {
+            _spriteBatch.FillRectangle(rect, bg);
+            _spriteBatch.DrawString(font, c.ToString(), new Vector2(rect.Left, rect.Top), fg, 0f, Vector2.Zero, _zoomFactor, SpriteEffects.None, 0);
         }
 
         private void _keyboardListener_KeyTyped(object sender, KeyboardEventArgs e)
@@ -130,6 +161,17 @@ namespace ThePeacenet.Console
             // Begin the draw operation.
             _spriteBatch.Begin();
 
+            // Draw the terminal.
+            GetTerminalInfo(true);
+
+            // And we are done.
+            _spriteBatch.End();
+        }
+
+        private TerminalInfo GetTerminalInfo(bool draw)
+        {
+            TerminalInfo ret = new TerminalInfo(0, 0, 0, 0);
+
             // Measure a character with the regular font.
             var measureTest = _regularFont.MeasureString("#");
 
@@ -144,13 +186,13 @@ namespace ThePeacenet.Console
             Color bgColor = Color.Black;
 
             // Loop through every character in the text buffer.
-            for(int i = 0; i < _textData.Length; i++)
+            for (int i = 0; i < _textData.Length; i++)
             {
                 // Get the current character.
                 char c = _textData[i];
 
                 // Handle certain whitespace chars.
-                switch(c)
+                switch (c)
                 {
                     case '\t':
                         float tabSpace = (charX % (charW * 8));
@@ -162,6 +204,8 @@ namespace ThePeacenet.Console
                     case '\n':
                         charX = 0;
                         charY += charH;
+                        ret.Lines++;
+                        ret.Height += charH;
                         continue;
                     default:
                         if (!font.Characters.Contains(c)) continue;
@@ -174,15 +218,16 @@ namespace ThePeacenet.Console
                 charH = measure.Y * _zoomFactor;
 
                 // If the vertical position of the cursor is on-screen then we can draw.
-                if(charY >= BoundingRectangle.Top && charY <= size.Y)
+                if (charY >= BoundingRectangle.Top && charY <= size.Y && draw)
                 {
-                    _spriteBatch.FillRectangle(new RectangleF(charX, charY, charW, charH), bgColor);
-                    _spriteBatch.DrawString(font, c.ToString(), new Vector2(charX, charY), fgColor, 0f, Vector2.Zero, _zoomFactor, SpriteEffects.None, 0);
+                    DrawCharacter(new RectangleF(charX, charY, charW, charH), font, bgColor, fgColor, c);
                 }
-                
+
                 // Now we advance the text position.
-                if(charX + charW >= size.X)
+                if (charX + charW >= size.X)
                 {
+                    ret.Lines++;
+                    ret.Height += charH;
                     charY += charH;
                     charX = BoundingRectangle.Left;
                 }
@@ -193,13 +238,17 @@ namespace ThePeacenet.Console
             }
 
             // One final draw of the cursor if it's on-screen.
-            if(charY >= BoundingRectangle.Top && charY <= size.Y)
+            if (charY >= BoundingRectangle.Top && charY <= size.Y && draw)
             {
-                _spriteBatch.FillRectangle(new RectangleF(charX, charY, charW, charH), fgColor);
+                DrawCharacter(new RectangleF(charX, charY, charW, charH), font, fgColor, bgColor, ' ');
             }
 
-            // And we are done.
-            _spriteBatch.End();
+            ret.Height += charH;
+            ret.Lines++;
+            ret.CharWidth = charW;
+            ret.CharHeight = charH;
+
+            return ret;
         }
 
         public bool GetLine(out string text)
@@ -226,7 +275,12 @@ namespace ThePeacenet.Console
 
         public void Update(GameTime gameTime)
         {
+            _mouseListener.Update(gameTime);
             _keyboardListener.Update(gameTime);
+
+            var info = GetTerminalInfo(false);
+
+            _scrollOffsetY = MathHelper.Clamp(_scrollOffsetY, 0, info.Height - BoundingRectangle.Height);
         }
 
         public void Write(string text)
