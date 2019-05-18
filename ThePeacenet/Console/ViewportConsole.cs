@@ -136,8 +136,8 @@ namespace ThePeacenet.Console
             // The state of the terminal render.
             Vector2 size = new Vector2(BoundingRectangle.Width, BoundingRectangle.Height);
             SpriteFont font = _regularFont;
-            float charX = 0;
-            float charY = -_scrollOffsetY;
+            float charX = BoundingRectangle.Left;
+            float charY = BoundingRectangle.Top - _scrollOffsetY;
             float charW = measureTest.X * _zoomFactor;
             float charH = measureTest.Y * _zoomFactor;
             Color fgColor = Color.White;
@@ -174,7 +174,7 @@ namespace ThePeacenet.Console
                 charH = measure.Y * _zoomFactor;
 
                 // If the vertical position of the cursor is on-screen then we can draw.
-                if(charY >= 0 && charY <= size.Y)
+                if(charY >= BoundingRectangle.Top && charY <= size.Y)
                 {
                     _spriteBatch.FillRectangle(new RectangleF(charX, charY, charW, charH), bgColor);
                     _spriteBatch.DrawString(font, c.ToString(), new Vector2(charX, charY), fgColor, 0f, Vector2.Zero, _zoomFactor, SpriteEffects.None, 0);
@@ -184,7 +184,7 @@ namespace ThePeacenet.Console
                 if(charX + charW >= size.X)
                 {
                     charY += charH;
-                    charX = 0;
+                    charX = BoundingRectangle.Left;
                 }
                 else
                 {
@@ -193,7 +193,7 @@ namespace ThePeacenet.Console
             }
 
             // One final draw of the cursor if it's on-screen.
-            if(charY >= 0 && charY <= size.Y)
+            if(charY >= BoundingRectangle.Top && charY <= size.Y)
             {
                 _spriteBatch.FillRectangle(new RectangleF(charX, charY, charW, charH), fgColor);
             }
