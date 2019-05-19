@@ -72,6 +72,7 @@
     <Compile Include="FileSystem\FileRecord.cs" />
     <Compile Include="FileSystem\Folder.cs" />
     <Compile Include="FileSystem\TextFile.cs" />
+    <Compile Include="Gui\IWindow.cs" />
     <Compile Include="IConsoleContext.cs" />
     <Compile Include="ITickable.cs" />
     <Compile Include="Manual\ManualPage.cs" />

@@ -51,6 +51,16 @@ namespace ThePeacenet.Desktop
                 Name = "WindowManagerArea",
             });
 
+            FindControl<Canvas>("WindowManagerArea").Items.Add(new Window
+            {
+                WindowTitle = "Terminal",
+                WindowIcon = content.Load<Texture2D>("Gui/Icons/terminal"),
+                Content = new ConsoleControl(content, ownerUser)
+                {
+                    Name = "Terminal"
+                }
+            });
+
             FindControl<Border>("DesktopPanelBorder").SetAttachedProperty(DockPanel.DockProperty, Dock.Top);
             
             FindControl<DockPanel>("DesktopPanel").Items.Add(new Button

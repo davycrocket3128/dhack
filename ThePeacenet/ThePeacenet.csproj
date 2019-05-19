@@ -51,6 +51,7 @@
     <Compile Include="Console\ConsoleRenderer.cs" />
     <Compile Include="Core\IRenderable.cs" />
     <Compile Include="Desktop\DesktopScreen.cs" />
+    <Compile Include="Desktop\Window.cs" />
     <Compile Include="GameInstance.cs" />
     <Compile Include="Gui\Brush.cs" />
     <Compile Include="Gui\ControlStyle.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="Gui\Controls\Control.cs" />
     <Compile Include="Gui\Controls\ControlCollection.cs" />
     <Compile Include="Gui\Controls\DockPanel.cs" />
+    <Compile Include="Gui\Controls\DragSurface.cs" />
     <Compile Include="Gui\Controls\Image.cs" />
     <Compile Include="Gui\Controls\ItemsControl.cs" />
     <Compile Include="Gui\Controls\Label.cs" />

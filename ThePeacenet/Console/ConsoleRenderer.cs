@@ -191,10 +191,10 @@ namespace ThePeacenet.Console
                         charX += (charW * 8) - tabSpace;
                         continue;
                     case '\r':
-                        charX = 0;
+                        charX = BoundingRectangle.Left;
                         continue;
                     case '\n':
-                        charX = 0;
+                        charX = BoundingRectangle.Left;
                         charY += charH;
                         ret.Lines++;
                         ret.Height += charH;
