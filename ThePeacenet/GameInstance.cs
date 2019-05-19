@@ -2,12 +2,17 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
+using MonoGame.Extended.Input.InputListeners;
 using MonoGame.Extended.ViewportAdapters;
 using ThePeacenet.Backend;
 using ThePeacenet.Backend.OS;
 using ThePeacenet.Backend.Shell;
 using ThePeacenet.Console;
+using SpriteFontPlus;
+using System.IO;
+using System;
 using ThePeacenet.Gui;
+using ThePeacenet.Desktop;
 
 namespace ThePeacenet
 {
@@ -17,11 +22,12 @@ namespace ThePeacenet
     public class GameInstance : Game
     {
         private readonly GraphicsDeviceManager _graphics;
-        private Shell _commandShell = null;
-        private ViewportConsole _console = null;
         private GuiSystem _guiSystem = null;
         private WorldState _worldState = null;
         private IUserLand _playerUserLand = null;
+        private IGuiRenderer _renderer = null;
+        private Brush _brush;
+        private DynamicSpriteFont _defaultFont = null;
 
         public GameInstance()
         {
@@ -29,29 +35,35 @@ namespace ThePeacenet
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             
+            
         }
 
         protected override void Initialize()
         {
-            GraphicsDevice.PresentationParameters.BackBufferWidth = 1920;
-            GraphicsDevice.PresentationParameters.BackBufferHeight = 1080;
-            GraphicsDevice.PresentationParameters.IsFullScreen = true;
+            GraphicsDevice.PresentationParameters.BackBufferWidth = 1280;
+            GraphicsDevice.PresentationParameters.BackBufferHeight = 720;
+            _renderer = new GuiSpriteBatchRenderer(GraphicsDevice);
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
-            var viewportAdapter = new DefaultViewportAdapter(this.GraphicsDevice);
+            using (var stream = TitleContainer.OpenStream("Content/DefaultFont.ttf"))
+            {
+                byte[] data = new byte[stream.Length];
+                stream.Read(data, 0, data.Length);
+                _defaultFont = DynamicSpriteFont.FromTtf(data, 16);
+            }
 
+                _brush = new Brush(Color.White, Content.Load<Texture2D>("Wallpapers/1"), new Thickness(0), Size2.Empty, BrushType.Image);
             _worldState = new WorldState();
             _worldState.Initialize();
-
             _playerUserLand = _worldState.GetPlayerUser();
 
-            _guiSystem = new GuiSystem(viewportAdapter);
-            _console = new ViewportConsole(viewportAdapter, Content, _playerUserLand);
-            _commandShell = new Sh();
-            _commandShell.Run(_console, new[] { "" });
+            var viewport = new DefaultViewportAdapter(GraphicsDevice);
+
+            _guiSystem = new GuiSystem(viewport, _renderer, _defaultFont);
+            _guiSystem.ActiveScreen = new DesktopScreen(Content, _playerUserLand);
         }
 
         protected override void UnloadContent()
@@ -61,21 +73,17 @@ namespace ThePeacenet
         protected override void Update(GameTime gameTime)
         {
             _worldState.Update(gameTime.GetElapsedSeconds());
-
             _guiSystem.Update(gameTime);
-            _console.Update(gameTime);
-            _commandShell.Update(gameTime.GetElapsedSeconds());
-
-            if (_commandShell.Completed) this.Exit();
 
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            _guiSystem.Draw(gameTime);
-            _console.Draw(gameTime);
+            GraphicsDevice.Clear(Color.Black);
 
+            _guiSystem.Draw(gameTime);
+            
             base.Draw(gameTime);
         }
     }

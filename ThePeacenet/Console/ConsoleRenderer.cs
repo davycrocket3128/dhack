@@ -14,10 +14,11 @@ using ThePeacenet.Backend;
 using ThePeacenet.Backend.AssetTypes;
 using ThePeacenet.Backend.OS;
 using ThePeacenet.Core;
+using ThePeacenet.Gui;
 
 namespace ThePeacenet.Console
 {
-    public class ViewportConsole : IRenderable, IRectangular, IConsoleContext, IDisposable
+    public class ConsoleRenderer : IRectangular, IConsoleContext, IDisposable
     {
         private struct TerminalInfo
         {
@@ -37,18 +38,13 @@ namespace ThePeacenet.Console
 
         private string _work = "/";
         private IUserLand _owner = null;
-        private ViewportAdapter _viewportAdapter = null;
-        private SpriteBatch _spriteBatch = null;
         private string _textData = "";
-        private Texture2D _white = null;
         private SpriteFont _regularFont = null;
         private SpriteFont _boldItalicFont = null;
         private SpriteFont _boldFont = null;
         private SpriteFont _italicFont = null;
         private float _scrollOffsetY = 0;
         private float _zoomFactor = 1;
-        private MouseListener _mouseListener = null;
-        private KeyboardListener _keyboardListener = null;
         private string _textInputBuffer = "";
 
         public string WorkingDirectory
@@ -63,42 +59,29 @@ namespace ThePeacenet.Console
             }
         }
 
-        public ViewportConsole(ViewportAdapter viewport, ContentManager content, IUserLand owner)
+        public ConsoleRenderer(ContentManager content, IUserLand owner)
         {
             _owner = owner;
-
-            _viewportAdapter = viewport;
-            _spriteBatch = new SpriteBatch(_viewportAdapter.GraphicsDevice);
-
-            _white = new Texture2D(_viewportAdapter.GraphicsDevice, 1, 1);
-            _white.SetData<uint>(new[] { 0xffffffff });
 
             _regularFont = content.Load<SpriteFont>("Gui/Fonts/Terminal/Regular");
             _boldFont = content.Load<SpriteFont>("Gui/Fonts/Terminal/Bold");
             _boldItalicFont = content.Load<SpriteFont>("Gui/Fonts/Terminal/BoldItalic");
             _italicFont = content.Load<SpriteFont>("Gui/Fonts/Terminal/Italic");
-
-            _keyboardListener = new KeyboardListener();
-            _keyboardListener.KeyPressed += _keyboardListener_KeyPressed;
-            _keyboardListener.KeyTyped += _keyboardListener_KeyTyped;
-
-            _mouseListener = new MouseListener(_viewportAdapter);
-            _mouseListener.MouseWheelMoved += _mouseListener_MouseWheelMoved;
         }
 
-        private void _mouseListener_MouseWheelMoved(object sender, MouseEventArgs e)
+        public void HandleScrollEvent(int delta)
         {
-            _scrollOffsetY -= e.ScrollWheelDelta;
+            _scrollOffsetY -= delta;
             if (_scrollOffsetY < 0) _scrollOffsetY = 0;
         }
 
-        private void DrawCharacter(RectangleF rect, SpriteFont font, Color bg, Color fg, char c)
+        private void DrawCharacter(IGuiRenderer renderer, RectangleF rect, SpriteFont font, Color bg, Color fg, char c)
         {
-            _spriteBatch.FillRectangle(rect, bg);
-            _spriteBatch.DrawString(font, c.ToString(), new Vector2(rect.Left, rect.Top), fg, 0f, Vector2.Zero, _zoomFactor, SpriteEffects.None, 0);
+            renderer.FillRectangle(rect, bg);
+            renderer.DrawString(font, c.ToString(), new Vector2(rect.Left, rect.Top), fg, _zoomFactor);
         }
 
-        private void _keyboardListener_KeyTyped(object sender, KeyboardEventArgs e)
+        public void HandleKeyTyped(KeyboardEventArgs e)
         {
             if (e.Character == null) return;
 
@@ -123,7 +106,7 @@ namespace ThePeacenet.Console
             _scrollOffsetY = -1;
         }
 
-        private void _keyboardListener_KeyPressed(object sender, KeyboardEventArgs e)
+        public void HandleKeyPressed(KeyboardEventArgs e)
         {
             if(e.Modifiers.HasFlag(KeyboardModifiers.Control))
             {
@@ -139,7 +122,7 @@ namespace ThePeacenet.Console
             }
         }
 
-        public Rectangle BoundingRectangle => _viewportAdapter.BoundingRectangle;
+        public Rectangle BoundingRectangle { get; set; }
 
         public string Username => _owner.Username;
 
@@ -166,26 +149,18 @@ namespace ThePeacenet.Console
 
         public void Dispose()
         {
-            _spriteBatch.Dispose();
-            _white.Dispose();
         }
 
-        public void Draw(GameTime gameTime)
+        public void Draw(IGuiRenderer renderer, float gameTime)
         {
             // Clear the console.
-            _viewportAdapter.GraphicsDevice.Clear(Color.Black);
-
-            // Begin the draw operation.
-            _spriteBatch.Begin();
+            renderer.FillRectangle(BoundingRectangle, Color.Black);
 
             // Draw the terminal.
-            GetTerminalInfo(true);
-
-            // And we are done.
-            _spriteBatch.End();
+            GetTerminalInfo(renderer);
         }
 
-        private TerminalInfo GetTerminalInfo(bool draw)
+        private TerminalInfo GetTerminalInfo(IGuiRenderer renderer)
         {
             TerminalInfo ret = new TerminalInfo(0, 0, 0, 0);
 
@@ -235,13 +210,13 @@ namespace ThePeacenet.Console
                 charH = measure.Y * _zoomFactor;
 
                 // If the vertical position of the cursor is on-screen then we can draw.
-                if (charY >= BoundingRectangle.Top && charY <= size.Y && draw)
+                if (charY >= BoundingRectangle.Top && charY <= BoundingRectangle.Bottom && renderer != null)
                 {
-                    DrawCharacter(new RectangleF(charX, charY, charW, charH), font, bgColor, fgColor, c);
+                    DrawCharacter(renderer, new RectangleF(charX, charY, charW, charH), font, bgColor, fgColor, c);
                 }
 
                 // Now we advance the text position.
-                if (charX + charW >= size.X)
+                if (charX + charW >= BoundingRectangle.Right)
                 {
                     ret.Lines++;
                     ret.Height += charH;
@@ -255,9 +230,9 @@ namespace ThePeacenet.Console
             }
 
             // One final draw of the cursor if it's on-screen.
-            if (charY >= BoundingRectangle.Top && charY <= size.Y && draw)
+            if (charY >= BoundingRectangle.Top && charY <= BoundingRectangle.Bottom && renderer != null)
             {
-                DrawCharacter(new RectangleF(charX, charY, charW, charH), font, fgColor, bgColor, ' ');
+                DrawCharacter(renderer, new RectangleF(charX, charY, charW, charH), font, fgColor, bgColor, ' ');
             }
 
             ret.Height += charH;
@@ -291,12 +266,9 @@ namespace ThePeacenet.Console
             OverWrite(string.Format(format, args));
         }
 
-        public void Update(GameTime gameTime)
+        public void Update(float gameTime)
         {
-            _mouseListener.Update(gameTime);
-            _keyboardListener.Update(gameTime);
-
-            var info = GetTerminalInfo(false);
+            var info = GetTerminalInfo(null);
 
             if(_scrollOffsetY < 0)
             {

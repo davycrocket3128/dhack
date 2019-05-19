@@ -47,10 +47,33 @@
     <Compile Include="Commands\Grep.cs" />
     <Compile Include="Commands\Ls.cs" />
     <Compile Include="Commands\Mkdir.cs" />
-    <Compile Include="Console\ViewportConsole.cs" />
+    <Compile Include="Console\ConsoleControl.cs" />
+    <Compile Include="Console\ConsoleRenderer.cs" />
     <Compile Include="Core\IRenderable.cs" />
+    <Compile Include="Desktop\DesktopScreen.cs" />
     <Compile Include="GameInstance.cs" />
+    <Compile Include="Gui\Brush.cs" />
+    <Compile Include="Gui\ControlStyle.cs" />
+    <Compile Include="Gui\Controls\Border.cs" />
+    <Compile Include="Gui\Controls\Button.cs" />
+    <Compile Include="Gui\Controls\Canvas.cs" />
+    <Compile Include="Gui\Controls\CompositeControl.cs" />
+    <Compile Include="Gui\Controls\ContentControl.cs" />
+    <Compile Include="Gui\Controls\Control.cs" />
+    <Compile Include="Gui\Controls\ControlCollection.cs" />
+    <Compile Include="Gui\Controls\Image.cs" />
+    <Compile Include="Gui\Controls\ItemsControl.cs" />
+    <Compile Include="Gui\Controls\Label.cs" />
+    <Compile Include="Gui\Controls\LayoutControl.cs" />
+    <Compile Include="Gui\Controls\StackPanel.cs" />
+    <Compile Include="Gui\Controls\StatusIcon.cs" />
+    <Compile Include="Gui\Element.cs" />
+    <Compile Include="Gui\ElementCollection.cs" />
     <Compile Include="Gui\GuiSystem.cs" />
+    <Compile Include="Gui\IGuiContext.cs" />
+    <Compile Include="Gui\IGuiRenderer.cs" />
+    <Compile Include="Gui\LayoutHelper.cs" />
+    <Compile Include="Gui\PointerEventArgs.cs" />
     <Compile Include="Gui\Screen.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -62,6 +85,9 @@
     <Reference Include="MonoGame.Extended.Graphics, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MonoGame.Extended.Graphics.1.1.0\lib\portable-net45+win8+wpa81\MonoGame.Extended.Graphics.dll</HintPath>
     </Reference>
+    <Reference Include="MonoGame.Extended.Gui, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MonoGame.Extended.Gui.1.1.0\lib\portable-net45+win8+wpa81\MonoGame.Extended.Gui.dll</HintPath>
+    </Reference>
     <Reference Include="MonoGame.Extended.Input, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MonoGame.Extended.Input.1.1.0\lib\portable-net45+win8+wpa81\MonoGame.Extended.Input.dll</HintPath>
     </Reference>
@@ -70,6 +96,12 @@
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Optional, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Optional.4.0.0\lib\net45\Optional.dll</HintPath>
+    </Reference>
+    <Reference Include="SpriteFontPlus, Version=0.6.2.14, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SpriteFontPlus.MonoGame.0.6.2.14\lib\net45\SpriteFontPlus.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
@@ -126,13 +158,12 @@
     </None>
     <None Include="app.config" />
     <None Include="app.manifest" />
+    <None Include="Content\DefaultFont.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MonoHack\MonoHack.Engine\MonoHack.Engine.csproj">
-      <Project>{b5211612-049f-4555-9551-7d9f8eb86135}</Project>
-      <Name>MonoHack.Engine</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ThePeacenet.Backend\ThePeacenet.Backend.csproj">
       <Project>{137c6e21-12da-4948-9e38-bd436fd15571}</Project>
       <Name>ThePeacenet.Backend</Name>
