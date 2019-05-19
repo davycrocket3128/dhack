@@ -61,6 +61,7 @@
     <Compile Include="Gui\Controls\ContentControl.cs" />
     <Compile Include="Gui\Controls\Control.cs" />
     <Compile Include="Gui\Controls\ControlCollection.cs" />
+    <Compile Include="Gui\Controls\DockPanel.cs" />
     <Compile Include="Gui\Controls\Image.cs" />
     <Compile Include="Gui\Controls\ItemsControl.cs" />
     <Compile Include="Gui\Controls\Label.cs" />

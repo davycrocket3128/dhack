@@ -16,22 +16,8 @@ namespace ThePeacenet.Gui.Controls
 
     public class StackPanel : LayoutControl
     {
-        private Dictionary<Guid, float> _fills = new Dictionary<Guid, float>();
-
         public StackPanel()
         {
-        }
-
-        public void SetFill(Control control, float fill)
-        {
-            if(Children.Contains(control))
-            {
-                if (!_fills.ContainsKey(control.Id))
-                    _fills.Add(control.Id, fill);
-                else
-                    _fills[control.Id] = fill;
-                InvalidateMeasure();
-            }
         }
 
         public Orientation Orientation { get; set; } = Orientation.Vertical;
@@ -73,17 +59,12 @@ namespace ThePeacenet.Gui.Controls
             {
                 var actualSize = control.CalculateActualSize(context);
 
-                float fill = 0;
-                if (_fills.ContainsKey(control.Id))
-                    fill = _fills[control.Id];
-
                 switch (Orientation)
                 {
                     case Orientation.Vertical:
-                        int hFillAmount = (int)(rectangle.Height * fill);
-                        PlaceControl(context, control, rectangle.X, rectangle.Y, rectangle.Width, (hFillAmount > 0) ? hFillAmount : actualSize.Height);
+                        PlaceControl(context, control, rectangle.X, rectangle.Y, rectangle.Width, actualSize.Height);
                         rectangle.Y += (int)actualSize.Height + Spacing;
-                        rectangle.Height -= (hFillAmount > 0) ? hFillAmount : (int)actualSize.Height;
+                        rectangle.Height -= (int)actualSize.Height;
                         break;
                     case Orientation.Horizontal:
                         PlaceControl(context, control, rectangle.X, rectangle.Y, actualSize.Width, rectangle.Height);
@@ -95,5 +76,7 @@ namespace ThePeacenet.Gui.Controls
                 }
             }
         }
+
+        
     }
 }

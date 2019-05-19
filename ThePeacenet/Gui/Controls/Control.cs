@@ -204,5 +204,22 @@ namespace ThePeacenet.Gui.Controls
             public Rectangle? ClippingRectangle;
             public Vector2 Position;
         }
+
+        public Dictionary<string, object> AttachedProperties { get; } = new Dictionary<string, object>();
+
+        public object GetAttachedProperty(string name)
+        {
+            return AttachedProperties.TryGetValue(name, out var value) ? value : null;
+        }
+
+        public void SetAttachedProperty(string name, object value)
+        {
+            AttachedProperties[name] = value;
+        }
+
+        public virtual Type GetAttachedPropertyType(string propertyName)
+        {
+            return null;
+        }
     }
 }

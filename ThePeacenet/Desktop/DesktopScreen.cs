@@ -18,8 +18,7 @@ namespace ThePeacenet.Desktop
     public class DesktopScreen : Screen
     {
         private IUserLand _owner = null;
-        private Shell _shell = null;
-
+        
         public DesktopScreen(ContentManager content, IUserLand ownerUser)
         {
             _owner = ownerUser;
@@ -28,57 +27,67 @@ namespace ThePeacenet.Desktop
             {
                 BackgroundBrush = new Brush(Color.White, content.Load<Texture2D>("wallpapers/1"), new Thickness(0), Size2.Empty, BrushType.Image),
                 Name = "Wallpaper",
-                Content = new StackPanel
+                Content = new DockPanel
                 {
-                    Orientation = Orientation.Vertical,
-                    Name = "RootStacker"
+                    Name = "Root",
+                    LastChildFill = true
                 }
             };
 
-            FindControl<StackPanel>("RootStacker").Items.Add(new Border
+            FindControl<DockPanel>("Root").Items.Add(new Border
             {
                 BackgroundBrush = new Brush(new Color(0x22, 0x22, 0x22, 0xff)),
                 MinHeight = 24,
-                Content = new StackPanel
+                Name = "DesktopPanelBorder",
+                Content = new DockPanel
                 {
                     Name = "DesktopPanel",
-                    Orientation = Orientation.Horizontal
+                    LastChildFill = true
                 }
             });
 
-            FindControl<StackPanel>("RootStacker").Items.Add(new ConsoleControl(content, ownerUser)
+            FindControl<DockPanel>("Root").Items.Add(new Canvas
             {
-                Name = "TestConsole"
+                Name = "WindowManagerArea",
             });
 
-            FindControl<StackPanel>("RootStacker").SetFill(FindControl<ConsoleControl>("TestConsole"), 1);
-
-            FindControl<StackPanel>("DesktopPanel").Items.Add(new Button
+            FindControl<Border>("DesktopPanelBorder").SetAttachedProperty(DockPanel.DockProperty, Dock.Top);
+            
+            FindControl<DockPanel>("DesktopPanel").Items.Add(new Button
             {
                 Name = "AppButton",
                 VerticalAlignment = VerticalAlignment.Centre,
                 BackgroundBrush = new Brush(content.Load<Texture2D>("Gui/Textures/menu"))
             });
 
-            FindControl<StackPanel>("DesktopPanel").Items.Add(new StatusIcon
+            FindControl<DockPanel>("DesktopPanel").Items.Add(new StackPanel
             {
-                Content = "Cover",
-                Name = "CoverMeter",
-                IconBrush = new Brush(content.Load<Texture2D>("Gui/Icons/eye-slash"), 16)
+                Orientation = Orientation.Horizontal,
+                Name = "Tray",
+                Spacing = 4
             });
 
-            IProcess shellProcess = null;
-            FindControl<ConsoleControl>("TestConsole").Console.Execute("sh", out shellProcess);
-            if(shellProcess is Shell shell)
+            FindControl<StackPanel>("Tray").SetAttachedProperty(DockPanel.DockProperty, Dock.Right);
+
+            FindControl<StackPanel>("Tray").Items.Add(new StatusIcon
             {
-                _shell = shell;
-                _shell.Run(FindControl<ConsoleControl>("TestConsole").Console, new[] { "sh" });
-            }
+                Name = "Username",
+                Content = "Username here",
+                IconBrush = new Brush(content.Load<Texture2D>("Gui/Icons/user-circle"), 16)
+            });
+
+            FindControl<DockPanel>("DesktopPanel").Items.Add(new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Name = "WindowList",
+                Spacing = 3,
+                VerticalAlignment = VerticalAlignment.Stretch
+            });
+
         }
 
         public override void Draw(IGuiContext context, IGuiRenderer renderer, float deltaSeconds)
         {
-            _shell.Update(deltaSeconds);
         }
     }
 }
