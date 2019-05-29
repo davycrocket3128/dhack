@@ -51,7 +51,9 @@
     <Compile Include="Console\ConsoleRenderer.cs" />
     <Compile Include="Core\IRenderable.cs" />
     <Compile Include="Desktop\DesktopScreen.cs" />
+    <Compile Include="Desktop\SerenityWindowTheme.cs" />
     <Compile Include="Desktop\Window.cs" />
+    <Compile Include="Desktop\WindowTheme.cs" />
     <Compile Include="GameInstance.cs" />
     <Compile Include="Gui\Brush.cs" />
     <Compile Include="Gui\ControlStyle.cs" />

@@ -29,7 +29,6 @@ namespace ThePeacenet.Desktop
         {
             _rootBorder = new Border
             {
-                BackgroundBrush = new Brush(Color.Black),
                 Content = _nonClient = new DockPanel
                 {
                     LastChildFill = true
@@ -38,7 +37,6 @@ namespace ThePeacenet.Desktop
 
             _nonClient.Items.Add(_captionBorder = new DragSurface
             {
-                MinHeight = 24,
                 Content = _captionDock = new DockPanel
                 {
                     LastChildFill = true
@@ -49,8 +47,6 @@ namespace ThePeacenet.Desktop
 
             _captionDock.Items.Add(_iconImage = new Image
             {
-                BackgroundBrush = new Brush(null, 16),
-                Margin = new MonoGame.Extended.Thickness(5),
                 VerticalAlignment = VerticalAlignment.Centre
             });
 
@@ -65,7 +61,6 @@ namespace ThePeacenet.Desktop
                 VerticalAlignment = VerticalAlignment.Centre,
                 HorizontalTextAlignment = HorizontalAlignment.Centre,
                 Content = "Window Title",
-                TextColor = Color.White
             });
 
             _titleButtons.Items.Add(_minimizeButton = new Button
@@ -119,6 +114,22 @@ namespace ThePeacenet.Desktop
             }
         }
 
+        private void ApplyWindowTheme(WindowTheme theme)
+        {
+            if (theme == null) return;
+
+            _rootBorder.BackgroundBrush = theme.BackgroundBrush;
+            _clientArea.Margin = theme.ClientBorderMargin;
+            _caption.TextColor = theme.TitleTextColor;
+
+            if(_iconImage.BackgroundBrush.BrushColor != theme.WindowIconColor || (int)_iconImage.BackgroundBrush.ImageSize.Height != theme.WindowIconSize)
+            {
+                var b = new Brush(_iconImage.BackgroundBrush.Texture, theme.WindowIconSize);
+                b.BrushColor = theme.WindowIconColor;
+                _iconImage.BackgroundBrush = b;
+            }
+        }
+
         public void Close()
         {
             throw new NotImplementedException();
@@ -140,5 +151,11 @@ namespace ThePeacenet.Desktop
         }
 
         public Control Content { get => _clientArea.Content; set => _clientArea.Content = value; }
+
+        public override void Update(IGuiContext context, float deltaSeconds)
+        {
+            ApplyWindowTheme(WindowTheme.Current);
+            base.Update(context, deltaSeconds);
+        }
     }
 }

@@ -21,6 +21,8 @@ namespace ThePeacenet.Desktop
         
         public DesktopScreen(ContentManager content, IUserLand ownerUser)
         {
+            WindowTheme.Current = new SerenityWindowTheme(content);
+
             _owner = ownerUser;
             
             Content = new Border

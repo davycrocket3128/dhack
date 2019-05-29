@@ -59,8 +59,26 @@ namespace ThePeacenet.Gui
                 case BrushType.Border:
                     if (brush.Texture != null)
                     {
-                        // draw top-left corner.
-                        _spriteBatch.Draw(brush.Texture, new Rectangle(rectangle.X, rectangle.Y, brush.Margin.Left, brush.Margin.Top), new Rectangle(0, 0, brush.Margin.Left, brush.Margin.Top), brush.BrushColor);
+                        // fill in the box if we're not a border.
+                        if(brush.BrushType == BrushType.Box)
+                        {
+                            _spriteBatch.Draw(brush.Texture,
+                                new Rectangle(rectangle.X + brush.Margin.Left, rectangle.Y + brush.Margin.Top, rectangle.Width - (brush.Margin.Left + brush.Margin.Right), rectangle.Height - (brush.Margin.Top + brush.Margin.Bottom)),
+                                new Rectangle(brush.Margin.Left, brush.Margin.Top, brush.Texture.Width - (brush.Margin.Left + brush.Margin.Right), brush.Texture.Height - (brush.Margin.Top + brush.Margin.Bottom)),
+                                brush.BrushColor);
+                        }
+
+                        // draw top area.
+                        _spriteBatch.Draw(brush.Texture, 
+                            new Rectangle(rectangle.X, rectangle.Y, brush.Margin.Left, brush.Margin.Top),
+                            new Rectangle(0, 0, brush.Margin.Left, brush.Margin.Top),
+                            brush.BrushColor);
+                        _spriteBatch.Draw(brush.Texture,
+                            new Rectangle(rectangle.X + brush.Margin.Left, rectangle.Y, rectangle.Width - (brush.Margin.Left + brush.Margin.Right), brush.Margin.Top),
+                            new Rectangle(brush.Margin.Left, 0, brush.Texture.Width - (brush.Margin.Left + brush.Margin.Right), brush.Margin.Top),
+                            brush.BrushColor);
+
+
                     }
                     else
                     {

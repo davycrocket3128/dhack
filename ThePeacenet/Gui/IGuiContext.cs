@@ -12,7 +12,7 @@ namespace ThePeacenet.Gui
     public interface IGuiContext
     {
         Control FocusedControl { get; }
-        Vector2 CursorPosition { get; }
+        Point CursorPosition { get; }
         DynamicSpriteFont DefaultFont { get; }
 
         void SetFocus(Control control);

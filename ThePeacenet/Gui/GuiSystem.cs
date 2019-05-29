@@ -48,7 +48,7 @@ namespace ThePeacenet.Gui
             DefaultFont = defaultFont;
         }
 
-        public Vector2 CursorPosition { get; set; }
+        public Point CursorPosition { get; set; }
         public Control FocusedControl { get; private set; }
         public Control HoveredControl { get; private set; }
         public DynamicSpriteFont DefaultFont { get; private set; }
@@ -157,7 +157,7 @@ namespace ThePeacenet.Gui
 
         private void OnPointerMoved(PointerEventArgs args)
         {
-            CursorPosition = args.Position.ToVector2();
+            CursorPosition = args.Position;
 
             if (ActiveScreen == null || !ActiveScreen.IsVisible)
                 return;

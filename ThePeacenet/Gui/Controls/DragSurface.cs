@@ -23,25 +23,15 @@ namespace ThePeacenet.Gui.Controls
             return base.OnPointerDown(context, args);
         }
 
-        public override bool OnPointerLeave(IGuiContext context, PointerEventArgs args)
+        public override void Update(IGuiContext context, float deltaSeconds)
         {
-            if(_dragging)
+            if (_dragging)
             {
-                OnPointerMove(context, args);
-                return false;
-            }
-            return base.OnPointerLeave(context, args);
-        }
-
-        public override bool OnPointerMove(IGuiContext context, PointerEventArgs args)
-        {
-            if(_dragging)
-            {
-                var delta = args.Position - _lastPoint;
+                var delta = context.CursorPosition - _lastPoint;
                 FireDragEvent(delta);
-                _lastPoint = args.Position;
+                _lastPoint = context.CursorPosition;
             }
-            return base.OnPointerMove(context, args);
+            base.Update(context, deltaSeconds);
         }
 
         private void FireDragEvent(Point delta)
