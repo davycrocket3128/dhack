@@ -14,30 +14,6 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin ../../../peacenet-old/the-peacenet/Content/inkblot assets/menu.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:../../../peacenet-old/the-peacenet/Content/inkblot assets/menu.png;Gui/Textures/menu.png
-
-#begin ../../../peacenet-old/the-peacenet/Content/inkblot assets/menudown.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:../../../peacenet-old/the-peacenet/Content/inkblot assets/menudown.png;Gui/Textures/menudown.png
-
 #begin DefaultFont.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
@@ -9545,6 +9521,18 @@
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/barhalfandhalf.png
 
+#begin Gui/Textures/barhalfandhalf.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/barhalfandhalf.png
+
 #begin Gui/Textures/bullet.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -9556,6 +9544,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/bullet.png
+
+#begin Gui/Textures/bullet.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/bullet.png
+
+#begin Gui/Textures/button.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/button.png
 
 #begin Gui/Textures/button.png
 /importer:TextureImporter
@@ -9581,6 +9593,18 @@
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/buttonc.png
 
+#begin Gui/Textures/buttonc.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/buttonc.png
+
 #begin Gui/Textures/buttonh.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -9592,6 +9616,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/buttonh.png
+
+#begin Gui/Textures/buttonh.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/buttonh.png
+
+#begin Gui/Textures/check.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/check.png
 
 #begin Gui/Textures/check.png
 /importer:TextureImporter
@@ -9617,6 +9665,18 @@
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/clickupanddown.png
 
+#begin Gui/Textures/clickupanddown.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/clickupanddown.png
+
 #begin Gui/Textures/close.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -9628,6 +9688,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/close.png
+
+#begin Gui/Textures/close.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/close.png
+
+#begin Gui/Textures/drag.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/drag.png
 
 #begin Gui/Textures/drag.png
 /importer:TextureImporter
@@ -9653,6 +9737,18 @@
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/dragh.png
 
+#begin Gui/Textures/dragh.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/dragh.png
+
 #begin Gui/Textures/dragv.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -9664,6 +9760,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/dragv.png
+
+#begin Gui/Textures/dragv.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/dragv.png
+
+#begin Gui/Textures/dropdown.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/dropdown.png
 
 #begin Gui/Textures/dropdown.png
 /importer:TextureImporter
@@ -9689,6 +9809,18 @@
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/headerblot.png
 
+#begin Gui/Textures/headerblot.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/headerblot.png
+
 #begin Gui/Textures/max.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -9700,6 +9832,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/max.png
+
+#begin Gui/Textures/max.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/max.png
+
+#begin Gui/Textures/menu.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/menu.png
 
 #begin Gui/Textures/menu.png
 /importer:TextureImporter
@@ -9725,6 +9881,18 @@
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/menudown.png
 
+#begin Gui/Textures/menudown.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/menudown.png
+
 #begin Gui/Textures/min.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -9736,6 +9904,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/min.png
+
+#begin Gui/Textures/min.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/min.png
+
+#begin Gui/Textures/scrolldown.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/scrolldown.png
 
 #begin Gui/Textures/scrolldown.png
 /importer:TextureImporter
@@ -9761,6 +9953,18 @@
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/scrollleft.png
 
+#begin Gui/Textures/scrollleft.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/scrollleft.png
+
 #begin Gui/Textures/scrollright.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -9772,6 +9976,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/scrollright.png
+
+#begin Gui/Textures/scrollright.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/scrollright.png
+
+#begin Gui/Textures/scrollup.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/scrollup.png
 
 #begin Gui/Textures/scrollup.png
 /importer:TextureImporter
@@ -9797,6 +10025,18 @@
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/taskbardown.png
 
+#begin Gui/Textures/taskbardown.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/taskbardown.png
+
 #begin Gui/Textures/taskbarup.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -9808,6 +10048,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/taskbarup.png
+
+#begin Gui/Textures/taskbarup.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/taskbarup.png
+
+#begin Gui/Textures/unbullet.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/unbullet.png
 
 #begin Gui/Textures/unbullet.png
 /importer:TextureImporter
@@ -9833,6 +10097,30 @@
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/uncheck.png
 
+#begin Gui/Textures/uncheck.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/uncheck.png
+
+#begin Gui/Textures/window.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/window.png
+
 #begin Gui/Textures/window.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -9857,6 +10145,18 @@
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/windowblot.png
 
+#begin Gui/Textures/windowblot.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/windowblot.png
+
 #begin Gui/Textures/windowbuttondown.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -9868,6 +10168,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/windowbuttondown.png
+
+#begin Gui/Textures/windowbuttondown.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/windowbuttondown.png
+
+#begin Gui/Textures/windowbuttonup.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Gui/Textures/windowbuttonup.png
 
 #begin Gui/Textures/windowbuttonup.png
 /importer:TextureImporter
