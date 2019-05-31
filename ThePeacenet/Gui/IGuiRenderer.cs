@@ -60,7 +60,7 @@ namespace ThePeacenet.Gui
                     if (brush.Texture != null)
                     {
                         // fill in the box if we're not a border.
-                        if(brush.BrushType == BrushType.Box)
+                        if (brush.BrushType == BrushType.Box)
                         {
                             _spriteBatch.Draw(brush.Texture,
                                 new Rectangle(rectangle.X + brush.Margin.Left, rectangle.Y + brush.Margin.Top, rectangle.Width - (brush.Margin.Left + brush.Margin.Right), rectangle.Height - (brush.Margin.Top + brush.Margin.Bottom)),
@@ -68,14 +68,52 @@ namespace ThePeacenet.Gui
                                 brush.BrushColor);
                         }
 
-                        // draw top area.
+                        // Draw top-right area.
                         _spriteBatch.Draw(brush.Texture, 
                             new Rectangle(rectangle.X, rectangle.Y, brush.Margin.Left, brush.Margin.Top),
                             new Rectangle(0, 0, brush.Margin.Left, brush.Margin.Top),
                             brush.BrushColor);
+
+                        // Draw top-middle area.
                         _spriteBatch.Draw(brush.Texture,
                             new Rectangle(rectangle.X + brush.Margin.Left, rectangle.Y, rectangle.Width - (brush.Margin.Left + brush.Margin.Right), brush.Margin.Top),
                             new Rectangle(brush.Margin.Left, 0, brush.Texture.Width - (brush.Margin.Left + brush.Margin.Right), brush.Margin.Top),
+                            brush.BrushColor);
+
+                        // Draw top-right area.
+                        _spriteBatch.Draw(brush.Texture,
+                            new Rectangle(rectangle.Right - brush.Margin.Right, rectangle.Y, brush.Margin.Right, brush.Margin.Top),
+                            new Rectangle(brush.Texture.Width - brush.Margin.Right, 0, brush.Margin.Right, brush.Margin.Top),
+                            brush.BrushColor);
+
+                        // Draw left area.
+                        _spriteBatch.Draw(brush.Texture,
+                            new Rectangle(rectangle.X, rectangle.Y + brush.Margin.Top, brush.Margin.Left, rectangle.Height - (brush.Margin.Top + brush.Margin.Bottom)),
+                            new Rectangle(0, brush.Margin.Top, brush.Margin.Left, brush.Texture.Height - (brush.Margin.Top + brush.Margin.Bottom)),
+                            brush.BrushColor);
+
+                        // Draw right area.
+                        _spriteBatch.Draw(brush.Texture,
+                            new Rectangle(rectangle.Right - brush.Margin.Right, rectangle.Y + brush.Margin.Top, brush.Margin.Right, rectangle.Height - (brush.Margin.Top + brush.Margin.Bottom)),
+                            new Rectangle(brush.Texture.Width - brush.Margin.Right, brush.Margin.Top, brush.Margin.Right, brush.Texture.Height - (brush.Margin.Top + brush.Margin.Bottom)),
+                            brush.BrushColor);
+
+                        // Draw bottom-right area.
+                        _spriteBatch.Draw(brush.Texture,
+                            new Rectangle(rectangle.X, rectangle.Bottom - brush.Margin.Bottom, brush.Margin.Left, brush.Margin.Bottom),
+                            new Rectangle(0, brush.Texture.Height - brush.Margin.Bottom, brush.Margin.Left, brush.Margin.Bottom),
+                            brush.BrushColor);
+
+                        // Draw bottom-middle area.
+                        _spriteBatch.Draw(brush.Texture,
+                            new Rectangle(rectangle.X + brush.Margin.Left, rectangle.Bottom - brush.Margin.Bottom, rectangle.Width - (brush.Margin.Left + brush.Margin.Right), brush.Margin.Bottom),
+                            new Rectangle(brush.Margin.Left, brush.Texture.Height - brush.Margin.Bottom, brush.Texture.Width - (brush.Margin.Left + brush.Margin.Right), brush.Margin.Bottom),
+                            brush.BrushColor);
+
+                        // Draw bottom-right area.
+                        _spriteBatch.Draw(brush.Texture,
+                            new Rectangle(rectangle.Right - brush.Margin.Right, rectangle.Bottom - brush.Margin.Bottom, brush.Margin.Right, brush.Margin.Bottom),
+                            new Rectangle(brush.Texture.Width - brush.Margin.Right, brush.Texture.Height - brush.Margin.Bottom, brush.Margin.Right, brush.Margin.Bottom),
                             brush.BrushColor);
 
 
