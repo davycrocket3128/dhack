@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:ns="Microsoft.Xna.Framework">
+  <Asset Type="ProtocolImplementationData" xmlns:ns="ThePeacenet.Backend.AssetTypes">
+    <Name>Peacegate SMTP Server (SSL)</Name>
+    <MinimumSkillLevel>4</MinimumSkillLevel>
+    <ProtocolId>smtp-s</ProtocolId>
+  </Asset>
+</XnaContent>

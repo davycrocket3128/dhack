@@ -8,7 +8,7 @@ namespace ThePeacenet.Backend.AssetTypes
 {
     public class ProtocolImplementation : Asset
     {
-        internal ProtocolImplementation(string id, string name, int minSkillLevel, Protocol protocol) : base(id)
+        internal ProtocolImplementation(string name, int minSkillLevel, Protocol protocol) : base(name)
         {
             Name = name;
             MinimumSkillLevel = minSkillLevel;
@@ -22,14 +22,13 @@ namespace ThePeacenet.Backend.AssetTypes
 
     public class ProtocolImplementationData : AssetBuilder<ProtocolImplementation>
     {
-        public string Id { get; set; }
         public string Name { get; set; }
         public int MinimumSkillLevel { get; set; }
         public string ProtocolId { get; set; }
 
         public override ProtocolImplementation Build(ItemContainer items)
         {
-            return new ProtocolImplementation(Id, Name, MinimumSkillLevel, items.GetItem<Protocol>(ProtocolId));
+            return new ProtocolImplementation(Name, MinimumSkillLevel, items.GetItem<Protocol>(ProtocolId));
         }
     }
 }

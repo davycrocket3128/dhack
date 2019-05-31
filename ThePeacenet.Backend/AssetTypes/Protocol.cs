@@ -19,7 +19,6 @@ namespace ThePeacenet.Backend.AssetTypes
             TargetComputerType = targetComputerType;
         }
 
-        public string Id { get; }
         public string Name { get; }
         public string Summary { get; }
         public string Description { get; }

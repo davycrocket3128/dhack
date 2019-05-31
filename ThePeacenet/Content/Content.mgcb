@@ -9898,6 +9898,36 @@
 /processor:PassThroughProcessor
 /build:Protocols/Telnet.xml
 
+#begin ProtocolVersions/FTP_Basic_01.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:ProtocolVersions/FTP_Basic_01.xml
+
+#begin ProtocolVersions/RCP_Basic_01.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:ProtocolVersions/RCP_Basic_01.xml
+
+#begin ProtocolVersions/SMTP_Insecure_01.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:ProtocolVersions/SMTP_Insecure_01.xml
+
+#begin ProtocolVersions/SMTP_Secure_01.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:ProtocolVersions/SMTP_Secure_01.xml
+
+#begin ProtocolVersions/SSH_Basic_01.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:ProtocolVersions/SSH_Basic_01.xml
+
+#begin ProtocolVersions/Telnet_Basic_01.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:ProtocolVersions/Telnet_Basic_01.xml
+
 #begin TitleFont.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
