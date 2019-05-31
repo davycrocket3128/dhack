@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:ns="Microsoft.Xna.Framework">
+  <Asset Type="ProtocolData" xmlns:ns="ThePeacenet.Backend.AssetTypes">
+    <Id>smtp</Id>
+    <Name>SMTP</Name>
+    <Summary>Unencrypted simple mail transfer protocol.</Summary>
+    <Description></Description>
+    <Port>25</Port>
+    <IsDefault>true</IsDefault>
+    <TargetComputerType>EmailServer</TargetComputerType>
+  </Asset>
+</XnaContent>

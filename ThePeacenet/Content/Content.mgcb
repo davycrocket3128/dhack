@@ -9868,6 +9868,36 @@
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/windowbuttonup.png
 
+#begin Protocols/FTP.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Protocols/FTP.xml
+
+#begin Protocols/RemoteComputing.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Protocols/RemoteComputing.xml
+
+#begin Protocols/SmtpInsecure.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Protocols/SmtpInsecure.xml
+
+#begin Protocols/SmtpSecure.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Protocols/SmtpSecure.xml
+
+#begin Protocols/SSH.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Protocols/SSH.xml
+
+#begin Protocols/Telnet.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Protocols/Telnet.xml
+
 #begin TitleFont.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor

@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:ns="Microsoft.Xna.Framework">
+  <Asset Type="ProtocolData" xmlns:ns="ThePeacenet.Backend.AssetTypes">
+    <Id>ssh</Id>
+    <Name>Secure Shell</Name>
+    <Summary>This service can either be used as a remote Terminal or as an FTP service and is also a lot more secure, thus harder to hack. You are also not bound to the user’s /home directory.</Summary>
+    <Description></Description>
+    <Port>22</Port>
+    <IsDefault>false</IsDefault>
+    <TargetComputerType>Personal</TargetComputerType>
+  </Asset>
+</XnaContent>

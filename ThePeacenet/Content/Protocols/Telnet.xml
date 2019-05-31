@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:ns="Microsoft.Xna.Framework">
+  <Asset Type="ProtocolData" xmlns:ns="ThePeacenet.Backend.AssetTypes">
+    <Id>telnet</Id>
+    <Name>Telnet</Name>
+    <Summary>Allows the use of a remote bash shell over the Telnet protocol.</Summary>
+    <Description></Description>
+    <Port>23</Port>
+    <IsDefault>true</IsDefault>
+    <TargetComputerType>Personal</TargetComputerType>
+  </Asset>
+</XnaContent>
