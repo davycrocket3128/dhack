@@ -55,6 +55,7 @@ namespace ThePeacenet.Desktop
 
             FindControl<Canvas>("WindowManagerArea").Items.Add(new Window
             {
+                Name = "Terminal",
                 WindowTitle = "Terminal",
                 WindowIcon = content.Load<Texture2D>("Gui/Icons/terminal"),
                 Content = new ConsoleControl(content, ownerUser)
@@ -62,6 +63,9 @@ namespace ThePeacenet.Desktop
                     Name = "Terminal"
                 }
             });
+
+            FindControl<Window>("Terminal").SetAttachedProperty(Canvas.AlignmentProperty, new Vector2(0.5f, 0.5f));
+            FindControl<Window>("Terminal").SetAttachedProperty(Canvas.AnchorProperty, new Vector2(0.5f, 0.5f));
 
             FindControl<Border>("DesktopPanelBorder").SetAttachedProperty(DockPanel.DockProperty, Dock.Top);
             
