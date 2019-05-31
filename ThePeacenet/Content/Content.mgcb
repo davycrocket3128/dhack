@@ -27,10 +27,20 @@
 /processorParam:TextureFormat=Compressed
 /build:DefaultFont.spritefont
 
-#begin Exploits/TestExploit.xml
+#begin Exploits/Buffergate.xml
 /importer:XmlImporter
 /processor:PassThroughProcessor
-/build:Exploits/TestExploit.xml
+/build:Exploits/Buffergate.xml
+
+#begin Exploits/Flare.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Exploits/Flare.xml
+
+#begin Exploits/Heartbleed.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Exploits/Heartbleed.xml
 
 #begin Fonts/Heading1.spritefont
 /importer:FontDescriptionImporter
