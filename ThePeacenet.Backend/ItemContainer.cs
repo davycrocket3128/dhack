@@ -25,7 +25,7 @@ namespace ThePeacenet.Backend
             _config = _content.Load<AssetLoaderConfigData>("AssetLoaderConfig");
         }
 
-        private async Task<List<T>> SearchContent<T>(string directory)
+        private List<T> SearchContent<T>(string directory)
         {
             Console.WriteLine("Searching for content of type {0} in directory {1}", typeof(T).Name, directory);
 
@@ -36,7 +36,7 @@ namespace ThePeacenet.Backend
                 string truePath = subdirectory.Replace(Path.DirectorySeparatorChar, '/').Remove(0, _content.RootDirectory.Length + 1);
                 if (_config.DirectoryBlacklist.Contains(truePath)) continue;
 
-                list.AddRange(await SearchContent<T>(subdirectory));
+                list.AddRange(SearchContent<T>(subdirectory));
             }
 
             foreach(var file in Directory.GetFiles(directory))
@@ -56,17 +56,14 @@ namespace ThePeacenet.Backend
             return list;
         }
 
-        private async Task BuildAssets<T, TBuiltType>(List<T> data) where TBuiltType: Asset where T: AssetBuilder<TBuiltType>
+        private void BuildAssets<T, TBuiltType>(List<T> data) where TBuiltType: Asset where T: AssetBuilder<TBuiltType>
         {
             Console.WriteLine("Building {0} Assets", typeof(TBuiltType).Name);
 
-            foreach(var asset in data)
+            foreach (var asset in data)
             {
-                await Task.Run(() =>
-                {
-                    TBuiltType builtAsset = asset.Build(this);
-                    this._assets.Add(builtAsset);
-                });
+                TBuiltType builtAsset = asset.Build(this);
+                this._assets.Add(builtAsset);
             }
         }
 
@@ -81,15 +78,15 @@ namespace ThePeacenet.Backend
 
             var assetRoot = _content.RootDirectory;
 
-            var protocolData = await SearchContent<ProtocolData>(assetRoot);
-            var protoImplData = await SearchContent<ProtocolImplementationData>(assetRoot);
-            var exploitData = await SearchContent<ExploitData>(assetRoot);
+            var protocolData = SearchContent<ProtocolData>(assetRoot);
+            var protoImplData = SearchContent<ProtocolImplementationData>(assetRoot);
+            var exploitData = SearchContent<ExploitData>(assetRoot);
 
             Console.WriteLine("Building assets...");
 
-            await BuildAssets<ProtocolData, Protocol>(protocolData);
-            await BuildAssets<ProtocolImplementationData, ProtocolImplementation>(protoImplData);
-            await BuildAssets<ExploitData, Exploit>(exploitData);
+            BuildAssets<ProtocolData, Protocol>(protocolData);
+            BuildAssets<ProtocolImplementationData, ProtocolImplementation>(protoImplData);
+            BuildAssets<ExploitData, Exploit>(exploitData);
         }
 
         public T GetItem<T>(string id) where T: Asset
