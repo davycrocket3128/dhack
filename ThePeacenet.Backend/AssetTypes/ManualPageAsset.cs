@@ -11,11 +11,21 @@ using ThePeacenet.Backend.Manual;
 
 namespace ThePeacenet.Backend.AssetTypes
 {
-    public class ManualPageAsset
+    public class ManualPageAsset : Asset
     {
-        public string Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+
+        public ManualPageAsset(string id) : base(id)
+        {
+
+        }
+
+        public ManualPageAsset(string id, string name, string description) : base(id)
+        {
+            this.Name = name;
+            this.Description = description;
+        }
 
         protected virtual void BuildManualPage(ManualPageBuilder builder)
         {

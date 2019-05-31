@@ -58,8 +58,15 @@
     <Compile Include="AssetAttributes\RamUsageAttribute.cs" />
     <Compile Include="AssetAttributes\UnlockedByDefaultAttribute.cs" />
     <Compile Include="AssetAttributes\UsageAttribute.cs" />
+    <Compile Include="AssetTypes\Asset.cs" />
+    <Compile Include="AssetTypes\AssetBuilder.cs" />
+    <Compile Include="AssetTypes\AssetLoaderConfigData.cs" />
     <Compile Include="AssetTypes\CommandAsset.cs" />
+    <Compile Include="AssetTypes\Exploit.cs" />
+    <Compile Include="AssetTypes\Extension.cs" />
     <Compile Include="AssetTypes\ManualPageAsset.cs" />
+    <Compile Include="AssetTypes\Protocol.cs" />
+    <Compile Include="AssetTypes\ProtocolImplementationData.cs" />
     <Compile Include="Data\AdjacentNode.cs" />
     <Compile Include="Data\CharacterRelationship.cs" />
     <Compile Include="Data\Computer.cs" />
@@ -74,6 +81,7 @@
     <Compile Include="FileSystem\TextFile.cs" />
     <Compile Include="Gui\IWindow.cs" />
     <Compile Include="IConsoleContext.cs" />
+    <Compile Include="ItemContainer.cs" />
     <Compile Include="ITickable.cs" />
     <Compile Include="Manual\ManualPage.cs" />
     <Compile Include="OS\IContentProvider.cs" />

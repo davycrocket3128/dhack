@@ -7,6 +7,14 @@ using ThePeacenet.Backend.FileSystem;
 
 namespace ThePeacenet.Backend.Data
 {
+    public enum ComputerType
+    {
+        Personal,
+        Hub,
+        EmailServer,
+        PeacenetSite
+    }
+
     public enum RamAmount
     {
         // 256mb
@@ -34,5 +42,6 @@ namespace ThePeacenet.Backend.Data
         public List<FileRecord> Files { get; set; } = new List<FileRecord>();
         public List<TextFile> TextFiles { get; set; } = new List<TextFile>();
         public RamAmount RamAmount { get; set; } = RamAmount.Level0;
+        public ComputerType ComputerType { get; set; }
     }
 }

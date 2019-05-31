@@ -7,7 +7,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{4ADA4A59-2A99-425D-9995-C74A5E6A20CC}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ThePeacenet</RootNamespace>
     <AssemblyName>ThePeacenet</AssemblyName>
@@ -40,6 +40,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Commands\Cat.cs" />
@@ -80,6 +83,7 @@
     <Compile Include="Gui\LayoutHelper.cs" />
     <Compile Include="Gui\PointerEventArgs.cs" />
     <Compile Include="Gui\Screen.cs" />
+    <Compile Include="LoadingScreen.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

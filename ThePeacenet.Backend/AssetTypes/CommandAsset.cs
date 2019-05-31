@@ -18,6 +18,11 @@ namespace ThePeacenet.Backend.AssetTypes
         public RamUsage RamUsage { get; set; } = RamUsage.Low;
         public Type CommandType { get; set; }
 
+        public CommandAsset(string name) : base(name)
+        {
+            Name = name;
+        }
+
         protected override void BuildManualPage(ManualPageBuilder builder)
         {
             builder.Name = builder.Id;
@@ -49,9 +54,7 @@ namespace ThePeacenet.Backend.AssetTypes
                 throw new InvalidOperationException("Type must not be abstract.");
             }
 
-            var asset = new CommandAsset();
-
-            asset.Id = asset.Name = type.Name.ToLower();
+            var asset = new CommandAsset(type.Name.ToLower());
 
             asset.UnlockedByDefault = type.GetCustomAttributes(false).Any(x => x is UnlockedByDefaultAttribute);
             asset.Description = (type.GetCustomAttributes(false).Any(x => x is DescriptionAttribute) ? (type.GetCustomAttributes(false).First(x => x is DescriptionAttribute) as DescriptionAttribute).Description : "");

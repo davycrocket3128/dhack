@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:ns="Microsoft.Xna.Framework">
+  <Asset Type="AssetLoaderConfigData" xmlns:ns="ThePeacenet.Backend.AssetTypes">
+    <DirectoryBlacklist>
+      <Directory>Fonts</Directory>
+      <Directory>Gui</Directory>
+      
+      <!-- We used to have GeonBit.UI ghost assets in the game.  This stops them from loading and
+           slowing the entire game down as a result.
+      -->
+      <Directory>GeonBit.UI</Directory>
+    </DirectoryBlacklist>
+  </Asset>
+</XnaContent>

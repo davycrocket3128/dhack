@@ -48,6 +48,8 @@ namespace ThePeacenet
 
         protected override void LoadContent()
         {
+            var viewport = new DefaultViewportAdapter(GraphicsDevice);
+            
             using (var stream = TitleContainer.OpenStream("Content/DefaultFont.ttf"))
             {
                 byte[] data = new byte[stream.Length];
@@ -55,15 +57,19 @@ namespace ThePeacenet
                 _defaultFont = DynamicSpriteFont.FromTtf(data, 16);
             }
 
-                _brush = new Brush(Color.White, Content.Load<Texture2D>("Wallpapers/1"), new Thickness(0), Size2.Empty, BrushType.Image);
-            _worldState = new WorldState();
-            _worldState.Initialize();
-            _playerUserLand = _worldState.GetPlayerUser();
-
-            var viewport = new DefaultViewportAdapter(GraphicsDevice);
-
             _guiSystem = new GuiSystem(viewport, _renderer, _defaultFont);
-            _guiSystem.ActiveScreen = new DesktopScreen(Content, _playerUserLand);
+            _guiSystem.ActiveScreen = new LoadingScreen(Content);
+
+            _worldState = new WorldState();
+
+            _worldState.PlayerSystemReady += (userland) =>
+            {
+                _playerUserLand = userland;
+
+                _guiSystem.ActiveScreen = new DesktopScreen(Content, _playerUserLand);
+            };
+
+            _worldState.Initialize(Content);
         }
 
         protected override void UnloadContent()

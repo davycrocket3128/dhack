@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework.Content;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,15 +17,23 @@ namespace ThePeacenet.Backend
         private SaveGame _saveGame = null;
         private List<CommandAsset> _commandAssets = new List<CommandAsset>();
         private List<PlayerKernel> _kernels = new List<PlayerKernel>();
+        private ItemContainer _itemContainer = null;
+        private List<Exploit> _exploits = new List<Exploit>();
+        private Task _itemLoadTask = null;
+        private bool _hasWorldBeenStarted = false;
 
-        public void Initialize()
+        public event Action<IUserLand> PlayerSystemReady;
+
+        public bool AreAllAssetsLoaded => (_itemLoadTask != null && _itemLoadTask.IsCompleted);
+
+        private void InitializeWorld()
         {
             _kernels = new List<PlayerKernel>();
 
             _saveGame = new SaveGame();
             _commandAssets.Clear();
 
-            foreach(var type in ReflectionTools.GetAll<Command>())
+            foreach (var type in ReflectionTools.GetAll<Command>())
             {
                 _commandAssets.Add(CommandAsset.FromCommand(type));
             }
@@ -70,11 +79,27 @@ namespace ThePeacenet.Backend
 
             _saveGame.PlayerCharacterID = 0;
             _saveGame.PlayerUserID = 1;
+
+            PlayerSystemReady?.Invoke(GetPlayerUser());
+        }
+
+        public void Initialize(ContentManager content)
+        {
+            _itemContainer = new ItemContainer(content);
+
+            _itemLoadTask = _itemContainer.LoadAsync();
         }
 
         public void Update(float deltaSeconds)
         {
-            
+            if(!_hasWorldBeenStarted)
+            {
+                if (AreAllAssetsLoaded)
+                {
+                    InitializeWorld();
+                    _hasWorldBeenStarted = true;
+                }
+            }
         }
 
         public IEnumerable<CommandAsset> GetAvailableCommands(Computer computer)
