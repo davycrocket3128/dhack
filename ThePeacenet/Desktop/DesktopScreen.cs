@@ -54,6 +54,8 @@ namespace ThePeacenet.Desktop
                 Name = "WindowManagerArea",
             });
 
+            FindControl<Canvas>("WindowManagerArea").Items.Add(CreateWhiskerMenu());
+
             FindControl<Border>("DesktopPanelBorder").SetAttachedProperty(DockPanel.DockProperty, Dock.Top);
             
             FindControl<DockPanel>("DesktopPanel").Items.Add(new Button
@@ -86,6 +88,98 @@ namespace ThePeacenet.Desktop
                 Spacing = 3,
                 VerticalAlignment = VerticalAlignment.Stretch
             });
+
+            ResetAppLauncher();
+        }
+
+        public void ResetAppLauncher()
+        {
+            var categories = FindControl<StackPanel>("Whisker_Categories");
+            var items = FindControl<StackPanel>("Whisker_Items");
+
+            categories.Items.Clear();
+            items.Items.Clear();
+
+            categories.Items.Add(new Button
+            {
+                Content = "All",
+                HorizontalTextAlignment = HorizontalAlignment.Left
+            });
+
+            foreach(var cat in _owner.Programs.Select(x => x.LauncherCategory).Distinct())
+            {
+                categories.Items.Add(new Button
+                {
+                    Content = cat,
+                    HorizontalTextAlignment = HorizontalAlignment.Left
+                });
+            }
+
+            foreach(var program in _owner.Programs)
+            {
+                var button = new Button
+                {
+                    Content = new StatusIcon
+                    {
+                        Content = program.Name,
+                        IconBrush = new Brush(program.Content.Load<Texture2D>(program.LauncherIcon), 16)
+                    }
+                };
+
+                button.Clicked += (o, a) =>
+                {
+                    IProcess p = null;
+                    _owner.Execute(program.Id, out p);
+                    p.Run(new NullConsoleContext(_owner), new[] { program.Id });
+                };
+
+                items.Items.Add(button);
+            }
+        }
+
+        public Control CreateWhiskerMenu()
+        {
+            var dickPanel = new DockPanel
+            {
+                LastChildFill = true
+            };
+
+            var searchText = new Label
+            {
+                Name = "WhiskerSearch",
+                Content = "Search...",
+                HorizontalTextAlignment = HorizontalAlignment.Left,
+                Padding = new Thickness(4)
+            };
+
+            searchText.SetAttachedProperty(DockPanel.DockProperty, Dock.Top);
+
+            dickPanel.Items.Add(searchText);
+
+            var categories = new StackPanel
+            {
+                Name = "Whisker_Categories",
+                Orientation = Orientation.Vertical,
+                Spacing = 3,
+                MinWidth = 125,
+            };
+            categories.SetAttachedProperty(DockPanel.DockProperty, Dock.Right);
+            dickPanel.Items.Add(categories);
+
+            var items = new StackPanel
+            {
+                Name = "Whisker_Items",
+                Orientation = Orientation.Vertical,
+                Spacing = 3,
+            };
+            dickPanel.Items.Add(items);
+
+            return new Border
+            {
+                Content = dickPanel,
+                MinHeight = 450,
+                MinWidth = 500
+            };
         }
 
         public override void Draw(IGuiContext context, IGuiRenderer renderer, float deltaSeconds)
@@ -98,6 +192,7 @@ namespace ThePeacenet.Desktop
             win.SetAttachedProperty(Canvas.AlignmentProperty, new Vector2(0.5f, 0.5f));
 
             FindControl<Canvas>("WindowManagerArea").Items.Add(win);
+            FindControl<Canvas>("WindowManagerArea").InvalidateMeasure();
         }
     }
 }

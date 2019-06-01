@@ -18,6 +18,8 @@ namespace ThePeacenet.Backend.Shell
         private IConsoleContext _console = null;
         private string _name = "";
 
+        public IEnumerable<Program> Programs => Console.Programs;
+
         public bool Completed { get; private set; }
         public string[] Arguments => _arguments;
         public IConsoleContext Console => (ConsoleOverride == null) ? _console : ConsoleOverride;

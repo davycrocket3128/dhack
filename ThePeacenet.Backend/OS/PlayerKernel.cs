@@ -24,6 +24,7 @@ namespace ThePeacenet.Backend.OS
         public IEnumerable<CommandAsset> Commands => WorldState.GetAvailableCommands(Computer);
 
         public List<FileRecord> Records => Computer.Files;
+        public IEnumerable<Program> Programs => WorldState.Items.GetAll<Program>();
 
         public int NextRecordId => (Records.Count > 0) ? Records.Max(x => x.Id) + 1 : 0;
 
@@ -245,6 +246,8 @@ namespace ThePeacenet.Backend.OS
     {
         private PlayerKernel _kernel = null;
         private int _uid = 0;
+
+        public IEnumerable<Program> Programs => _kernel.Programs;
 
         internal int UserID => _uid;
 

@@ -148,7 +148,7 @@ namespace ThePeacenet.Gui.Controls
             return true;
         }
 
-        private bool _isEnabled;
+        private bool _isEnabled = true;
         public bool IsEnabled
         {
             get => _isEnabled;

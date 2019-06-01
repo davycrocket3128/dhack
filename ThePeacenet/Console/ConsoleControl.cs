@@ -45,6 +45,8 @@ namespace ThePeacenet.Console
         private float _zoomFactor = 1;
         private string _textInputBuffer = "";
 
+        public IEnumerable<ThePeacenet.Backend.AssetTypes.Program> Programs => _owner.Programs;
+
         public string WorkingDirectory
         {
             get => _work;

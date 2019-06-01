@@ -12,6 +12,8 @@ namespace ThePeacenet.Backend
     {
         private readonly IUserLand owner;
 
+        public IEnumerable<Program> Programs => owner.Programs;
+
         public NullConsoleContext(IUserLand owner)
         {
             this.owner = owner;

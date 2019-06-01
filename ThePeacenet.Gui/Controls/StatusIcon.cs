@@ -20,10 +20,10 @@ namespace ThePeacenet.Gui.Controls
 
             _holder.Orientation = Orientation.Horizontal;
 
-            _holder.Spacing = 5;
-
             _holder.Items.Add(_image);
             _holder.Items.Add(_label);
+
+            _image.Margin = new MonoGame.Extended.Thickness(5);
 
             _image.VerticalAlignment = _label.VerticalAlignment = VerticalAlignment.Centre;
         }

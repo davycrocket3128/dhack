@@ -69,6 +69,11 @@ namespace ThePeacenet.Backend
             }
         }
 
+        public IEnumerable<T> GetAll<T>() where T: Asset
+        {
+            return _assets.Where(x => x is T).Cast<T>();
+        }
+
         public async Task LoadAsync()
         {
             Console.WriteLine("Loading game assets...");

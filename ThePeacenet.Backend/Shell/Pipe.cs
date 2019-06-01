@@ -50,6 +50,8 @@ namespace ThePeacenet.Backend.Shell
 
         public StringBuilder Log => _log;
 
+        public IEnumerable<Program> Programs => _owner.Programs;
+
         public string Username => _owner.Username;
 
         public string Hostname => _owner.Hostname;

@@ -15,5 +15,11 @@ namespace ThePeacenet.Gui.Controls
         {
             return BackgroundBrush.ImageSize;
         }
+
+        public override void Draw(IGuiContext context, IGuiRenderer renderer, float deltaSeconds)
+        {
+            renderer.DrawBrush(BoundingRectangle, BorderBrush);
+            renderer.DrawBrush(ContentRectangle, BackgroundBrush);
+        }
     }
 }
