@@ -13,6 +13,8 @@ namespace ThePeacenet.Gui.Controls
         private bool _dragging = false;
         private Point _lastPoint = Point.Zero;
 
+        public bool IsDragging => _dragging;
+
         public override bool OnPointerDown(IGuiContext context, PointerEventArgs args)
         {
             if(args.Button == MouseButton.Left)

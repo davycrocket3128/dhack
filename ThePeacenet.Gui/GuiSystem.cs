@@ -163,7 +163,7 @@ FPS: {(int)(1 / gameTime.GetElapsedSeconds())}";
 
                 _renderer.End();
 
-                foreach (var childControl in control.Children)
+                foreach (var childControl in control.Children.OrderBy(x=>x.ZOrder))
                     DrawControl(childControl, deltaSeconds);
 
                 _renderer.SetScissorRect(BoundingRectangle);
@@ -176,6 +176,7 @@ FPS: {(int)(1 / gameTime.GetElapsedSeconds())}";
                 return;
 
             _preFocusedControl = FindControlAtPoint(args.Position);
+            SetFocus(_preFocusedControl);
             PropagateDown(HoveredControl, x => x.OnPointerDown(this, args));
         }
 
@@ -262,7 +263,7 @@ FPS: {(int)(1 / gameTime.GetElapsedSeconds())}";
 
         private Control FindControlAtPoint(Control control, Point point)
         {
-            foreach (var controlChild in control.Children.Reverse())
+            foreach (var controlChild in control.Children.OrderBy(x=>x.ZOrder).Reverse())
             {
                 var c = FindControlAtPoint(controlChild, point);
 

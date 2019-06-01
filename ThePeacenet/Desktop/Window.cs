@@ -259,6 +259,12 @@ namespace ThePeacenet.Desktop
             }
         }
 
+        public override bool OnPointerDown(IGuiContext context, PointerEventArgs args)
+        {
+            ZOrder = 1;
+            return base.OnPointerDown(context, args);
+        }
+
         public void Close()
         {
             this.RemoveFromParent();
@@ -283,6 +289,31 @@ namespace ThePeacenet.Desktop
 
         public override void Update(IGuiContext context, float deltaSeconds)
         {
+            if(ZOrder == 1 && !_captionBorder.IsDragging)
+            {
+                if(context.FocusedControl != null)
+                {
+                    if(context.FocusedControl.IsPartOf<Window>() && !HasFocus)
+                    {
+                        ZOrder = 0;
+                    }
+                }
+            }
+            else
+            {
+                if(HasFocus || _captionBorder.IsDragging)
+                {
+                    foreach(var ctrl in this.Parent.Children)
+                    {
+                        if(ctrl is Window win && win != this)
+                        {
+                            win.ZOrder = 0;
+                        }
+                    }
+                    ZOrder = 1;
+                }
+            }
+
             ApplyWindowTheme(WindowTheme.Current);
 
             if(_shown == false)

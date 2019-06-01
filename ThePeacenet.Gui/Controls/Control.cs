@@ -220,6 +220,24 @@ namespace ThePeacenet.Gui.Controls
 
         public Dictionary<string, object> AttachedProperties { get; } = new Dictionary<string, object>();
 
+        public bool HasFocus => (IsFocused || Children.Any(x => x.HasFocus));
+        public int ZOrder { get; set; } = 0;
+
+        public bool IsPartOf<T>()
+        {
+            if (this is T) return true;
+
+            var parent = Parent;
+
+            while(parent != null)
+            {
+                if (parent is T) return true;
+                parent = parent.Parent;
+            }
+
+            return false;
+        }
+
         public object GetAttachedProperty(string name)
         {
             return AttachedProperties.TryGetValue(name, out var value) ? value : null;
