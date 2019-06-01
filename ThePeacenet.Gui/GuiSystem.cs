@@ -20,6 +20,11 @@ namespace ThePeacenet.Gui
         private ViewportAdapter _viewportAdapter = null;
         private IGuiRenderer _renderer = null;
         private Screen _screen = null;
+#if DEBUG
+        private bool _debugMode = true;
+#else
+        private bool _debugMode = false;
+#endif
 
         private Control _preFocusedControl = null;
 
@@ -42,7 +47,15 @@ namespace ThePeacenet.Gui
             _touchListener.TouchEnded += (s, e) => OnPointerUp(PointerEventArgs.FromTouchArgs(e));
 
             _keyboardListener = new KeyboardListener();
-            _keyboardListener.KeyTyped += (sender, args) => PropagateDown(FocusedControl, x => x.OnKeyTyped(this, args));
+            _keyboardListener.KeyTyped += (sender, args) =>
+            {
+                if(args.Key == Microsoft.Xna.Framework.Input.Keys.F11)
+                {
+                    _debugMode = !_debugMode;
+                    return;
+                }
+                PropagateDown(FocusedControl, x => x.OnKeyTyped(this, args));
+            };
             _keyboardListener.KeyPressed += (sender, args) => PropagateDown(FocusedControl, x => x.OnKeyPressed(this, args));
 
             DefaultFont = defaultFont;
@@ -97,15 +110,29 @@ namespace ThePeacenet.Gui
 
             var deltaSeconds = gameTime.GetElapsedSeconds();
 
-            _renderer.Begin();
 
             if (ActiveScreen != null && ActiveScreen.IsVisible)
             {
                 DrawControl(ActiveScreen.Content, deltaSeconds);
+
+                _renderer.Begin();
+
                 ActiveScreen.Draw(this, _renderer, deltaSeconds);
+
+                if (_debugMode)
+                {
+                    string debugText = $@"Project: Greenlight
+FPS: {(int)(1 / gameTime.GetElapsedSeconds())}";
+
+                    var measure = DefaultFont.MeasureString(debugText);
+
+                    _renderer.FillRectangle(new RectangleF(0, 0, measure.X, measure.Y), Color.Black * 0.5f);
+                    _renderer.DrawString(DefaultFont, debugText, Vector2.Zero, Color.White);
+                }
+
+                _renderer.End();
             }
 
-            _renderer.End();
         }
 
         public void UpdateControl(Control control, float deltaSeconds)
@@ -119,14 +146,27 @@ namespace ThePeacenet.Gui
             }
         }
 
+        public void ClientSizeChanged()
+        {
+            ActiveScreen?.Layout(this, BoundingRectangle);
+        }
+
         private void DrawControl(Control control, float deltaSeconds)
         {
             if (control.IsVisible)
             {
+                _renderer.SetScissorRect(control.BoundingRectangle);
+
+                _renderer.Begin();
+
                 control.Draw(this, _renderer, deltaSeconds);
+
+                _renderer.End();
 
                 foreach (var childControl in control.Children)
                     DrawControl(childControl, deltaSeconds);
+
+                _renderer.SetScissorRect(BoundingRectangle);
             }
         }
 

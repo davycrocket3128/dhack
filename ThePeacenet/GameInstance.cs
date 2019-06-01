@@ -27,38 +27,73 @@ namespace ThePeacenet
         private WorldState _worldState = null;
         private IUserLand _playerUserLand = null;
         private IGuiRenderer _renderer = null;
-        private Brush _brush;
         private DynamicSpriteFont _defaultFont = null;
-
+        private ViewportAdapter _viewportAdapter = null;
+        public GraphicsDeviceManager GraphicsManager => _graphics;
+        
         public GameInstance()
         {
             _graphics = new GraphicsDeviceManager(this);
+            // No hardware mode switch because borderless fullscreen is better than
+            // hardware fullscreen.
+            GraphicsManager.HardwareModeSwitch = false;
+            
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            
-            
+
+            Window.AllowUserResizing = true;
+            Window.ClientSizeChanged += Window_ClientSizeChanged;
+        }
+
+        private void Window_ClientSizeChanged(object sender, EventArgs e)
+        {
+            ResetViewport();
+            _guiSystem.ClientSizeChanged();
         }
 
         protected override void Initialize()
         {
-            GraphicsDevice.PresentationParameters.BackBufferWidth = 1280;
-            GraphicsDevice.PresentationParameters.BackBufferHeight = 720;
-            _renderer = new GuiSpriteBatchRenderer(GraphicsDevice);
+            _defaultFont = Content.LoadFont("DefaultFont");
+            
+            _renderer = new GuiSpriteBatchRenderer(GraphicsDevice, () =>
+            {
+                return _viewportAdapter.GetScaleMatrix();
+            });
+
+            IsMouseVisible = true;
+            GameConfig.Apply(this);
+
+            ResetViewport();
+
             base.Initialize();
+        }
+
+        public void ResetViewport()
+        {
+            System.Console.WriteLine("Updating GUI viewport settings...");
+
+            _viewportAdapter = new DefaultViewportAdapter(
+                    GraphicsDevice
+                );
+
+            if (_guiSystem != null)
+            {
+                var defaultFont = _guiSystem.DefaultFont;
+                var activeScreen = _guiSystem.ActiveScreen;
+                var focusedControl = _guiSystem.FocusedControl;
+
+                _guiSystem = new GuiSystem(_viewportAdapter, _renderer, defaultFont);
+                _guiSystem.ActiveScreen = activeScreen;
+                _guiSystem.SetFocus(focusedControl);
+            }
+            else
+            {
+                _guiSystem = new GuiSystem(_viewportAdapter, _renderer, _defaultFont);
+            }
         }
 
         protected override void LoadContent()
         {
-            var viewport = new DefaultViewportAdapter(GraphicsDevice);
-            
-            using (var stream = TitleContainer.OpenStream("Content/DefaultFont.ttf"))
-            {
-                byte[] data = new byte[stream.Length];
-                stream.Read(data, 0, data.Length);
-                _defaultFont = DynamicSpriteFont.FromTtf(data, 16);
-            }
-
-            _guiSystem = new GuiSystem(viewport, _renderer, _defaultFont);
             _guiSystem.ActiveScreen = new LoadingScreen(Content);
 
             _worldState = new WorldState(this);
@@ -86,6 +121,8 @@ namespace ThePeacenet
         {
             _worldState.Update(gameTime.GetElapsedSeconds());
             _guiSystem.Update(gameTime);
+
+            
 
             base.Update(gameTime);
         }

@@ -17,8 +17,8 @@ namespace ThePeacenet.GuiHandlers
         {
             var terminal = FindControl<ConsoleControl>("Console");
 
-            terminal.Console.Execute("sh", out _shellProcess);
-            _shellProcess.Run(terminal.Console, new string[] { "sh" });
+            User.Execute("sh", out _shellProcess);
+            _shellProcess.Run(terminal, new string[] { "sh" });
         }
 
         public override void Update(float deltaSeconds)

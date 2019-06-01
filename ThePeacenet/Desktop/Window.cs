@@ -33,6 +33,8 @@ namespace ThePeacenet.Desktop
         private GuiHandler _guiHandler = null;
         private bool _shown = false;
 
+        public IUserLand User => _owner;
+
         public event EventHandler Load;
 
         public Window(ContentManager content, IUserLand owner) : base()

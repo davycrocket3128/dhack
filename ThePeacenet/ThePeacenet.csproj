@@ -51,13 +51,13 @@
     <Compile Include="Commands\Ls.cs" />
     <Compile Include="Commands\Mkdir.cs" />
     <Compile Include="Console\ConsoleControl.cs" />
-    <Compile Include="Console\ConsoleRenderer.cs" />
     <Compile Include="Core\IRenderable.cs" />
     <Compile Include="Desktop\DesktopScreen.cs" />
     <Compile Include="Desktop\SerenityWindowTheme.cs" />
     <Compile Include="Desktop\Window.cs" />
     <Compile Include="Desktop\WindowProcess.cs" />
     <Compile Include="Desktop\WindowTheme.cs" />
+    <Compile Include="GameConfig.cs" />
     <Compile Include="GameInstance.cs" />
     <Compile Include="GuiHandlers\GuiHandler.cs" />
     <Compile Include="GuiHandlers\Terminal.cs" />
@@ -145,9 +145,7 @@
     </None>
     <None Include="app.config" />
     <None Include="app.manifest" />
-    <None Include="Content\DefaultFont.ttf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="Content\DefaultFont.ttf" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +157,9 @@
       <Project>{31389202-87d8-4830-85aa-00771d4ec65b}</Project>
       <Name>ThePeacenet.Gui</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\SpriteFontPlus.Content.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />

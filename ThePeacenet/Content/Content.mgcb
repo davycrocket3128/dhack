@@ -13,6 +13,7 @@
 /reference:..\..\packages\GeonBit.UI.3.4.0.1\lib\geonbitui\DataTypes.dll
 /reference:..\..\ThePeacenet.Backend\bin\Debug\ThePeacenet.Backend.dll
 /reference:..\..\ThePeacenet.Gui\bin\Debug\ThePeacenet.Gui.dll
+/reference:SpriteFontPlus.Content.dll
 
 #---------------------------------- Content ---------------------------------#
 
@@ -21,12 +22,10 @@
 /processor:PassThroughProcessor
 /build:AssetLoaderConfig.xml
 
-#begin DefaultFont.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:DefaultFont.spritefont
+#begin DefaultFont.ttf
+/importer:BinaryFontSourceImporter
+/processor:BinaryFontDocumentProcessor
+/build:DefaultFont.ttf
 
 #begin Exploits/Buffergate.xml
 /importer:XmlImporter
@@ -71,33 +70,25 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/Title.spritefont
 
-#begin Gui/Fonts/Terminal/Bold.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:Gui/Fonts/Terminal/Bold.spritefont
+#begin Gui/Fonts/Terminal/Bold.ttf
+/importer:BinaryFontSourceImporter
+/processor:BinaryFontDocumentProcessor
+/build:Gui/Fonts/Terminal/Bold.ttf
 
-#begin Gui/Fonts/Terminal/BoldItalic.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:Gui/Fonts/Terminal/BoldItalic.spritefont
+#begin Gui/Fonts/Terminal/BoldItalic.ttf
+/importer:BinaryFontSourceImporter
+/processor:BinaryFontDocumentProcessor
+/build:Gui/Fonts/Terminal/BoldItalic.ttf
 
-#begin Gui/Fonts/Terminal/Italic.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:Gui/Fonts/Terminal/Italic.spritefont
+#begin Gui/Fonts/Terminal/Italic.ttf
+/importer:BinaryFontSourceImporter
+/processor:BinaryFontDocumentProcessor
+/build:Gui/Fonts/Terminal/Italic.ttf
 
-#begin Gui/Fonts/Terminal/Regular.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:Gui/Fonts/Terminal/Regular.spritefont
+#begin Gui/Fonts/Terminal/Regular.ttf
+/importer:BinaryFontSourceImporter
+/processor:BinaryFontDocumentProcessor
+/build:Gui/Fonts/Terminal/Regular.ttf
 
 #begin Gui/Icons/500px.png
 /importer:TextureImporter

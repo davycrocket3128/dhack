@@ -22,21 +22,45 @@ namespace ThePeacenet.Gui
         void FillRectangle(RectangleF rectangle, Color color);
         void DrawRectangle(RectangleF rectangle, Color color, int thickness = 1);
 
+        void SetScissorRect(Rectangle rect);
+
         void End();
     }
 
     public class GuiSpriteBatchRenderer : IGuiRenderer
     {
+        private Func<Matrix> _getTransformMatrix;
         private SpriteBatch _spriteBatch = null;
 
-        public GuiSpriteBatchRenderer(GraphicsDevice graphics)
+        public SpriteSortMode SortMode { get; set; }
+        public BlendState BlendState { get; set; } = BlendState.AlphaBlend;
+        public SamplerState SamplerState { get; set; } = SamplerState.LinearClamp;
+        public DepthStencilState DepthStencilState { get; set; } = DepthStencilState.Default;
+        public RasterizerState RasterizerState { get; set; } = RasterizerState.CullNone;
+        public Effect Effect { get; set; }
+
+        public void SetScissorRect(Rectangle rect)
         {
+            _spriteBatch.GraphicsDevice.ScissorRectangle = rect;
+        }
+
+        public GuiSpriteBatchRenderer(GraphicsDevice graphics, Func<Matrix> getTransformMatrix)
+        {
+            _getTransformMatrix = getTransformMatrix;
             _spriteBatch = new SpriteBatch(graphics);
+
+            RasterizerState = new RasterizerState
+            {
+                ScissorTestEnable = true,
+                CullMode = CullMode.None,
+                FillMode = FillMode.Solid,
+                MultiSampleAntiAlias = true
+            };
         }
 
         public void Begin()
         {
-            _spriteBatch.Begin();
+            _spriteBatch.Begin(SortMode, BlendState, SamplerState, DepthStencilState, RasterizerState, Effect, _getTransformMatrix());
         }
 
         public void DrawBrush(Rectangle rectangle, Brush brush)

@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Brush.cs" />
+    <Compile Include="ContentExtensions.cs" />
     <Compile Include="ControlStyle.cs" />
     <Compile Include="Controls\Border.cs" />
     <Compile Include="Controls\Button.cs" />
