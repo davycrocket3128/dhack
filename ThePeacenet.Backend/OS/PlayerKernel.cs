@@ -63,6 +63,13 @@ namespace ThePeacenet.Backend.OS
 
         public bool Execute(IUserLand user, string program, out IProcess process)
         {
+            Program programAsset = _worldState.Items.GetItem<Program>(program);
+            if(programAsset != null)
+            {
+                process = _worldState.GuiBuilder.BuildProgram(programAsset);
+                return true;
+            }
+
             var commands = Commands;
 
             if(commands.Any(x=>x.Id == program))

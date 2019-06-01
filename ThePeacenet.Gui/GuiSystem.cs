@@ -114,7 +114,7 @@ namespace ThePeacenet.Gui
             {
                 control.Update(this, deltaSeconds);
 
-                foreach (var childControl in control.Children)
+                foreach (var childControl in control.Children.ToArray())
                     UpdateControl(childControl, deltaSeconds);
             }
         }

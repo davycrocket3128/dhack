@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework.Content;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ namespace ThePeacenet.Backend.AssetTypes
 {
     public class Protocol : Asset
     {
-        internal Protocol(string id, string name, string summary, string description, int port, bool isDefault, ComputerType targetComputerType) : base(id)
+        internal Protocol(string id, string name, string summary, string description, int port, bool isDefault, ComputerType targetComputerType, ContentManager content) : base(id, content)
         {
             Name = name;
             Summary = summary;
@@ -46,7 +47,8 @@ namespace ThePeacenet.Backend.AssetTypes
                     Description,
                     Port,
                     IsDefault,
-                    TargetComputerType
+                    TargetComputerType,
+                    items.Content
                 );
         }
     }

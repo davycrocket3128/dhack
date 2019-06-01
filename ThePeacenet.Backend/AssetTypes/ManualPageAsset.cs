@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Content.Pipeline;
+﻿using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
 using Newtonsoft.Json;
 using System;
@@ -16,12 +17,12 @@ namespace ThePeacenet.Backend.AssetTypes
         public string Name { get; set; }
         public string Description { get; set; }
 
-        public ManualPageAsset(string id) : base(id)
+        public ManualPageAsset(string id, ContentManager content) : base(id, content)
         {
 
         }
 
-        public ManualPageAsset(string id, string name, string description) : base(id)
+        public ManualPageAsset(string id, string name, string description, ContentManager content) : this(id, content)
         {
             this.Name = name;
             this.Description = description;

@@ -59,7 +59,7 @@ namespace ThePeacenet.Gui
             return FindControl<T>(Content, name);
         }
 
-        private static T FindControl<T>(Control rootControl, string name)
+        public static T FindControl<T>(Control rootControl, string name)
             where T : Control
         {
             if (rootControl.Name == name)

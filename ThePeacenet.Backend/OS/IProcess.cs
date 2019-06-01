@@ -11,9 +11,9 @@ namespace ThePeacenet.Backend.OS
     {
         string Name { get; }
         string Path { get; }
-        int ProcessId { get; }
         RamUsage RamUsage { get; }
 
+        void Run(IConsoleContext console, string[] arguments);
         void Kill();
     }
 }

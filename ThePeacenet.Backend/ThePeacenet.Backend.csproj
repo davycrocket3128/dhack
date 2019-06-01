@@ -65,6 +65,8 @@
     <Compile Include="AssetTypes\Exploit.cs" />
     <Compile Include="AssetTypes\Extension.cs" />
     <Compile Include="AssetTypes\ManualPageAsset.cs" />
+    <Compile Include="AssetTypes\Program.cs" />
+    <Compile Include="AssetTypes\ProgramGui.cs" />
     <Compile Include="AssetTypes\Protocol.cs" />
     <Compile Include="AssetTypes\ProtocolImplementationData.cs" />
     <Compile Include="Data\AdjacentNode.cs" />
@@ -84,6 +86,7 @@
     <Compile Include="ItemContainer.cs" />
     <Compile Include="ITickable.cs" />
     <Compile Include="Manual\ManualPage.cs" />
+    <Compile Include="NullConsoleContext.cs" />
     <Compile Include="OS\IContentProvider.cs" />
     <Compile Include="OS\IFileSystem.cs" />
     <Compile Include="OS\IProcess.cs" />

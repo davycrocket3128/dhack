@@ -4,10 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using ThePeacenet.Backend.AssetTypes;
 using ThePeacenet.Backend.Gui;
+using ThePeacenet.Backend.OS;
 using ThePeacenet.Gui;
 using ThePeacenet.Gui.Controls;
+using ThePeacenet.GuiHandlers;
 
 namespace ThePeacenet.Desktop
 {
@@ -24,9 +28,18 @@ namespace ThePeacenet.Desktop
         private Button _closeButton = null;
         private Button _maximizeButton = null;
         private Button _minimizeButton = null;
+        private ContentManager _content = null;
+        private IUserLand _owner = null;
+        private GuiHandler _guiHandler = null;
+        private bool _shown = false;
 
-        public Window()
+        public event EventHandler Load;
+
+        public Window(ContentManager content, IUserLand owner) : base()
         {
+            _content = content;
+            _owner = owner;
+
             _rootBorder = new Border
             {
                 Content = _nonClient = new DockPanel
@@ -88,6 +101,120 @@ namespace ThePeacenet.Desktop
             _captionBorder.PointerDrag += TitleBarPointerDrag;
         }
 
+        public Window(ThePeacenet.Backend.AssetTypes.Program program, IUserLand owner) : this(program.Content, owner)
+        {
+            Build(program);
+        }
+
+        private void Build(Backend.AssetTypes.Program program)
+        {
+            // Set up the non-client first.
+            this._minimizeButton.IsVisible = program.EnableMinimizeMaximize;
+            this._maximizeButton.IsVisible = program.EnableMinimizeMaximize;
+            this.WindowTitle = program.Name;
+            this.WindowIcon = _content.Load<Texture2D>(program.LauncherIcon);
+
+            // Find and create the GUI event handler.
+            var handlerType = Type.GetType(program.Gui.EventHandlerClass);
+
+            if (!typeof(GuiHandler).IsAssignableFrom(handlerType))
+                throw new InvalidOperationException("Failed to build program GUI: " + program.Gui.EventHandlerClass + " is not a GUI event handler class.");
+
+            _guiHandler = Activator.CreateInstance(handlerType, null) as GuiHandler;
+
+            // Set up the gui handler to work with us.
+            _guiHandler.Initialize(this);
+
+            // Bind all window events.
+            foreach(var eventBind in program.Gui.WindowEvents)
+            {
+                var winType = this.GetType();
+                var eventInfo = winType.GetEvent(eventBind.Name);
+                var methodInfo = _guiHandler.GetType().GetMethod(eventBind.Handler);
+
+                eventInfo.AddEventHandler(this, methodInfo.CreateDelegate(eventInfo.EventHandlerType, _guiHandler));
+            }
+
+            // Build the first page.
+            BuildPage(program.Gui.Pages.First());
+        }
+
+        private void BuildPage(Page page)
+        {
+            this._clientArea.Content = BuildControl(page.Content);
+        }
+
+        private Control BuildControl(ControlElement controlElement)
+        {
+            var type = Type.GetType(controlElement.Type, false);
+            if(type == null)
+            {
+                foreach(var ass in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    type = ass.GetTypes().FirstOrDefault(x => x.FullName == controlElement.Type);
+                    if (type != null) break;
+                }
+            }
+
+            if (!typeof(Control).IsAssignableFrom(type))
+                throw new InvalidOperationException(string.Format("Error building program GUI: Type {0} is not a control.", controlElement.Type));
+
+            var control = (Control)Activator.CreateInstance(type, null);
+            control.Name = controlElement.Name;
+
+            var buildMethod = type.GetMethod("Build");
+
+            if(buildMethod != null)
+            {
+                buildMethod.Invoke(control, new object[] { _content, _owner });
+            }
+
+            foreach(var property in controlElement.Properties)
+            {
+                var propInfo = type.GetProperty(property.Name);
+
+                if(propInfo != null && propInfo.CanWrite)
+                {
+                    propInfo.SetValue(control, property.Value);
+                }
+                else
+                {
+                    control.SetAttachedProperty(property.Name, property.Value);
+                }
+            }
+
+            // Bind all control events.
+            foreach (var eventBind in controlElement.Events)
+            {
+                var eventInfo = type.GetEvent(eventBind.Name);
+                var methodInfo = _guiHandler.GetType().GetMethod(eventBind.Handler);
+
+                eventInfo.AddEventHandler(control, methodInfo.CreateDelegate(eventInfo.EventHandlerType, _guiHandler));
+            }
+
+            if (controlElement.Children.Count > 0)
+            {
+                if(control is ContentControl contentControl)
+                {
+                    if (controlElement.Children.Count > 1)
+                        throw new InvalidOperationException(string.Format("{0}: Control does not support multiple children.", type.FullName));
+
+                    contentControl.Content = BuildControl(controlElement.Children.First());
+                }
+                else if(control is ItemsControl itemsControl)
+                {
+                    foreach (var child in controlElement.Children)
+                        itemsControl.Items.Add(BuildControl(child));
+                }
+                else
+                {
+                    throw new InvalidOperationException(string.Format("{0}: Control does not support children.", type.FullName));
+                }
+            }
+
+            return control;
+        }
+
         private void TitleBarPointerDrag(object sender, DragSurfaceEventArgs e)
         {
             this.Position += e.Delta;
@@ -132,7 +259,7 @@ namespace ThePeacenet.Desktop
 
         public void Close()
         {
-            throw new NotImplementedException();
+            this.RemoveFromParent();
         }
 
         public void Maximize()
@@ -155,6 +282,18 @@ namespace ThePeacenet.Desktop
         public override void Update(IGuiContext context, float deltaSeconds)
         {
             ApplyWindowTheme(WindowTheme.Current);
+
+            if(_shown == false)
+            {
+                _shown = true;
+                Load?.Invoke(this, EventArgs.Empty);
+            }
+
+            if(_guiHandler != null)
+            {
+                _guiHandler.Update(deltaSeconds);
+            }
+
             base.Update(context, deltaSeconds);
         }
     }

@@ -13,13 +13,14 @@ using System.IO;
 using System;
 using ThePeacenet.Gui;
 using ThePeacenet.Desktop;
+using ThePeacenet.Backend.AssetTypes;
 
 namespace ThePeacenet
 {
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class GameInstance : Game
+    public class GameInstance : Game, IProgramGuiBuilder
     {
         private readonly GraphicsDeviceManager _graphics;
         private GuiSystem _guiSystem = null;
@@ -60,13 +61,18 @@ namespace ThePeacenet
             _guiSystem = new GuiSystem(viewport, _renderer, _defaultFont);
             _guiSystem.ActiveScreen = new LoadingScreen(Content);
 
-            _worldState = new WorldState();
+            _worldState = new WorldState(this);
 
             _worldState.PlayerSystemReady += (userland) =>
             {
                 _playerUserLand = userland;
 
                 _guiSystem.ActiveScreen = new DesktopScreen(Content, _playerUserLand);
+
+                IProcess prc = null;
+                userland.Execute("terminal", out prc);
+                prc.Run(new NullConsoleContext(userland), new[] { "" });
+
             };
 
             _worldState.Initialize(Content);
@@ -91,6 +97,11 @@ namespace ThePeacenet
             _guiSystem.Draw(gameTime);
             
             base.Draw(gameTime);
+        }
+
+        public IProcess BuildProgram(Backend.AssetTypes.Program program)
+        {
+            return new WindowProcess(program, this._guiSystem.ActiveScreen as DesktopScreen);
         }
     }
 }

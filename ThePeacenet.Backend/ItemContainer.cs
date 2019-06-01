@@ -18,7 +18,9 @@ namespace ThePeacenet.Backend
         private ContentManager _content = null;
 
         private List<Asset> _assets = new List<Asset>();
-        
+
+        public ContentManager Content => _content;
+
         public ItemContainer(ContentManager content)
         {
             _content = content ?? throw new ArgumentNullException(nameof(content));
@@ -81,12 +83,14 @@ namespace ThePeacenet.Backend
             var protocolData = SearchContent<ProtocolData>(assetRoot);
             var protoImplData = SearchContent<ProtocolImplementationData>(assetRoot);
             var exploitData = SearchContent<ExploitData>(assetRoot);
+            var programData = SearchContent<ProgramData>(assetRoot);
 
             Console.WriteLine("Building assets...");
 
             BuildAssets<ProtocolData, Protocol>(protocolData);
             BuildAssets<ProtocolImplementationData, ProtocolImplementation>(protoImplData);
             BuildAssets<ExploitData, Exploit>(exploitData);
+            BuildAssets<ProgramData, Program>(programData);
         }
 
         public T GetItem<T>(string id) where T: Asset

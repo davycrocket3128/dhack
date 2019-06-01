@@ -14,6 +14,7 @@ namespace ThePeacenet.Backend
 {
     public class WorldState : ITickable
     {
+        private IProgramGuiBuilder _guiBuilder = null;
         private SaveGame _saveGame = null;
         private List<CommandAsset> _commandAssets = new List<CommandAsset>();
         private List<PlayerKernel> _kernels = new List<PlayerKernel>();
@@ -21,6 +22,15 @@ namespace ThePeacenet.Backend
         private List<Exploit> _exploits = new List<Exploit>();
         private Task _itemLoadTask = null;
         private bool _hasWorldBeenStarted = false;
+
+        public IProgramGuiBuilder GuiBuilder => _guiBuilder;
+        
+        public WorldState(IProgramGuiBuilder guiBuilder)
+        {
+            _guiBuilder = guiBuilder;
+        }
+
+        public ItemContainer Items => _itemContainer;
 
         public event Action<IUserLand> PlayerSystemReady;
 
@@ -35,7 +45,7 @@ namespace ThePeacenet.Backend
 
             foreach (var type in ReflectionTools.GetAll<Command>())
             {
-                _commandAssets.Add(CommandAsset.FromCommand(type));
+                _commandAssets.Add(CommandAsset.FromCommand(type, _itemContainer.Content));
             }
 
             var playerPC = new Computer
@@ -133,5 +143,10 @@ namespace ThePeacenet.Backend
         {
             return GetKernel(_saveGame.PlayerCharacterID).GetUserLand(_saveGame.PlayerUserID);
         }
+    }
+
+    public interface IProgramGuiBuilder
+    {
+        IProcess BuildProgram(Program program);
     }
 }

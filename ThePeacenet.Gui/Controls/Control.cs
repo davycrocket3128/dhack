@@ -46,6 +46,19 @@ namespace ThePeacenet.Gui.Controls
             }
         }
 
+        public void RemoveFromParent()
+        {
+            if(Parent is ItemsControl items)
+            {
+                items.Items.Remove(this);
+            }
+            else if(Parent is ContentControl content)
+            {
+                content.Content = null;
+            }
+            Parent = null;
+        }
+
         public virtual void Update(IGuiContext context, float deltaSeconds) { }
 
         public virtual void InvalidateMeasure() { }

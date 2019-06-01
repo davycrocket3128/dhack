@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework.Content;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace ThePeacenet.Backend.AssetTypes
 {
     public class ProtocolImplementation : Asset
     {
-        internal ProtocolImplementation(string name, int minSkillLevel, Protocol protocol) : base(name)
+        internal ProtocolImplementation(string name, int minSkillLevel, Protocol protocol, ContentManager content) : base(name, content)
         {
             Name = name;
             MinimumSkillLevel = minSkillLevel;
@@ -28,7 +29,7 @@ namespace ThePeacenet.Backend.AssetTypes
 
         public override ProtocolImplementation Build(ItemContainer items)
         {
-            return new ProtocolImplementation(Name, MinimumSkillLevel, items.GetItem<Protocol>(ProtocolId));
+            return new ProtocolImplementation(Name, MinimumSkillLevel, items.GetItem<Protocol>(ProtocolId), items.Content);
         }
     }
 }

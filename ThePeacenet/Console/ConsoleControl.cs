@@ -18,9 +18,21 @@ namespace ThePeacenet.Console
     {
         private ConsoleRenderer _consoleRenderer = null;
 
-        public ConsoleControl(ContentManager content, IUserLand owner)
+        public IConsoleContext ConsoleContext => _consoleRenderer;
+
+        public ConsoleControl()
         {
-            _consoleRenderer = new ConsoleRenderer(content, owner);
+
+        }
+
+        public ConsoleControl(ContentManager content, IUserLand owner) : this()
+        {
+            Build(content, owner);
+        }
+
+        public void Build(ContentManager content, IUserLand user)
+        {
+            _consoleRenderer = new ConsoleRenderer(content, user);
         }
 
         public IConsoleContext Console => _consoleRenderer;

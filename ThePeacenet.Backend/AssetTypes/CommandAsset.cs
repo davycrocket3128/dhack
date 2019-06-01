@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework.Content;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,7 +19,7 @@ namespace ThePeacenet.Backend.AssetTypes
         public RamUsage RamUsage { get; set; } = RamUsage.Low;
         public Type CommandType { get; set; }
 
-        public CommandAsset(string name) : base(name)
+        public CommandAsset(string name, ContentManager content) : base(name, content)
         {
             Name = name;
         }
@@ -42,7 +43,7 @@ namespace ThePeacenet.Backend.AssetTypes
             builder.SetMetadata("Syntax", usageBuilder.ToString());
         }
 
-        public static CommandAsset FromCommand(Type type)
+        public static CommandAsset FromCommand(Type type, ContentManager content)
         {
             if(!typeof(Command).IsAssignableFrom(type))
             {
@@ -54,7 +55,7 @@ namespace ThePeacenet.Backend.AssetTypes
                 throw new InvalidOperationException("Type must not be abstract.");
             }
 
-            var asset = new CommandAsset(type.Name.ToLower());
+            var asset = new CommandAsset(type.Name.ToLower(), content);
 
             asset.UnlockedByDefault = type.GetCustomAttributes(false).Any(x => x is UnlockedByDefaultAttribute);
             asset.Description = (type.GetCustomAttributes(false).Any(x => x is DescriptionAttribute) ? (type.GetCustomAttributes(false).First(x => x is DescriptionAttribute) as DescriptionAttribute).Description : "");

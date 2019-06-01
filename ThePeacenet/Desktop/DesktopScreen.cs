@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ThePeacenet.Backend;
 using ThePeacenet.Backend.OS;
 using ThePeacenet.Backend.Shell;
 using ThePeacenet.Console;
@@ -53,20 +54,6 @@ namespace ThePeacenet.Desktop
                 Name = "WindowManagerArea",
             });
 
-            FindControl<Canvas>("WindowManagerArea").Items.Add(new Window
-            {
-                Name = "Terminal",
-                WindowTitle = "Terminal",
-                WindowIcon = content.Load<Texture2D>("Gui/Icons/terminal"),
-                Content = new ConsoleControl(content, ownerUser)
-                {
-                    Name = "Terminal"
-                }
-            });
-
-            FindControl<Window>("Terminal").SetAttachedProperty(Canvas.AlignmentProperty, new Vector2(0.5f, 0.5f));
-            FindControl<Window>("Terminal").SetAttachedProperty(Canvas.AnchorProperty, new Vector2(0.5f, 0.5f));
-
             FindControl<Border>("DesktopPanelBorder").SetAttachedProperty(DockPanel.DockProperty, Dock.Top);
             
             FindControl<DockPanel>("DesktopPanel").Items.Add(new Button
@@ -99,11 +86,18 @@ namespace ThePeacenet.Desktop
                 Spacing = 3,
                 VerticalAlignment = VerticalAlignment.Stretch
             });
-
         }
 
         public override void Draw(IGuiContext context, IGuiRenderer renderer, float deltaSeconds)
         {
+        }
+
+        public void ShowWindow(Window win)
+        {
+            win.SetAttachedProperty(Canvas.AnchorProperty, new Vector2(0.5f, 0.5f));
+            win.SetAttachedProperty(Canvas.AlignmentProperty, new Vector2(0.5f, 0.5f));
+
+            FindControl<Canvas>("WindowManagerArea").Items.Add(win);
         }
     }
 }

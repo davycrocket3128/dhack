@@ -56,33 +56,11 @@
     <Compile Include="Desktop\DesktopScreen.cs" />
     <Compile Include="Desktop\SerenityWindowTheme.cs" />
     <Compile Include="Desktop\Window.cs" />
+    <Compile Include="Desktop\WindowProcess.cs" />
     <Compile Include="Desktop\WindowTheme.cs" />
     <Compile Include="GameInstance.cs" />
-    <Compile Include="Gui\Brush.cs" />
-    <Compile Include="Gui\ControlStyle.cs" />
-    <Compile Include="Gui\Controls\Border.cs" />
-    <Compile Include="Gui\Controls\Button.cs" />
-    <Compile Include="Gui\Controls\Canvas.cs" />
-    <Compile Include="Gui\Controls\CompositeControl.cs" />
-    <Compile Include="Gui\Controls\ContentControl.cs" />
-    <Compile Include="Gui\Controls\Control.cs" />
-    <Compile Include="Gui\Controls\ControlCollection.cs" />
-    <Compile Include="Gui\Controls\DockPanel.cs" />
-    <Compile Include="Gui\Controls\DragSurface.cs" />
-    <Compile Include="Gui\Controls\Image.cs" />
-    <Compile Include="Gui\Controls\ItemsControl.cs" />
-    <Compile Include="Gui\Controls\Label.cs" />
-    <Compile Include="Gui\Controls\LayoutControl.cs" />
-    <Compile Include="Gui\Controls\StackPanel.cs" />
-    <Compile Include="Gui\Controls\StatusIcon.cs" />
-    <Compile Include="Gui\Element.cs" />
-    <Compile Include="Gui\ElementCollection.cs" />
-    <Compile Include="Gui\GuiSystem.cs" />
-    <Compile Include="Gui\IGuiContext.cs" />
-    <Compile Include="Gui\IGuiRenderer.cs" />
-    <Compile Include="Gui\LayoutHelper.cs" />
-    <Compile Include="Gui\PointerEventArgs.cs" />
-    <Compile Include="Gui\Screen.cs" />
+    <Compile Include="GuiHandlers\GuiHandler.cs" />
+    <Compile Include="GuiHandlers\Terminal.cs" />
     <Compile Include="LoadingScreen.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -176,6 +154,10 @@
     <ProjectReference Include="..\ThePeacenet.Backend\ThePeacenet.Backend.csproj">
       <Project>{137c6e21-12da-4948-9e38-bd436fd15571}</Project>
       <Name>ThePeacenet.Backend</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ThePeacenet.Gui\ThePeacenet.Gui.csproj">
+      <Project>{31389202-87d8-4830-85aa-00771d4ec65b}</Project>
+      <Name>ThePeacenet.Gui</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
