@@ -15,13 +15,6 @@ namespace ThePeacenet.Backend.AssetTypes
         [ContentSerializer(CollectionItemName = "Event", Optional = true)]
         public List<Event> WindowEvents { get; set; } = new List<Event>();
 
-        [ContentSerializer(CollectionItemName = "Page")]
-        public List<Page> Pages { get; set; }
-    }
-
-    public class Page
-    {
-        public string Id { get; set; }
         public ControlElement Content { get; set; }
     }
 

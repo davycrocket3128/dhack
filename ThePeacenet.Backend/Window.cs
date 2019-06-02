@@ -12,13 +12,12 @@ using ThePeacenet.Backend.Gui;
 using ThePeacenet.Backend.OS;
 using ThePeacenet.Gui;
 using ThePeacenet.Gui.Controls;
-using ThePeacenet.GuiHandlers;
 
-namespace ThePeacenet.Desktop
+namespace ThePeacenet.Backend
 {
     public class Window : CompositeControl, IWindow
     {
-        private Border _rootBorder = null;
+        private readonly Border _rootBorder = null;
         private DockPanel _nonClient = null;
         private StackPanel _titleButtons = null;
         private Image _iconImage = null;
@@ -117,38 +116,13 @@ namespace ThePeacenet.Desktop
             this.WindowTitle = program.Name;
             this.WindowIcon = _content.Load<Texture2D>(program.LauncherIcon);
 
-            // Find and create the GUI event handler.
-            var handlerType = Type.GetType(program.Gui.EventHandlerClass);
-
-            if (!typeof(GuiHandler).IsAssignableFrom(handlerType))
-                throw new InvalidOperationException("Failed to build program GUI: " + program.Gui.EventHandlerClass + " is not a GUI event handler class.");
-
-            _guiHandler = Activator.CreateInstance(handlerType, null) as GuiHandler;
-
-            // Set up the gui handler to work with us.
-            _guiHandler.Initialize(this);
-
-            // Bind all window events.
-            foreach(var eventBind in program.Gui.WindowEvents)
-            {
-                var winType = this.GetType();
-                var eventInfo = winType.GetEvent(eventBind.Name);
-                var methodInfo = _guiHandler.GetType().GetMethod(eventBind.Handler);
-
-                eventInfo.AddEventHandler(this, methodInfo.CreateDelegate(eventInfo.EventHandlerType, _guiHandler));
-            }
+            // Builds the GUI for the window based on the compiled program.
+            // This is a black box, I have no fucking clue what'll happen in this
+            // delegate.
+            _clientArea.Content = program.WindowBuilder(this, _content, _owner);
 
             // Build the first page.
-            BuildPage(program.Gui.Pages.First());
-        }
-
-        private void BuildPage(Page page)
-        {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            this._clientArea.Content = BuildControl(page.Content);
-            sw.Stop();
-            System.Console.WriteLine("<window-builder> Building page {0} took {1} seconds.", page.Id, sw.Elapsed.TotalSeconds);
+            // BuildPage(program.Gui.Pages.First());
         }
 
         private Control BuildControl(ControlElement controlElement)
@@ -243,26 +217,8 @@ namespace ThePeacenet.Desktop
             {
                 if (value != _iconImage.BackgroundBrush.Texture)
                 {
-                    _iconImage.BackgroundBrush = new Gui.Brush(value, 16);
+                    _iconImage.BackgroundBrush = new Brush(value, 16);
                 }
-            }
-        }
-
-        private void ApplyWindowTheme(WindowTheme theme)
-        {
-            if (theme == null) return;
-
-            _rootBorder.BackgroundBrush = theme.BackgroundBrush;
-            _clientArea.Margin = theme.ClientBorderMargin;
-            _caption.TextColor = theme.TitleTextColor;
-
-            if(_iconImage.BackgroundBrush.BrushColor != theme.WindowIconColor || (int)_iconImage.BackgroundBrush.ImageSize.Height != theme.WindowIconSize)
-            {
-                var b = new Brush(_iconImage.BackgroundBrush.Texture, theme.WindowIconSize)
-                {
-                    BrushColor = theme.WindowIconColor
-                };
-                _iconImage.BackgroundBrush = b;
             }
         }
 
@@ -320,8 +276,6 @@ namespace ThePeacenet.Desktop
                     ZOrder = 1;
                 }
             }
-
-            ApplyWindowTheme(WindowTheme.Current);
 
             if(_shown == false)
             {

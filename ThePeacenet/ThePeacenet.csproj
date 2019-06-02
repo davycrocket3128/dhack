@@ -54,12 +54,10 @@
     <Compile Include="Core\IRenderable.cs" />
     <Compile Include="Desktop\DesktopScreen.cs" />
     <Compile Include="Desktop\SerenityWindowTheme.cs" />
-    <Compile Include="Desktop\Window.cs" />
     <Compile Include="Desktop\WindowProcess.cs" />
     <Compile Include="Desktop\WindowTheme.cs" />
     <Compile Include="GameConfig.cs" />
     <Compile Include="GameInstance.cs" />
-    <Compile Include="GuiHandlers\GuiHandler.cs" />
     <Compile Include="GuiHandlers\Terminal.cs" />
     <Compile Include="LoadingScreen.cs" />
     <Compile Include="Program.cs" />

@@ -81,6 +81,7 @@
     <Compile Include="FileSystem\FileRecord.cs" />
     <Compile Include="FileSystem\Folder.cs" />
     <Compile Include="FileSystem\TextFile.cs" />
+    <Compile Include="GuiHandler.cs" />
     <Compile Include="Gui\IWindow.cs" />
     <Compile Include="IConsoleContext.cs" />
     <Compile Include="ItemContainer.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="Shell\Sh.cs" />
     <Compile Include="Shell\Pipe.cs" />
     <Compile Include="Shell\Shell.cs" />
+    <Compile Include="Window.cs" />
     <Compile Include="WorldState.cs" />
   </ItemGroup>
   <ItemGroup>

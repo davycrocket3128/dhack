@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ThePeacenet.Backend.OS;
-using ThePeacenet.Desktop;
 using ThePeacenet.Gui;
 using ThePeacenet.Gui.Controls;
 
-namespace ThePeacenet.GuiHandlers
+namespace ThePeacenet.Backend
 {
     public abstract class GuiHandler
     {

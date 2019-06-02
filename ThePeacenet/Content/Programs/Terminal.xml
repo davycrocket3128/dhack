@@ -16,15 +16,10 @@
         </Event>
       </WindowEvents>
       
-      <Pages>
-        <Page>
-          <Id>MainPage</Id>
-          <Content>
-            <Name>Console</Name>
-            <Type>ThePeacenet.Console.ConsoleControl</Type>
-          </Content>
-        </Page>
-      </Pages>
-     </Gui>
+      <Content>
+        <Name>Console</Name>
+        <Type>ThePeacenet.Console.ConsoleControl</Type>
+      </Content>
+    </Gui>
   </Asset>
 </XnaContent>
