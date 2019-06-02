@@ -90,17 +90,22 @@ namespace ThePeacenet.Backend.AssetTypes
 
                 Console.WriteLine(evcVariable.ToString());
 
+                var windowParameter = Expression.Parameter(typeof(Window), "window");
+                var contentManagerParameter = Expression.Parameter(typeof(ContentManager), "content");
+                var userLandParameter = Expression.Parameter(typeof(IUserLand), "userLand");
+
                 List<Expression> lambdaBody = new List<Expression>
                 {
                     Expression.Assign(
                         evcVariable,
                         Expression.New(evcType.GetConstructor(Type.EmptyTypes))
+                    ),
+                    Expression.Call(
+                        windowParameter,
+                        typeof(Window).GetMethod("SetGuiHandler", new[] { typeof(GuiHandler) }),
+                        evcVariable
                     )
                 };
-
-                var windowParameter = Expression.Parameter(typeof(Window), "window");
-                var contentManagerParameter = Expression.Parameter(typeof(ContentManager), "content");
-                var userLandParameter = Expression.Parameter(typeof(IUserLand), "userLand");
 
                 lambdaBody.Add(Expression.Call(
                         evcVariable,
@@ -233,8 +238,6 @@ namespace ThePeacenet.Backend.AssetTypes
 
             var variable = Expression.Variable(controlType, element.Name.ToIdentifier());
 
-            variables.Add(variable);
-
             lambdaBody.Add(Expression.Assign(
                     variable,
                     Expression.New(controlType.GetConstructor(Type.EmptyTypes))
@@ -260,7 +263,55 @@ namespace ThePeacenet.Backend.AssetTypes
                     ));
             }
 
-            if(isRoot)
+            if(element.Children.Count > 0)
+            {
+                if(controlType.GetProperty("Items") != null)
+                {
+                    // iterate through all child elements.
+                    foreach(var child in element.Children)
+                    {
+                        // compile the child control data.
+                        CompileControls(child, variables, lambdaBody, evcVariable, contentManager, userLand, window);
+
+                        // Add the child control to its parent.
+                        lambdaBody.Add(Expression.Call(
+                                Expression.MakeMemberAccess(
+                                    variable,
+                                    controlType.GetProperty("Items")
+                                ),
+                                controlType.GetProperty("Items").PropertyType.GetMethod("Add"),
+                                variables.Last()
+                            ));
+                    }
+                }
+                else if(controlType.GetProperty("Content") != null)
+                {
+                    if(element.Children.Count > 1)
+                    {
+                        throw new ProgramCompileException(string.Format("{0} does not support multiple children.", controlType.FullName));
+                    }
+
+                    // compile the child control data.
+                    CompileControls(element.Children.First(), variables, lambdaBody, evcVariable, contentManager, userLand, window);
+
+                    // Assign this new child as the current control's content.
+                    lambdaBody.Add(Expression.Assign(
+                            Expression.MakeMemberAccess(
+                                variable,
+                                controlType.GetProperty("Content")
+                            ),
+                            variables.Last()
+                        ));
+                }
+                else
+                {
+                    throw new ProgramCompileException(string.Format("{0} does not support children.", controlType.FullName));
+                }
+            }
+
+            variables.Add(variable);
+
+            if (isRoot)
             {
                 LabelTarget label = Expression.Label(controlType);
 

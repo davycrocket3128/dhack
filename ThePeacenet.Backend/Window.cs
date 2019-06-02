@@ -32,6 +32,16 @@ namespace ThePeacenet.Backend
         private readonly IUserLand _owner = null;
         private GuiHandler _guiHandler = null;
         private bool _shown = false;
+        private bool _justOpened = false;
+
+        public void SetGuiHandler(GuiHandler handler)
+        {
+            if (_guiHandler != null)
+                throw new InvalidOperationException("The window has already been initialized.");
+
+            _guiHandler = handler;
+            _guiHandler.Initialize(this);
+        }
 
         public IUserLand User => _owner;
 
@@ -252,6 +262,14 @@ namespace ThePeacenet.Backend
 
         public override void Update(IGuiContext context, float deltaSeconds)
         {
+            if(_justOpened == false)
+            {
+                _justOpened = true;
+                ZOrder = 1;
+                context.SetFocus(this._clientArea.Content);
+                Load?.Invoke(this, EventArgs.Empty);
+            }
+
             if(ZOrder == 1 && !_captionBorder.IsDragging)
             {
                 if(context.FocusedControl != null)
