@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:ns="Microsoft.Xna.Framework">
+  <Asset Type="ThePeacenet.Backend.AssetTypes.ProgramData">
+    <Name>File Manager</Name>
+    <Description>Browse the files and folders on your computer.</Description>
+    <LauncherCategory>Accessories</LauncherCategory>
+    <LauncherIcon>Gui/Icons/folder-o</LauncherIcon>
+    <UnlockedByDefault>true</UnlockedByDefault>
+    <RamUsage>Low</RamUsage>
+
+    <Gui>
+      <EventHandlerClass>ThePeacenet.GuiHandlers.FileManager</EventHandlerClass>
+      
+      <WindowEvents>
+        <Event>
+          <Name>Load</Name>
+          <Handler>FileManager_Load</Handler>
+        </Event>
+      </WindowEvents>
+
+      <Content>
+        <Type>ThePeacenet.Gui.Controls.DockPanel</Type>
+        <Children>
+          <Child>
+            <Type>ThePeacenet.Gui.Controls.DockPanel</Type>
+            <Children>
+              <Child>
+                <Type>ThePeacenet.Gui.Controls.Label</Type>
+                <Properties>
+                  <Property>
+                    <Name>Content</Name>
+                    <Value Type="String">I am a label!</Value>
+                  </Property>
+                  <Property>
+                    <Name>Dock</Name>
+                    <Value Type="ThePeacenet.Gui.Controls.Dock">Right</Value>
+                  </Property>
+                </Properties>
+              </Child>
+            </Children>
+          </Child>
+        </Children>
+      </Content>
+    </Gui>
+  </Asset>
+</XnaContent>

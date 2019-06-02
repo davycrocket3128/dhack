@@ -9870,6 +9870,11 @@
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/windowbuttonup.png
 
+#begin Programs/FileManager.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Programs/FileManager.xml
+
 #begin Programs/Terminal.xml
 /importer:XmlImporter
 /processor:PassThroughProcessor

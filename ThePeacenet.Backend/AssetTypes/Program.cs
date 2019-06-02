@@ -251,6 +251,31 @@ namespace ThePeacenet.Backend.AssetTypes
                     Expression.Constant(element.Name)
                 ));
 
+            foreach(var property in element.Properties)
+            {
+                var propertyInfo = controlType.GetProperty(property.Name);
+
+                if (propertyInfo == null)
+                {
+                    lambdaBody.Add(Expression.Call(
+                            variable,
+                            controlType.GetMethod("SetAttachedProperty", new[] { typeof(string), typeof(object) }),
+                            Expression.Constant(property.Name),
+                            Expression.Constant(property.Value, typeof(object))
+                        ));
+                }
+                else
+                {
+                    lambdaBody.Add(Expression.Assign(
+                            Expression.MakeMemberAccess(
+                                variable,
+                                propertyInfo
+                            ),
+                            Expression.Constant(property.Value, propertyInfo.PropertyType)
+                        ));
+                }
+            }
+
             var buildMethod = controlType.GetMethod("Build", new[] { typeof(ContentManager), typeof(IUserLand) });
 
             if(buildMethod != null)
