@@ -76,7 +76,10 @@ namespace ThePeacenet.Gui.Controls
 
         public override Size2 GetContentSize(IGuiContext context)
         {
-            if (Content == null) return BackgroundBrush.ImageSize;
+            if (Content == null)
+            {
+                return BackgroundBrush.ImageSize;
+            }
 
             if (Content is Control control)
                 return control.CalculateActualSize(context);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,7 +30,7 @@ namespace ThePeacenet.Desktop
         private Button _maximizeButton = null;
         private Button _minimizeButton = null;
         private ContentManager _content = null;
-        private IUserLand _owner = null;
+        private readonly IUserLand _owner = null;
         private GuiHandler _guiHandler = null;
         private bool _shown = false;
 
@@ -143,7 +144,11 @@ namespace ThePeacenet.Desktop
 
         private void BuildPage(Page page)
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             this._clientArea.Content = BuildControl(page.Content);
+            sw.Stop();
+            System.Console.WriteLine("<window-builder> Building page {0} took {1} seconds.", page.Id, sw.Elapsed.TotalSeconds);
         }
 
         private Control BuildControl(ControlElement controlElement)
@@ -253,8 +258,10 @@ namespace ThePeacenet.Desktop
 
             if(_iconImage.BackgroundBrush.BrushColor != theme.WindowIconColor || (int)_iconImage.BackgroundBrush.ImageSize.Height != theme.WindowIconSize)
             {
-                var b = new Brush(_iconImage.BackgroundBrush.Texture, theme.WindowIconSize);
-                b.BrushColor = theme.WindowIconColor;
+                var b = new Brush(_iconImage.BackgroundBrush.Texture, theme.WindowIconSize)
+                {
+                    BrushColor = theme.WindowIconColor
+                };
                 _iconImage.BackgroundBrush = b;
             }
         }

@@ -16,9 +16,10 @@ namespace ThePeacenet.Gui.Controls
         {
             _image = new Image();
             _label = new Label();
-            _holder = new StackPanel();
-
-            _holder.Orientation = Orientation.Horizontal;
+            _holder = new StackPanel
+            {
+                Orientation = Orientation.Horizontal
+            };
 
             _holder.Items.Add(_image);
             _holder.Items.Add(_label);

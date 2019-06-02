@@ -18,17 +18,20 @@ namespace ThePeacenet.Desktop
 {
     public class DesktopScreen : Screen
     {
+        private ContentManager _content = null;
         private IUserLand _owner = null;
         
         public DesktopScreen(ContentManager content, IUserLand ownerUser)
         {
+            _content = content;
+            Skin = content.Load<GuiSkin>("Skins/Serenity");
             WindowTheme.Current = new SerenityWindowTheme(content);
 
             _owner = ownerUser;
             
             Content = new Border
             {
-                BackgroundBrush = new Brush(Color.White, content.Load<Texture2D>("wallpapers/1"), new Thickness(0), Size2.Empty, BrushType.Image),
+                StyleClass = "Wallpaper",
                 Name = "Wallpaper",
                 Content = new DockPanel
                 {
@@ -39,7 +42,6 @@ namespace ThePeacenet.Desktop
 
             FindControl<DockPanel>("Root").Items.Add(new Border
             {
-                BackgroundBrush = new Brush(new Color(0x22, 0x22, 0x22, 0xff)),
                 MinHeight = 24,
                 Name = "DesktopPanelBorder",
                 Content = new DockPanel
@@ -61,8 +63,8 @@ namespace ThePeacenet.Desktop
             FindControl<DockPanel>("DesktopPanel").Items.Add(new Button
             {
                 Name = "AppButton",
+                StyleClass = "AppButton",
                 VerticalAlignment = VerticalAlignment.Centre,
-                BackgroundBrush = new Brush(content.Load<Texture2D>("Gui/Textures/menu"))
             });
 
             FindControl<DockPanel>("DesktopPanel").Items.Add(new StackPanel
@@ -102,7 +104,11 @@ namespace ThePeacenet.Desktop
 
             categories.Items.Add(new Button
             {
-                Content = "All",
+                Content = new StatusIcon
+                {
+                    Content = "All",
+                    IconBrush = new Brush(_content.Load<Texture2D>("Gui/Icons/folder"), 16)
+                },
                 HorizontalTextAlignment = HorizontalAlignment.Left
             });
 
@@ -110,7 +116,11 @@ namespace ThePeacenet.Desktop
             {
                 categories.Items.Add(new Button
                 {
-                    Content = cat,
+                    Content = new StatusIcon
+                    {
+                        Content = cat,
+                        IconBrush = new Brush(_content.Load<Texture2D>("Gui/Icons/folder"), 16)
+                    },
                     HorizontalTextAlignment = HorizontalAlignment.Left
                 });
             }
@@ -128,8 +138,7 @@ namespace ThePeacenet.Desktop
 
                 button.Clicked += (o, a) =>
                 {
-                    IProcess p = null;
-                    _owner.Execute(program.Id, out p);
+                    _owner.Execute(program.Id, out IProcess p);
                     p.Run(new NullConsoleContext(_owner), new[] { program.Id });
                 };
 

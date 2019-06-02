@@ -22,7 +22,7 @@ namespace ThePeacenet.Backend.Shell
 
         public bool Completed { get; private set; }
         public string[] Arguments => _arguments;
-        public IConsoleContext Console => (ConsoleOverride == null) ? _console : ConsoleOverride;
+        public IConsoleContext Console => ConsoleOverride ?? _console;
         public string CommandName => _name;
 
         private IDictionary<string, ValueObject> _argMap = new Dictionary<string, ValueObject>();

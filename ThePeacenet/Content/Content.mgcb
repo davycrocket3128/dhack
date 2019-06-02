@@ -9935,6 +9935,11 @@
 /processor:PassThroughProcessor
 /build:ProtocolVersions/Telnet_Basic_01.xml
 
+#begin Skins/Serenity.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Skins/Serenity.xml
+
 #begin TitleFont.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor

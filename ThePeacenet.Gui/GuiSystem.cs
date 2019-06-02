@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using MonoGame.Extended;
 using MonoGame.Extended.Input.InputListeners;
 using MonoGame.Extended.ViewportAdapters;
@@ -30,8 +31,11 @@ namespace ThePeacenet.Gui
 
         public Rectangle BoundingRectangle => _viewportAdapter.BoundingRectangle;
 
-        public GuiSystem(ViewportAdapter viewportAdapter, IGuiRenderer renderer, DynamicSpriteFont defaultFont)
+        public ContentManager Content { get; }
+
+        public GuiSystem(ViewportAdapter viewportAdapter, IGuiRenderer renderer, ContentManager content)
         {
+            Content = content;
             _viewportAdapter = viewportAdapter;
             _renderer = renderer;
 
@@ -58,7 +62,7 @@ namespace ThePeacenet.Gui
             };
             _keyboardListener.KeyPressed += (sender, args) => PropagateDown(FocusedControl, x => x.OnKeyPressed(this, args));
 
-            DefaultFont = defaultFont;
+            DefaultFont = Content.LoadFont("DefaultFont");
         }
 
         public Point CursorPosition { get; set; }
@@ -139,6 +143,8 @@ FPS: {(int)(1 / gameTime.GetElapsedSeconds())}";
         {
             if (control.IsVisible)
             {
+                control.ApplySkin(Content, ActiveScreen.Skin);
+
                 control.Update(this, deltaSeconds);
 
                 foreach (var childControl in control.Children.ToArray())

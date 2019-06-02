@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using MonoGame.Extended;
 using MonoGame.Extended.Input.InputListeners;
 using SpriteFontPlus;
@@ -222,6 +223,85 @@ namespace ThePeacenet.Gui.Controls
 
         public bool HasFocus => (IsFocused || Children.Any(x => x.HasFocus));
         public int ZOrder { get; set; } = 0;
+
+        public string StyleClass { get; set; }
+
+        private GuiSkin _skin = null;
+
+        public void ApplySkin(ContentManager content, GuiSkin skn)
+        {
+            if (_skin == skn) return;
+
+            var type = this.GetType();
+
+            SkinElement element = null;
+
+            if (!string.IsNullOrWhiteSpace(this.StyleClass))
+            {
+                element = skn.Elements.Where(x => x.ControlType == type.Name).FirstOrDefault(x => x.StyleClass == this.StyleClass);
+            }
+
+            if(element == null)
+            {
+                element = skn.Elements.FirstOrDefault(x=>string.IsNullOrWhiteSpace(x.StyleClass) && x.ControlType == type.Name);
+                if (element == null) return;
+            }
+
+            foreach(var style in element.Styles)
+            {
+                var styleProp = type.GetProperty(style.Name);
+
+                if(style.Name != "Default" && !typeof(ControlStyle).IsAssignableFrom(styleProp.PropertyType))
+                    throw new InvalidOperationException(string.Format("Cannot apply skin style to {0}: {0}.{1} is not a Control Style property.", type.FullName, styleProp.Name));
+
+                var styleValue = new ControlStyle(type);
+                
+                foreach(var brushProperty in style.Brushes)
+                {
+                    var prop = type.GetProperty(brushProperty.Name);
+
+                    if (prop.PropertyType != typeof(Brush))
+                        throw new InvalidOperationException("Cannot apply brush to a non-brush property.");
+
+                    if (!styleValue.ContainsKey(prop.Name))
+                        styleValue.Add(prop.Name, brushProperty.CreateBrush(content));
+                }
+
+                foreach(var fontProperty in style.Fonts)
+                {
+                    var prop = type.GetProperty(fontProperty.Property);
+
+                    if (prop.PropertyType != typeof(DynamicSpriteFont))
+                        throw new InvalidOperationException("Cannot apply font to a non-font property.");
+
+                    var font = content.LoadFont(fontProperty.Path);
+                    font.Size = fontProperty.Size;
+                    styleValue.Add(prop.Name, font);
+                }
+
+                foreach(var property in style.Properties)
+                {
+                    var prop = type.GetProperty(property.Name);
+
+                    if (!prop.PropertyType.IsAssignableFrom(property.Value.GetType()))
+                        throw new InvalidOperationException("Cannot apply skin property to control property.");
+
+                    styleValue.Add(prop.Name, property.Value);
+
+                }
+
+                if (styleProp == null)
+                {
+                    styleValue.ApplyIf(this, true);
+                }
+                else
+                {
+                    styleProp.SetValue(this, styleValue);
+                }
+            }
+
+            _skin = skn;
+        }
 
         public bool IsPartOf<T>()
         {

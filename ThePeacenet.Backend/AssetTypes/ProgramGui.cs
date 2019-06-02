@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ThePeacenet.Gui;
 
 namespace ThePeacenet.Backend.AssetTypes
 {
@@ -44,11 +45,5 @@ namespace ThePeacenet.Backend.AssetTypes
 
         [ContentSerializer(CollectionItemName = "Child", Optional = true)]
         public List<ControlElement> Children { get; set; } = new List<ControlElement>();
-    }
-
-    public class ControlProperty
-    {
-        public string Name { get; set; }
-        public object Value { get; set; }
     }
 }

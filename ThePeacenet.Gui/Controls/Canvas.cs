@@ -14,30 +14,38 @@ namespace ThePeacenet.Gui.Controls
         {
         }
 
+        private readonly string OriginalLocationProperty = "CanvasOriginalLocation";
+
         protected override void Layout(IGuiContext context, Rectangle rectangle)
         {
             foreach (var control in Items)
             {
-                var anchor = control.GetAttachedProperty(AnchorProperty) as Vector2? ?? Vector2.Zero;
-                var alignment = control.GetAttachedProperty(AlignmentProperty) as Vector2? ?? Vector2.Zero;
+                if (control.GetAttachedProperty(OriginalLocationProperty) == null)
+                {
+                    var anchor = control.GetAttachedProperty(AnchorProperty) as Vector2? ?? Vector2.Zero;
+                    var alignment = control.GetAttachedProperty(AlignmentProperty) as Vector2? ?? Vector2.Zero;
 
-                var actualSize = control.CalculateActualSize(context);
+                    var actualSize = control.CalculateActualSize(context);
 
-                var position = control.Position;
 
-                // Calculate the control's position based on its alignment value.
-                position.X -= (int)(actualSize.Width * alignment.X);
-                position.Y -= (int)(actualSize.Height * alignment.Y);
+                    var position = control.Position;
 
-                // get the anchor position.
-                var anchorPosX = rectangle.X + (rectangle.Width * anchor.X);
-                var anchorPosY = rectangle.Y + (rectangle.Height * anchor.Y);
+                    control.SetAttachedProperty(OriginalLocationProperty, position);
 
-                // Modify the control position based on it.
-                position.X = (int)(anchorPosX + position.X);
-                position.Y = (int)(anchorPosY + position.Y);
+                    // Calculate the control's position based on its alignment value.
+                    position.X -= (int)(actualSize.Width * alignment.X);
+                    position.Y -= (int)(actualSize.Height * alignment.Y);
 
-                PlaceControl(context, control, position.X, position.Y, actualSize.Width, actualSize.Height);
+                    // get the anchor position.
+                    var anchorPosX = rectangle.X + (rectangle.Width * anchor.X);
+                    var anchorPosY = rectangle.Y + (rectangle.Height * anchor.Y);
+
+                    // Modify the control position based on it.
+                    position.X = (int)(anchorPosX + position.X);
+                    position.Y = (int)(anchorPosY + position.Y);
+
+                    PlaceControl(context, control, position.X, position.Y, actualSize.Width, actualSize.Height);
+                }
             }
         }
 

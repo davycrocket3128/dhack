@@ -13,8 +13,8 @@ namespace ThePeacenet.Backend.OS
     public class PlayerKernel : IKernel, IKernelFileSystem
     {
         private WorldState _worldState = null;
-        private int _characterId = 0;
-        private int _computerId = 0;
+        private readonly int _characterId = 0;
+        private readonly int _computerId = 0;
         private List<UserLand> _users = new List<UserLand>();
         public WorldState WorldState => _worldState;
 
@@ -245,7 +245,7 @@ namespace ThePeacenet.Backend.OS
     public class UserLand : IUserLand, IFileSystem
     {
         private PlayerKernel _kernel = null;
-        private int _uid = 0;
+        private readonly int _uid = 0;
 
         public IEnumerable<Program> Programs => _kernel.Programs;
 

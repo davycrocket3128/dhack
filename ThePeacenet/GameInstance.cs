@@ -82,13 +82,15 @@ namespace ThePeacenet
                 var activeScreen = _guiSystem.ActiveScreen;
                 var focusedControl = _guiSystem.FocusedControl;
 
-                _guiSystem = new GuiSystem(_viewportAdapter, _renderer, defaultFont);
-                _guiSystem.ActiveScreen = activeScreen;
+                _guiSystem = new GuiSystem(_viewportAdapter, _renderer, Content)
+                {
+                    ActiveScreen = activeScreen
+                };
                 _guiSystem.SetFocus(focusedControl);
             }
             else
             {
-                _guiSystem = new GuiSystem(_viewportAdapter, _renderer, _defaultFont);
+                _guiSystem = new GuiSystem(_viewportAdapter, _renderer, Content);
             }
         }
 
@@ -103,11 +105,6 @@ namespace ThePeacenet
                 _playerUserLand = userland;
 
                 _guiSystem.ActiveScreen = new DesktopScreen(Content, _playerUserLand);
-
-                IProcess prc = null;
-                userland.Execute("terminal", out prc);
-                prc.Run(new NullConsoleContext(userland), new[] { "" });
-
             };
 
             _worldState.Initialize(Content);

@@ -109,5 +109,11 @@
   <ItemGroup>
     <Compile Include="Manual\ManualPageBuilder.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ThePeacenet.Gui\ThePeacenet.Gui.csproj">
+      <Project>{31389202-87D8-4830-85AA-00771D4EC65B}</Project>
+      <Name>ThePeacenet.Gui</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

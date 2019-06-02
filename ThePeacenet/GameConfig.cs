@@ -39,12 +39,8 @@ namespace ThePeacenet
 
         public void ApplySettings(GameInstance game)
         {
-            // The resolution we'll use if parsing is a success.
-            int width = 0;
-            int height = 0;
-
             // Should we use the system's current resolution?
-            if(string.Equals(Resolution, "System", StringComparison.OrdinalIgnoreCase) || !ParseResolution(out width, out height))
+            if (string.Equals(Resolution, "System", StringComparison.OrdinalIgnoreCase) || !ParseResolution(out int width, out int height))
             {
                 // Apply the current resolution of the graphics adapter.
                 game.GraphicsManager.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
@@ -53,7 +49,7 @@ namespace ThePeacenet
             else
             {
                 // Apply the parsed resolution.
-                game.GraphicsManager.PreferredBackBufferWidth = width;
+                game.GraphicsManager.PreferredBackBufferWidth = 0;
                 game.GraphicsManager.PreferredBackBufferHeight = height;
             }
 

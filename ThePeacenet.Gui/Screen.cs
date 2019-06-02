@@ -15,6 +15,8 @@ namespace ThePeacenet.Gui
         {
         }
 
+        public GuiSkin Skin { get; set; } = null;
+
         private Control _content;
         
         public Control Content

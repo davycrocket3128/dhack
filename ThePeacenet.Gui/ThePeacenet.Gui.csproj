@@ -78,6 +78,7 @@
     <Compile Include="Controls\StatusIcon.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="ElementCollection.cs" />
+    <Compile Include="GuiSkin.cs" />
     <Compile Include="GuiSystem.cs" />
     <Compile Include="IGuiContext.cs" />
     <Compile Include="IGuiRenderer.cs" />

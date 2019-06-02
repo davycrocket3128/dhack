@@ -29,7 +29,7 @@ namespace ThePeacenet.Gui
 
     public class GuiSpriteBatchRenderer : IGuiRenderer
     {
-        private Func<Matrix> _getTransformMatrix;
+        private readonly Func<Matrix> _getTransformMatrix;
         private SpriteBatch _spriteBatch = null;
 
         public SpriteSortMode SortMode { get; set; }
