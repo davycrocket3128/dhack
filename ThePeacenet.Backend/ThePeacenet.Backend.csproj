@@ -65,10 +65,12 @@
     <Compile Include="AssetTypes\Exploit.cs" />
     <Compile Include="AssetTypes\Extension.cs" />
     <Compile Include="AssetTypes\ManualPageAsset.cs" />
+    <Compile Include="AssetTypes\MarkovTrainingData.cs" />
     <Compile Include="AssetTypes\Program.cs" />
     <Compile Include="AssetTypes\ProgramGui.cs" />
     <Compile Include="AssetTypes\Protocol.cs" />
     <Compile Include="AssetTypes\ProtocolImplementationData.cs" />
+    <Compile Include="AssetTypes\StoryCharacter.cs" />
     <Compile Include="Data\AdjacentNode.cs" />
     <Compile Include="Data\CharacterRelationship.cs" />
     <Compile Include="Data\Computer.cs" />
@@ -94,6 +96,7 @@
     <Compile Include="OS\IKernel.cs" />
     <Compile Include="OS\IUserLand.cs" />
     <Compile Include="OS\PlayerKernel.cs" />
+    <Compile Include="ProcgenEngine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReflectionTools.cs" />
     <Compile Include="Shell\Command.cs" />

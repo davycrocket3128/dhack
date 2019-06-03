@@ -89,6 +89,7 @@ namespace ThePeacenet.Backend
             var protoImplData = SearchContent<ProtocolImplementationData>(assetRoot);
             var exploitData = SearchContent<ExploitData>(assetRoot);
             var programData = SearchContent<ProgramData>(assetRoot);
+            var markovData = SearchContent<MarkovTrainingData>(assetRoot);
 
             Console.WriteLine("Building assets...");
 
@@ -96,6 +97,7 @@ namespace ThePeacenet.Backend
             BuildAssets<ProtocolImplementationData, ProtocolImplementation>(protoImplData);
             BuildAssets<ExploitData, Exploit>(exploitData);
             BuildAssets<ProgramData, Program>(programData);
+            BuildAssets<MarkovTrainingData, MarkovTrainingDataAsset>(markovData);
         }
 
         public T GetItem<T>(string id) where T: Asset
