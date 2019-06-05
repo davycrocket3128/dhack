@@ -15,12 +15,12 @@ namespace ThePeacenet.Backend
 {
     public class WorldState : ITickable
     {
-        private IProgramGuiBuilder _guiBuilder = null;
+        private readonly IProgramGuiBuilder _guiBuilder = null;
         private SaveGame _saveGame = null;
         private List<CommandAsset> _commandAssets = new List<CommandAsset>();
         private List<PlayerKernel> _kernels = new List<PlayerKernel>();
         private ItemContainer _itemContainer = null;
-        private List<Exploit> _exploits = new List<Exploit>();
+        private readonly List<Exploit> _exploits = new List<Exploit>();
         private Task _itemLoadTask = null;
         private bool _hasWorldBeenStarted = false;
 

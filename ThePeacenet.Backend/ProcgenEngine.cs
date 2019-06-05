@@ -14,10 +14,10 @@ namespace ThePeacenet.Backend
     public sealed class ProcgenEngine
     {
         private WorldState _world = null;
-        private List<Asset> _peacenetSites = null;
+        private readonly List<Asset> _peacenetSites = null;
         private Random _rng = null;
         private List<ProtocolImplementation> _protocolVersions = null;
-        private List<Asset> _lootableFiles = null;
+        private readonly List<Asset> _lootableFiles = null;
         private MarkovChain _maleNameGenerator = null;
         private MarkovChain _domainNameGenerator = null;
         private MarkovChain _usernameGenerator = null;
@@ -48,21 +48,22 @@ namespace ThePeacenet.Backend
         {
             // The entity ID and identity of the current (or new)
             // character.
-            int EntityID = 0;
             Identity Identity = null;
 
             // Index of the identity in the save file.
             int IdentityIndex = -1;
 
             // Does the save file already know about this character?
-            if (!_world.GetStoryCharacterID(InStoryCharacter, out EntityID))
+            if (!_world.GetStoryCharacterID(InStoryCharacter, out int EntityID))
             {
                 // We don't have an existing identity so we'll generate
                 // a new one real quick and add it to the save file.
-                Identity = new Identity();
+                Identity = new Identity
+                {
 
-                // Assign the entity ID to the identity, and make the identity a story character.
-                Identity.IdentityType = IdentityType.Story;
+                    // Assign the entity ID to the identity, and make the identity a story character.
+                    IdentityType = IdentityType.Story
+                };
 
                 // Retrieve the index of the entity in the save file by getting the
                 // length of the characters array before adding the entity.
@@ -118,8 +119,7 @@ namespace ThePeacenet.Backend
         void UpdateStoryComputer(StoryCharacter InStoryCharacter)
         {
             // Get the identity of the story character so we can get its computer ID.
-            int StoryEntityID = 0;
-            bool StoryEntityIDResult = _world.GetStoryCharacterID(InStoryCharacter, out StoryEntityID);
+            bool StoryEntityIDResult = _world.GetStoryCharacterID(InStoryCharacter, out int StoryEntityID);
 
             // Get the identity using that ID.
             Identity Identity = _world.GetIdentity(StoryEntityID);
@@ -305,10 +305,12 @@ namespace ThePeacenet.Backend
                 var Service = Services[i];
                 if (Service.IsDefault || RNG.Next(0, 6) % 2 == 0)
                 {
-                    FirewallRule Rule = new FirewallRule();
-                    Rule.Port = Services[i].Port;
-                    Rule.Service = this.GetProtocol(Services[i], Skill).Id;
-                    Rule.IsFiltered = false;
+                    FirewallRule Rule = new FirewallRule
+                    {
+                        Port = Services[i].Port,
+                        Service = this.GetProtocol(Services[i], Skill).Id,
+                        IsFiltered = false
+                    };
                     InComputer.Services.Add(Rule);
                 }
             }
@@ -388,16 +390,14 @@ namespace ThePeacenet.Backend
             if (_world.GetPosition(Identity, out Test))
                 return;
 
-            Vector2 PivotPos;
-            bool PivotResult = _world.GetPosition(Pivot, out PivotPos);
+            bool PivotResult = _world.GetPosition(Pivot, out Vector2 PivotPos);
 
             if (!PivotResult)
             {
                 foreach (var EntityID in _world.Identities.Select(x => x.Id).Distinct())
                 {
                     var entity = _world.GetIdentity(EntityID);
-                    Vector2 PivotSquared; // the pivot point of the pivot's new position.
-                    if (_world.GetPosition(entity, out PivotSquared))
+                    if (_world.GetPosition(entity, out Vector2 PivotSquared))
                     {
                         PivotResult = true;
 
@@ -555,9 +555,11 @@ namespace ThePeacenet.Backend
 
         Identity GenerateNonPlayerCharacter()
         {
-            Identity Identity = new Identity();
-            Identity.Id = _world.Identities.Select(x => x.Id).Distinct().Max() + 1;
-            Identity.IdentityType = IdentityType.NPC;
+            Identity Identity = new Identity
+            {
+                Id = _world.Identities.Select(x => x.Id).Distinct().Max() + 1,
+                IdentityType = IdentityType.NPC
+            };
 
             bool IsMale = RNG.Next(0, 6) % 2 == 0;
 
@@ -771,9 +773,11 @@ namespace ThePeacenet.Backend
                     }
                 } while (_world.Relationships.Any(x => x.FirstId == First.Id && x.SecondId == Second.Id));
 
-                CharacterRelationship Relationship = new CharacterRelationship();
-                Relationship.FirstId = First.Id;
-                Relationship.SecondId = Second.Id;
+                CharacterRelationship Relationship = new CharacterRelationship
+                {
+                    FirstId = First.Id,
+                    SecondId = Second.Id
+                };
 
                 if (MakeEnemy)
                 {
@@ -791,46 +795,60 @@ namespace ThePeacenet.Backend
 
         Computer GenerateComputer(string InHostname, ComputerType InComputerType, IdentityType InOwnerType)
         {
-            Computer Ret = new Computer();
+            Computer Ret = new Computer
+            {
 
-            // Set up the core metadata.
-            Ret.Id = _world.Computers.Select(x => x.Id).Distinct().Max() + 1;
+                // Set up the core metadata.
+                Id = _world.Computers.Select(x => x.Id).Distinct().Max() + 1,
 
-            Ret.OwnerType = InOwnerType;
+                OwnerType = InOwnerType,
 
-            Ret.ComputerType = InComputerType;
+                ComputerType = InComputerType
+            };
 
             // Create the barebones filesystem.
-            Folder Root = new Folder();
-            Root.Id = 0;
-            Root.Name = "";
-            Root.Parent = -1;
+            Folder Root = new Folder
+            {
+                Id = 0,
+                Name = "",
+                Parent = -1
+            };
 
-            Folder RootHome = new Folder();
-            RootHome.Id = 1;
-            RootHome.Name = "root";
-            RootHome.Parent = 0;
+            Folder RootHome = new Folder
+            {
+                Id = 1,
+                Name = "root",
+                Parent = 0
+            };
 
-            Folder UserHome = new Folder();
-            UserHome.Id = 2;
-            UserHome.Name = "home";
-            UserHome.Parent = 0;
+            Folder UserHome = new Folder
+            {
+                Id = 2,
+                Name = "home",
+                Parent = 0
+            };
 
-            Folder Etc = new Folder();
-            Etc.Id = 3;
-            Etc.Name = "etc";
-            Etc.Parent = 0;
+            Folder Etc = new Folder
+            {
+                Id = 3,
+                Name = "etc",
+                Parent = 0
+            };
 
             // Write the hostname to a file.
-            FileRecord HostnameFile = new FileRecord();
-            HostnameFile.Id = 0;
-            HostnameFile.Name = "hostname";
-            HostnameFile.RecordType = FileRecordType.Text;
-            HostnameFile.ContentId = 0;
+            FileRecord HostnameFile = new FileRecord
+            {
+                Id = 0,
+                Name = "hostname",
+                RecordType = FileRecordType.Text,
+                ContentId = 0
+            };
 
-            TextFile HostnameText = new TextFile();
-            HostnameText.Id = 0;
-            HostnameText.Content = InHostname;
+            TextFile HostnameText = new TextFile
+            {
+                Id = 0,
+                Content = InHostname
+            };
             Ret.TextFiles.Add(HostnameText);
             Ret.Files.Add(HostnameFile);
 
@@ -849,14 +867,18 @@ namespace ThePeacenet.Backend
             Ret.Folders.Add(UserHome);
 
             // Create a root user for the system.
-            User RootUser = new User();
-            RootUser.Id = 0;
-            RootUser.Username = "root";
+            User RootUser = new User
+            {
+                Id = 0,
+                Username = "root"
+            };
 
             // Create a non-root user for the system.
-            User NonRoot = new User();
-            NonRoot.Id = 1;
-            NonRoot.Username = "user";
+            User NonRoot = new User
+            {
+                Id = 1,
+                Username = "user"
+            };
 
             // Add the two users to the computer.
             Ret.Users.Add(RootUser);
@@ -953,7 +975,7 @@ namespace ThePeacenet.Backend
     {
         Dictionary<MarkovSource, Dictionary<char, int>> MarkovMap;
         Random Random;
-        int SourceCount = 0;
+        readonly int SourceCount = 0;
 
         char GetNext(MarkovSource InSource)
         {
