@@ -11,6 +11,7 @@ namespace ThePeacenet.Backend
 
         public MarkovChain(string[] InArray, int N, Random InRng)
         {
+            N = 2;
             this.Random = InRng;
             Chain = new Markov.MarkovChain<char>(N);
 
