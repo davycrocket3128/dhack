@@ -23,6 +23,7 @@ namespace ThePeacenet.Backend
         private readonly List<Exploit> _exploits = new List<Exploit>();
         private Task _itemLoadTask = null;
         private bool _hasWorldBeenStarted = false;
+        private ProcgenEngine _procgen = null;
 
         public IProgramGuiBuilder GuiBuilder => _guiBuilder;
         public IEnumerable<AdjacentNode> AdjacentNodes => _saveGame.AdjacentNodes;
@@ -30,6 +31,7 @@ namespace ThePeacenet.Backend
         public WorldState(IProgramGuiBuilder guiBuilder)
         {
             _guiBuilder = guiBuilder;
+            _procgen = new ProcgenEngine(this);
         }
 
         public IEnumerable<Computer> Computers => _saveGame.Computers;
@@ -225,6 +227,9 @@ namespace ThePeacenet.Backend
 
             _saveGame.PlayerCharacterID = 0;
             _saveGame.PlayerUserID = 1;
+
+            // Start first few phases of world generation.
+            _procgen.Initialize();
 
             PlayerSystemReady?.Invoke(GetPlayerUser());
         }

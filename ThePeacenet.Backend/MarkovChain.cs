@@ -6,9 +6,9 @@ namespace ThePeacenet.Backend
 {
     public class MarkovChain
     {
-        Dictionary<MarkovSource, Dictionary<char, int>> MarkovMap;
-        Random Random;
-        readonly int SourceCount = 0;
+        private Dictionary<MarkovSource, Dictionary<char, int>> MarkovMap = new Dictionary<MarkovSource, Dictionary<char, int>>();
+        private Random Random;
+        private readonly int SourceCount = 0;
 
         char GetNext(MarkovSource InSource)
         {
@@ -90,7 +90,7 @@ namespace ThePeacenet.Backend
                 return Keys[0];
 
 #if DEBUG
-            if(KeyCount < 1) throw new InvalidOperationException("Debug assert.");
+            if(Keys.Length < 1) throw new InvalidOperationException("Debug assert.");
 #endif
 
             int Total = 0;

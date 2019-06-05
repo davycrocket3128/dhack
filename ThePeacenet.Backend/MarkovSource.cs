@@ -1,4 +1,6 @@
-﻿namespace ThePeacenet.Backend
+﻿using System;
+
+namespace ThePeacenet.Backend
 {
     public struct MarkovSource
     {

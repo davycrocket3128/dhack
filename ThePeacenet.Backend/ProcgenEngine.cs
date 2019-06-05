@@ -31,7 +31,7 @@ namespace ThePeacenet.Backend
             _world = world;
         }
 
-        void UpdateStoryIdentities()
+        protected void UpdateStoryIdentities()
         {
             // Get all of the story character assets.
             var StoryCharacters = _world.Items.GetAll<StoryCharacter>();
@@ -44,7 +44,7 @@ namespace ThePeacenet.Backend
             }
         }
 
-        void UpdateStoryCharacter(StoryCharacter InStoryCharacter)
+        protected void UpdateStoryCharacter(StoryCharacter InStoryCharacter)
         {
             // The entity ID and identity of the current (or new)
             // character.
@@ -116,7 +116,7 @@ namespace ThePeacenet.Backend
             this.UpdateStoryComputer(InStoryCharacter);
         }
 
-        void UpdateStoryComputer(StoryCharacter InStoryCharacter)
+        protected void UpdateStoryComputer(StoryCharacter InStoryCharacter)
         {
             // Get the identity of the story character so we can get its computer ID.
             bool StoryEntityIDResult = _world.GetStoryCharacterID(InStoryCharacter, out int StoryEntityID);
@@ -214,7 +214,7 @@ namespace ThePeacenet.Backend
             }
         }
 
-        void PlaceLootableFiles(IUserLand InUserContext)
+        protected void PlaceLootableFiles(IUserLand InUserContext)
         {
             // If the system is a player, then we stop right now.
             if (_world.Identities.Any(x => x.Name == InUserContext.IdentityName && x.IdentityType == IdentityType.Player)) return;
@@ -289,7 +289,7 @@ namespace ThePeacenet.Backend
             }
         }
 
-        void GenerateFirewallRules(Computer InComputer)
+        protected void GenerateFirewallRules(Computer InComputer)
         {
             // Don't do this if the computer already has firewall rules!
             if (InComputer.Services.Count > 0)
@@ -316,7 +316,7 @@ namespace ThePeacenet.Backend
             }
         }
 
-        ProtocolImplementation GetProtocol(Protocol InService, int InSkill)
+        protected ProtocolImplementation GetProtocol(Protocol InService, int InSkill)
         {
             int i = 0;
             int count = 100;
@@ -352,7 +352,7 @@ namespace ThePeacenet.Backend
             return protocol;
         }
 
-        string[] GetMarkovData(MarkovTrainingDataUsage InUsage)
+        protected string[] GetMarkovData(MarkovTrainingDataUsage InUsage)
         {
             List<string> Ret = new List<string>();
             foreach (var Markov in this._world.Items.GetAll<MarkovTrainingDataAsset>())
@@ -365,7 +365,7 @@ namespace ThePeacenet.Backend
             return Ret.ToArray();
         }
 
-        string GenerateIPAddress()
+        protected string GenerateIPAddress()
         {
             byte Byte1, Byte2, Byte3, Byte4 = 0;
 
@@ -380,7 +380,7 @@ namespace ThePeacenet.Backend
             return $"{Byte1}.{Byte2}.{Byte3}.{Byte4}";
         }
 
-        void GenerateIdentityPosition(Identity Pivot, Identity Identity)
+        protected void GenerateIdentityPosition(Identity Pivot, Identity Identity)
         {
             const float MIN_DIST_FROM_PIVOT = 50;
             const float MAX_DIST_FROM_PIVOT = 400;
@@ -425,7 +425,7 @@ namespace ThePeacenet.Backend
             this._world.SetEntityPosition(Identity, NewPos);
         }
 
-        void GenerateAdjacentNodes(Identity InIdentity)
+        protected void GenerateAdjacentNodes(Identity InIdentity)
         {
             // Don't generate any new links if there are any existing links from this NPC.
             // PATCH: Before, this would check for any links to and from the NPC, that's a problem. Now we only check for links from the NPC.
@@ -461,7 +461,7 @@ namespace ThePeacenet.Backend
             }
         }
 
-        string ChooseEmailDomain()
+        protected string ChooseEmailDomain()
         {
             var Emails = _world.DomainNames.ToArray();
 
@@ -493,8 +493,9 @@ namespace ThePeacenet.Backend
             return Emails[Index];
         }
 
-        void GenerateNonPlayerCharacters()
+        protected void GenerateNonPlayerCharacters()
         {
+            Console.WriteLine("Generating NPCs...");
             this.GenerateEmailServers();
 
             for (int i = 0; i < 1000; i++)
@@ -503,7 +504,7 @@ namespace ThePeacenet.Backend
             }
         }
 
-        void ParseCharacterName(string InCharacterName, out string OutUsername, out string OutHostname)
+        protected void ParseCharacterName(string InCharacterName, out string OutUsername, out string OutHostname)
         {
             OutUsername = "";
             OutHostname = "";
@@ -552,8 +553,7 @@ namespace ThePeacenet.Backend
             OutHostname = FirstName + "-pc";
         }
 
-
-        Identity GenerateNonPlayerCharacter()
+        protected Identity GenerateNonPlayerCharacter()
         {
             Identity Identity = new Identity
             {
@@ -629,7 +629,7 @@ namespace ThePeacenet.Backend
             return Identity;
         }
 
-        string GeneratePassword(int InLength)
+        protected string GeneratePassword(int InLength)
         {
             string Chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890`~!@#$%^&*()_+-=[]{}\\|'\":;?.,<>";
 
@@ -643,8 +643,13 @@ namespace ThePeacenet.Backend
             return Ret;
         }
 
-        void Initialize()
+        public void Initialize()
         {
+            Console.WriteLine("PEACENET WORLD GENERATOR");
+            Console.WriteLine("========================");
+            Console.WriteLine();
+            Console.WriteLine("It's time to kick ass and procedurally generate bubblegum.");
+            
             List<string> Domains = new List<string>();
 
             // Initialize the world seed if the game is new.
@@ -660,6 +665,9 @@ namespace ThePeacenet.Backend
                 // Store the seed in the save file in case we need it. WHICH WE FUCKING WILL LET ME TELL YOU.
                 _world.Seed = Hash;
             }
+
+            Console.WriteLine();
+            Console.WriteLine("Seed:    {0}", _world.Seed);
 
             // Recall when we set the world seed in the save file?
             // This is where we need it.
@@ -678,6 +686,7 @@ namespace ThePeacenet.Backend
             // get username generator.
             this._usernameGenerator = new MarkovChain(UsernameData.ToArray(), 3, RNG);
 
+            Console.WriteLine("Markov chains have been created.");
 
             if (_world.IsNewGame)
             {
@@ -694,7 +703,7 @@ namespace ThePeacenet.Backend
             _protocolVersions = _world.Items.GetAll<ProtocolImplementation>().ToList();
         }
 
-        void GenerateEmailServers()
+        protected void GenerateEmailServers()
         {
             const int MIN_EMAIL_SERVERS = 10;
             const int MAX_EMAIL_SERVERS = 25;
@@ -719,7 +728,7 @@ namespace ThePeacenet.Backend
             }
         }
 
-        void GenerateCharacterRelationships()
+        protected void GenerateCharacterRelationships()
         {
             // We will need to remove all relationships that are between any character and a non-player.
             List<CharacterRelationship> RelationshipsToRemove = new List<CharacterRelationship>();
@@ -792,9 +801,10 @@ namespace ThePeacenet.Backend
             }
         }
 
-
-        Computer GenerateComputer(string InHostname, ComputerType InComputerType, IdentityType InOwnerType)
+        protected Computer GenerateComputer(string InHostname, ComputerType InComputerType, IdentityType InOwnerType)
         {
+            Console.WriteLine("Generating computer... [hostname: \"{0}\", computer type: \"{1}\", owner type: \"{2}\"]", InHostname, InComputerType, InOwnerType);
+
             Computer Ret = new Computer
             {
 
