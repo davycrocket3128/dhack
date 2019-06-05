@@ -21,6 +21,8 @@ namespace ThePeacenet.Backend.OS
         public Computer Computer => WorldState.GetComputer(_computerId);
         public Identity Identity => WorldState.GetIdentity(_characterId);
 
+        public IEnumerable<FileRecord> FileRecords => Computer.Files;
+
         public IEnumerable<CommandAsset> Commands => WorldState.GetAvailableCommands(Computer);
 
         public List<FileRecord> Records => Computer.Files;

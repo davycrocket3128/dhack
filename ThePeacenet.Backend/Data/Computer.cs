@@ -42,6 +42,16 @@ namespace ThePeacenet.Backend.Data
         public List<FileRecord> Files { get; set; } = new List<FileRecord>();
         public List<TextFile> TextFiles { get; set; } = new List<TextFile>();
         public RamAmount RamAmount { get; set; } = RamAmount.Level0;
+        public IdentityType OwnerType { get; set; } = IdentityType.None;
+        public List<FirewallRule> Services { get; set; } = new List<FirewallRule>();
         public ComputerType ComputerType { get; set; }
+    }
+
+    public class FirewallRule
+    {
+        public int Port { get; set; }
+        public bool IsFiltered { get; set; } = false;
+        public string Service { get; set; }
+        public bool IsCrashed { get; set; } = false;
     }
 }

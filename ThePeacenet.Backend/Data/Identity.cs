@@ -8,6 +8,7 @@ namespace ThePeacenet.Backend.Data
 {
     public enum IdentityType
     {
+        None,
         Player,
         NPC,
         Story

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Content;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,17 +25,152 @@ namespace ThePeacenet.Backend
         private bool _hasWorldBeenStarted = false;
 
         public IProgramGuiBuilder GuiBuilder => _guiBuilder;
-        
+        public IEnumerable<AdjacentNode> AdjacentNodes => _saveGame.AdjacentNodes;
+
         public WorldState(IProgramGuiBuilder guiBuilder)
         {
             _guiBuilder = guiBuilder;
         }
 
+        public IEnumerable<Computer> Computers => _saveGame.Computers;
+        public IEnumerable<CharacterRelationship> Relationships => _saveGame.CharacterRelationships;
+        public IEnumerable<string> DomainNames => _saveGame.DomainNameMap.Keys;
         public ItemContainer Items => _itemContainer;
+        public IEnumerable<Identity> Identities => _saveGame.Characters;
+        public bool IsNewGame => _saveGame.IsNewGame;
+        public int Seed { get => _saveGame.WorldSeed; internal set => _saveGame.WorldSeed = value; }
+
+        internal void AssignIP(Computer computer, string ip)
+        {
+            _saveGame.ComputerIPMap.Add(ip, computer.Id);
+        }
+
+        internal void AddComputer(Computer computer)
+        {
+            _saveGame.Computers.Add(computer);
+        }
+
+        internal void RemoveRelationship(CharacterRelationship relationship)
+        {
+            _saveGame.CharacterRelationships.Remove(relationship);
+        }
+
+        public Computer DnsResolve(string hostname)
+        {
+            if(_saveGame.DomainNameMap.ContainsKey(hostname))
+            {
+                string ip = _saveGame.DomainNameMap[hostname];
+                return DnsResolve(ip);
+            }
+
+            if(_saveGame.ComputerIPMap.ContainsKey(hostname))
+            {
+                return this.GetComputer(_saveGame.ComputerIPMap[hostname]);
+            }
+
+            return null;
+        }
+
+        internal void AddRelationship(CharacterRelationship relationship)
+        {
+            _saveGame.CharacterRelationships.Add(relationship);
+        }
+
+        public string GetIPAddress(Computer computer)
+        {
+            return _saveGame.ComputerIPMap.First(x => x.Value == computer.Id).Key;
+        }
+
+        internal void DnsRegister(string domain, string ip)
+        {
+            if(!_saveGame.DomainNameMap.ContainsKey(domain))
+            {
+                _saveGame.DomainNameMap.Add(domain, ip);
+            }
+        }
+
+        internal void MakeAdjacent(Identity identityA, Identity identityB)
+        {
+            if (_saveGame.AdjacentNodes.Any(x => (x.NodeA == identityA.Id && x.NodeB == identityB.Id) || (x.NodeB == identityA.Id && x.NodeA == identityB.Id)))
+                return;
+
+            _saveGame.AdjacentNodes.Add(new AdjacentNode
+            {
+                NodeA = identityA.Id,
+                NodeB = identityB.Id
+            });
+        }
+
+        internal bool LocationTooCloseToEntity(Vector2 location, float minDistance)
+        {
+            return _saveGame.EntityPositions.Any(x => Vector2.Distance(location, x.Position) < minDistance);
+        }
+
+        internal void AddIdentity(Identity identity)
+        {
+            if (Identities.Contains(identity))
+                return;
+
+            identity.Id = Identities.Select(x => x.Id).Distinct().Max() + 1;
+            _saveGame.Characters.Add(identity);
+        }
+
+        internal void SetEntityPosition(Identity identity, Vector2 location)
+        {
+            if(_saveGame.EntityPositions.Any(x=>x.Id == identity.Id))
+            {
+                _saveGame.EntityPositions.First(x => x.Id == identity.Id).Position = location;
+            }
+            else
+            {
+                var p = new EntityPosition
+                {
+                    Id = identity.Id,
+                    Position = location
+                };
+                _saveGame.EntityPositions.Add(p);
+            }
+        }
+
+        internal bool GetPosition(Identity identity, out Vector2 position)
+        {
+            var posData = _saveGame.EntityPositions.FirstOrDefault(x => x.Id == identity.Id);
+
+            position = posData?.Position ?? Vector2.Zero;
+            return posData != null;
+        }
+
+        internal int GetSkillOf(Computer computer)
+        {
+            return Identities.First(x => x.Computers.Contains(computer.Id)).Skill;
+        }
+
+        internal void AssignStoryCharacterID(StoryCharacter character, int id)
+        {
+            if(_saveGame.StoryCharacterIDs.ContainsKey(character.Id))
+            {
+                _saveGame.StoryCharacterIDs[character.Id] = id;
+            }
+            else
+            {
+                _saveGame.StoryCharacterIDs.Add(character.Id, id);
+            }
+        }
 
         public event Action<IUserLand> PlayerSystemReady;
 
         public bool AreAllAssetsLoaded => (_itemLoadTask != null && _itemLoadTask.IsCompleted);
+
+        internal bool GetStoryCharacterID(StoryCharacter character, out int id)
+        {
+            if(_saveGame.StoryCharacterIDs.ContainsKey(character.Id))
+            {
+                id = _saveGame.StoryCharacterIDs[character.Id];
+                return true;
+            }
+            id = -1;
+            return false;
+        }
 
         private void InitializeWorld()
         {

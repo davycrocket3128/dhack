@@ -64,6 +64,7 @@
     <Compile Include="AssetTypes\CommandAsset.cs" />
     <Compile Include="AssetTypes\Exploit.cs" />
     <Compile Include="AssetTypes\Extension.cs" />
+    <Compile Include="AssetTypes\FileSpawnLocation.cs" />
     <Compile Include="AssetTypes\ManualPageAsset.cs" />
     <Compile Include="AssetTypes\MarkovTrainingData.cs" />
     <Compile Include="AssetTypes\Program.cs" />
