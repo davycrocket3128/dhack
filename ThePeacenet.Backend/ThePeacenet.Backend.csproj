@@ -35,6 +35,9 @@
     <Reference Include="DocoptNet, Version=0.0.0.0, Culture=neutral, PublicKeyToken=7a38c71da49a547e, processorArchitecture=MSIL">
       <HintPath>..\packages\docopt.net.0.6.1.10\lib\net40\DocoptNet.dll</HintPath>
     </Reference>
+    <Reference Include="Markov, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Markov.2.0.0\lib\net35\Markov.dll</HintPath>
+    </Reference>
     <Reference Include="MonoGame.Framework, Version=3.7.1.189, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MonoGame.Framework.Portable.3.7.1.189\lib\portable-net45+win8+wpa81\MonoGame.Framework.dll</HintPath>
     </Reference>
@@ -91,7 +94,6 @@
     <Compile Include="ITickable.cs" />
     <Compile Include="Manual\ManualPage.cs" />
     <Compile Include="MarkovChain.cs" />
-    <Compile Include="MarkovSource.cs" />
     <Compile Include="NullConsoleContext.cs" />
     <Compile Include="OS\IContentProvider.cs" />
     <Compile Include="OS\IFileSystem.cs" />
@@ -113,6 +115,7 @@
     <Compile Include="WorldState.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

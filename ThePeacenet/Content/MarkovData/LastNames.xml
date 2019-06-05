@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:ns="Microsoft.Xna.Framework">
+  <Asset Type="ThePeacenet.Backend.AssetTypes.MarkovTrainingData">
+    <Usage>LastNames</Usage>
+
+    <TrainingData>
+      <Data>Parker</Data>
+      <Data>Mercer</Data>
+      <Data>Heller</Data>
+      <Data>Galloway</Data>
+      <Data>Dupuis</Data>
+      <Data>Lauzon</Data>
+      <Data>Gates</Data>
+      <Data>Cross</Data>
+      <Data>Keonig</Data>
+      <Data>Rooks</Data>
+      <Data>Davis</Data>
+      <Data>MacGyver</Data>
+      <Data>McDonald</Data>
+      <Data>MacDonald</Data>
+      <Data>Tran</Data>
+      <Data>Arbour</Data>
+      <Data>Stapleton</Data>
+      <Data>Ensor</Data>
+      <Data>Dalton</Data>
+      <Data>Cage</Data>
+      <Data>John</Data>
+      <Data>Ladouceur</Data>
+      <Data>Swire</Data>
+      <Data>Rivard</Data>
+      <Data>Moch</Data>
+      <Data>Smith</Data>
+      <Data>Simpson</Data>
+      <Data>Brown</Data>
+      <Data>Griffin</Data>
+      <Data>Billingsley</Data>
+      <Data>Nirh</Data>
+      <Data>Benton</Data>
+      <Data>Webber</Data>
+      <Data>Archer</Data>
+      <Data>Guerra</Data>
+    </TrainingData>
+  </Asset>
+</XnaContent>

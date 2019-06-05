@@ -14,7 +14,6 @@ namespace ThePeacenet.Backend
     public sealed class ProcgenEngine
     {
         private WorldState _world = null;
-        private readonly List<Asset> _peacenetSites = null;
         private Random _rng = null;
         private List<ProtocolImplementation> _protocolVersions = null;
         private readonly List<Asset> _lootableFiles = null;
@@ -500,6 +499,7 @@ namespace ThePeacenet.Backend
 
             for (int i = 0; i < 1000; i++)
             {
+                Console.WriteLine("PEOPLE [{0}/1000]", i + 1);
                 this.GenerateNonPlayerCharacter();
             }
         }
@@ -568,14 +568,14 @@ namespace ThePeacenet.Backend
             {
                 if (IsMale)
                 {
-                    CharacterName = _maleNameGenerator.GetMarkovString(0);
+                    CharacterName = _maleNameGenerator.GetMarkovString();
                 }
                 else
                 {
-                    CharacterName = _femaleNameGenerator.GetMarkovString(0);
+                    CharacterName = _femaleNameGenerator.GetMarkovString();
                 }
 
-                CharacterName += " " + _lastNameGenerator.GetMarkovString(0);
+                CharacterName += " " + _lastNameGenerator.GetMarkovString();
             } while (_world.Identities.Any(x => string.Equals(x.Name, CharacterName, StringComparison.OrdinalIgnoreCase)));
 
             Identity.Name = CharacterName;
@@ -598,7 +598,7 @@ namespace ThePeacenet.Backend
             }
             else
             {
-                Username = _usernameGenerator.GetMarkovString(0);
+                Username = _usernameGenerator.GetMarkovString();
                 Hostname = Username + "-pc";
                 Identity.Alias = Username;
             }
@@ -625,6 +625,8 @@ namespace ThePeacenet.Backend
             Identity.Computers.Add(IdentityComputer.Id);
 
             _world.AddIdentity(Identity);
+
+            Console.WriteLine("Generated identity... [Name: \"{0}\", Alias: \"{1}\", Email: \"{2}\", Skill: {3}, Reputation: {4}, Gender: {5}]", Identity.Name, Identity.Alias, Identity.Email, Identity.Skill, Identity.Reputation, IsMale ? "Male" : "Female");
 
             return Identity;
         }
@@ -712,10 +714,11 @@ namespace ThePeacenet.Backend
 
             while (ServersToGenerate > 0)
             {
-                string NewHostname = this._domainNameGenerator.GetMarkovString(0).ToLower() + ".com";
+                Console.WriteLine("EMAIL SERVERS: [{0}]", ServersToGenerate);
+                string NewHostname = this._domainNameGenerator.GetMarkovString().ToLower() + ".com";
                 while (_world.DomainNames.Contains(NewHostname))
                 {
-                    NewHostname = this._domainNameGenerator.GetMarkovString(0).ToLower() + ".com";
+                    NewHostname = this._domainNameGenerator.GetMarkovString().ToLower() + ".com";
                 }
 
                 Computer Server = this.GenerateComputer(NewHostname, ComputerType.EmailServer, IdentityType.None);

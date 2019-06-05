@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:ns="Microsoft.Xna.Framework">
+  <Asset Type="ThePeacenet.Backend.AssetTypes.MarkovTrainingData">
+    <Usage>FemaleFirstNames</Usage>
+
+    <TrainingData>
+      <Data>Matilda</Data>
+      <Data>Samantha</Data>
+      <Data>Riley</Data>
+      <Data>Jill</Data>
+      <Data>Leanna</Data>
+      <Data>Cassie</Data>
+      <Data>Cassidy</Data>
+      <Data>Kate</Data>
+      <Data>Dana</Data>
+      <Data>Colleen</Data>
+      <Data>Amanda</Data>
+      <Data>Mandy</Data>
+      <Data>Sam</Data>
+      <Data>Catherine</Data>
+      <Data>Victoria</Data>
+      <Data>Kim</Data>
+      <Data>Kimberly</Data>
+      <Data>Mary</Data>
+      <Data>Judith</Data>
+      <Data>Heather</Data>
+      <Data>Megan</Data>
+      <Data>Meg</Data>
+      <Data>Connie</Data>
+      <Data>Katy</Data>
+      <Data>Alex</Data>
+      <Data>Alexandra</Data>
+      <Data>Kinzie</Data>
+      <Data>Sophia</Data>
+      <Data>Sophie</Data>
+      <Data>Sabrina</Data>
+      <Data>Autumn</Data>
+      <Data>Jen</Data>
+      <Data>Jenna</Data>
+      <Data>Marry</Data>
+      <Data>Karen</Data>
+      <Data>Cinthia</Data>
+    </TrainingData>
+  </Asset>
+</XnaContent>

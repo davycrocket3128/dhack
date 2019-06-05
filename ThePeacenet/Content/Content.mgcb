@@ -9870,6 +9870,26 @@
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/windowbuttonup.png
 
+#begin MarkovData/FEmaleFirstNames01.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:MarkovData/FEmaleFirstNames01.xml
+
+#begin MarkovData/Hostnames01.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:MarkovData/Hostnames01.xml
+
+#begin MarkovData/LastNames.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:MarkovData/LastNames.xml
+
+#begin MarkovData/MaleFirstNames01.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:MarkovData/MaleFirstNames01.xml
+
 #begin Programs/FileManager.xml
 /importer:XmlImporter
 /processor:PassThroughProcessor

@@ -187,10 +187,12 @@ namespace ThePeacenet.Backend.AssetTypes
                 }
 
                 var rootControlType = FindType(typeof(Control), Gui.Content.Type);
-                
 
-                List<ParameterExpression> variables = new List<ParameterExpression>();
-                variables.Add(evcVariable);
+
+                List<ParameterExpression> variables = new List<ParameterExpression>
+                {
+                    evcVariable
+                };
 
                 CompileControls(Gui.Content, variables, lambdaBody, evcVariable, contentManagerParameter, userLandParameter, windowParameter, true);
 

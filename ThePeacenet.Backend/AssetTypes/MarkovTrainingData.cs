@@ -34,11 +34,11 @@ namespace ThePeacenet.Backend.AssetTypes
         public MarkovTrainingDataUsage Usage { get; set; } = MarkovTrainingDataUsage.MaleFirstNames;
 
         [ContentSerializer(CollectionItemName = "Data")]
-        public List<string> Data { get; set; } = new List<string>();
+        public List<string> TrainingData { get; set; } = new List<string>();
 
         public override MarkovTrainingDataAsset Build(ItemContainer items)
         {
-            return new MarkovTrainingDataAsset(Guid.NewGuid().ToString(), items.Content, Usage, Data.ToArray());
+            return new MarkovTrainingDataAsset(Guid.NewGuid().ToString(), items.Content, Usage, TrainingData.ToArray());
         }
     }
 }

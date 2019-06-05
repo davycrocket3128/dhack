@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:ns="Microsoft.Xna.Framework">
+  <Asset Type="ThePeacenet.Backend.AssetTypes.MarkovTrainingData">
+    <Usage>Hostnames</Usage>
+
+    <TrainingData>
+      <Data>tech</Data>
+      <Data>serene</Data>
+      <Data>serenity</Data>
+      <Data>cyber</Data>
+      <Data>server</Data>
+      <Data>night</Data>
+      <Data>serv</Data>
+      <Data>phoenix</Data>
+      <Data>uni</Data>
+      <Data>universe</Data>
+      <Data>soft</Data>
+      <Data>hard</Data>
+      <Data>sys</Data>
+      <Data>com</Data>
+      <Data>system</Data>
+      <Data>computer</Data>
+      <Data>gate</Data>
+      <Data>plex</Data>
+      <Data>mesh</Data>
+      <Data>fort</Data>
+      <Data>retro</Data>
+      <Data>future</Data>
+      <Data>core</Data>
+      <Data>central</Data>
+      <Data>phase</Data>
+      <Data>newton</Data>
+      <Data>pluto</Data>
+      <Data>plutonium</Data>
+      <Data>titanium</Data>
+    </TrainingData>
+  </Asset>
+</XnaContent>
