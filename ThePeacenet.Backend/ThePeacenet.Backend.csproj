@@ -90,6 +90,8 @@
     <Compile Include="ItemContainer.cs" />
     <Compile Include="ITickable.cs" />
     <Compile Include="Manual\ManualPage.cs" />
+    <Compile Include="MarkovChain.cs" />
+    <Compile Include="MarkovSource.cs" />
     <Compile Include="NullConsoleContext.cs" />
     <Compile Include="OS\IContentProvider.cs" />
     <Compile Include="OS\IFileSystem.cs" />
@@ -99,6 +101,7 @@
     <Compile Include="OS\PlayerKernel.cs" />
     <Compile Include="ProcgenEngine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RandomExtensions.cs" />
     <Compile Include="ReflectionTools.cs" />
     <Compile Include="Shell\Command.cs" />
     <Compile Include="Shell\CommandInstruction.cs" />
