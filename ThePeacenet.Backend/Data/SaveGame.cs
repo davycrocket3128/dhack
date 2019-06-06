@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,5 +28,15 @@ namespace ThePeacenet.Backend.Data
         public List<AdjacentNode> AdjacentNodes { get; set; } = new List<AdjacentNode>();
         public int WorldSeed { get; set; } = -1;
         public List<int> PlayerDiscoveredNodes { get; set; } = new List<int>();
+
+        public static SaveGame FromStream(Stream stream)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SaveToStream(Stream stream)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

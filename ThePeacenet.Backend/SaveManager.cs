@@ -49,6 +49,13 @@ namespace ThePeacenet.Backend
                 throw new InvalidOperationException("A game is not currently loaded.");
 
             Console.WriteLine("Saving the game to disk...");
+
+            using (var stream = File.Open(GetTruePath(_currentInfo.Path), System.IO.FileMode.OpenOrCreate))
+            {
+                _currentSave.SaveToStream(stream);
+            }
+
+            Console.WriteLine("Done.");
         }
 
         private SaveGame LoadFile(SaveInfo info)
@@ -59,7 +66,10 @@ namespace ThePeacenet.Backend
 
             string path = GetTruePath(info.Path);
 
-            return null;
+            using (var stream = File.OpenRead(path))
+            {
+                return SaveGame.FromStream(stream);
+            }
         }
 
         public void Load(SaveInfo info)
