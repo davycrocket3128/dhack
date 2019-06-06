@@ -27,6 +27,9 @@ namespace ThePeacenet.Backend
 
         public IProgramGuiBuilder GuiBuilder => _guiBuilder;
         public IEnumerable<AdjacentNode> AdjacentNodes => _saveGame.AdjacentNodes;
+        public string GameDataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Bit Phoenix Software", "The Peacenet");
+
+
 
         public WorldState(IProgramGuiBuilder guiBuilder)
         {
@@ -176,6 +179,9 @@ namespace ThePeacenet.Backend
 
         private void InitializeWorld()
         {
+            Console.WriteLine("Enter player name:");
+            string username = Console.ReadLine();
+
             _kernels = new List<PlayerKernel>();
 
             _saveGame = new SaveGame();
@@ -198,7 +204,7 @@ namespace ThePeacenet.Backend
                     },
                     new User
                     {
-                        Username = "user",
+                        Username = username,
                         Password = "",
                         UserType = UserType.Sudoer
                     }
@@ -218,7 +224,7 @@ namespace ThePeacenet.Backend
                 Alias = "",
                 IdentityType = IdentityType.Player,
                 IsMissionImportant = false,
-                Name = "Player",
+                Name = username,
                 Reputation = 0,
                 Skill = 0
             };

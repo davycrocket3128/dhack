@@ -35,6 +35,9 @@
     <Reference Include="DocoptNet, Version=0.0.0.0, Culture=neutral, PublicKeyToken=7a38c71da49a547e, processorArchitecture=MSIL">
       <HintPath>..\packages\docopt.net.0.6.1.10\lib\net40\DocoptNet.dll</HintPath>
     </Reference>
+    <Reference Include="LiteDB, Version=4.1.4.0, Culture=neutral, PublicKeyToken=4ee40123013c9f27, processorArchitecture=MSIL">
+      <HintPath>..\packages\LiteDB.4.1.4\lib\net40\LiteDB.dll</HintPath>
+    </Reference>
     <Reference Include="Markov, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Markov.2.0.0\lib\net35\Markov.dll</HintPath>
     </Reference>
@@ -105,6 +108,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomExtensions.cs" />
     <Compile Include="ReflectionTools.cs" />
+    <Compile Include="SaveManager.cs" />
     <Compile Include="Shell\Command.cs" />
     <Compile Include="Shell\CommandInstruction.cs" />
     <Compile Include="Shell\Help.cs" />
