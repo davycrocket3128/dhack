@@ -24,6 +24,7 @@ namespace ThePeacenet.Backend
         private Task _itemLoadTask = null;
         private bool _hasWorldBeenStarted = false;
         private ProcgenEngine _procgen = null;
+        private SaveManager _saveManager = null;
 
         public IProgramGuiBuilder GuiBuilder => _guiBuilder;
         public IEnumerable<AdjacentNode> AdjacentNodes => _saveGame.AdjacentNodes;
@@ -35,6 +36,7 @@ namespace ThePeacenet.Backend
         {
             _guiBuilder = guiBuilder;
             _procgen = new ProcgenEngine(this);
+            _saveManager = new SaveManager(this);
         }
 
         public IEnumerable<Computer> Computers => _saveGame.Computers;
