@@ -61,6 +61,7 @@
     <Compile Include="GuiHandlers\FileManager.cs" />
     <Compile Include="GuiHandlers\Terminal.cs" />
     <Compile Include="LoadingScreen.cs" />
+    <Compile Include="MainMenu.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

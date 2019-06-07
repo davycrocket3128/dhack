@@ -100,6 +100,11 @@ namespace ThePeacenet
 
             _worldState = new WorldState(this);
 
+            _worldState.PreloadFinished += (o, a) =>
+            {
+                this._guiSystem.ActiveScreen = new MainMenu(Content, _worldState);
+            };
+
             _worldState.PlayerSystemReady += (userland) =>
             {
                 _playerUserLand = userland;

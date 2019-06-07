@@ -30,7 +30,7 @@ namespace ThePeacenet.Backend
         public IEnumerable<AdjacentNode> AdjacentNodes => _saveGame.AdjacentNodes;
         public string GameDataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Bit Phoenix Software", "The Peacenet");
 
-
+        public event EventHandler PreloadFinished;
 
         public WorldState(IProgramGuiBuilder guiBuilder)
         {
@@ -255,7 +255,7 @@ namespace ThePeacenet.Backend
             {
                 if (AreAllAssetsLoaded)
                 {
-                    InitializeWorld();
+                    PreloadFinished?.Invoke(this, EventArgs.Empty);
                     _hasWorldBeenStarted = true;
                 }
             }
