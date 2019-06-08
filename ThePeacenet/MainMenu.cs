@@ -58,6 +58,18 @@ namespace ThePeacenet
             {
                 Name = "PeacenetLogo"
             });
+
+            PeacenetLogo.SetAttachedProperty(Canvas.AnchorProperty, CanvasAnchors.TopCenter);
+            PeacenetLogo.SetAttachedProperty(Canvas.AlignmentProperty, CanvasAnchors.TopCenter);
+            UsersPanel.SetAttachedProperty(Canvas.AnchorProperty, CanvasAnchors.BottomLeft);
+            UsersPanel.SetAttachedProperty(Canvas.AlignmentProperty, CanvasAnchors.BottomLeft);
+            ActionsPanel.SetAttachedProperty(Canvas.AnchorProperty, CanvasAnchors.BottomRight);
+            ActionsPanel.SetAttachedProperty(Canvas.AlignmentProperty, CanvasAnchors.BottomRight);
+            PromptBorder.SetAttachedProperty(Canvas.AnchorProperty, CanvasAnchors.Center);
+            PromptBorder.SetAttachedProperty(Canvas.AlignmentProperty, CanvasAnchors.Center);
+
+
+
         }
 
         public override void Draw(IGuiContext context, IGuiRenderer renderer, float deltaSeconds)
