@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ThePeacenet.Backend.OS;
 using ThePeacenet.Gui;
 using ThePeacenet.Gui.Controls;
+using ThePeacenet.Gui.Windowing;
 
 namespace ThePeacenet.Backend
 {
@@ -14,7 +15,7 @@ namespace ThePeacenet.Backend
         private Window _window = null;
 
         public Window Window => _window;
-        public IUserLand User => Window.User;
+        public IUserLand User => null;
 
         protected T FindControl<T>(string name) where T : Control
         {

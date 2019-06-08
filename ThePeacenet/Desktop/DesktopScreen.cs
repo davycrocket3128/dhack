@@ -13,6 +13,7 @@ using ThePeacenet.Backend.Shell;
 using ThePeacenet.Console;
 using ThePeacenet.Gui;
 using ThePeacenet.Gui.Controls;
+using ThePeacenet.Gui.Windowing;
 
 namespace ThePeacenet.Desktop
 {
@@ -193,15 +194,6 @@ namespace ThePeacenet.Desktop
 
         public override void Draw(IGuiContext context, IGuiRenderer renderer, float deltaSeconds)
         {
-        }
-
-        public void ShowWindow(Window win)
-        {
-            win.SetAttachedProperty(Canvas.AnchorProperty, new Vector2(0.5f, 0.5f));
-            win.SetAttachedProperty(Canvas.AlignmentProperty, new Vector2(0.5f, 0.5f));
-
-            FindControl<Canvas>("WindowManagerArea").Items.Add(win);
-            FindControl<Canvas>("WindowManagerArea").InvalidateMeasure();
         }
     }
 }

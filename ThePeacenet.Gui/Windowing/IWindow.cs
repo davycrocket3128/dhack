@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ThePeacenet.Backend.Gui
+namespace ThePeacenet.Gui.Windowing
 {
     public interface IWindow
     {
@@ -14,6 +14,8 @@ namespace ThePeacenet.Backend.Gui
 
         string WindowTitle { get; set; }
         Texture2D WindowIcon { get; set; }
+
+        bool JustOpened { get; }
 
         bool CanClose { get; set; }
         bool CanMinimize { get; set; }

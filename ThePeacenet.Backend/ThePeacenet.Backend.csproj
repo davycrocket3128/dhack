@@ -91,7 +91,6 @@
     <Compile Include="FileSystem\Folder.cs" />
     <Compile Include="FileSystem\TextFile.cs" />
     <Compile Include="GuiHandler.cs" />
-    <Compile Include="Gui\IWindow.cs" />
     <Compile Include="IConsoleContext.cs" />
     <Compile Include="ItemContainer.cs" />
     <Compile Include="ITickable.cs" />
@@ -115,7 +114,6 @@
     <Compile Include="Shell\Sh.cs" />
     <Compile Include="Shell\Pipe.cs" />
     <Compile Include="Shell\Shell.cs" />
-    <Compile Include="Window.cs" />
     <Compile Include="WorldState.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -130,6 +128,9 @@
       <Project>{31389202-87D8-4830-85AA-00771D4EC65B}</Project>
       <Name>ThePeacenet.Gui</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Gui\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

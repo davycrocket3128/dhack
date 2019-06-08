@@ -21,6 +21,7 @@ namespace ThePeacenet
         public StackPanel ActionsPanel => FindControl<StackPanel>("ActionsPanel");
         public Border PromptBorder => FindControl<Border>("PromptBorder");
         public Image PeacenetLogo => FindControl<Image>("PeacenetLogo");
+        public Button NewIdentity => FindControl<Button>("NewIdentity");
 
         public MainMenu(ContentManager content, WorldState world)
         {
@@ -80,6 +81,15 @@ namespace ThePeacenet
                 }
             });
 
+            NewIdentity.Clicked += NewIdentity_Clicked;
+        }
+
+        private void NewIdentity_Clicked(object sender, EventArgs e)
+        {
+            ShowWindow(new Gui.Windowing.Window
+            {
+                WindowTitle = "New Identity " + Windows.Count().ToString()
+            });
         }
 
         public override void Draw(IGuiContext context, IGuiRenderer renderer, float deltaSeconds)

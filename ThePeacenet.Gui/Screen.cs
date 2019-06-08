@@ -6,11 +6,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ThePeacenet.Gui.Controls;
+using ThePeacenet.Gui.Windowing;
 
 namespace ThePeacenet.Gui
 {
     public abstract class Screen : Element<GuiSystem>, IDisposable
     {
+        private List<Window> _windows = new List<Window>();
+
+        public IEnumerable<Window> Windows => _windows.OrderBy(x=>x.ZOrder);
+
         public virtual void Dispose()
         {
         }
@@ -32,6 +37,22 @@ namespace ThePeacenet.Gui
             }
         }
 
+        public void ShowWindow(Window window)
+        {
+            if(_windows.Contains(window))
+            {
+                window.IsVisible = true;
+                return;
+            }
+
+            window.IsLayoutRequired = true;
+            _windows.Add(window);
+
+            BringToFront(window);
+
+            _isLayoutRequired = true;
+        }
+
         /*
         public float Width { get; private set; }
         public float Height { get; private set; }
@@ -41,7 +62,7 @@ namespace ThePeacenet.Gui
         
 
         private bool _isLayoutRequired;
-        public bool IsLayoutRequired => _isLayoutRequired || Content.IsLayoutRequired;
+        public bool IsLayoutRequired => _isLayoutRequired || Content.IsLayoutRequired || _windows.Any(x => x.IsLayoutRequired);
 
         public virtual void Update(GameTime gameTime)
         {
@@ -81,6 +102,24 @@ namespace ThePeacenet.Gui
             return null;
         }
 
+        public void BringToFront(Window window)
+        {
+            if(_windows.Contains(window))
+            {
+                int i = 0;
+                foreach(var win in _windows.OrderBy(x=>x.ZOrder))
+                {
+                    if (win != window)
+                    {
+                        win.ZOrder = i;
+                    }
+                    i++;
+                }
+
+                window.ZOrder = i;
+            }
+        }
+
         public void Layout(IGuiContext context, Rectangle rectangle)
         {
             Width = rectangle.Width;
@@ -90,6 +129,29 @@ namespace ThePeacenet.Gui
 
             _isLayoutRequired = false;
             Content.IsLayoutRequired = false;
+
+            foreach(var window in _windows)
+            {
+                if(window.IsLayoutRequired)
+                {
+                    var actualSize = window.CalculateActualSize(context);
+
+                    if(window.JustOpened == true)
+                    {
+                        LayoutHelper.PlaceControl(context, window, (rectangle.Width - actualSize.Width) / 2, (rectangle.Height - actualSize.Height) / 2, actualSize.Width, actualSize.Height);
+                        window.JustOpened = false;
+                    }
+                    else
+                    {
+                        var sizeDiff = (actualSize - window.ActualSize);
+                        var position = window.Position;
+
+                        LayoutHelper.PlaceControl(context, window, position.X - (sizeDiff.Width / 2), position.Y - (sizeDiff.Height / 2), actualSize.Width, actualSize.Height);
+                    }
+
+                    window.IsLayoutRequired = false;
+                }
+            }
         }
     }
 }

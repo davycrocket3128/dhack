@@ -103,7 +103,19 @@ namespace ThePeacenet.Gui
             var deltaSeconds = gameTime.GetElapsedSeconds();
 
             if (ActiveScreen != null && ActiveScreen.IsVisible)
+            {
+                if(ActiveScreen.IsLayoutRequired)
+                {
+                    ActiveScreen.Layout(this, BoundingRectangle);
+                }
+
                 UpdateControl(ActiveScreen.Content, deltaSeconds);
+
+                foreach(var window in ActiveScreen.Windows)
+                {
+                    UpdateControl(window, deltaSeconds);
+                }
+            }
 
             ActiveScreen.Update(gameTime);
         }
@@ -118,6 +130,11 @@ namespace ThePeacenet.Gui
             if (ActiveScreen != null && ActiveScreen.IsVisible)
             {
                 DrawControl(ActiveScreen.Content, deltaSeconds);
+
+                foreach(var window in ActiveScreen.Windows)
+                {
+                    DrawControl(window, deltaSeconds);
+                }
 
                 _renderer.Begin();
 
@@ -187,7 +204,7 @@ FPS: {(int)(1 / gameTime.GetElapsedSeconds())}";
             if (ActiveScreen == null || !ActiveScreen.IsVisible)
                 return;
 
-            _preFocusedControl = FindControlAtPoint(args.Position);
+            _preFocusedControl = FindControlAtPoint(args.Position, true);
             SetFocus(_preFocusedControl);
             PropagateDown(HoveredControl, x => x.OnPointerDown(this, args));
         }
@@ -265,10 +282,20 @@ FPS: {(int)(1 / gameTime.GetElapsedSeconds())}";
             }
         }
 
-        private Control FindControlAtPoint(Point point)
+        private Control FindControlAtPoint(Point point, bool shiftWindows = false)
         {
             if (ActiveScreen == null || !ActiveScreen.IsVisible)
                 return null;
+
+            foreach(var window in ActiveScreen.Windows.Reverse())
+            {
+                var found = FindControlAtPoint(window, point);
+                if (found != null)
+                {
+                    if(shiftWindows) ActiveScreen.BringToFront(window);
+                    return found;
+                }
+            }
 
             return FindControlAtPoint(ActiveScreen.Content, point);
         }

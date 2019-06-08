@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ThePeacenet.Backend;
 using ThePeacenet.Backend.Data;
 using ThePeacenet.Backend.OS;
+using ThePeacenet.Gui.Windowing;
 
 namespace ThePeacenet.Desktop
 {
@@ -34,7 +35,7 @@ namespace ThePeacenet.Desktop
 
         public void Run(IConsoleContext console, string[] arguments)
         {
-            Window = new Window(Program, console);
+            Window = new Window();
             Desktop.ShowWindow(Window);
         }
     }
