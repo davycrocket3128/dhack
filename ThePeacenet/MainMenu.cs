@@ -35,7 +35,7 @@ namespace ThePeacenet
 
             RootCanvas.Items.Add(new TextBox
             {
-                Text = "Kaylin is cute <3"
+                Text = "Please don't look at the diff or commit history I'm embarrassed"
             });
         }
 
