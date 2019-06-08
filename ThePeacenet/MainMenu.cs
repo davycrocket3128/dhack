@@ -16,6 +16,10 @@ namespace ThePeacenet
         private readonly WorldState _world = null;
 
         public Canvas RootCanvas => FindControl<Canvas>("RootCanvas");
+        public StackPanel UsersPanel => FindControl<StackPanel>("UsersPanel");
+        public StackPanel ActionsPanel => FindControl<StackPanel>("ActionsPanel");
+        public Border PromptBorder => FindControl<Border>("PromptBorder");
+        public Image PeacenetLogo => FindControl<Image>("PeacenetLogo");
 
         public MainMenu(ContentManager content, WorldState world)
         {
@@ -33,9 +37,26 @@ namespace ThePeacenet
                 }
             };
 
-            RootCanvas.Items.Add(new TextBox
+            RootCanvas.Items.Add(new StackPanel
             {
-                Text = "Please don't look at the diff or commit history I'm embarrassed"
+                Name = "UsersPanel",
+                Orientation = Orientation.Vertical
+            });
+
+            RootCanvas.Items.Add(new Border
+            {
+                Name = "PromptBorder"
+            });
+
+            RootCanvas.Items.Add(new StackPanel
+            {
+                Name = "ActionsPanel",
+                Orientation = Orientation.Vertical
+            });
+
+            RootCanvas.Items.Add(new Image
+            {
+                Name = "PeacenetLogo"
             });
         }
 
