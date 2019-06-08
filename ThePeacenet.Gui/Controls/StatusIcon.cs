@@ -24,7 +24,7 @@ namespace ThePeacenet.Gui.Controls
             _holder.Items.Add(_image);
             _holder.Items.Add(_label);
 
-            _image.Margin = new MonoGame.Extended.Thickness(5);
+            _image.Margin = new Thickness(5);
 
             _image.VerticalAlignment = _label.VerticalAlignment = VerticalAlignment.Centre;
         }

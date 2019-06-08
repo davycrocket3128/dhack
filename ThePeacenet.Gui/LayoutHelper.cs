@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using MonoGame.Extended;
+using SpriteFontPlus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,26 @@ namespace ThePeacenet.Gui
 
     public static class LayoutHelper
     {
+        public static Size2 MeasureString(DynamicSpriteFont font, string text)
+        {
+            if (string.IsNullOrEmpty(text)) return Size2.Empty;
+
+            string[] lines = text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+
+            float w = 0;
+            float h = 0;
+
+            foreach(var line in lines)
+            {
+                var measure = font.MeasureString(line);
+
+                w = Math.Max(w, measure.X);
+                h += measure.Y;
+            }
+
+            return new Size2(w, h);
+        }
+
         public static void PlaceControl(IGuiContext context, Control control, float x, float y, float width, float height)
         {
             var rectangle = new Rectangle((int)x, (int)y, (int)width, (int)height);

@@ -34,7 +34,7 @@ namespace ThePeacenet.Gui.Controls
             get
             {
                 var r = BoundingRectangle;
-                return new Rectangle(r.Left + ClipPadding.Left, r.Top + ClipPadding.Top, r.Width - ClipPadding.Right, r.Height - ClipPadding.Bottom);
+                return new Rectangle(r.Left + ClipPadding.Left, r.Top + ClipPadding.Top, r.Width - ClipPadding.Width, r.Height - ClipPadding.Height);
             }
         }
 
@@ -43,7 +43,7 @@ namespace ThePeacenet.Gui.Controls
             get
             {
                 var r = BoundingRectangle;
-                return new Rectangle(r.Left + Padding.Left, r.Top + Padding.Top, r.Width - Padding.Right, r.Height - Padding.Bottom);
+                return new Rectangle(r.Left + Padding.Left, r.Top + Padding.Top, r.Width - Padding.Width, r.Height - Padding.Height);
             }
         }
 
@@ -192,7 +192,7 @@ namespace ThePeacenet.Gui.Controls
         protected TextInfo GetTextInfo(IGuiContext context, string text, Rectangle targetRectangle, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment)
         {
             var font = Font ?? context.DefaultFont;
-            var textSize = (Size2)font.MeasureString(text ?? string.Empty);
+            var textSize = LayoutHelper.MeasureString(font, text ?? string.Empty);
             var destinationRectangle = LayoutHelper.AlignRectangle(horizontalAlignment, verticalAlignment, textSize, targetRectangle);
             var textPosition = destinationRectangle.Location.ToVector2();
             var textInfo = new TextInfo(text, font, textPosition, textSize, TextColor, targetRectangle);

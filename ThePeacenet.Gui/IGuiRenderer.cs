@@ -17,7 +17,7 @@ namespace ThePeacenet.Gui
         void FillRectangle(Rectangle rectangle, Color color);
         void DrawBrush(Rectangle rectangle, Brush brush);
         void DrawString(SpriteFont font, string text, Vector2 position, Color color, float scale = 1);
-        void DrawString(DynamicSpriteFont font, string text, Vector2 position, Color color);
+        void DrawString(DynamicSpriteFont font, string text, Vector2 position, Color color, Rectangle? bounds);
 
         void FillRectangle(RectangleF rectangle, Color color);
         void DrawRectangle(RectangleF rectangle, Color color, int thickness = 1);
@@ -175,7 +175,7 @@ namespace ThePeacenet.Gui
             _spriteBatch.DrawString(font, text, position, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0);
         }
 
-        public void DrawString(DynamicSpriteFont font, string text, Vector2 position, Color color)
+        public void DrawString(DynamicSpriteFont font, string text, Vector2 position, Color color, Rectangle? bounds)
         {
             font.DrawString(_spriteBatch, text, position, color);
         }

@@ -6,21 +6,20 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended;
 using ThePeacenet.Gui;
 
 namespace ThePeacenet.Desktop
 {
     public class SerenityWindowTheme : WindowTheme
     {
-        private Texture2D _windowBg = null;
+        private readonly Texture2D _windowBg = null;
 
         public SerenityWindowTheme(ContentManager content)
         {
             _windowBg = content.Load<Texture2D>("Gui/Textures/window");
         }
 
-        public override Brush BackgroundBrush => new Brush(Color.White, _windowBg, new Thickness(5), Size2.Empty, BrushType.Box);
+        public override Brush BackgroundBrush => new Brush(Color.White, _windowBg, new Thickness(5), MonoGame.Extended.Size2.Empty, BrushType.Box);
 
         public override Thickness ClientBorderMargin => new Thickness(2);
 

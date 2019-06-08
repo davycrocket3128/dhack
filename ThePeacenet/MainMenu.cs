@@ -15,15 +15,28 @@ namespace ThePeacenet
         private readonly ContentManager _content = null;
         private readonly WorldState _world = null;
 
+        public Canvas RootCanvas => FindControl<Canvas>("RootCanvas");
+
         public MainMenu(ContentManager content, WorldState world)
         {
+            Skin = content.Load<GuiSkin>("Skins/Menu");
             _content = content;
             _world = world;
 
-            Content = new Label
+            Content = new Border
             {
-                Content = "Some day, this will be a main menu."
+                StyleClass = "Wallpaper",
+                Padding = new Thickness(25),
+                Content = new Canvas
+                {
+                    Name = "RootCanvas"
+                }
             };
+
+            RootCanvas.Items.Add(new TextBox
+            {
+                Text = "Kaylin is cute <3"
+            });
         }
 
         public override void Draw(IGuiContext context, IGuiRenderer renderer, float deltaSeconds)

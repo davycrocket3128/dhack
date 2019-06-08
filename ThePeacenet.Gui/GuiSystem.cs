@@ -131,7 +131,7 @@ FPS: {(int)(1 / gameTime.GetElapsedSeconds())}";
                     var measure = DefaultFont.MeasureString(debugText);
 
                     _renderer.FillRectangle(new RectangleF(0, 0, measure.X, measure.Y), Color.Black * 0.5f);
-                    _renderer.DrawString(DefaultFont, debugText, Vector2.Zero, Color.White);
+                    _renderer.DrawString(DefaultFont, debugText, Vector2.Zero, Color.White, null);
                 }
 
                 _renderer.End();

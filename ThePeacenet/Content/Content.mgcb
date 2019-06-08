@@ -14,6 +14,7 @@
 /reference:..\..\ThePeacenet.Backend\bin\Debug\ThePeacenet.Backend.dll
 /reference:..\..\ThePeacenet.Gui\bin\Debug\ThePeacenet.Gui.dll
 /reference:SpriteFontPlus.Content.dll
+/reference:..\..\ThePeacenet.Gui\bin\Debug\MonoGame.Extended.dll
 
 #---------------------------------- Content ---------------------------------#
 
@@ -9959,6 +9960,11 @@
 /importer:XmlImporter
 /processor:PassThroughProcessor
 /build:ProtocolVersions/Telnet_Basic_01.xml
+
+#begin Skins/Menu.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Skins/Menu.xml
 
 #begin Skins/Serenity.xml
 /importer:XmlImporter

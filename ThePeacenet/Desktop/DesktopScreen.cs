@@ -158,7 +158,7 @@ namespace ThePeacenet.Desktop
                 Name = "WhiskerSearch",
                 Content = "Search...",
                 HorizontalTextAlignment = HorizontalAlignment.Left,
-                Padding = new Thickness(4)
+                Padding = new ThePeacenet.Gui.Thickness(4)
             };
 
             searchText.SetAttachedProperty(DockPanel.DockProperty, Dock.Top);
