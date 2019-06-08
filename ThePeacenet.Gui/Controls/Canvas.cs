@@ -32,10 +32,6 @@ namespace ThePeacenet.Gui.Controls
 
                     control.SetAttachedProperty(OriginalLocationProperty, position);
 
-                    // Calculate the control's position based on its alignment value.
-                    position.X -= (int)(actualSize.Width * alignment.X);
-                    position.Y -= (int)(actualSize.Height * alignment.Y);
-
                     // get the anchor position.
                     var anchorPosX = rectangle.X + (rectangle.Width * anchor.X);
                     var anchorPosY = rectangle.Y + (rectangle.Height * anchor.Y);
@@ -43,6 +39,10 @@ namespace ThePeacenet.Gui.Controls
                     // Modify the control position based on it.
                     position.X = (int)(anchorPosX + position.X);
                     position.Y = (int)(anchorPosY + position.Y);
+
+                    // Calculate the control's position based on its alignment value.
+                    position.X -= (int)(actualSize.Width * alignment.X);
+                    position.Y -= (int)(actualSize.Height * alignment.Y);
 
                     PlaceControl(context, control, position.X, position.Y, actualSize.Width, actualSize.Height);
                 }

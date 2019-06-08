@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +30,7 @@ namespace ThePeacenet
 
             Content = new Border
             {
-                StyleClass = "Wallpaper",
+                //StyleClass = "Wallpaper",
                 Padding = new Thickness(25),
                 Content = new Canvas
                 {
@@ -56,7 +57,8 @@ namespace ThePeacenet
 
             RootCanvas.Items.Add(new Image
             {
-                Name = "PeacenetLogo"
+                Name = "PeacenetLogo",
+                BackgroundBrush = new Brush(_content.Load<Texture2D>("Gui/Textures/Peacenet"))
             });
 
             PeacenetLogo.SetAttachedProperty(Canvas.AnchorProperty, CanvasAnchors.TopCenter);
@@ -68,7 +70,15 @@ namespace ThePeacenet
             PromptBorder.SetAttachedProperty(Canvas.AnchorProperty, CanvasAnchors.Center);
             PromptBorder.SetAttachedProperty(Canvas.AlignmentProperty, CanvasAnchors.Center);
 
-
+            UsersPanel.Items.Add(new Button
+            {
+                Name = "NewIdentity",
+                Content = new StatusIcon
+                {
+                    Content = "New Agent",
+                    IconBrush = new Brush(_content.Load<Texture2D>("Gui/Icons/plus-circle"), 48)
+                }
+            });
 
         }
 

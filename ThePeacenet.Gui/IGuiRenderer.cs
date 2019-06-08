@@ -150,10 +150,11 @@ namespace ThePeacenet.Gui
                         }
                         else
                         {
-                            _spriteBatch.DrawLine(rectangle.X, rectangle.Y, rectangle.X, rectangle.Y + rectangle.Height, brush.BrushColor, brush.Margin.Left);
-                            _spriteBatch.DrawLine(rectangle.X, rectangle.Y, rectangle.X + rectangle.Width, rectangle.Y, brush.BrushColor, brush.Margin.Top);
-                            _spriteBatch.DrawLine(rectangle.X + rectangle.Width, rectangle.Y, rectangle.X + rectangle.Width, rectangle.Y + rectangle.Height, brush.BrushColor, brush.Margin.Right);
-                            _spriteBatch.DrawLine(rectangle.X + rectangle.Width, rectangle.Y + rectangle.Height, rectangle.X, rectangle.Y + rectangle.Height, brush.BrushColor, brush.Margin.Bottom);
+                            _spriteBatch.FillRectangle(new Rectangle(rectangle.X, rectangle.Y, brush.Margin.Left, rectangle.Height), brush.BrushColor);
+                            _spriteBatch.FillRectangle(new Rectangle(rectangle.X + brush.Margin.Left, rectangle.Y, rectangle.Width - brush.Margin.Width, brush.Margin.Bottom), brush.BrushColor);
+                            _spriteBatch.FillRectangle(new Rectangle(rectangle.Right - brush.Margin.Right, rectangle.Y, brush.Margin.Left, rectangle.Height), brush.BrushColor);
+                            _spriteBatch.FillRectangle(new Rectangle(rectangle.X + brush.Margin.Left, rectangle.Bottom - brush.Margin.Bottom, rectangle.Width - brush.Margin.Width, brush.Margin.Height), brush.BrushColor);
+
                         }
                     }
                     break;

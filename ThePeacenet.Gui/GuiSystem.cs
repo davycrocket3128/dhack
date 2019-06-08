@@ -167,6 +167,12 @@ FPS: {(int)(1 / gameTime.GetElapsedSeconds())}";
 
                 control.Draw(this, _renderer, deltaSeconds);
 
+                if(_debugMode)
+                {
+                    _renderer.DrawBrush(control.BoundingRectangle, new Brush(Color.White, null, new Thickness(2), Size2.Empty, BrushType.Border));
+                    _renderer.DrawBrush(control.ContentRectangle, new Brush(Color.Green, null, new Thickness(1), Size2.Empty, BrushType.Border));
+                }
+
                 _renderer.End();
 
                 foreach (var childControl in control.Children.OrderBy(x=>x.ZOrder))

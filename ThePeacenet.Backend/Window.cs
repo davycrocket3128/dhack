@@ -258,7 +258,7 @@ namespace ThePeacenet.Backend
             throw new NotImplementedException();
         }
 
-        public Control Content { get => _clientArea.Content; set => _clientArea.Content = value; }
+        public Control Content { get => _clientArea.Content as Control; set => _clientArea.Content = value; }
 
         public override void Update(IGuiContext context, float deltaSeconds)
         {
@@ -266,7 +266,7 @@ namespace ThePeacenet.Backend
             {
                 _justOpened = true;
                 ZOrder = 1;
-                context.SetFocus(this._clientArea.Content);
+                context.SetFocus(this._clientArea.Content as Control);
                 Load?.Invoke(this, EventArgs.Empty);
             }
 

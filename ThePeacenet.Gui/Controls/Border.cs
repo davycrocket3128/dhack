@@ -6,10 +6,7 @@ using System.Threading.Tasks;
 
 namespace ThePeacenet.Gui.Controls
 {
-    public class Border : CompositeControl
+    public class Border : ContentControl
     {
-        public Control Content { get; set; }
-
-        public override Control Template => Content;
     }
 }
