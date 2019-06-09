@@ -12,6 +12,7 @@ namespace ThePeacenet.Backend.Data
         Enemy
     }
 
+    [Serializable]
     public class CharacterRelationship
     {
         public int FirstId { get; set; }

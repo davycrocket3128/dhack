@@ -17,6 +17,7 @@ namespace ThePeacenet.Backend.FileSystem
         CryptoWallet
     }
 
+    [Serializable]
     public class FileRecord
     {
         public int Id { get; set; }

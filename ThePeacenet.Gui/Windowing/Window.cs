@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using ThePeacenet.Backend;
 using ThePeacenet.Gui;
 using ThePeacenet.Gui.Controls;
 
@@ -27,6 +28,12 @@ namespace ThePeacenet.Gui.Windowing
         private Button _minimizeButton = null;
         private bool _shown = false;
         private bool _justOpened = true;
+        private ITickable _guiHandler = null;
+
+        public void SetGuiHandler(ITickable handler)
+        {
+            _guiHandler = handler;
+        }
 
         public event EventHandler Load;
 
@@ -163,6 +170,8 @@ namespace ThePeacenet.Gui.Windowing
                 _shown = true;
                 Load?.Invoke(this, EventArgs.Empty);
             }
+
+            if (_guiHandler != null) _guiHandler.Update(deltaSeconds);
 
             base.Update(context, deltaSeconds);
         }

@@ -103,8 +103,15 @@ namespace ThePeacenet.Backend.AssetTypes
                     ),
                     Expression.Call(
                         windowParameter,
-                        typeof(Window).GetMethod("SetGuiHandler", new[] { typeof(GuiHandler) }),
+                        typeof(Window).GetMethod("SetGuiHandler", new[] { typeof(ITickable) }),
                         evcVariable
+                    ),
+                    Expression.Assign(
+                        Expression.MakeMemberAccess(
+                                evcVariable,
+                                typeof(GuiHandler).GetProperty("User")
+                            ),
+                        userLandParameter
                     )
                 };
 

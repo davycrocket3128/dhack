@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
+using ThePeacenet.Backend.AssetTypes;
 
 namespace ThePeacenet.Backend.Data
 {
-    class SaveGame
+    [Serializable]
+    public class SaveGame
     {
         public List<string> CompletedMissions { get; set; } = new List<string>();
         public Dictionary<string, int> GameStats { get; set; } = new Dictionary<string, int>();
@@ -29,14 +33,34 @@ namespace ThePeacenet.Backend.Data
         public int WorldSeed { get; set; } = -1;
         public List<int> PlayerDiscoveredNodes { get; set; } = new List<int>();
 
+        private static readonly byte[] magic = Encoding.UTF8.GetBytes("kY1n"); // Fuck off.  I wrote this.  I can use whatever magic number I want. Even if it references something only related to me and not at all to the data format. - Michael
+
         public static SaveGame FromStream(Stream stream)
         {
-            throw new NotImplementedException();
+            using (var gzip = new GZipStream(stream, CompressionMode.Decompress))
+            {
+                return ReadObject<SaveGame>(gzip);
+            }
         }
 
         public void SaveToStream(Stream stream)
         {
-            throw new NotImplementedException();
+            using (var gzip = new GZipStream(stream, CompressionMode.Compress))
+            {
+                WriteObject(gzip, this);
+            }
+        }
+
+        public static void WriteObject(Stream writer, object obj)
+        {
+            var bf = new BinaryFormatter();
+            bf.Serialize(writer, obj);
+        }
+
+        public static T ReadObject<T>(Stream stream)
+        {
+            var bf = new BinaryFormatter();
+            return (T)bf.Deserialize(stream);
         }
     }
 }

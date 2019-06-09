@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace ThePeacenet.Backend.Data
 {
+    [Serializable]
     public class AdjacentNode
     {
         public int NodeA { get; set; }

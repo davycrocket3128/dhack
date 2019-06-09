@@ -33,6 +33,7 @@ namespace ThePeacenet.Backend.Data
         Level6
     }
 
+    [Serializable]
     public class Computer
     {
         public int Id { get; set; }
@@ -47,6 +48,7 @@ namespace ThePeacenet.Backend.Data
         public ComputerType ComputerType { get; set; }
     }
 
+    [Serializable]
     public class FirewallRule
     {
         public int Port { get; set; }

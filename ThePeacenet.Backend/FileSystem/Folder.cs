@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace ThePeacenet.Backend.FileSystem
 {
+    [Serializable]
     public class Folder
     {
         public int Id { get; set; }

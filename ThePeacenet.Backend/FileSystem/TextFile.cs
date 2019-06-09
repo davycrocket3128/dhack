@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace ThePeacenet.Backend.FileSystem
 {
+    [Serializable]
     public class TextFile
     {
         public int Id { get; set; }

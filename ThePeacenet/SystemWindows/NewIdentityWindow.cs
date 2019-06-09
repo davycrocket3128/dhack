@@ -12,6 +12,8 @@ namespace ThePeacenet.SystemWindows
 {
     public class NewIdentityWindow : Window
     {
+        private MainMenu _mainMenu = null;
+
         protected StackPanel Root => Content as StackPanel;
 
         protected TextBox PlayerName => FindControl<TextBox>("IdentityName");
@@ -20,6 +22,7 @@ namespace ThePeacenet.SystemWindows
 
         public NewIdentityWindow(MainMenu menu, ContentManager content)
         {
+            _mainMenu = menu;
             WindowTitle = "New Identity";
             WindowIcon = content.Load<Texture2D>("Gui/Icons/user-plus");
 
@@ -75,7 +78,8 @@ namespace ThePeacenet.SystemWindows
 
         private void Confirm_Clicked(object sender, EventArgs e)
         {
-
+            _mainMenu.NewGame(PlayerName.Text);
+            Close();
         }
 
 

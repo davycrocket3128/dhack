@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LiteDB;
+using ThePeacenet.Backend.AssetTypes;
 using ThePeacenet.Backend.Data;
 
 namespace ThePeacenet.Backend
@@ -18,6 +19,7 @@ namespace ThePeacenet.Backend
         private SaveGame _currentSave = null;
         
         public string SavesDirectory => Path.Combine(_world.GameDataPath, "saves");
+        internal SaveGame CurrentSave => _currentSave;
 
         public SaveManager(WorldState world)
         {
@@ -27,6 +29,65 @@ namespace ThePeacenet.Backend
             _saves = _profileDatabase.GetCollection<SaveInfo>("saves");
 
             CleanDatabase();
+        }
+
+        public void NewGame(string playerName)
+        {
+            if (_currentInfo != null || _currentSave != null)
+                throw new InvalidOperationException("A game is already in progress");
+
+            _saves.Insert(_currentInfo = new SaveInfo
+            {
+                LastPlayed = DateTime.Now,
+                Name = playerName,
+                Path = playerName.ToIdentifier() + "_" + _saves.Count() + ".bps"
+            });
+
+            _currentSave = new SaveGame();
+
+            var playerPC = new Computer
+            {
+                Id = 0,
+                Users = new List<User>
+                {
+                    new User {
+                         Username = "root",
+                         Password = "",
+                         UserType = UserType.Admin
+                    },
+                    new User
+                    {
+                        Username = playerName.ToIdentifier(),
+                        Password = "",
+                        UserType = UserType.Sudoer
+                    }
+                }
+            };
+
+            CurrentSave.Computers.Add(playerPC);
+
+            var playerIdentity = new Identity
+            {
+                Id = 0,
+                Computers = new List<int>
+                 {
+                     playerPC.Id
+                 },
+                Alias = "",
+                IdentityType = IdentityType.Player,
+                IsMissionImportant = false,
+                Name = playerName,
+                Reputation = 0,
+                Skill = 0
+            };
+
+            CurrentSave.Characters.Add(playerIdentity);
+
+            CurrentSave.PlayerCharacterID = 0;
+            CurrentSave.PlayerUserID = 1;
+
+
+            Save();
         }
 
         public void UnloadGame(bool save = true)
@@ -113,6 +174,7 @@ namespace ThePeacenet.Backend
 
     public class SaveInfo
     {
+        public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; }
         public DateTime LastPlayed { get; set; }
         public string Path { get; set; }

@@ -14,6 +14,7 @@ namespace ThePeacenet.Backend.Data
         Story
     }
 
+    [Serializable]
     public class Identity
     {
         public int Id { get; set; }

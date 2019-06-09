@@ -84,6 +84,7 @@
     <Compile Include="GuiSystem.cs" />
     <Compile Include="IGuiContext.cs" />
     <Compile Include="IGuiRenderer.cs" />
+    <Compile Include="ITickable.cs" />
     <Compile Include="LayoutHelper.cs" />
     <Compile Include="PointerEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

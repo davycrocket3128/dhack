@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace ThePeacenet.Backend.Data
 {
+    [Serializable]
     public class EntityPosition
     {
         public int Id { get; set; }

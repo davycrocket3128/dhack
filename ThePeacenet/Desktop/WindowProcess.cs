@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,7 +37,11 @@ namespace ThePeacenet.Desktop
         public void Run(IConsoleContext console, string[] arguments)
         {
             Window = new Window();
+            Window.WindowTitle = Program.Name;
+            Window.WindowIcon = Program.Content.Load<Texture2D>(Program.LauncherIcon);
             Desktop.ShowWindow(Window);
+            
+            Window.Content = Program.WindowBuilder(Window, Program.Content, console);
         }
     }
 }

@@ -10,12 +10,12 @@ using ThePeacenet.Gui.Windowing;
 
 namespace ThePeacenet.Backend
 {
-    public abstract class GuiHandler
+    public abstract class GuiHandler : ITickable
     {
         private Window _window = null;
 
         public Window Window => _window;
-        public IUserLand User => null;
+        public IUserLand User { get; internal set; }
 
         protected T FindControl<T>(string name) where T : Control
         {

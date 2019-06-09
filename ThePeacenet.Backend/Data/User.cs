@@ -13,6 +13,7 @@ namespace ThePeacenet.Backend.Data
         User
     }
 
+    [Serializable]
     public class User
     {
         public int Id { get; set; }

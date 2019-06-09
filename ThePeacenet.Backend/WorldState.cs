@@ -16,7 +16,6 @@ namespace ThePeacenet.Backend
     public class WorldState : ITickable
     {
         private readonly IProgramGuiBuilder _guiBuilder = null;
-        private SaveGame _saveGame = null;
         private List<CommandAsset> _commandAssets = new List<CommandAsset>();
         private List<PlayerKernel> _kernels = new List<PlayerKernel>();
         private ItemContainer _itemContainer = null;
@@ -27,7 +26,7 @@ namespace ThePeacenet.Backend
         private SaveManager _saveManager = null;
 
         public IProgramGuiBuilder GuiBuilder => _guiBuilder;
-        public IEnumerable<AdjacentNode> AdjacentNodes => _saveGame.AdjacentNodes;
+        public IEnumerable<AdjacentNode> AdjacentNodes => CurrentSave.AdjacentNodes;
         public string GameDataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Bit Phoenix Software", "The Peacenet");
 
         public event EventHandler PreloadFinished;
@@ -39,40 +38,42 @@ namespace ThePeacenet.Backend
             _saveManager = new SaveManager(this);
         }
 
-        public IEnumerable<Computer> Computers => _saveGame.Computers;
-        public IEnumerable<CharacterRelationship> Relationships => _saveGame.CharacterRelationships;
-        public IEnumerable<string> DomainNames => _saveGame.DomainNameMap.Keys;
+        public IEnumerable<Computer> Computers => CurrentSave.Computers;
+        public IEnumerable<CharacterRelationship> Relationships => CurrentSave.CharacterRelationships;
+        public IEnumerable<string> DomainNames => CurrentSave.DomainNameMap.Keys;
         public ItemContainer Items => _itemContainer;
-        public IEnumerable<Identity> Identities => _saveGame.Characters;
-        public bool IsNewGame => _saveGame.IsNewGame;
-        public int Seed { get => _saveGame.WorldSeed; internal set => _saveGame.WorldSeed = value; }
+        public IEnumerable<Identity> Identities => CurrentSave.Characters;
+        public bool IsNewGame => CurrentSave.IsNewGame;
+        public int Seed { get => CurrentSave.WorldSeed; internal set => CurrentSave.WorldSeed = value; }
+
+        internal SaveGame CurrentSave => _saveManager.CurrentSave;
 
         internal void AssignIP(Computer computer, string ip)
         {
-            _saveGame.ComputerIPMap.Add(ip, computer.Id);
+            CurrentSave.ComputerIPMap.Add(ip, computer.Id);
         }
 
         internal void AddComputer(Computer computer)
         {
-            _saveGame.Computers.Add(computer);
+            CurrentSave.Computers.Add(computer);
         }
 
         internal void RemoveRelationship(CharacterRelationship relationship)
         {
-            _saveGame.CharacterRelationships.Remove(relationship);
+            CurrentSave.CharacterRelationships.Remove(relationship);
         }
 
         public Computer DnsResolve(string hostname)
         {
-            if(_saveGame.DomainNameMap.ContainsKey(hostname))
+            if(CurrentSave.DomainNameMap.ContainsKey(hostname))
             {
-                string ip = _saveGame.DomainNameMap[hostname];
+                string ip = CurrentSave.DomainNameMap[hostname];
                 return DnsResolve(ip);
             }
 
-            if(_saveGame.ComputerIPMap.ContainsKey(hostname))
+            if(CurrentSave.ComputerIPMap.ContainsKey(hostname))
             {
-                return this.GetComputer(_saveGame.ComputerIPMap[hostname]);
+                return this.GetComputer(CurrentSave.ComputerIPMap[hostname]);
             }
 
             return null;
@@ -80,28 +81,28 @@ namespace ThePeacenet.Backend
 
         internal void AddRelationship(CharacterRelationship relationship)
         {
-            _saveGame.CharacterRelationships.Add(relationship);
+            CurrentSave.CharacterRelationships.Add(relationship);
         }
 
         public string GetIPAddress(Computer computer)
         {
-            return _saveGame.ComputerIPMap.First(x => x.Value == computer.Id).Key;
+            return CurrentSave.ComputerIPMap.First(x => x.Value == computer.Id).Key;
         }
 
         internal void DnsRegister(string domain, string ip)
         {
-            if(!_saveGame.DomainNameMap.ContainsKey(domain))
+            if(!CurrentSave.DomainNameMap.ContainsKey(domain))
             {
-                _saveGame.DomainNameMap.Add(domain, ip);
+                CurrentSave.DomainNameMap.Add(domain, ip);
             }
         }
 
         internal void MakeAdjacent(Identity identityA, Identity identityB)
         {
-            if (_saveGame.AdjacentNodes.Any(x => (x.NodeA == identityA.Id && x.NodeB == identityB.Id) || (x.NodeB == identityA.Id && x.NodeA == identityB.Id)))
+            if (CurrentSave.AdjacentNodes.Any(x => (x.NodeA == identityA.Id && x.NodeB == identityB.Id) || (x.NodeB == identityA.Id && x.NodeA == identityB.Id)))
                 return;
 
-            _saveGame.AdjacentNodes.Add(new AdjacentNode
+            CurrentSave.AdjacentNodes.Add(new AdjacentNode
             {
                 NodeA = identityA.Id,
                 NodeB = identityB.Id
@@ -110,7 +111,7 @@ namespace ThePeacenet.Backend
 
         internal bool LocationTooCloseToEntity(Vector2 location, float minDistance)
         {
-            return _saveGame.EntityPositions.Any(x => Vector2.Distance(location, x.Position) < minDistance);
+            return CurrentSave.EntityPositions.Any(x => Vector2.Distance(location, x.Position) < minDistance);
         }
 
         internal void AddIdentity(Identity identity)
@@ -119,14 +120,14 @@ namespace ThePeacenet.Backend
                 return;
 
             identity.Id = Identities.Select(x => x.Id).Distinct().Max() + 1;
-            _saveGame.Characters.Add(identity);
+            CurrentSave.Characters.Add(identity);
         }
 
         internal void SetEntityPosition(Identity identity, Vector2 location)
         {
-            if(_saveGame.EntityPositions.Any(x=>x.Id == identity.Id))
+            if(CurrentSave.EntityPositions.Any(x=>x.Id == identity.Id))
             {
-                _saveGame.EntityPositions.First(x => x.Id == identity.Id).Position = location;
+                CurrentSave.EntityPositions.First(x => x.Id == identity.Id).Position = location;
             }
             else
             {
@@ -135,13 +136,13 @@ namespace ThePeacenet.Backend
                     Id = identity.Id,
                     Position = location
                 };
-                _saveGame.EntityPositions.Add(p);
+                CurrentSave.EntityPositions.Add(p);
             }
         }
 
         internal bool GetPosition(Identity identity, out Vector2 position)
         {
-            var posData = _saveGame.EntityPositions.FirstOrDefault(x => x.Id == identity.Id);
+            var posData = CurrentSave.EntityPositions.FirstOrDefault(x => x.Id == identity.Id);
 
             position = posData?.Position ?? Vector2.Zero;
             return posData != null;
@@ -154,13 +155,13 @@ namespace ThePeacenet.Backend
 
         internal void AssignStoryCharacterID(StoryCharacter character, int id)
         {
-            if(_saveGame.StoryCharacterIDs.ContainsKey(character.Id))
+            if(CurrentSave.StoryCharacterIDs.ContainsKey(character.Id))
             {
-                _saveGame.StoryCharacterIDs[character.Id] = id;
+                CurrentSave.StoryCharacterIDs[character.Id] = id;
             }
             else
             {
-                _saveGame.StoryCharacterIDs.Add(character.Id, id);
+                CurrentSave.StoryCharacterIDs.Add(character.Id, id);
             }
         }
 
@@ -170,9 +171,9 @@ namespace ThePeacenet.Backend
 
         internal bool GetStoryCharacterID(StoryCharacter character, out int id)
         {
-            if(_saveGame.StoryCharacterIDs.ContainsKey(character.Id))
+            if(CurrentSave.StoryCharacterIDs.ContainsKey(character.Id))
             {
-                id = _saveGame.StoryCharacterIDs[character.Id];
+                id = CurrentSave.StoryCharacterIDs[character.Id];
                 return true;
             }
             id = -1;
@@ -181,60 +182,14 @@ namespace ThePeacenet.Backend
 
         private void InitializeWorld()
         {
-            Console.WriteLine("Enter player name:");
-            string username = Console.ReadLine();
-
             _kernels = new List<PlayerKernel>();
 
-            _saveGame = new SaveGame();
             _commandAssets.Clear();
 
             foreach (var type in ReflectionTools.GetAll<Command>())
             {
                 _commandAssets.Add(CommandAsset.FromCommand(type, _itemContainer.Content));
             }
-
-            var playerPC = new Computer
-            {
-                Id = 0,
-                Users = new List<User>
-                {
-                    new User {
-                         Username = "root",
-                         Password = "",
-                         UserType = UserType.Admin
-                    },
-                    new User
-                    {
-                        Username = username,
-                        Password = "",
-                        UserType = UserType.Sudoer
-                    }
-                }
-            };
-
-            _saveGame.Computers.Add(playerPC);
-
-            var playerIdentity = new Identity
-            {
-                Id = 0,
-                Computers = new List<int>
-                 {
-                     playerPC.Id
-                 },
-                Email = "user@email.com",
-                Alias = "",
-                IdentityType = IdentityType.Player,
-                IsMissionImportant = false,
-                Name = username,
-                Reputation = 0,
-                Skill = 0
-            };
-
-            _saveGame.Characters.Add(playerIdentity);
-
-            _saveGame.PlayerCharacterID = 0;
-            _saveGame.PlayerUserID = 1;
 
             // Start first few phases of world generation.
             _procgen.Initialize();
@@ -261,6 +216,13 @@ namespace ThePeacenet.Backend
             }
         }
 
+        public void StartNewGame(string playerName)
+        {
+            _saveManager.NewGame(playerName);
+
+            InitializeWorld();
+        }
+
         public IEnumerable<CommandAsset> GetAvailableCommands(Computer computer)
         {
             return _commandAssets.Where(x => x.UnlockedByDefault || computer.Commands.Contains(x.Id));
@@ -268,12 +230,12 @@ namespace ThePeacenet.Backend
 
         public Computer GetComputer(int id)
         {
-            return _saveGame.Computers.First(x => x.Id == id);
+            return CurrentSave.Computers.First(x => x.Id == id);
         }
 
         public Identity GetIdentity(int id)
         {
-            return _saveGame.Characters.First(x => x.Id == id);
+            return CurrentSave.Characters.First(x => x.Id == id);
         }
 
         public IKernel GetKernel(int identity)
@@ -281,7 +243,7 @@ namespace ThePeacenet.Backend
             if (_kernels.Any(x => x.Identity.Id == identity))
                 return _kernels.First(x => x.Identity.Id == identity);
 
-            if (!_saveGame.Characters.Any(x => x.Id == identity)) throw new ArgumentException("Identity not found.");
+            if (!CurrentSave.Characters.Any(x => x.Id == identity)) throw new ArgumentException("Identity not found.");
 
             var kernel = new PlayerKernel(this, identity, GetIdentity(identity).Computers.First());
             _kernels.Add(kernel);
@@ -290,7 +252,7 @@ namespace ThePeacenet.Backend
 
         public IUserLand GetPlayerUser()
         {
-            return GetKernel(_saveGame.PlayerCharacterID).GetUserLand(_saveGame.PlayerUserID);
+            return GetKernel(CurrentSave.PlayerCharacterID).GetUserLand(CurrentSave.PlayerUserID);
         }
     }
 
