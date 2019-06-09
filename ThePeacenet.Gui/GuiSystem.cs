@@ -21,11 +21,7 @@ namespace ThePeacenet.Gui
         private ViewportAdapter _viewportAdapter = null;
         private IGuiRenderer _renderer = null;
         private Screen _screen = null;
-#if DEBUG
-        private bool _debugMode = true;
-#else
         private bool _debugMode = false;
-#endif
 
         private Control _preFocusedControl = null;
 

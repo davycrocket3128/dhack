@@ -29,9 +29,5 @@ namespace ThePeacenet
                 Content = "The Peacenet - Project: Greenlight - Loading content..."
             });
         }
-
-        public override void Draw(IGuiContext context, IGuiRenderer renderer, float deltaSeconds)
-        {
-        }
     }
 }

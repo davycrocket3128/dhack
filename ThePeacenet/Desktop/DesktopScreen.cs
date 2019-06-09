@@ -191,9 +191,5 @@ namespace ThePeacenet.Desktop
                 MinWidth = 500
             };
         }
-
-        public override void Draw(IGuiContext context, IGuiRenderer renderer, float deltaSeconds)
-        {
-        }
     }
 }

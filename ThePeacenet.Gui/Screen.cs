@@ -137,13 +137,13 @@ namespace ThePeacenet.Gui
             _isLayoutRequired = false;
             Content.IsLayoutRequired = false;
 
-            foreach(var window in _windows)
+            foreach (var window in _windows)
             {
-                if(window.IsLayoutRequired)
+                if (window.IsLayoutRequired)
                 {
                     var actualSize = window.CalculateActualSize(context);
 
-                    if(window.JustOpened == true)
+                    if (window.JustOpened == true)
                     {
                         LayoutHelper.PlaceControl(context, window, (rectangle.Width - actualSize.Width) / 2, (rectangle.Height - actualSize.Height) / 2, actualSize.Width, actualSize.Height);
                         window.JustOpened = false;
@@ -155,7 +155,12 @@ namespace ThePeacenet.Gui
 
                     window.IsLayoutRequired = false;
                 }
+
             }
+        }
+
+        public sealed override void Draw(IGuiContext context, IGuiRenderer renderer, float deltaSeconds)
+        {
         }
 
         internal void RemoveWindow(Window window)

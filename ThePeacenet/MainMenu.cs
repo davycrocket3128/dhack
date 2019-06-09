@@ -169,10 +169,6 @@ namespace ThePeacenet
             }
         }
 
-        public override void Draw(IGuiContext context, IGuiRenderer renderer, float deltaSeconds)
-        {
-        }
-
         public void NewGame(string playerName)
         {
             _world.StartNewGame(playerName);
