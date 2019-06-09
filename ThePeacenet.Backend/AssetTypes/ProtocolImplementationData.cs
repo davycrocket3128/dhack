@@ -24,7 +24,10 @@ namespace ThePeacenet.Backend.AssetTypes
     public class ProtocolImplementationData : AssetBuilder<ProtocolImplementation>
     {
         public string Name { get; set; }
-        public int MinimumSkillLevel { get; set; }
+
+        [ContentSerializer(Optional = true)]
+        public int MinimumSkillLevel { get; set; } = 0;
+
         public string ProtocolId { get; set; }
 
         public override ProtocolImplementation Build(ItemContainer items)
