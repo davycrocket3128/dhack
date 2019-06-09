@@ -150,10 +150,7 @@ namespace ThePeacenet.Gui
                     }
                     else
                     {
-                        var sizeDiff = (actualSize - window.ActualSize);
-                        var position = window.Position;
-
-                        LayoutHelper.PlaceControl(context, window, position.X - (sizeDiff.Width / 2), position.Y - (sizeDiff.Height / 2), actualSize.Width, actualSize.Height);
+                        LayoutHelper.PlaceControl(context, window, window.Position.X, window.Position.Y, actualSize.Width, actualSize.Height);
                     }
 
                     window.IsLayoutRequired = false;
@@ -163,7 +160,6 @@ namespace ThePeacenet.Gui
 
         internal void RemoveWindow(Window window)
         {
-            window.Screen = null;
             _windows.Remove(window);
         }
     }
