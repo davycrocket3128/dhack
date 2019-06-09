@@ -4,7 +4,6 @@
     <Id>smtp</Id>
     <Name>SMTP</Name>
     <Summary>Unencrypted simple mail transfer protocol.</Summary>
-    <Description></Description>
     <Port>25</Port>
     <IsDefault>true</IsDefault>
     <TargetComputerType>EmailServer</TargetComputerType>

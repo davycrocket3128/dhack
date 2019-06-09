@@ -4,7 +4,6 @@
     <Id>ftp</Id>
     <Name>File Transfer Protocol</Name>
     <Summary>This service only allows the ability to browse the remote user’s /home directory but allows you to view remote files, write to them, and copy files to and from your own computer.</Summary>
-    <Description></Description>
     <Port>21</Port>
     <IsDefault>false</IsDefault>
     <TargetComputerType>Personal</TargetComputerType>

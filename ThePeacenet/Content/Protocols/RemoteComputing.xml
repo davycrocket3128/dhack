@@ -4,7 +4,6 @@
     <Id>rcp</Id>
     <Name>Remote Computing Protocol</Name>
     <Summary>This is a remote desktop service and allows you to run programs remotely as the user that the service is configured to run as.</Summary>
-    <Description></Description>
     <Port>3800</Port>
     <IsDefault>true</IsDefault>
     <TargetComputerType>Personal</TargetComputerType>

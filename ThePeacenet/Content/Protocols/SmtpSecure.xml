@@ -4,7 +4,6 @@
     <Id>smtp-s</Id>
     <Name>SMTP (Encrypted)</Name>
     <Summary>Simple mail transfer protocol with support for SSL encryption.</Summary>
-    <Description></Description>
     <Port>587</Port>
     <IsDefault>false</IsDefault>
     <TargetComputerType>EmailServer</TargetComputerType>

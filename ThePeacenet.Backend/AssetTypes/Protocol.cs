@@ -10,11 +10,10 @@ namespace ThePeacenet.Backend.AssetTypes
 {
     public class Protocol : Asset
     {
-        internal Protocol(string id, string name, string summary, string description, int port, bool isDefault, ComputerType targetComputerType, ContentManager content) : base(id, content)
+        internal Protocol(string id, string name, string summary, int port, bool isDefault, ComputerType targetComputerType, ContentManager content) : base(id, content)
         {
             Name = name;
             Summary = summary;
-            Description = description;
             Port = port;
             IsDefault = isDefault;
             TargetComputerType = targetComputerType;
@@ -22,7 +21,6 @@ namespace ThePeacenet.Backend.AssetTypes
 
         public string Name { get; }
         public string Summary { get; }
-        public string Description { get; }
         public int Port { get; }
         public bool IsDefault { get; }
         public ComputerType TargetComputerType { get; }
@@ -33,10 +31,13 @@ namespace ThePeacenet.Backend.AssetTypes
         public string Id { get; set; }
         public string Name { get; set; }
         public string Summary { get; set; }
-        public string Description { get; set; }
         public int Port { get; set; }
-        public bool IsDefault { get; set; }
-        public ComputerType TargetComputerType { get; set; }
+
+        [ContentSerializer(Optional = true)]
+        public bool IsDefault { get; set; } = false;
+
+        [ContentSerializer(Optional = true)]
+        public ComputerType TargetComputerType { get; set; } = ComputerType.Any;
 
         public override Protocol Build(ItemContainer items)
         {
@@ -44,7 +45,6 @@ namespace ThePeacenet.Backend.AssetTypes
                     Id,
                     Name,
                     Summary,
-                    Description,
                     Port,
                     IsDefault,
                     TargetComputerType,

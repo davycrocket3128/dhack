@@ -9,6 +9,7 @@ namespace ThePeacenet.Backend.Data
 {
     public enum ComputerType
     {
+        Any,
         Personal,
         Hub,
         EmailServer,
