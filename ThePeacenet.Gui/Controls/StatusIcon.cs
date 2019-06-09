@@ -24,6 +24,8 @@ namespace ThePeacenet.Gui.Controls
             _holder.Items.Add(_image);
             _holder.Items.Add(_label);
 
+            _holder.Spacing = 5;
+
             _image.VerticalAlignment = _label.VerticalAlignment = VerticalAlignment.Centre;
         }
 

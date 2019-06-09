@@ -180,6 +180,15 @@ namespace ThePeacenet.Backend
             return false;
         }
 
+        public IEnumerable<SaveInfo> AvailableAgents => _saveManager.AvailableAgents;
+
+        public void StartGame(SaveInfo info)
+        {
+            _saveManager.Load(info);
+
+            InitializeWorld();
+        }
+
         private void InitializeWorld()
         {
             _kernels = new List<PlayerKernel>();

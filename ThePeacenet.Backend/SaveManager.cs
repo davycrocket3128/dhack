@@ -17,7 +17,8 @@ namespace ThePeacenet.Backend
         private WorldState _world = null;
         private SaveInfo _currentInfo = null;
         private SaveGame _currentSave = null;
-        
+
+        public IEnumerable<SaveInfo> AvailableAgents => _saves.FindAll();
         public string SavesDirectory => Path.Combine(_world.GameDataPath, "saves");
         internal SaveGame CurrentSave => _currentSave;
 
@@ -149,6 +150,9 @@ namespace ThePeacenet.Backend
                 _currentInfo = null;
                 throw new InvalidOperationException("The save file referenced by this save entry doesn't exist.");
             }
+
+            _currentInfo.LastPlayed = DateTime.Now;
+            _saves.Update(_currentInfo);
         }
 
         private void CleanDatabase()
