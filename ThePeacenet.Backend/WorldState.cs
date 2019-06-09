@@ -181,6 +181,14 @@ namespace ThePeacenet.Backend
         }
 
         public IEnumerable<SaveInfo> AvailableAgents => _saveManager.AvailableAgents;
+        public bool IsInGame => CurrentSave != null;
+
+        public void Save()
+        {
+            if (!IsInGame) throw new InvalidOperationException("There's no save file currently loaded.");
+
+            _saveManager.Save();
+        }
 
         public void StartGame(SaveInfo info)
         {

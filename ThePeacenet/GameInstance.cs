@@ -115,6 +115,15 @@ namespace ThePeacenet
             _worldState.Initialize(Content);
         }
 
+        protected override void OnExiting(object sender, EventArgs args)
+        {
+            if(_worldState.IsInGame)
+            {
+                _worldState.Save();
+            }
+            base.OnExiting(sender, args);
+        }
+
         protected override void UnloadContent()
         {
         }
