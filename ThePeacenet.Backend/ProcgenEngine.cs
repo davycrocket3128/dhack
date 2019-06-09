@@ -294,7 +294,7 @@ namespace ThePeacenet.Backend
             if (InComputer.Services.Count > 0)
                 return;
 
-            var Services = _world.Items.GetAll<Protocol>().Where(x => x.TargetComputerType == InComputer.ComputerType).ToArray();
+            var Services = _world.Items.GetAll<Protocol>().Where(x => x.TargetComputerType == InComputer.ComputerType || x.TargetComputerType == ComputerType.Any).ToArray();
 
             // This gets the skill level of this computer's owning entity if any.
             int Skill = _world.GetSkillOf(InComputer);
