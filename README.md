@@ -1,10 +1,10 @@
 ![Peacenet logo](/Readme/The%20Peacenet%20Logo%20Gray.png)
 
-**The Peacenet** is a hacking game made in Unreal Engine 4 that takes place in the 2020s and 2030s in a digital afterlife. The game is controlled through a fictional Linux distribution called Peacegate OS.
+**The Peacenet** is a hacking game written in C# using MonoGame that takes place in the 2020s and 2030s in a digital afterlife. The game is controlled through a fictional Linux distribution called Peacegate OS.
 
 ### License
 
-This game is licensed under the MIT license. For information, see [`LICENSE`](LICENSE). This game also uses Unreal Engine 4. For that license, see [`UE-LICENSE`](UE-LICENSE).
+This game is licensed under the MIT license. For information, see [`LICENSE`](LICENSE).
 
 ### Credit where credit is due
 
