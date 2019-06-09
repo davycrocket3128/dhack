@@ -141,7 +141,8 @@ namespace ThePeacenet
                 {
                     Content = "Login",
                     IconBrush = new Brush(_content.Load<Texture2D>("Gui/Icons/sign-in"), 16)
-                }
+                },
+                HorizontalAlignment = HorizontalAlignment.Centre
             });
 
             LoadGame.Clicked += (o, a) =>
