@@ -9751,18 +9751,6 @@
 /processorParam:TextureFormat=Color
 /build:Gui/Textures/scrolldown.png
 
-#begin Gui/Textures/scrolldown.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Gui/Textures/scrolldown.png
-
 #begin Gui/Textures/scrollleft.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -9984,11 +9972,6 @@
 /importer:XmlImporter
 /processor:PassThroughProcessor
 /build:ProtocolVersions/Telnet_Basic_01.xml
-
-#begin Skins/Menu.xml
-/importer:XmlImporter
-/processor:PassThroughProcessor
-/build:Skins/Menu.xml
 
 #begin Skins/Serenity.xml
 /importer:XmlImporter

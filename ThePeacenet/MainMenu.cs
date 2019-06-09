@@ -33,7 +33,7 @@ namespace ThePeacenet
 
         public MainMenu(ContentManager content, WorldState world)
         {
-            Skin = content.Load<GuiSkin>("Skins/Menu");
+            Skin = content.Load<GuiSkin>("Skins/Serenity");
             _content = content;
             _world = world;
 
