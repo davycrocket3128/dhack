@@ -170,47 +170,6 @@ namespace ThePeacenet.Backend
                 Host = InStoryCharacter.Name.ToLower().Replace(" ", "_") + "-pc";
             }
             RootFS.WriteText("/etc/hostname", Host);
-
-            // Now we'll start looking at exploits.
-            foreach (var Exploit in InStoryCharacter.Exploits)
-            {
-                // Do we already have a file on the system that refers to this exploit?
-                bool ExploitExists = false;
-
-                // Go through all file records within the system.
-                foreach (var Record in SystemContext.FileRecords)
-                {
-                    // Only check exploit records.
-                    if (Record.RecordType == FileRecordType.Exploit)
-                    {
-                        // Check the ID first.
-                        if (Record.ContentId >= 0 && Record.ContentId < _world.Items.GetAll<Exploit>().Count())
-                        {
-                            // Get the file exploit data.
-                            var FileExploit = _world.Items.GetAll<Exploit>().ToArray()[Record.ContentId];
-
-                            // If the exploit IDs match, then this exploit DOES NOT need to spawn.
-                            if (FileExploit.Id == Exploit.Id)
-                            {
-                                ExploitExists = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                // DO NOT SPAWN THE EXPLOIT if the exploit already exists.
-                if (ExploitExists) continue;
-
-                // TODO: random exploit spawn folders.
-                for (int i = 0; i < _world.Items.GetAll<Exploit>().Count(); i++)
-                {
-                    if (_world.Items.GetAll<Exploit>().ToArray()[i].Id == Exploit.Id)
-                    {
-                        RootFS.SetFileRecord("/root/" + Exploit.Id.ToString() + ".gsf", FileRecordType.Exploit, i);
-                    }
-                }
-            }
         }
 
         protected void PlaceLootableFiles(IUserLand InUserContext)

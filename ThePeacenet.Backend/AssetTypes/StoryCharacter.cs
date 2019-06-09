@@ -9,10 +9,8 @@ namespace ThePeacenet.Backend.AssetTypes
 {
     public class StoryCharacter : Asset
     {
-        public StoryCharacter(StoryCharacterData data, ContentManager content, List<Exploit> exploits) : base(Guid.NewGuid().ToString(), content)
+        public StoryCharacter(StoryCharacterData data, ContentManager content) : base(Guid.NewGuid().ToString(), content)
         {
-            Exploits = exploits;
-
             Name = data.Name;
             UseNameForEmail = data.UseNameForEmail;
             EmailAlias = data.EmailAlias;
@@ -29,31 +27,29 @@ namespace ThePeacenet.Backend.AssetTypes
         public string Hostname { get; }
         public bool UseEmailAsUsername { get; }
         public string Username { get; }
-        public List<Exploit> Exploits { get; }
     }
 
     public class StoryCharacterData : AssetBuilder<StoryCharacter>
     {
         public override StoryCharacter Build(ItemContainer items)
         {
-            List<Exploit> exploits = new List<Exploit>();
-            foreach(var id in this.ExploitIds)
-            {
-                var exploit = items.GetItem<Exploit>(id);
-                if (exploit != null && !exploits.Any(x => x.Id == exploit.Id))
-                    exploits.Add(exploit);
-            }
-
-            return new StoryCharacter(this, items.Content, exploits);
+            return new StoryCharacter(this, items.Content);
         }
 
         public string Name { get; set; }
         public bool UseNameForEmail { get; set; }
-        public string EmailAlias { get; set; }
+
+        [ContentSerializer(Optional = true)]
+        public string EmailAlias { get; set; } = "";
+
         public bool UseNameForHostname { get; set; }
+
+        [ContentSerializer(Optional = true)]
         public string Hostname { get; set; }
+
         public bool UseEmailAsUsername { get; set; }
+
+        [ContentSerializer(Optional = true)]
         public string Username { get; set; }
-        public List<string> ExploitIds { get; set; }
     }
 }
