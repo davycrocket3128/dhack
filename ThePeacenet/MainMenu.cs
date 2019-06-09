@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using ThePeacenet.Backend;
 using ThePeacenet.Gui;
 using ThePeacenet.Gui.Controls;
+using ThePeacenet.SystemWindows;
 
 namespace ThePeacenet
 {
@@ -15,6 +16,8 @@ namespace ThePeacenet
     {
         private readonly ContentManager _content = null;
         private readonly WorldState _world = null;
+
+        private NewIdentityWindow _newIdentityWindow = null;
 
         public Canvas RootCanvas => FindControl<Canvas>("RootCanvas");
         public StackPanel UsersPanel => FindControl<StackPanel>("UsersPanel");
@@ -31,7 +34,7 @@ namespace ThePeacenet
 
             Content = new Border
             {
-                //StyleClass = "Wallpaper",
+                StyleClass = "Wallpaper",
                 Padding = new Thickness(25),
                 Content = new Canvas
                 {
@@ -82,14 +85,13 @@ namespace ThePeacenet
             });
 
             NewIdentity.Clicked += NewIdentity_Clicked;
+
+            _newIdentityWindow = new NewIdentityWindow(this, content);
         }
 
         private void NewIdentity_Clicked(object sender, EventArgs e)
         {
-            ShowWindow(new Gui.Windowing.Window
-            {
-                WindowTitle = "New Identity " + Windows.Count().ToString()
-            });
+            ShowWindow(_newIdentityWindow);
         }
 
         public override void Draw(IGuiContext context, IGuiRenderer renderer, float deltaSeconds)

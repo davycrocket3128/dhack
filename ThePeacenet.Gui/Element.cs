@@ -25,7 +25,7 @@ namespace ThePeacenet.Gui
         public string ViewProperty { get; }
     }
 
-    public abstract class Element
+    public abstract class Element : INotifyPropertyChanged
     {
         public string Name { get; set; }
         public Point Position { get; set; }
@@ -42,7 +42,7 @@ namespace ThePeacenet.Gui
 
         public List<Binding> Bindings { get; } = new List<Binding>();
 
-        protected void OnPropertyChanged(string propertyName)
+        protected virtual void OnPropertyChanged(string propertyName)
         {
             foreach (var binding in Bindings)
             {
@@ -60,9 +60,14 @@ namespace ThePeacenet.Gui
                         .SetValue(binding.ViewModel, value);
                 }
             }
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private Size2 _size;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public Size2 Size
         {
             get => _size;

@@ -33,5 +33,15 @@ namespace ThePeacenet.Gui
         }
 
         public Thickness(int all) : this(all, all, all, all) { }
+
+        public static bool operator ==(Thickness a, Thickness b)
+        {
+            return (a.Left == b.Left && a.Right == b.Right && a.Top == b.Top && a.Bottom == b.Bottom);
+        }
+
+        public static bool operator !=(Thickness a, Thickness b)
+        {
+            return !(a.Left == b.Left && a.Right == b.Right && a.Top == b.Top && a.Bottom == b.Bottom);
+        }
     }
 }

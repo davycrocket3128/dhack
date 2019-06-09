@@ -14,16 +14,140 @@ namespace ThePeacenet.Gui.Controls
 {
     public abstract class Control : Element<Control>
     {
+        private Thickness _clipPadding;
+        private Thickness _padding;
+        private bool _isVisible = true;
+        private Thickness _margin;
+        private HorizontalAlignment _hAlign = HorizontalAlignment.Stretch;
+        private VerticalAlignment _vAlign = VerticalAlignment.Stretch;
+        private HorizontalAlignment _hTextAlign = HorizontalAlignment.Centre;
+        private VerticalAlignment _vTextAlign = VerticalAlignment.Centre;
+        private bool _isLayoutRequired = true;
+
+        private Screen _screen = null;
+
         public abstract IEnumerable<Control> Children { get; }
-        public Thickness ClipPadding { get; set; }
-        public Thickness Margin { get; set; }
-        public Thickness Padding { get; set; }
-        public bool IsVisible { get; set; } = true;
-        public bool IsLayoutRequired { get; set; }
-        public HorizontalAlignment HorizontalAlignment { get; set; } = HorizontalAlignment.Stretch;
-        public VerticalAlignment VerticalAlignment { get; set; } = VerticalAlignment.Stretch;
-        public HorizontalAlignment HorizontalTextAlignment { get; set; } = HorizontalAlignment.Centre;
-        public VerticalAlignment VerticalTextAlignment { get; set; } = VerticalAlignment.Centre;
+
+        public Screen Screen { get => (_screen == null) ? Parent?.Screen : _screen; internal set => _screen = value; }
+
+        protected sealed override void OnPropertyChanged(string propertyName)
+        {
+            base.OnPropertyChanged(propertyName);
+            if(Screen != null)
+            {
+                Screen.ForceLayout();
+            }
+            IsLayoutRequired = true;
+        }
+
+        public Thickness ClipPadding
+        {
+            get => _clipPadding;
+            set
+            {
+                if(_clipPadding != value)
+                {
+                    _clipPadding = value;
+                    OnPropertyChanged(nameof(ClipPadding));
+                }
+            }
+        }
+
+        public Thickness Margin
+        {
+            get => _margin;
+            set
+            {
+                if (_margin != value)
+                {
+                    _margin = value;
+                    OnPropertyChanged(nameof(Margin));
+                }
+            }
+        }
+
+        public Thickness Padding
+        {
+            get => _padding;
+            set
+            {
+                if (_padding != value)
+                {
+                    _padding = value;
+                    OnPropertyChanged(nameof(Padding));
+                }
+            }
+        }
+
+        
+        public bool IsVisible
+        {
+            get => _isVisible;
+            set
+            {
+                if(_isVisible != value)
+                {
+                    _isVisible = value;
+                    OnPropertyChanged(nameof(IsVisible));
+                }
+            }
+        }
+
+        public bool IsLayoutRequired { get => _isLayoutRequired || Children.Any(x=>x.IsLayoutRequired); set => _isLayoutRequired = value; }
+
+        public HorizontalAlignment HorizontalAlignment
+        {
+            get => _hAlign;
+            set
+            {
+                if(_hAlign != value)
+                {
+                    _hAlign = value;
+                    OnPropertyChanged(nameof(HorizontalAlignment));
+                }
+            }
+        }
+
+        public HorizontalAlignment HorizontalTextAlignment
+        {
+            get => _hTextAlign;
+            set
+            {
+                if (_hTextAlign != value)
+                {
+                    _hTextAlign = value;
+                    OnPropertyChanged(nameof(HorizontalTextAlignment));
+                }
+            }
+        }
+
+        public VerticalAlignment VerticalAlignment
+        {
+            get => _vAlign;
+            set
+            {
+                if (_vAlign != value)
+                {
+                    _vAlign = value;
+                    OnPropertyChanged(nameof(VerticalAlignment));
+                }
+            }
+        }
+
+        public VerticalAlignment VerticalTextAlignment
+        {
+            get => _vTextAlign;
+            set
+            {
+                if (_vTextAlign != value)
+                {
+                    _vTextAlign = value;
+                    OnPropertyChanged(nameof(VerticalTextAlignment));
+                }
+            }
+        }
+
+
         public Guid Id { get; private set; } = Guid.NewGuid();
         public Color TextColor { get; set; } = Color.White;
         public Vector2 TextOffset { get; set; }
@@ -85,7 +209,13 @@ namespace ThePeacenet.Gui.Controls
 
             var width = fixedSize.Width == 0 ? desiredSize.Width : fixedSize.Width;
             var height = fixedSize.Height == 0 ? desiredSize.Height : fixedSize.Height;
+            IsLayoutRequired = false;
             return new Size2(width, height);
+        }
+
+        public T FindControl<T>(string name) where T: Control
+        {
+            return Screen.FindControl<T>(this, name);
         }
 
         public override void Draw(IGuiContext context, IGuiRenderer renderer, float deltaSeconds)
@@ -159,6 +289,7 @@ namespace ThePeacenet.Gui.Controls
                 {
                     _isEnabled = value;
                     DisabledStyle?.ApplyIf(this, !_isEnabled);
+                    OnPropertyChanged(nameof(IsEnabled));
                 }
             }
         }
@@ -175,6 +306,7 @@ namespace ThePeacenet.Gui.Controls
                 {
                     _isHovered = value;
                     HoverStyle?.ApplyIf(this, _isHovered);
+                    OnPropertyChanged(nameof(IsHovered));
                 }
             }
         }
@@ -224,7 +356,19 @@ namespace ThePeacenet.Gui.Controls
         public bool HasFocus => (IsFocused || Children.Any(x => x.HasFocus));
         public int ZOrder { get; set; } = 0;
 
-        public string StyleClass { get; set; }
+        private string _styleClass = "";
+        public string StyleClass
+        {
+            get => _styleClass;
+            set
+            {
+                if(_styleClass != value)
+                {
+                    _styleClass = value;
+                    OnPropertyChanged(nameof(StyleClass));
+                }
+            }
+        }
 
         private GuiSkin _skin = null;
 
@@ -326,6 +470,7 @@ namespace ThePeacenet.Gui.Controls
         public void SetAttachedProperty(string name, object value)
         {
             AttachedProperties[name] = value;
+            OnPropertyChanged(name);
         }
 
         public virtual Type GetAttachedPropertyType(string propertyName)

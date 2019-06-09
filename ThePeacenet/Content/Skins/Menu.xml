@@ -61,7 +61,7 @@
             </Brushes>
             <Properties>
               <Property>
-                <Name>Margin</Name>
+                <Name>Padding</Name>
                 <Value Type="ThePeacenet.Gui.Thickness">
                   <Left>14</Left>
                   <Top>8</Top>
@@ -156,6 +156,78 @@
               </Brush>
             </Brushes>
           </Style>
+        </Styles>
+      </Element>
+
+      <Element>
+        <ControlType>Button</ControlType>
+        <StyleClass>WindowClose</StyleClass>
+
+        <Styles>
+          <Style>
+            <Name>Default</Name>
+            <Brushes>
+              <Brush>
+                <Name>BackgroundBrush</Name>
+                <Color>FFFFFFFF</Color>
+                <Texture>Gui/Textures/close</Texture>
+                <BrushType>Image</BrushType>
+              </Brush>
+            </Brushes>
+            <Properties>
+              <Property>
+                <Name>MinWidth</Name>
+                <Value Type="Int32">22</Value>
+              </Property>
+              <Property>
+                <Name>MinHeight</Name>
+                <Value Type="Int32">20</Value>
+              </Property>
+            </Properties>
+          </Style>
+          <Style>
+            <Name>HoverStyle</Name>
+            <Brushes>
+              <Brush>
+                <Name>BackgroundBrush</Name>
+                <Color>F71B1BFF</Color>
+                <Texture>Gui/Textures/close</Texture>
+                <BrushType>Image</BrushType>
+              </Brush>
+            </Brushes>
+            <Properties>
+              <Property>
+                <Name>MinWidth</Name>
+                <Value Type="Int32">22</Value>
+              </Property>
+              <Property>
+                <Name>MinHeight</Name>
+                <Value Type="Int32">20</Value>
+              </Property>
+            </Properties>
+          </Style>
+          <Style>
+            <Name>PressedStyle</Name>
+            <Brushes>
+              <Brush>
+                <Name>BackgroundBrush</Name>
+                <Color>F71B1BAF</Color>
+                <Texture>Gui/Textures/close</Texture>
+                <BrushType>Image</BrushType>
+              </Brush>
+            </Brushes>
+            <Properties>
+              <Property>
+                <Name>MinWidth</Name>
+                <Value Type="Int32">22</Value>
+              </Property>
+              <Property>
+                <Name>MinHeight</Name>
+                <Value Type="Int32">20</Value>
+              </Property>
+            </Properties>
+          </Style>
+
         </Styles>
       </Element>
     </Elements>

@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -61,7 +62,7 @@ namespace ThePeacenet.Gui
         public string Name { get; set; }
 
         [ContentSerializer(Optional = true)]
-        public Color Color { get; set; } = Color.White;
+        public string Color { get; set; } = "FFFFFFFF";
 
         [ContentSerializer(Optional = true)]
         public string Texture { get; set; } = "";
@@ -77,12 +78,22 @@ namespace ThePeacenet.Gui
 
         public Brush CreateBrush(ContentManager content)
         {
+            var color = Microsoft.Xna.Framework.Color.White;
+
+            uint colorPacked = 0;
+            if(uint.TryParse(Color, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out colorPacked))
+            {
+                byte[] bytes = BitConverter.GetBytes(colorPacked);
+
+                color = new Color(bytes[0], bytes[1], bytes[2], bytes[3]);
+            }
+            
             Texture2D texture = null;
             if (!string.IsNullOrWhiteSpace(Texture))
                 texture = content.Load<Texture2D>(Texture);
 
             return new Brush(
-                    Color,
+                    color,
                     texture,
                     Margin,
                     ImageSize,

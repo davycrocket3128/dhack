@@ -24,6 +24,11 @@ namespace ThePeacenet.Gui
 
         private Control _content;
         
+        internal void ForceLayout()
+        {
+            _isLayoutRequired = true;
+        }
+
         public Control Content
         {
             get { return _content; }
@@ -32,6 +37,7 @@ namespace ThePeacenet.Gui
                 if (_content != value)
                 {
                     _content = value;
+                    _content.Screen = this;
                     _isLayoutRequired = true;
                 }
             }
@@ -45,6 +51,7 @@ namespace ThePeacenet.Gui
                 return;
             }
 
+            window.Screen = this;
             window.IsLayoutRequired = true;
             _windows.Add(window);
 
@@ -152,6 +159,12 @@ namespace ThePeacenet.Gui
                     window.IsLayoutRequired = false;
                 }
             }
+        }
+
+        internal void RemoveWindow(Window window)
+        {
+            window.Screen = null;
+            _windows.Remove(window);
         }
     }
 }

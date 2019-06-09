@@ -37,7 +37,8 @@ namespace ThePeacenet.Gui.Windowing
                 Content = _nonClient = new DockPanel
                 {
                     LastChildFill = true
-                }
+                },
+                StyleClass = "WindowBorder"
             };
 
             _nonClient.Items.Add(_captionBorder = new DragSurface
@@ -48,11 +49,15 @@ namespace ThePeacenet.Gui.Windowing
                 }
             });
 
-            _nonClient.Items.Add(_clientArea = new Border());
+            _nonClient.Items.Add(_clientArea = new Border
+            {
+                StyleClass = "WindowClient"
+            });
 
             _captionDock.Items.Add(_iconImage = new Image
             {
-                VerticalAlignment = VerticalAlignment.Centre
+                VerticalAlignment = VerticalAlignment.Centre,
+                StyleClass = "WindowIcon"
             });
 
             _captionDock.Items.Add(_titleButtons = new StackPanel
@@ -66,21 +71,22 @@ namespace ThePeacenet.Gui.Windowing
                 VerticalAlignment = VerticalAlignment.Centre,
                 HorizontalTextAlignment = HorizontalAlignment.Centre,
                 Content = "Window Title",
+                StyleClass = "TitleText"
             });
 
             _titleButtons.Items.Add(_minimizeButton = new Button
             {
-
+                StyleClass = "WindowMinimize"
             });
 
             _titleButtons.Items.Add(_maximizeButton = new Button
             {
-
+                StyleClass = "WindowMaximize"
             });
 
             _titleButtons.Items.Add(_closeButton = new Button
             {
-
+                StyleClass = "WindowClose"
             });
 
             _captionBorder.SetAttachedProperty(DockPanel.DockProperty, Dock.Top);
@@ -91,6 +97,8 @@ namespace ThePeacenet.Gui.Windowing
             _clientArea.MinHeight = 200;
 
             _captionBorder.PointerDrag += TitleBarPointerDrag;
+
+            _closeButton.Clicked += (o, a) => { Close(); };
         }
 
         private void TitleBarPointerDrag(object sender, DragSurfaceEventArgs e)
@@ -126,7 +134,7 @@ namespace ThePeacenet.Gui.Windowing
 
         public void Close()
         {
-            this.RemoveFromParent();
+            Screen.RemoveWindow(this);
         }
 
         public void Maximize()
