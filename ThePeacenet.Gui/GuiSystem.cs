@@ -51,16 +51,16 @@ namespace ThePeacenet.Gui
             _touchListener.TouchEnded += (s, e) => OnPointerUp(PointerEventArgs.FromTouchArgs(e));
 
             _keyboardListener = new KeyboardListener();
-            _keyboardListener.KeyTyped += (sender, args) =>
+            _keyboardListener.KeyPressed += (sender, args) =>
             {
-                if(args.Key == Microsoft.Xna.Framework.Input.Keys.F11)
+                if(args.Key == Microsoft.Xna.Framework.Input.Keys.F3)
                 {
                     _debugMode = !_debugMode;
                     return;
                 }
-                PropagateDown(FocusedControl, x => x.OnKeyTyped(this, args));
+                PropagateDown(FocusedControl, x => x.OnKeyPressed(this, args));
             };
-            _keyboardListener.KeyPressed += (sender, args) => PropagateDown(FocusedControl, x => x.OnKeyPressed(this, args));
+            _keyboardListener.KeyTyped += (sender, args) => PropagateDown(FocusedControl, x => x.OnKeyTyped(this, args));
 
             DefaultFont = Content.LoadFont("DefaultFont");
         }
