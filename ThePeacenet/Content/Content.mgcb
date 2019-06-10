@@ -9885,6 +9885,11 @@
 /processor:PassThroughProcessor
 /build:Programs/Terminal.xml
 
+#begin Programs/TextLayoutEngineTest.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Programs/TextLayoutEngineTest.xml
+
 #begin Protocols/FTP.xml
 /importer:XmlImporter
 /processor:PassThroughProcessor

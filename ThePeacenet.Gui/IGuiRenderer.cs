@@ -176,9 +176,20 @@ namespace ThePeacenet.Gui
             _spriteBatch.DrawString(font, text, position, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0);
         }
 
+        private string[] SplitLines(string text)
+        {
+            return text.Replace("\r", "").Split(new[] { '\n' });
+        }
+
         public void DrawString(DynamicSpriteFont font, string text, Vector2 position, Color color, Rectangle? bounds)
         {
-            font.DrawString(_spriteBatch, text, position, color);
+            var lines = SplitLines(text);
+            float lineOffset = 0;
+            foreach(var line in lines)
+            {
+                font.DrawString(_spriteBatch, line, new Vector2(position.X, position.Y + lineOffset), color);
+                lineOffset += font.MeasureString(line).Y;
+            }
         }
 
         public void End()

@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ThePeacenet.Gui.TextLayout;
 
 namespace ThePeacenet.Gui.Controls
 {
@@ -324,10 +325,11 @@ namespace ThePeacenet.Gui.Controls
         protected TextInfo GetTextInfo(IGuiContext context, string text, Rectangle targetRectangle, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment)
         {
             var font = Font ?? context.DefaultFont;
-            var textSize = LayoutHelper.MeasureString(font, text ?? string.Empty);
+            var wrapped = TextMeasure.WrapText(font, text ?? string.Empty, targetRectangle, WrapMode.WordWrap);
+            var textSize = LayoutHelper.MeasureString(font, wrapped);
             var destinationRectangle = LayoutHelper.AlignRectangle(horizontalAlignment, verticalAlignment, textSize, targetRectangle);
             var textPosition = destinationRectangle.Location.ToVector2();
-            var textInfo = new TextInfo(text, font, textPosition, textSize, TextColor, targetRectangle);
+            var textInfo = new TextInfo(wrapped, font, textPosition, textSize, TextColor, targetRectangle);
             return textInfo;
         }
 

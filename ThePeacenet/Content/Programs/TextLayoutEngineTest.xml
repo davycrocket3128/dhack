@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:ns="Microsoft.Xna.Framework">
+  <Asset Type="ThePeacenet.Backend.AssetTypes.ProgramData">
+    <Name>Text Layout Test</Name>
+    <Description>Debug program for testing the text layout engine.</Description>
+    <LauncherCategory>Debug Tools</LauncherCategory>
+    <LauncherIcon>Gui/Icons/book</LauncherIcon>
+
+    <Gui>
+      <EventHandlerClass>ThePeacenet.GuiHandlers.TextLayoutTest</EventHandlerClass>
+
+      <Content>
+        <Name>Label</Name>
+        <Type>ThePeacenet.Gui.Controls.Label</Type>
+        <Properties>
+          <Property>
+            <Name>Content</Name>
+            <Value Type="String">This text is large.  Eventually, it should exceed the maximum width of the label and word-wrap to a new line.  The maximum width of the label is 800 units.
+                          
+This text should appear on a new line as if it was a new paragraph.  It should also exceed the maximum width of the label and wrap.</Value>
+          </Property>
+          <Property>
+            <Name>MaxWidth</Name>
+            <Value Type="Int32">800</Value>
+          </Property>
+        </Properties>
+      </Content>
+    </Gui>
+  </Asset>
+</XnaContent>
