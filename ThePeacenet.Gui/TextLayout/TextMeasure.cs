@@ -16,7 +16,7 @@ namespace ThePeacenet.Gui.TextLayout
 
         private static string WrapInternal(string text, Rectangle targetRectangle, WrapMode wrapMode, Func<string, Size2> measureFunc)
         {
-            if (wrapMode == WrapMode.None)
+            if (wrapMode == WrapMode.None || targetRectangle.Width <= 0)
                 return text;
 
             if(wrapMode == WrapMode.LetterWrap)
