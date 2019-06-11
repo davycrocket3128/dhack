@@ -19,18 +19,25 @@ namespace ThePeacenet.Gui
 
     public class SkinElement
     {
-        public string ControlType { get; set; }
-
-        [ContentSerializer(Optional = true)]
-        public string StyleClass { get; set; }
+        public string Control { get; set; }
 
         [ContentSerializer(CollectionItemName = "Style")]
-        public List<ControlStyleData> Styles { get; set; }
+        public List<SkinStyle> Styles { get; set; }
     }
 
-    public class ControlStyleData
+    public class SkinStyle
     {
-        public string Name { get; set; }
+        [ContentSerializer(Optional = true)]
+        public string Name { get; set; } = "";
+
+        [ContentSerializer(CollectionItemName = "State")]
+        public List<SkinState> States { get; set; } = new List<SkinState>();
+    }
+
+    public class SkinState
+    {
+        [ContentSerializer(Optional = true)]
+        public string Name { get; set; } = "Default";
 
         [ContentSerializer(CollectionItemName = "Brush", Optional = true)]
         public List<BrushData> Brushes { get; set; } = new List<BrushData>();
@@ -62,7 +69,7 @@ namespace ThePeacenet.Gui
         public string Name { get; set; }
 
         [ContentSerializer(Optional = true)]
-        public string Color { get; set; } = "FFFFFFFF";
+        public BrushColorData Color { get; set; } = new BrushColorData { Red = 255, Green = 255, Blue = 255, Alpha = 255 };
 
         [ContentSerializer(Optional = true)]
         public string Texture { get; set; } = "";
@@ -78,27 +85,25 @@ namespace ThePeacenet.Gui
 
         public Brush CreateBrush(ContentManager content)
         {
-            var color = Microsoft.Xna.Framework.Color.White;
-
-            uint colorPacked = 0;
-            if(uint.TryParse(Color, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out colorPacked))
-            {
-                byte[] bytes = BitConverter.GetBytes(colorPacked);
-
-                color = new Color(bytes[0], bytes[1], bytes[2], bytes[3]);
-            }
-            
             Texture2D texture = null;
             if (!string.IsNullOrWhiteSpace(Texture))
                 texture = content.Load<Texture2D>(Texture);
 
             return new Brush(
-                    color,
+                    new Microsoft.Xna.Framework.Color(Color.Red, Color.Green, Color.Blue, Color.Alpha),
                     texture,
                     Margin,
                     ImageSize,
                     BrushType
                 );
         }
+    }
+
+    public class BrushColorData
+    {
+        public int Red { get; set; }
+        public int Green { get; set; }
+        public int Blue { get; set; }
+        public int Alpha { get; set; }
     }
 }

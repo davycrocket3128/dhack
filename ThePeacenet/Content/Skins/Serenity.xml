@@ -2,406 +2,52 @@
 <XnaContent xmlns:ns="Microsoft.Xna.Framework">
   <Asset Type="ThePeacenet.Gui.GuiSkin">
     <Elements>
+      <!-- CONSOLE CONTROLS -->
       <Element>
-        <ControlType>Border</ControlType>
-        <StyleClass>Wallpaper</StyleClass>
+        <Control>ThePeacenet.Console.ConsoleControl</Control>
 
         <Styles>
+          <!-- Default style -->
           <Style>
-            <Name>Default</Name>
-            <Brushes>
-              <Brush>
-                <Name>BackgroundBrush</Name>
-                <Texture>Wallpapers/1</Texture>
-              </Brush>
-            </Brushes>
+            <States>
+              <State>
+                <!-- Default state -->
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Color>
+                      <Red>0</Red>
+                      <Green>0</Green>
+                      <Blue>0</Blue>
+                      <Alpha>255</Alpha>
+                    </Color>
+                  </Brush>
+                </Brushes>
+              </State>
+            </States>
+          </Style>
+          <!-- Terminal's console control -->
+          <Style>
+            <Name>WindowTerminal</Name>
+            <States>
+              <State>
+                <!-- Default state -->
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Color>
+                      <Red>0</Red>
+                      <Green>0</Green>
+                      <Blue>0</Blue>
+                      <Alpha>48</Alpha>
+                    </Color>
+                  </Brush>
+                </Brushes>
+              </State>
+            </States>
           </Style>
         </Styles>
       </Element>
-      <Element>
-        <ControlType>Button</ControlType>
-
-        <Styles>
-          <Style>
-            <Name>Default</Name>
-            <Brushes>
-              <Brush>
-                <Name>BackgroundBrush</Name>
-                <Texture>Gui/Textures/button</Texture>
-                <BrushType>Box</BrushType>
-                <Margin>
-                  <Left>5</Left>
-                  <Top>5</Top>
-                  <Right>5</Right>
-                  <Bottom>5</Bottom>
-                </Margin>
-              </Brush>
-            </Brushes>
-            <Properties>
-              <Property>
-                <Name>Padding</Name>
-                <Value Type="ThePeacenet.Gui.Thickness">
-                  <Left>7</Left>
-                  <Top>4</Top>
-                  <Right>7</Right>
-                  <Bottom>4</Bottom>
-                </Value>
-              </Property>
-            </Properties>
-          </Style>
-          <Style>
-            <Name>HoverStyle</Name>
-            <Brushes>
-              <Brush>
-                <Name>BackgroundBrush</Name>
-                <Texture>Gui/Textures/buttonh</Texture>
-                <BrushType>Box</BrushType>
-                <Margin>
-                  <Left>5</Left>
-                  <Top>5</Top>
-                  <Right>5</Right>
-                  <Bottom>5</Bottom>
-                </Margin>
-              </Brush>
-            </Brushes>
-          </Style>
-          <Style>
-            <Name>PressedStyle</Name>
-            <Brushes>
-              <Brush>
-                <Name>BackgroundBrush</Name>
-                <Texture>Gui/Textures/buttonc</Texture>
-                <BrushType>Box</BrushType>
-                <Margin>
-                  <Left>5</Left>
-                  <Top>5</Top>
-                  <Right>5</Right>
-                  <Bottom>5</Bottom>
-                </Margin>
-              </Brush>
-            </Brushes>
-          </Style>
-        </Styles>
-      </Element>
-      <Element>
-        <ControlType>Button</ControlType>
-        <StyleClass>AppButton</StyleClass>
-
-        <Styles>
-          <Style>
-            <Name>Default</Name>
-            <Brushes>
-              <Brush>
-                <Name>BackgroundBrush</Name>
-                <Texture>Gui/Textures/menu</Texture>
-                <BrushType>Image</BrushType>
-              </Brush>
-            </Brushes>
-            <Properties>
-              <Property>
-                <Name>MinWidth</Name>
-                <Value Type="Int32">58</Value>
-              </Property>
-              <Property>
-                <Name>MinHeight</Name>
-                <Value Type="Int32">20</Value>
-              </Property>
-            </Properties>
-          </Style>
-          <Style>
-            <Name>HoverStyle</Name>
-            <Brushes>
-              <Brush>
-                <Name>BackgroundBrush</Name>
-                <Texture>Gui/Textures/menu</Texture>
-                <BrushType>Image</BrushType>
-              </Brush>
-            </Brushes>
-          </Style>
-          <Style>
-            <Name>PressedStyle</Name>
-            <Brushes>
-              <Brush>
-                <Name>BackgroundBrush</Name>
-                <Texture>Gui/Textures/menudown</Texture>
-                <BrushType>Image</BrushType>
-              </Brush>
-            </Brushes>
-          </Style>
-        </Styles>
-      </Element>
-
-      <Element>
-        <ControlType>Button</ControlType>
-        <StyleClass>WindowClose</StyleClass>
-
-        <Styles>
-          <Style>
-            <Name>Default</Name>
-            <Brushes>
-              <Brush>
-                <Name>BackgroundBrush</Name>
-                <Color>FFFFFFFF</Color>
-                <Texture>Gui/Textures/close</Texture>
-                <BrushType>Image</BrushType>
-              </Brush>
-            </Brushes>
-            <Properties>
-              <Property>
-                <Name>MinWidth</Name>
-                <Value Type="Int32">22</Value>
-              </Property>
-              <Property>
-                <Name>MinHeight</Name>
-                <Value Type="Int32">20</Value>
-              </Property>
-            </Properties>
-          </Style>
-          <Style>
-            <Name>HoverStyle</Name>
-            <Brushes>
-              <Brush>
-                <Name>BackgroundBrush</Name>
-                <Color>F71B1BFF</Color>
-                <Texture>Gui/Textures/close</Texture>
-                <BrushType>Image</BrushType>
-              </Brush>
-            </Brushes>
-            <Properties>
-              <Property>
-                <Name>MinWidth</Name>
-                <Value Type="Int32">22</Value>
-              </Property>
-              <Property>
-                <Name>MinHeight</Name>
-                <Value Type="Int32">20</Value>
-              </Property>
-            </Properties>
-          </Style>
-          <Style>
-            <Name>PressedStyle</Name>
-            <Brushes>
-              <Brush>
-                <Name>BackgroundBrush</Name>
-                <Color>F71B1BAF</Color>
-                <Texture>Gui/Textures/close</Texture>
-                <BrushType>Image</BrushType>
-              </Brush>
-            </Brushes>
-            <Properties>
-              <Property>
-                <Name>MinWidth</Name>
-                <Value Type="Int32">22</Value>
-              </Property>
-              <Property>
-                <Name>MinHeight</Name>
-                <Value Type="Int32">20</Value>
-              </Property>
-            </Properties>
-          </Style>
-
-        </Styles>
-      </Element>
-      <Element>
-        <ControlType>Button</ControlType>
-        <StyleClass>WindowMaximize</StyleClass>
-
-        <Styles>
-          <Style>
-            <Name>Default</Name>
-            <Brushes>
-              <Brush>
-                <Name>BackgroundBrush</Name>
-                <Color>FFFFFFFF</Color>
-                <Texture>Gui/Textures/max</Texture>
-                <BrushType>Image</BrushType>
-              </Brush>
-            </Brushes>
-            <Properties>
-              <Property>
-                <Name>MinWidth</Name>
-                <Value Type="Int32">22</Value>
-              </Property>
-              <Property>
-                <Name>MinHeight</Name>
-                <Value Type="Int32">20</Value>
-              </Property>
-            </Properties>
-          </Style>
-          <Style>
-            <Name>HoverStyle</Name>
-            <Brushes>
-              <Brush>
-                <Name>BackgroundBrush</Name>
-                <Color>1BAAF7FF</Color>
-                <Texture>Gui/Textures/max</Texture>
-                <BrushType>Image</BrushType>
-              </Brush>
-            </Brushes>
-            <Properties>
-              <Property>
-                <Name>MinWidth</Name>
-                <Value Type="Int32">22</Value>
-              </Property>
-              <Property>
-                <Name>MinHeight</Name>
-                <Value Type="Int32">20</Value>
-              </Property>
-            </Properties>
-          </Style>
-          <Style>
-            <Name>PressedStyle</Name>
-            <Brushes>
-              <Brush>
-                <Name>BackgroundBrush</Name>
-                <Color>1BAAF7AF</Color>
-                <Texture>Gui/Textures/max</Texture>
-                <BrushType>Image</BrushType>
-              </Brush>
-            </Brushes>
-            <Properties>
-              <Property>
-                <Name>MinWidth</Name>
-                <Value Type="Int32">22</Value>
-              </Property>
-              <Property>
-                <Name>MinHeight</Name>
-                <Value Type="Int32">20</Value>
-              </Property>
-            </Properties>
-          </Style>
-
-        </Styles>
-      </Element>
-      <Element>
-        <ControlType>Button</ControlType>
-        <StyleClass>WindowMinimize</StyleClass>
-
-        <Styles>
-          <Style>
-            <Name>Default</Name>
-            <Brushes>
-              <Brush>
-                <Name>BackgroundBrush</Name>
-                <Color>FFFFFFFF</Color>
-                <Texture>Gui/Textures/min</Texture>
-                <BrushType>Image</BrushType>
-              </Brush>
-            </Brushes>
-            <Properties>
-              <Property>
-                <Name>MinWidth</Name>
-                <Value Type="Int32">22</Value>
-              </Property>
-              <Property>
-                <Name>MinHeight</Name>
-                <Value Type="Int32">20</Value>
-              </Property>
-            </Properties>
-          </Style>
-          <Style>
-            <Name>HoverStyle</Name>
-            <Brushes>
-              <Brush>
-                <Name>BackgroundBrush</Name>
-                <Color>1BAAF7FF</Color>
-                <Texture>Gui/Textures/min</Texture>
-                <BrushType>Image</BrushType>
-              </Brush>
-            </Brushes>
-            <Properties>
-              <Property>
-                <Name>MinWidth</Name>
-                <Value Type="Int32">22</Value>
-              </Property>
-              <Property>
-                <Name>MinHeight</Name>
-                <Value Type="Int32">20</Value>
-              </Property>
-            </Properties>
-          </Style>
-          <Style>
-            <Name>PressedStyle</Name>
-            <Brushes>
-              <Brush>
-                <Name>BackgroundBrush</Name>
-                <Color>1BAAF7AF</Color>
-                <Texture>Gui/Textures/min</Texture>
-                <BrushType>Image</BrushType>
-              </Brush>
-            </Brushes>
-            <Properties>
-              <Property>
-                <Name>MinWidth</Name>
-                <Value Type="Int32">22</Value>
-              </Property>
-              <Property>
-                <Name>MinHeight</Name>
-                <Value Type="Int32">20</Value>
-              </Property>
-            </Properties>
-          </Style>
-
-        </Styles>
-      </Element>
-
-      <Element>
-        <ControlType>Label</ControlType>
-        <StyleClass>Title</StyleClass>
-
-        <Styles>
-          <Style>
-            <Name>Default</Name>
-            <Fonts>
-              <Font>
-                <Property>Font</Property>
-                <Path>DefaultFont</Path>
-                <Size>48</Size>
-              </Font>
-            </Fonts>
-          </Style>
-        </Styles>
-      </Element>
-      <Element>
-        <ControlType>Label</ControlType>
-        <StyleClass>Subtitle</StyleClass>
-
-        <Styles>
-          <Style>
-            <Name>Default</Name>
-            <Fonts>
-              <Font>
-                <Property>Font</Property>
-                <Path>DefaultFont</Path>
-                <Size>32</Size>
-              </Font>
-            </Fonts>
-          </Style>
-        </Styles>
-      </Element>
-            
-            <Element>
-                <ControlType>Image</ControlType>
-                <StyleClass>WindowIcon</StyleClass>
-                
-                <Styles>
-                    <Style>
-                        <Name>Default</Name>
-                        
-                        <Properties>
-                            <Property>
-                                <Name>Margin</Name>
-                                <Value Type="ThePeacenet.Gui.Thickness">
-                                    <Left>4</Left>
-                                    <Top>4</Top>
-                                    <Right>4</Right>
-                                    <Bottom>4</Bottom>
-                                </Value>
-                            </Property>
-                        </Properties>
-                    </Style>
-                </Styles>
-            </Element>
-    </Elements>
+    </Elements>    
   </Asset>
 </XnaContent>

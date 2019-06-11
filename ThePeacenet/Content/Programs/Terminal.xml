@@ -17,8 +17,21 @@
       </WindowEvents>
       
       <Content>
-        <Name>Console</Name>
-        <Type>ThePeacenet.Console.ConsoleControl</Type>
+        <Name>Blur</Name>
+        <Type>ThePeacenet.Gui.Controls.BackgroundBlur</Type>
+        <Children>
+          <Child>
+            <Name>Console</Name>
+            <Type>ThePeacenet.Console.ConsoleControl</Type>
+
+            <Properties>
+              <Property>
+                <Name>StyleClass</Name>
+                <Value Type="String">WindowTerminal</Value>
+              </Property>
+            </Properties>
+          </Child>
+        </Children>
       </Content>
     </Gui>
   </Asset>

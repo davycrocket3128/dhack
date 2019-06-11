@@ -380,29 +380,25 @@ namespace ThePeacenet.Gui.Controls
 
             var type = this.GetType();
 
-            SkinElement element = null;
+            SkinElement element = skn.Elements.FirstOrDefault(x => x.Control == this.GetType().FullName);
+            if (element == null) return;
 
-            if (!string.IsNullOrWhiteSpace(this.StyleClass))
+            var style = element.Styles.FirstOrDefault(x => x.Name == this.StyleClass);
+            if (style == null)
+                style = element.Styles.FirstOrDefault(x => string.IsNullOrWhiteSpace(x.Name));
+
+            if (style == null) return;
+
+            foreach(var state in style.States)
             {
-                element = skn.Elements.Where(x => x.ControlType == type.Name).FirstOrDefault(x => x.StyleClass == this.StyleClass);
-            }
+                var styleProp = type.GetProperty(state.Name);
 
-            if(element == null)
-            {
-                element = skn.Elements.FirstOrDefault(x=>string.IsNullOrWhiteSpace(x.StyleClass) && x.ControlType == type.Name);
-                if (element == null) return;
-            }
-
-            foreach(var style in element.Styles)
-            {
-                var styleProp = type.GetProperty(style.Name);
-
-                if(style.Name != "Default" && !typeof(ControlStyle).IsAssignableFrom(styleProp.PropertyType))
+                if(state.Name != "Default" && !typeof(ControlStyle).IsAssignableFrom(styleProp.PropertyType))
                     throw new InvalidOperationException(string.Format("Cannot apply skin style to {0}: {0}.{1} is not a Control Style property.", type.FullName, styleProp.Name));
 
                 var styleValue = new ControlStyle(type);
                 
-                foreach(var brushProperty in style.Brushes)
+                foreach(var brushProperty in state.Brushes)
                 {
                     var prop = type.GetProperty(brushProperty.Name);
 
@@ -413,7 +409,7 @@ namespace ThePeacenet.Gui.Controls
                         styleValue.Add(prop.Name, brushProperty.CreateBrush(content));
                 }
 
-                foreach(var fontProperty in style.Fonts)
+                foreach(var fontProperty in state.Fonts)
                 {
                     var prop = type.GetProperty(fontProperty.Property);
 
@@ -425,7 +421,7 @@ namespace ThePeacenet.Gui.Controls
                     styleValue.Add(prop.Name, font);
                 }
 
-                foreach(var property in style.Properties)
+                foreach(var property in state.Properties)
                 {
                     var prop = type.GetProperty(property.Name);
 
