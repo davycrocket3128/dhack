@@ -61,13 +61,9 @@ namespace ThePeacenet.Gui.Controls
         {
             base.Draw(context, renderer, deltaSeconds);
 
-            if (Content is Control control)
+            // No reason to render our content if it's a control, the game will do that for us :P
+            if(Content is string text)
             {
-                control.Draw(context, renderer, deltaSeconds);
-            }
-            else
-            {
-                var text = Content?.ToString();
                 var textInfo = GetTextInfo(context, text, ContentRectangle, HorizontalTextAlignment, VerticalTextAlignment);
 
                 if (!string.IsNullOrWhiteSpace(textInfo.Text))
