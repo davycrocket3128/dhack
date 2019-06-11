@@ -72,6 +72,174 @@
               </State>
             </States>
           </Style>
+          <!-- Window - Close Button -->
+          <Style>
+            <Name>WindowClose</Name>
+            <States>
+              <State>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Texture>Gui/Textures/close</Texture>
+                  </Brush>
+                </Brushes>
+
+                <Properties>
+                  <Property>
+                    <Name>MinWidth</Name>
+                    <Value Type="Int32">22</Value>
+                  </Property>
+                  <Property>
+                    <Name>MinHeight</Name>
+                    <Value Type="Int32">20</Value>
+                  </Property>
+                </Properties>
+              </State>
+              <State>
+                <Name>HoverStyle</Name>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Color>
+                      <Red>247</Red>
+                      <Green>27</Green>
+                      <Blue>27</Blue>
+                      <Alpha>255</Alpha>
+                    </Color>
+                    <Texture>Gui/Textures/close</Texture>
+                  </Brush>
+                </Brushes>
+
+              </State>
+              <State>
+                <Name>PressedStyle</Name>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Color>
+                      <Red>147</Red>
+                      <Green>7</Green>
+                      <Blue>7</Blue>
+                      <Alpha>255</Alpha>
+                    </Color>
+                    <Texture>Gui/Textures/close</Texture>
+                  </Brush>
+                </Brushes>
+              </State>
+            </States>
+          </Style>
+          <!-- Window - Maximize Button -->
+          <Style>
+            <Name>WindowMaximize</Name>
+            <States>
+              <State>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Texture>Gui/Textures/max</Texture>
+                  </Brush>
+                </Brushes>
+
+                <Properties>
+                  <Property>
+                    <Name>MinWidth</Name>
+                    <Value Type="Int32">22</Value>
+                  </Property>
+                  <Property>
+                    <Name>MinHeight</Name>
+                    <Value Type="Int32">20</Value>
+                  </Property>
+                </Properties>
+              </State>
+              <State>
+                <Name>HoverStyle</Name>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Color>
+                      <Red>27</Red>
+                      <Green>170</Green>
+                      <Blue>247</Blue>
+                      <Alpha>255</Alpha>
+                    </Color>
+                    <Texture>Gui/Textures/max</Texture>
+                  </Brush>
+                </Brushes>
+
+              </State>
+              <State>
+                <Name>PressedStyle</Name>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Color>
+                      <Red>7</Red>
+                      <Green>70</Green>
+                      <Blue>147</Blue>
+                      <Alpha>255</Alpha>
+                    </Color>
+                    <Texture>Gui/Textures/max</Texture>
+                  </Brush>
+                </Brushes>
+              </State>
+            </States>
+          </Style>
+          <!-- Window - Minimize Button -->
+          <Style>
+            <Name>WindowMinimize</Name>
+            <States>
+              <State>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Texture>Gui/Textures/min</Texture>
+                  </Brush>
+                </Brushes>
+
+                <Properties>
+                  <Property>
+                    <Name>MinWidth</Name>
+                    <Value Type="Int32">22</Value>
+                  </Property>
+                  <Property>
+                    <Name>MinHeight</Name>
+                    <Value Type="Int32">20</Value>
+                  </Property>
+                </Properties>
+              </State>
+              <State>
+                <Name>HoverStyle</Name>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Color>
+                      <Red>27</Red>
+                      <Green>170</Green>
+                      <Blue>247</Blue>
+                      <Alpha>255</Alpha>
+                    </Color>
+                    <Texture>Gui/Textures/min</Texture>
+                  </Brush>
+                </Brushes>
+
+              </State>
+              <State>
+                <Name>PressedStyle</Name>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Color>
+                      <Red>7</Red>
+                      <Green>70</Green>
+                      <Blue>147</Blue>
+                      <Alpha>255</Alpha>
+                    </Color>
+                    <Texture>Gui/Textures/min</Texture>
+                  </Brush>
+                </Brushes>
+              </State>
+            </States>
+          </Style>
         </Styles>
       </Element>
       
