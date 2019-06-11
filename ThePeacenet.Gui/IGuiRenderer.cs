@@ -18,7 +18,7 @@ namespace ThePeacenet.Gui
         void FillRectangle(Rectangle rectangle, Color color);
         void DrawBrush(Rectangle rectangle, Brush brush);
         void DrawString(SpriteFont font, string text, Vector2 position, Color color, float scale = 1);
-        void DrawString(DynamicSpriteFont font, string text, Vector2 position, Color color, Rectangle? bounds);
+        void DrawString(DynamicSpriteFont font, string text, Vector2 position, Color color, Rectangle? bounds, TextAlignment textAlignment = TextAlignment.Left);
 
         void FillRectangle(RectangleF rectangle, Color color);
         void DrawRectangle(RectangleF rectangle, Color color, int thickness = 1);
@@ -177,14 +177,46 @@ namespace ThePeacenet.Gui
             _spriteBatch.DrawString(font, text, position, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0);
         }
 
-        public void DrawString(DynamicSpriteFont font, string text, Vector2 position, Color color, Rectangle? bounds)
+        public void DrawString(DynamicSpriteFont font, string text, Vector2 position, Color color, Rectangle? bounds, TextAlignment textAlign = TextAlignment.Left)
         {
+            // Split the text into individual lines.
             var lines = TextMeasure.SplitLines(text);
-            float lineOffset = 0;
-            foreach(var line in lines)
+
+            // The maximum width allotted for text.
+            float maxWidth = 0;
+
+            // Were we given a bounding box?
+            if(bounds.HasValue)
             {
-                font.DrawString(_spriteBatch, line, new Vector2(position.X, position.Y + lineOffset), color);
-                lineOffset += font.MeasureString(line).Y;
+                // Maximum width becomes the width of the bounding box since text can't render outside of it.
+                maxWidth = (float)bounds?.Width;
+            }
+            else
+            {
+                // Max width becomes the width of the widest line of text in the string.
+                maxWidth = lines.Select(x => font.MeasureString(x.Trim()).X).Max();
+            }
+
+            // Where the line will render on-screen.
+            float lineOffset = 0;
+
+            // Go through every single line.
+            foreach (var line in lines)
+            {
+                // Measure the line so we know how big it is and can calculate where to place it.
+                var measure = font.MeasureString(line.Trim());
+
+                // Where will the line go horizontally? Default is left-aligned so we'll place it at the requested x position.
+                float x = position.X;
+
+                if (textAlign == TextAlignment.Centre)
+                    x += (maxWidth - measure.X) / 2;
+
+                if (textAlign == TextAlignment.Right)
+                    x += maxWidth - measure.X;
+
+                font.DrawString(_spriteBatch, line, new Vector2(x, position.Y + lineOffset), color);
+                lineOffset += measure.Y;
             }
         }
 

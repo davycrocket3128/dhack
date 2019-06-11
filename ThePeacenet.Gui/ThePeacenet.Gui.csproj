@@ -93,6 +93,7 @@
     <Compile Include="PointerEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Screen.cs" />
+    <Compile Include="TextAlignment.cs" />
     <Compile Include="Thickness.cs" />
     <Compile Include="Windowing\IWindow.cs" />
     <Compile Include="Windowing\Window.cs" />
