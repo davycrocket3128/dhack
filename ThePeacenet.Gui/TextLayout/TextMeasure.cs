@@ -42,49 +42,54 @@ namespace ThePeacenet.Gui.TextLayout
 
             if (wrapMode == WrapMode.WordWrap)
             {
-                string[] words = text.Split(' ');
-                StringBuilder sb = new StringBuilder();
-                float lineWidth = 0f;
+                StringBuilder ret = new StringBuilder();
                 float spaceWidth = measureFunc(" ").Width;
 
-                foreach (string word in words)
+                foreach (var line in SplitLines(text))
                 {
-                    var size = measureFunc(word);
+                    string[] words = line.Split(' ');
+                    StringBuilder sb = new StringBuilder();
+                    float lineWidth = 0f;
 
-                    if (word.Contains("\r"))
+                    foreach (string word in words)
                     {
-                        lineWidth = 0f;
-                        sb.Append("\r \r");
-                    }
+                        var size = measureFunc(word);
 
-                    if (lineWidth + size.Width <= targetRectangle.Width)
-                    {
-                        sb.Append(word + " ");
-                        lineWidth += size.Width + spaceWidth;
-                    }
-
-                    else
-                    {
-                        if (size.Width > targetRectangle.Width)
+                        if (word.Contains("\r"))
                         {
-                            if  (sb.ToString() == " ")
+                            lineWidth = 0f;
+                            sb.Append("\r \r");
+                        }
+
+                        if (lineWidth + size.Width <= targetRectangle.Width)
+                        {
+                            sb.Append(word + " ");
+                            lineWidth += size.Width + spaceWidth;
+                        }
+
+                        else
+                        {
+                            if (size.Width > targetRectangle.Width)
                             {
-                                sb.Append(WrapInternal(word.Insert(word.Length / 2, " ") + " ", targetRectangle, wrapMode, measureFunc));
+                                if (sb.ToString() == " ")
+                                {
+                                    sb.Append(WrapInternal(word.Insert(word.Length / 2, " ") + " ", targetRectangle, wrapMode, measureFunc));
+                                }
+                                else
+                                {
+                                    sb.Append("\n" + WrapInternal(word.Insert(word.Length / 2, " ") + " ", targetRectangle, wrapMode, measureFunc));
+                                }
                             }
                             else
                             {
-                                sb.Append("\n" + WrapInternal(word.Insert(word.Length / 2, " ") + " ", targetRectangle, wrapMode, measureFunc));
+                                sb.Append("\n" + word + " ");
+                                lineWidth = size.Width + spaceWidth;
                             }
                         }
-                        else
-                        {
-                            sb.Append("\n" + word + " ");
-                            lineWidth = size.Width + spaceWidth;
-                        }
                     }
+                    ret.AppendLine(sb.ToString().Trim());
                 }
-
-                return sb.ToString();
+                return ret.ToString().Trim();
             }
             return text;
         }
