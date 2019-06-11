@@ -61,7 +61,6 @@ namespace ThePeacenet.Console
 
         private void DrawCharacter(IGuiRenderer renderer, RectangleF rect, DynamicSpriteFont font, Color bg, Color fg, char c)
         {
-            renderer.FillRectangle(rect, bg);
             renderer.DrawString(font, c.ToString(), new Vector2(rect.Left, rect.Top), fg, null);
         }
 
@@ -164,7 +163,7 @@ namespace ThePeacenet.Console
             {
                 if (IsFocused)
                 {
-                    DrawCharacter(renderer, new RectangleF(charX, charY, charW, charH), font, fgColor, bgColor, ' ');
+                    renderer.FillRectangle(new Rectangle((int)charX, (int)charY, (int)charW, (int)charH), fgColor);
                 }
                 else
                 {
@@ -325,10 +324,8 @@ namespace ThePeacenet.Console
 
         public override void Draw(IGuiContext context, IGuiRenderer renderer, float deltaSeconds)
         {
+            // Draw the background and border.
             base.Draw(context, renderer, deltaSeconds);
-
-            // Clear the console.
-            renderer.FillRectangle(BoundingRectangle, Color.Black);
 
             // Draw the terminal.
             GetTerminalInfo(renderer);
