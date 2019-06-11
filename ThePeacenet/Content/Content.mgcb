@@ -10,7 +10,7 @@
 
 #-------------------------------- References --------------------------------#
 
-/reference:..\..\packages\GeonBit.UI.3.4.0.1\lib\geonbitui\DataTypes.dll
+/reference:..\..\Peon501.Pipeline\bin\Debug\Peon501.Pipeline.dll
 /reference:..\..\ThePeacenet.Backend\bin\Debug\ThePeacenet.Backend.dll
 /reference:..\..\ThePeacenet.Gui\bin\Debug\ThePeacenet.Gui.dll
 /reference:SpriteFontPlus.Content.dll
@@ -30,7 +30,9 @@
 
 #begin Effects/Blur.fx
 /importer:EffectImporter
-/processor:EffectProcessor
+/processor:LocalEffectProcessor
+/processorParam:CompilerPath=/.wine/drive_c/Program Files (x86)/MSBuild/MonoGame/v3.0/Tools/2MGFX.exe
+/processorParam:WinePath=/opt/wine-staging/bin/wine64
 /processorParam:DebugMode=Auto
 /build:Effects/Blur.fx
 
