@@ -9,6 +9,11 @@ namespace ThePeacenet.Gui.TextLayout
 {
     public static class TextMeasure
     {
+        public static string[] SplitLines(string text)
+        {
+            return text.Replace("\r", "").Split(new[] { '\n' });
+        }
+
         private static string WrapInternal(string text, Rectangle targetRectangle, WrapMode wrapMode, Func<string, Size2> measureFunc)
         {
             if (wrapMode == WrapMode.None)

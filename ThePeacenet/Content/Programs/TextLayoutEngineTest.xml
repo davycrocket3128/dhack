@@ -15,13 +15,13 @@
         <Properties>
           <Property>
             <Name>Content</Name>
-            <Value Type="String">This text is large.  Eventually, it should exceed the maximum width of the label and word-wrap to a new line.  The maximum width of the label is 800 units.
+            <Value Type="String">This text is large.  Eventually, it should exceed the maximum width of the label and word-wrap to a new line.  The maximum width of the label is 300 units.
                           
 This text should appear on a new line as if it was a new paragraph.  It should also exceed the maximum width of the label and wrap.</Value>
           </Property>
           <Property>
             <Name>MaxWidth</Name>
-            <Value Type="Int32">800</Value>
+            <Value Type="Int32">300</Value>
           </Property>
         </Properties>
       </Content>

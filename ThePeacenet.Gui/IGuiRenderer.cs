@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using MonoGame.Extended;
 using Microsoft.Xna.Framework.Graphics;
 using SpriteFontPlus;
+using ThePeacenet.Gui.TextLayout;
 
 namespace ThePeacenet.Gui
 {
@@ -176,14 +177,9 @@ namespace ThePeacenet.Gui
             _spriteBatch.DrawString(font, text, position, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0);
         }
 
-        private string[] SplitLines(string text)
-        {
-            return text.Replace("\r", "").Split(new[] { '\n' });
-        }
-
         public void DrawString(DynamicSpriteFont font, string text, Vector2 position, Color color, Rectangle? bounds)
         {
-            var lines = SplitLines(text);
+            var lines = TextMeasure.SplitLines(text);
             float lineOffset = 0;
             foreach(var line in lines)
             {

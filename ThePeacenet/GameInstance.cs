@@ -38,11 +38,9 @@ namespace ThePeacenet
             // hardware fullscreen.
             GraphicsManager.HardwareModeSwitch = false;
             
-            Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            Window.AllowUserResizing = true;
-            Window.ClientSizeChanged += Window_ClientSizeChanged;
+            Content.RootDirectory = "Content";
         }
 
         private void Window_ClientSizeChanged(object sender, EventArgs e)
@@ -53,6 +51,9 @@ namespace ThePeacenet
 
         protected override void Initialize()
         {
+            Window.AllowUserResizing = true;
+            Window.ClientSizeChanged += Window_ClientSizeChanged;
+
             _defaultFont = Content.LoadFont("DefaultFont");
             
             _renderer = new GuiSpriteBatchRenderer(GraphicsDevice, () =>

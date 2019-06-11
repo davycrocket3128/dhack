@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ThePeacenet.Gui.Controls;
+using ThePeacenet.Gui.TextLayout;
 
 namespace ThePeacenet.Gui
 {
@@ -19,19 +20,16 @@ namespace ThePeacenet.Gui
         {
             if (string.IsNullOrEmpty(text)) return Size2.Empty;
 
-            string[] lines = text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-
+            var lines = TextMeasure.SplitLines(text);
             float w = 0;
             float h = 0;
 
             foreach(var line in lines)
             {
-                var measure = font.MeasureString(line);
-
+                var measure = font.MeasureString(line.Trim());
                 w = Math.Max(w, measure.X);
                 h += measure.Y;
             }
-
             return new Size2(w, h);
         }
 
