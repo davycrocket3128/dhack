@@ -26,6 +26,8 @@ namespace ThePeacenet.Gui.Controls
             }
         }
 
+        public TextAlignment TextAlign { get; set; } = TextAlignment.Left;
+
         public override IEnumerable<Control> Children
         {
             get
@@ -69,7 +71,7 @@ namespace ThePeacenet.Gui.Controls
                 var textInfo = GetTextInfo(context, text, ContentRectangle, HorizontalTextAlignment, VerticalTextAlignment);
 
                 if (!string.IsNullOrWhiteSpace(textInfo.Text))
-                    renderer.DrawString(textInfo.Font, textInfo.Text, textInfo.Position + TextOffset, textInfo.Color, null);
+                    renderer.DrawString(textInfo.Font, textInfo.Text, textInfo.Position + TextOffset, textInfo.Color, ContentRectangle, TextAlign);
                     //renderer.DrawText(textInfo.Font, textInfo.Text, textInfo.Position + TextOffset, textInfo.Color, textInfo.ClippingRectangle);
             }
         }
