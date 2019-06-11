@@ -16,6 +16,8 @@ namespace ThePeacenet.GuiHandlers
 
         public void Terminal_Load(object sender, EventArgs e)
         {
+            Window.DrawContentBackground = false;
+
             var terminal = FindControl<ConsoleControl>("Console");
 
             User.Execute("sh", out _shellProcess);

@@ -35,6 +35,12 @@ namespace ThePeacenet.Gui.Windowing
             _guiHandler = handler;
         }
 
+        public bool DrawContentBackground
+        {
+            get => _clientArea.StyleClass == "WindowContent";
+            set => _clientArea.StyleClass = (value) ? "WindowContent" : "";
+        }
+
         public event EventHandler Load;
 
         public Window() : base()
@@ -58,7 +64,7 @@ namespace ThePeacenet.Gui.Windowing
 
             _nonClient.Items.Add(_clientArea = new Border
             {
-                StyleClass = "WindowClient"
+                StyleClass = "WindowContent"
             });
 
             _captionDock.Items.Add(_iconImage = new Image

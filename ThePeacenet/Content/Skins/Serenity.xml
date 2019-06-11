@@ -2,6 +2,49 @@
 <XnaContent xmlns:ns="Microsoft.Xna.Framework">
   <Asset Type="ThePeacenet.Gui.GuiSkin">
     <Elements>
+      <!-- BORDERS -->
+      <Element>
+        <Control>ThePeacenet.Gui.Controls.Border</Control>
+
+        <Styles>
+          <!-- Desktop wallpaper -->
+          <Style>
+            <Name>Wallpaper</Name>
+            <States>
+              <State>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Texture>Wallpapers/1</Texture>
+                  </Brush>
+                </Brushes>
+              </State>
+            </States>
+          </Style>
+          <!-- Window content area -->
+          <Style>
+            <Name>WindowContent</Name>
+            <States>
+              <State>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Texture>Gui/Textures/window</Texture>
+                    <BrushType>Box</BrushType>
+                    <Margin>
+                      <Left>4</Left>
+                      <Top>4</Top>
+                      <Right>4</Right>
+                      <Bottom>4</Bottom>
+                    </Margin>
+                  </Brush>
+                </Brushes>
+              </State>
+            </States>
+          </Style>
+        </Styles>
+      </Element>
+      
       <!-- CONSOLE CONTROLS -->
       <Element>
         <Control>ThePeacenet.Console.ConsoleControl</Control>
