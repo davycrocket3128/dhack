@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoGame.Extended.Input.InputListeners;
 using MonoGame.Extended.ViewportAdapters;
@@ -27,9 +28,14 @@ namespace ThePeacenet.Gui
 
         public Rectangle BoundingRectangle => _viewportAdapter.BoundingRectangle;
 
-        public void GetBackBufferData(Rectangle rect, byte[] data)
+        public void GetBackBufferData<T>(Rectangle rect, T[] data) where T : struct
         {
             _renderer.GetBackBufferData(rect, data);
+        }
+
+        public Texture2D CreateTexture(int width, int height)
+        {
+            return _renderer.CreateTexture(width, height);
         }
 
         public ContentManager Content { get; }

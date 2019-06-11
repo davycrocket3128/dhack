@@ -13,6 +13,8 @@ namespace ThePeacenet.Gui
 {
     public interface IGuiRenderer
     {
+        Rectangle BoundingRectangle { get; }
+
         void Begin();
         void DrawRectangle(Rectangle rectangle, Color color, int thickness = 1);
         void FillRectangle(Rectangle rectangle, Color color);
@@ -27,11 +29,15 @@ namespace ThePeacenet.Gui
 
         void End();
 
-        void GetBackBufferData(Rectangle rect, byte[] data);
+        void GetBackBufferData<T>(Rectangle rect, T[] data) where T : struct;
+
+        Texture2D CreateTexture(int width, int height);
     }
 
     public class GuiSpriteBatchRenderer : IGuiRenderer
     {
+        public Rectangle BoundingRectangle => new Rectangle(0, 0, _spriteBatch.GraphicsDevice.PresentationParameters.BackBufferWidth, _spriteBatch.GraphicsDevice.PresentationParameters.BackBufferHeight);
+
         private readonly Func<Matrix> _getTransformMatrix;
         private SpriteBatch _spriteBatch = null;
 
@@ -42,9 +48,14 @@ namespace ThePeacenet.Gui
         public RasterizerState RasterizerState { get; set; } = RasterizerState.CullNone;
         public Effect Effect { get; set; }
 
-        public void GetBackBufferData(Rectangle rect, byte[] data)
+        public Texture2D CreateTexture(int width, int height)
         {
-            _spriteBatch.GraphicsDevice.GetBackBufferData(rect, data, 0, data.Length);
+            return new Texture2D(_spriteBatch.GraphicsDevice, width, height);
+        }
+
+        public void GetBackBufferData<T>(Rectangle rect, T[] data) where T: struct
+        {
+            _spriteBatch.GraphicsDevice.GetBackBufferData<T>(rect, data, 0, data.Length);
         }
 
         public void SetScissorRect(Rectangle rect)

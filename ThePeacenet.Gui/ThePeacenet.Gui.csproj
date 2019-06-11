@@ -98,6 +98,7 @@
     <Compile Include="Windowing\IWindow.cs" />
     <Compile Include="Windowing\Window.cs" />
     <Compile Include="TextLayout\TextMeasure.cs" />
+    <Compile Include="Controls\BackgroundBlur.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -10,26 +10,33 @@
       <EventHandlerClass>ThePeacenet.GuiHandlers.TextLayoutTest</EventHandlerClass>
 
       <Content>
-        <Name>Label</Name>
-        <Type>ThePeacenet.Gui.Controls.Label</Type>
-        <Properties>
-          <Property>
-            <Name>Content</Name>
-            <Value Type="String">This text is large.  Eventually, it should exceed the maximum width of the label and word-wrap to a new line.  The maximum width of the label is 300 units.
+        <Name>Blur</Name>
+                <Type>ThePeacenet.Gui.Controls.BackgroundBlur</Type>
+                
+                <Children>
+                    <Child>
+                        <Name>Label</Name>
+                        <Type>ThePeacenet.Gui.Controls.Label</Type>
+                        <Properties>
+                            <Property>
+                            <Name>Content</Name>
+                            <Value Type="String">This text is large.  Eventually, it should exceed the maximum width of the label and word-wrap to a new line.  The maximum width of the label is 300 units.
                           
 This text should appear on a new line as if it was a new paragraph.  It should also exceed the maximum width of the label and wrap.
             
 Moreover, the text should be centre-aligned. :)</Value>
-          </Property>
-          <Property>
-            <Name>MaxWidth</Name>
-            <Value Type="Int32">300</Value>
-          </Property>
-          <Property>
-            <Name>TextAlign</Name>
-            <Value Type="ThePeacenet.Gui.TextAlignment">Centre</Value>
-          </Property>
-        </Properties>
+                        </Property>
+                        <Property>
+                            <Name>MaxWidth</Name>
+                            <Value Type="Int32">300</Value>
+                        </Property>
+                        <Property>
+                            <Name>TextAlign</Name>
+                            <Value Type="ThePeacenet.Gui.TextAlignment">Centre</Value>
+                        </Property>
+                    </Properties>
+                </Child>
+            </Children>
       </Content>
     </Gui>
   </Asset>
