@@ -23,6 +23,7 @@ namespace ThePeacenet.Gui
         private IGuiRenderer _renderer = null;
         private Screen _screen = null;
         private bool _debugMode = false;
+        private bool _showFPS = false;
 
         private Control _preFocusedControl = null;
 
@@ -63,6 +64,11 @@ namespace ThePeacenet.Gui
                 if(args.Key == Microsoft.Xna.Framework.Input.Keys.F3)
                 {
                     _debugMode = !_debugMode;
+                    return;
+                }
+                if (args.Key == Microsoft.Xna.Framework.Input.Keys.F4)
+                {
+                    _showFPS = !_showFPS;
                     return;
                 }
                 PropagateDown(FocusedControl, x => x.OnKeyPressed(this, args));
@@ -147,14 +153,14 @@ namespace ThePeacenet.Gui
 
                 ActiveScreen.Draw(this, _renderer, deltaSeconds);
 
-                if (_debugMode)
+                if (_showFPS)
                 {
                     string debugText = $@"Project: Greenlight
 FPS: {(int)(1 / gameTime.GetElapsedSeconds())}";
 
-                    var measure = DefaultFont.MeasureString(debugText);
+                    var measure = LayoutHelper.MeasureString(DefaultFont, debugText);
 
-                    _renderer.FillRectangle(new RectangleF(0, 0, measure.X, measure.Y), Color.Black * 0.5f);
+                    _renderer.FillRectangle(new RectangleF(0, 0, measure.Width, measure.Height), Color.Black * 0.5f);
                     _renderer.DrawString(DefaultFont, debugText, Vector2.Zero, Color.White, null);
                 }
 
