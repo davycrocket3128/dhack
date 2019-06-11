@@ -401,6 +401,29 @@
           </Style>
         </Styles>
       </Element>
+            
+            <Element>
+                <ControlType>Image</ControlType>
+                <StyleClass>WindowIcon</StyleClass>
+                
+                <Styles>
+                    <Style>
+                        <Name>Default</Name>
+                        
+                        <Properties>
+                            <Property>
+                                <Name>Margin</Name>
+                                <Value Type="ThePeacenet.Gui.Thickness">
+                                    <Left>4</Left>
+                                    <Top>4</Top>
+                                    <Right>4</Right>
+                                    <Bottom>4</Bottom>
+                                </Value>
+                            </Property>
+                        </Properties>
+                    </Style>
+                </Styles>
+            </Element>
     </Elements>
   </Asset>
 </XnaContent>

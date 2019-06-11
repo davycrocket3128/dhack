@@ -152,6 +152,7 @@
     <None Include="Content\DefaultFont.ttf" />
     <None Include="packages.config" />
     <None Include="Content\Programs\TextLayoutEngineTest.xml" />
+    <None Include="Content\Skins\Serenity.xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ThePeacenet.Backend\ThePeacenet.Backend.csproj">
