@@ -26,6 +26,8 @@ namespace ThePeacenet.Gui
         void SetScissorRect(Rectangle rect);
 
         void End();
+
+        void GetBackBufferData(Rectangle rect, byte[] data);
     }
 
     public class GuiSpriteBatchRenderer : IGuiRenderer
@@ -39,6 +41,11 @@ namespace ThePeacenet.Gui
         public DepthStencilState DepthStencilState { get; set; } = DepthStencilState.Default;
         public RasterizerState RasterizerState { get; set; } = RasterizerState.CullNone;
         public Effect Effect { get; set; }
+
+        public void GetBackBufferData(Rectangle rect, byte[] data)
+        {
+            _spriteBatch.GraphicsDevice.GetBackBufferData(rect, data, 0, data.Length);
+        }
 
         public void SetScissorRect(Rectangle rect)
         {

@@ -14,6 +14,7 @@ namespace ThePeacenet.Gui
         Control FocusedControl { get; }
         Point CursorPosition { get; }
         DynamicSpriteFont DefaultFont { get; }
+        void GetBackBufferData(Rectangle rect, byte[] data);
 
         void SetFocus(Control control);
     }

@@ -27,6 +27,11 @@ namespace ThePeacenet.Gui
 
         public Rectangle BoundingRectangle => _viewportAdapter.BoundingRectangle;
 
+        public void GetBackBufferData(Rectangle rect, byte[] data)
+        {
+            _renderer.GetBackBufferData(rect, data);
+        }
+
         public ContentManager Content { get; }
 
         public GuiSystem(ViewportAdapter viewportAdapter, IGuiRenderer renderer, ContentManager content)
