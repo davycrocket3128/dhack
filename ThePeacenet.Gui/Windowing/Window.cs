@@ -59,7 +59,8 @@ namespace ThePeacenet.Gui.Windowing
                 Content = _captionDock = new DockPanel
                 {
                     LastChildFill = true
-                }
+                },
+                StyleClass = "WindowTitlebar"
             });
 
             _nonClient.Items.Add(_clientArea = new Border

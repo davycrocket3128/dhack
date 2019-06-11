@@ -2,6 +2,79 @@
 <XnaContent xmlns:ns="Microsoft.Xna.Framework">
   <Asset Type="ThePeacenet.Gui.GuiSkin">
     <Elements>
+      <!-- BUTTONS -->
+      <Element>
+        <Control>ThePeacenet.Gui.Controls.Button</Control>
+
+        <Styles>
+          <!-- Default button style. -->
+          <Style>
+            <States>
+              <State>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Texture>Gui/Textures/button</Texture>
+                    <BrushType>Box</BrushType>
+                    <Margin>
+                      <Left>4</Left>
+                      <Top>4</Top>
+                      <Right>4</Right>
+                      <Bottom>4</Bottom>
+                    </Margin>
+                  </Brush>
+                </Brushes>
+
+                <Properties>
+                  <Property>
+                    <Name>Padding</Name>
+                    <Value Type="ThePeacenet.Gui.Thickness">
+                      <Left>7</Left>
+                      <Top>4</Top>
+                      <Right>7</Right>
+                      <Bottom>4</Bottom>
+                    </Value>
+                  </Property>
+                </Properties>
+              </State>
+              <State>
+                <Name>HoverStyle</Name>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Texture>Gui/Textures/buttonh</Texture>
+                    <BrushType>Box</BrushType>
+                    <Margin>
+                      <Left>4</Left>
+                      <Top>4</Top>
+                      <Right>4</Right>
+                      <Bottom>4</Bottom>
+                    </Margin>
+                  </Brush>
+                </Brushes>
+
+              </State>
+              <State>
+                <Name>PressedStyle</Name>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Texture>Gui/Textures/buttonc</Texture>
+                    <BrushType>Box</BrushType>
+                    <Margin>
+                      <Left>4</Left>
+                      <Top>4</Top>
+                      <Right>4</Right>
+                      <Bottom>4</Bottom>
+                    </Margin>
+                  </Brush>
+                </Brushes>
+              </State>
+            </States>
+          </Style>
+        </Styles>
+      </Element>
+      
       <!-- BORDERS -->
       <Element>
         <Control>ThePeacenet.Gui.Controls.Border</Control>
@@ -42,6 +115,42 @@
               </State>
             </States>
           </Style>
+          
+          <!-- Window - outer content area -->
+          <Style>
+            <Name>WindowBorder</Name>
+            <States>
+              <State>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Texture>Gui/Textures/window</Texture>
+                    <BrushType>Border</BrushType>
+                    <Margin>
+                      <Left>2</Left>
+                      <Top>2</Top>
+                      <Right>2</Right>
+                      <Bottom>2</Bottom>
+                    </Margin>
+                  </Brush>
+                </Brushes>
+
+                <Properties>
+                  <Property>
+                    <Name>Padding</Name>
+                    <Value Type="ThePeacenet.Gui.Thickness">
+                      <Left>2</Left>
+                      <Top>2</Top>
+                      <Right>2</Right>
+                      <Bottom>2</Bottom>
+                    </Value>
+
+                  </Property>
+                </Properties>
+              </State>
+            </States>
+          </Style>
+
         </Styles>
       </Element>
       
@@ -82,13 +191,54 @@
                       <Red>0</Red>
                       <Green>0</Green>
                       <Blue>0</Blue>
-                      <Alpha>48</Alpha>
+                      <Alpha>96</Alpha>
                     </Color>
                   </Brush>
                 </Brushes>
               </State>
             </States>
           </Style>
+        </Styles>
+      </Element>
+      
+      <!-- DRAG SURFACES -->
+      <Element>
+        <Control>ThePeacenet.Gui.Controls.DragSurface</Control>
+        <Styles>
+          <!-- Window - Titlebar-->
+          <Style>
+            <Name>WindowTitlebar</Name>
+            <States>
+              <State>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Texture>Gui/Textures/window</Texture>
+                    <BrushType>Box</BrushType>
+                    <Margin>
+                      <Left>4</Left>
+                      <Top>4</Top>
+                      <Right>4</Right>
+                      <Bottom>4</Bottom>
+                    </Margin>
+                  </Brush>
+                </Brushes>
+
+                <Properties>
+                  <Property>
+                    <Name>Padding</Name>
+                    <Value Type="ThePeacenet.Gui.Thickness">
+                      <Left>4</Left>
+                      <Top>2</Top>
+                      <Right>4</Right>
+                      <Bottom>2</Bottom>
+                    </Value>
+                  </Property>
+                </Properties>
+              </State>
+            </States>
+          </Style>
+
         </Styles>
       </Element>
     </Elements>    
