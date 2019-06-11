@@ -28,6 +28,12 @@
 /processor:BinaryFontDocumentProcessor
 /build:DefaultFont.ttf
 
+#begin Effects/Blur.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/Blur.fx
+
 #begin Exploits/Buffergate.xml
 /importer:XmlImporter
 /processor:PassThroughProcessor

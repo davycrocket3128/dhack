@@ -12,10 +12,18 @@ namespace ThePeacenet.Gui.Controls
         private Color[] _pixelData = null;
         private Texture2D _blurTexture = null;
 
+        public float BlurAmount { get; set; } = 3;
+
         public override void Draw(IGuiContext context, IGuiRenderer renderer, float deltaSeconds)
         {
+            renderer.FillRectangle(BoundingRectangle, Color.Black * 0.25f);
+
             // Grab the on-screen portion of the control's bounding box
             var visibleRect = Rectangle.Intersect(BoundingRectangle, renderer.BoundingRectangle);
+
+            // Use the blur effect.
+            renderer.SetRenderEffect(RenderEffect.Blur);
+            renderer.SetGaussianParameters(1.0f / visibleRect.Width, 1.0f / visibleRect.Height, BlurAmount);
 
             // If there's nothing visible, STOP RIGHT NOW or the game'll crash.
             if (visibleRect.Width * visibleRect.Height == 0) return;
@@ -38,7 +46,13 @@ namespace ThePeacenet.Gui.Controls
             _blurTexture.SetData<Color>(_pixelData);
 
             // And now we draw it!  TODO: Use a blur effect.
-            renderer.DrawBrush(visibleRect, new Brush(_blurTexture));
+            renderer.DrawBrush(visibleRect, new Brush(Color.White, _blurTexture, new Thickness(0), Size2.Empty, BrushType.Image));
+
+            // And stop using the blur effect.
+            renderer.SetRenderEffect(RenderEffect.None);
+
+            // Render our content.
+            base.Draw(context, renderer, deltaSeconds);
         }
     }
 }

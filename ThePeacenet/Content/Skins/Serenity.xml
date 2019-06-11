@@ -4,28 +4,6 @@
     <Elements>
       <Element>
         <ControlType>Border</ControlType>
-
-        <Styles>
-          <Style>
-            <Name>Default</Name>
-            <Brushes>
-              <Brush>
-                <Name>BackgroundBrush</Name>
-                <Texture>Gui/Textures/window</Texture>
-                <BrushType>Box</BrushType>
-                <Margin>
-                  <Left>5</Left>
-                  <Top>5</Top>
-                  <Right>5</Right>
-                  <Bottom>5</Bottom>
-                </Margin>
-              </Brush>
-            </Brushes>
-          </Style>
-        </Styles>
-      </Element>
-      <Element>
-        <ControlType>Border</ControlType>
         <StyleClass>Wallpaper</StyleClass>
 
         <Styles>

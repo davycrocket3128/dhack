@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using ThePeacenet.Backend;
 using ThePeacenet.Gui;
 using ThePeacenet.Gui.Controls;
+using ThePeacenet.Gui.Windowing;
 using ThePeacenet.SystemWindows;
 
 namespace ThePeacenet
@@ -20,6 +21,14 @@ namespace ThePeacenet
 
         private NewIdentityWindow _newIdentityWindow = null;
         private SaveInfo _activeSave = null;
+        private Window _blurTestWindow = new Window
+        {
+            WindowTitle = "Background Blur Test",
+            Content = new BackgroundBlur
+            {
+                Content = "This is a background blur widget."
+            }
+        };
 
         public Canvas RootCanvas => FindControl<Canvas>("RootCanvas");
         public StackPanel UsersPanel => FindControl<StackPanel>("UsersPanel");
@@ -149,6 +158,8 @@ namespace ThePeacenet
             {
                 _world.StartGame(_activeSave);
             };
+
+            ShowWindow(_blurTestWindow);
         }
 
         private void NewIdentity_Clicked(object sender, EventArgs e)

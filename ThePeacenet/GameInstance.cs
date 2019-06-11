@@ -59,7 +59,7 @@ namespace ThePeacenet
             _renderer = new GuiSpriteBatchRenderer(GraphicsDevice, () =>
             {
                 return _viewportAdapter.GetScaleMatrix();
-            });
+            }, Content.Load<Effect>("Effects/Blur"));
 
             IsMouseVisible = true;
             GameConfig.Apply(this);

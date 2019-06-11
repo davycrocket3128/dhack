@@ -11,6 +11,12 @@ using ThePeacenet.Gui.TextLayout;
 
 namespace ThePeacenet.Gui
 {
+    public enum RenderEffect
+    {
+        None,
+        Blur
+    }
+
     public interface IGuiRenderer
     {
         Rectangle BoundingRectangle { get; }
@@ -22,8 +28,12 @@ namespace ThePeacenet.Gui
         void DrawString(SpriteFont font, string text, Vector2 position, Color color, float scale = 1);
         void DrawString(DynamicSpriteFont font, string text, Vector2 position, Color color, Rectangle? bounds, TextAlignment textAlignment = TextAlignment.Left);
 
+        void SetRenderEffect(RenderEffect effect);
+
         void FillRectangle(RectangleF rectangle, Color color);
         void DrawRectangle(RectangleF rectangle, Color color, int thickness = 1);
+
+        void SetGaussianParameters(float dx, float dy, float blurAmount);
 
         void SetScissorRect(Rectangle rect);
 
@@ -40,6 +50,7 @@ namespace ThePeacenet.Gui
 
         private readonly Func<Matrix> _getTransformMatrix;
         private SpriteBatch _spriteBatch = null;
+        private bool _isBatching = false;
 
         public SpriteSortMode SortMode { get; set; }
         public BlendState BlendState { get; set; } = BlendState.AlphaBlend;
@@ -47,6 +58,105 @@ namespace ThePeacenet.Gui
         public DepthStencilState DepthStencilState { get; set; } = DepthStencilState.Default;
         public RasterizerState RasterizerState { get; set; } = RasterizerState.CullNone;
         public Effect Effect { get; set; }
+
+        private Effect _blurEffect = null;
+
+        /// "Borrowed" from https://github.com/CartBlanche/MonoGame-Samples/blob/master/BloomSample/BloomComponent.cs
+        /// <summary>
+        /// Computes sample weightings and texture coordinate offsets
+        /// for one pass of a separable gaussian blur filter.
+        /// </summary>
+        public void SetGaussianParameters(float dx, float dy, float blurAmount)
+        {
+            // Look up the sample weight and offset effect parameters.
+            EffectParameter weightsParameter, offsetsParameter;
+
+            weightsParameter = _blurEffect.Parameters["SampleWeights"];
+            offsetsParameter = _blurEffect.Parameters["SampleOffsets"];
+
+            // Look up how many samples our gaussian blur effect supports.
+            int sampleCount = weightsParameter.Elements.Count;
+
+            // Create temporary arrays for computing our filter settings.
+            float[] sampleWeights = new float[sampleCount];
+            Vector2[] sampleOffsets = new Vector2[sampleCount];
+
+            // The first sample always has a zero offset.
+            sampleWeights[0] = ComputeGaussian(0, blurAmount);
+            sampleOffsets[0] = new Vector2(0);
+
+            // Maintain a sum of all the weighting values.
+            float totalWeights = sampleWeights[0];
+
+            // Add pairs of additional sample taps, positioned
+            // along a line in both directions from the center.
+            for (int i = 0; i < sampleCount / 2; i++)
+            {
+                // Store weights for the positive and negative taps.
+                float weight = ComputeGaussian(i + 1, blurAmount);
+
+                sampleWeights[i * 2 + 1] = weight;
+                sampleWeights[i * 2 + 2] = weight;
+
+                totalWeights += weight * 2;
+
+                // To get the maximum amount of blurring from a limited number of
+                // pixel shader samples, we take advantage of the bilinear filtering
+                // hardware inside the texture fetch unit. If we position our texture
+                // coordinates exactly halfway between two texels, the filtering unit
+                // will average them for us, giving two samples for the price of one.
+                // This allows us to step in units of two texels per sample, rather
+                // than just one at a time. The 1.5 offset kicks things off by
+                // positioning us nicely in between two texels.
+                float sampleOffset = i * 2 + 1.5f;
+
+                Vector2 delta = new Vector2(dx, dy) * sampleOffset;
+
+                // Store texture coordinate offsets for the positive and negative taps.
+                sampleOffsets[i * 2 + 1] = delta;
+                sampleOffsets[i * 2 + 2] = -delta;
+            }
+
+            // Normalize the list of sample weightings, so they will always sum to one.
+            for (int i = 0; i < sampleWeights.Length; i++)
+            {
+                sampleWeights[i] /= totalWeights;
+            }
+
+            // Tell the effect about our new filter settings.
+            weightsParameter.SetValue(sampleWeights);
+            offsetsParameter.SetValue(sampleOffsets);
+        }
+
+        /// "Borrowed" from https://github.com/CartBlanche/MonoGame-Samples/blob/master/BloomSample/BloomComponent.cs
+        /// <summary>
+        /// Evaluates a single point on the gaussian falloff curve.
+        /// Used for setting up the blur filter weightings.
+        /// </summary>
+        private float ComputeGaussian(float n, float blurAmount)
+        {
+            float theta = blurAmount;
+
+            return (float)((1.0 / Math.Sqrt(2 * Math.PI * theta)) *
+                           Math.Exp(-(n * n) / (2 * theta * theta)));
+        }
+
+        public void SetRenderEffect(RenderEffect effect)
+        {
+            if (_isBatching) End();
+
+            switch(effect)
+            {
+                case RenderEffect.Blur:
+                    Effect = _blurEffect;
+                    break;
+                default:
+                    Effect = null;
+                    break;
+            }
+
+            Begin();
+        }
 
         public Texture2D CreateTexture(int width, int height)
         {
@@ -63,7 +173,7 @@ namespace ThePeacenet.Gui
             _spriteBatch.GraphicsDevice.ScissorRectangle = rect;
         }
 
-        public GuiSpriteBatchRenderer(GraphicsDevice graphics, Func<Matrix> getTransformMatrix)
+        public GuiSpriteBatchRenderer(GraphicsDevice graphics, Func<Matrix> getTransformMatrix, Effect blurEffect)
         {
             _getTransformMatrix = getTransformMatrix;
             _spriteBatch = new SpriteBatch(graphics);
@@ -75,10 +185,13 @@ namespace ThePeacenet.Gui
                 FillMode = FillMode.Solid,
                 MultiSampleAntiAlias = true
             };
+
+            _blurEffect = blurEffect;
         }
 
         public void Begin()
         {
+            _isBatching = true;
             _spriteBatch.Begin(SortMode, BlendState, SamplerState, DepthStencilState, RasterizerState, Effect, _getTransformMatrix());
         }
 
@@ -240,6 +353,7 @@ namespace ThePeacenet.Gui
 
         public void End()
         {
+            _isBatching = false;
             _spriteBatch.End();
         }
 
