@@ -12,10 +12,10 @@
 
 #define SAMPLE_COUNT 15
 
+Texture2D SpriteTexture; // HLSL syntax error: Unexpected NEW_IDENTIFIER
 float2 SampleOffsets[SAMPLE_COUNT];
-float SampleWeights[SAMPLE_COUNT];
 
-Texture2D SpriteTexture;
+float SampleWeights[SAMPLE_COUNT];
 
 sampler2D SpriteTextureSampler = sampler_state
 {
@@ -36,10 +36,10 @@ float4 MainPS(VertexShaderOutput input) : COLOR
 	// Combine a number of weighted image filter taps.
 	for (int i = 0; i < SAMPLE_COUNT; i++)
 	{
-		c += (tex2D(SpriteTextureSampler, input.TextureCoordinates + SampleOffsets[i]) * SampleWeights[i]);
+		c += tex2D(SpriteTextureSampler, input.TextureCoordinates + SampleOffsets[i]) * SampleWeights[i];
 	}
 
-	return c * input.Color;
+	return c;
 }
 
 technique SpriteDrawing

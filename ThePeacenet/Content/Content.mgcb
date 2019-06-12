@@ -10,11 +10,12 @@
 
 #-------------------------------- References --------------------------------#
 
-/reference:..\..\Peon501.Pipeline\bin\Debug\Peon501.Pipeline.dll
-/reference:..\..\ThePeacenet.Backend\bin\Debug\ThePeacenet.Backend.dll
-/reference:..\..\ThePeacenet.Gui\bin\Debug\ThePeacenet.Gui.dll
+/reference:../../Peon501.Pipeline/bin/Debug/Peon501.Pipeline.dll
+/reference:../../ThePeacenet.Backend/bin/Debug/ThePeacenet.Backend.dll
+/reference:../../ThePeacenet.Gui/bin/Debug/ThePeacenet.Gui.dll
 /reference:SpriteFontPlus.Content.dll
-/reference:..\..\ThePeacenet.Gui\bin\Debug\MonoGame.Extended.dll
+/reference:../../ThePeacenet.Gui/bin/Debug/MonoGame.Extended.dll
+/reference:../../packages/InfinitespaceStudios.Pipeline.1.0.9/tools/InfinitespaceStudios.Pipeline.dll
 
 #---------------------------------- Content ---------------------------------#
 
@@ -30,9 +31,10 @@
 
 #begin Effects/Blur.fx
 /importer:EffectImporter
-/processor:LocalEffectProcessor
-/processorParam:CompilerPath=/.wine/drive_c/Program Files (x86)/MSBuild/MonoGame/v3.0/Tools/2MGFX.exe
-/processorParam:WinePath=/opt/wine-staging/bin/wine64
+/processor:RemoteEffectProcessor
+/processorParam:RemoteAddress=pipeline.infinitespace-studios.co.uk
+/processorParam:RemotePort=443
+/processorParam:Protocol=https
 /processorParam:DebugMode=Auto
 /build:Effects/Blur.fx
 
