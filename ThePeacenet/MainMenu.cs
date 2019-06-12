@@ -20,6 +20,7 @@ namespace ThePeacenet
         private readonly WorldState _world = null;
 
         private NewIdentityWindow _newIdentityWindow = null;
+        private SettingsWindow _settingsWindow = null;
         private SaveInfo _activeSave = null;
         private Window _blurTestWindow = new Window
         {
@@ -36,6 +37,7 @@ namespace ThePeacenet
         public StackPanel ActiveSavePanel => FindControl<StackPanel>("ActiveSave");
         public Image PeacenetLogo => FindControl<Image>("PeacenetLogo");
         public Button NewIdentity => FindControl<Button>("NewIdentity");
+        public Button Settings => FindControl<Button>("Settings");
         public Label Username => FindControl<Label>("ActiveUsername");
         public Label LastPlayed => FindControl<Label>("ActiveLastPlayed");
         public Button LoadGame => FindControl<Button>("LoadGame");
@@ -119,9 +121,21 @@ namespace ThePeacenet
                 }
             });
 
+            UsersPanel.Items.Add(new Button
+            {
+                Name = "Settings",
+                Content = new StatusIcon
+                {
+                    Content = "Settings",
+                    IconBrush = new Brush(_content.Load<Texture2D>("Gui/Icons/gears"), 32)
+                }
+            });
+
             NewIdentity.Clicked += NewIdentity_Clicked;
+            Settings.Clicked += Settings_Clicked;
 
             _newIdentityWindow = new NewIdentityWindow(this, content);
+            _settingsWindow = new SettingsWindow(this, content);
 
             ActiveSavePanel.Items.Add(new Image
             {
@@ -165,6 +179,11 @@ namespace ThePeacenet
         private void NewIdentity_Clicked(object sender, EventArgs e)
         {
             ShowWindow(_newIdentityWindow);
+        }
+
+        private void Settings_Clicked(object sender, EventArgs e)
+        {
+            ShowWindow(_settingsWindow);
         }
 
         public override void Update(GameTime gameTime)

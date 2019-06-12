@@ -36,7 +36,7 @@ namespace ThePeacenet
             _graphics = new GraphicsDeviceManager(this);
             // No hardware mode switch because borderless fullscreen is better than
             // hardware fullscreen.
-            GraphicsManager.HardwareModeSwitch = false;
+            GraphicsManager.HardwareModeSwitch = true;
             
             IsMouseVisible = true;
 
