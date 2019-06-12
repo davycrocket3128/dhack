@@ -49,7 +49,7 @@ namespace ThePeacenet
             else
             {
                 // Apply the parsed resolution.
-                game.GraphicsManager.PreferredBackBufferWidth = 0;
+                game.GraphicsManager.PreferredBackBufferWidth = width;
                 game.GraphicsManager.PreferredBackBufferHeight = height;
             }
 

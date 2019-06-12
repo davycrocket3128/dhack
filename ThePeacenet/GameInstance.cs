@@ -34,10 +34,8 @@ namespace ThePeacenet
         public GameInstance()
         {
             _graphics = new GraphicsDeviceManager(this);
-            // No hardware mode switch because borderless fullscreen is better than
-            // hardware fullscreen.
-            GraphicsManager.HardwareModeSwitch = true;
-            
+            _graphics.HardwareModeSwitch = false;
+
             IsMouseVisible = true;
 
             Content.RootDirectory = "Content";
@@ -58,13 +56,11 @@ namespace ThePeacenet
             
             _renderer = new GuiSpriteBatchRenderer(GraphicsDevice, () =>
             {
-                return _viewportAdapter.GetScaleMatrix();
+                return Matrix.Identity;
             }, Content.Load<Effect>("Effects/Blur"));
 
             IsMouseVisible = true;
             GameConfig.Apply(this);
-
-            ResetViewport();
 
             base.Initialize();
         }
@@ -97,6 +93,9 @@ namespace ThePeacenet
 
         protected override void LoadContent()
         {
+            ResetViewport();
+            _guiSystem.ClientSizeChanged();
+
             _guiSystem.ActiveScreen = new LoadingScreen(Content);
 
             _worldState = new WorldState(this);
