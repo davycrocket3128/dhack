@@ -99,6 +99,7 @@
     <Compile Include="Windowing\Window.cs" />
     <Compile Include="TextLayout\TextMeasure.cs" />
     <Compile Include="Controls\BackgroundBlur.cs" />
+    <Compile Include="Controls\Overlay.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
