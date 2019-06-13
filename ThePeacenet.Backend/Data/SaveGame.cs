@@ -35,11 +35,67 @@ namespace ThePeacenet.Backend.Data
 
         private static readonly byte[] magic = Encoding.UTF8.GetBytes("kY1n"); // Fuck off.  I wrote this.  I can use whatever magic number I want. Even if it references something only related to me and not at all to the data format. - Michael
 
+        public void Clean()
+        {
+            Console.WriteLine("Cleaning save file: Removing NPCs");
+            while (Characters.Any(x => x.IdentityType != IdentityType.Player))
+            {
+                var character = Characters.First(x => x.IdentityType != IdentityType.Player);
+                Characters.Remove(character);
+            }
+
+            Console.WriteLine("Cleaning save file: Removing orphaned computers...");
+            while(Computers.Any(x=>x.OwnerType != IdentityType.None && !Characters.Any(y=>y.Computers.Contains(x.Id))))
+            {
+                var computer = Computers.First(x => x.OwnerType != IdentityType.None && !Characters.Any(y => y.Computers.Contains(x.Id)));
+                Computers.Remove(computer);
+            }
+
+            Console.WriteLine("Cleaning save file: Removing orphaned entity map positions...");
+            while (EntityPositions.Any(x => !Characters.Any(y => y.Id == x.Id)))
+            {
+                EntityPositions.Remove(EntityPositions.First(x => !Characters.Any(y => y.Id == x.Id)));
+            }
+
+            Console.WriteLine("Cleaning save file: Removing unlinked entity relationships...");
+            while(CharacterRelationships.Any(x=>!(Characters.Any(y=>y.Id == x.FirstId) && Characters.Any(y=>y.Id == x.SecondId))))
+            {
+                CharacterRelationships.Remove(CharacterRelationships.First(x => !(Characters.Any(y => y.Id == x.FirstId) && Characters.Any(y => y.Id == x.SecondId))));
+            }
+
+            while (AdjacentNodes.Any(x => !(Characters.Any(y => y.Id == x.NodeA) && Characters.Any(y => y.Id == x.NodeB))))
+            {
+                AdjacentNodes.Remove(AdjacentNodes.First(x => !(Characters.Any(y => y.Id == x.NodeA) && Characters.Any(y => y.Id == x.NodeB))));
+            }
+
+            while(PlayerDiscoveredNodes.Any(x=>!Characters.Any(y=>y.Id == x)))
+            {
+                PlayerDiscoveredNodes.Remove(PlayerDiscoveredNodes.First(x => !Characters.Any(y => y.Id == x)));
+            }
+
+            Console.WriteLine("Cleaning save file: Removing invalid IP addresses...");
+            while (ComputerIPMap.Any(x => !Computers.Any(y => y.Id == x.Value)))
+            {
+                ComputerIPMap.Remove(ComputerIPMap.First(x => !Computers.Any(y => y.Id == x.Value)).Key);
+            }
+
+            Console.WriteLine("Cleaning save file: Removing invalid domain names...");
+            while (DomainNameMap.Any(x => !ComputerIPMap.ContainsKey(x.Value)))
+            {
+                ComputerIPMap.Remove(DomainNameMap.First(x => !ComputerIPMap.ContainsKey(x.Value)).Key);
+            }
+
+            Console.WriteLine("Cleaning save file: Done.");
+        }
+
         public static SaveGame FromStream(Stream stream)
         {
             using (var gzip = new GZipStream(stream, CompressionMode.Decompress))
             {
-                return ReadObject<SaveGame>(gzip);
+                var save = ReadObject<SaveGame>(gzip);
+                if (save.IsNewGame)
+                    save.Clean();
+                return save;
             }
         }
 
