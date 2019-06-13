@@ -229,9 +229,13 @@ FPS: {(int)(1 / gameTime.GetElapsedSeconds())}";
 
             var postFocusedControl = FindControlAtPoint(args.Position);
 
-            if (_preFocusedControl == postFocusedControl)
+            if (_preFocusedControl == postFocusedControl && postFocusedControl.FocusOnClick)
             {
                 SetFocus(postFocusedControl);
+            }
+            else
+            {
+                SetFocus(null);
             }
 
             _preFocusedControl = null;

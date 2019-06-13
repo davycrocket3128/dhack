@@ -69,6 +69,7 @@
     <Compile Include="SystemWindows\NewIdentityWindow.cs" />
     <Compile Include="GuiHandlers\TextLayoutTest.cs" />
     <Compile Include="SystemWindows\SettingsWindow.cs" />
+    <Compile Include="SystemWindows\AppMenuWindow.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Extended, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">

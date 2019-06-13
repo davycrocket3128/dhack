@@ -27,6 +27,8 @@ namespace ThePeacenet.Gui.Controls
 
         private Screen _screen = null;
 
+        public bool FocusOnClick { get; set; } = true;
+
         public abstract IEnumerable<Control> Children { get; }
 
         public Screen Screen { get => (_screen == null) ? Parent?.Screen : _screen; internal set => _screen = value; }
