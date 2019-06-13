@@ -90,14 +90,25 @@ namespace ThePeacenet.Gui
             {
                 if(_screen != value)
                 {
+                    if(_screen != null)
+                    {
+                        _screen.ScreenSwitch -=  _screen_ScreenSwitch;
+                    }
+
                     _screen = value;
 
                     if(_screen != null)
                     {
+                        _screen.ScreenSwitch += _screen_ScreenSwitch;
                         InitializeScreen(_screen);
                     }
                 }
             }
+        }
+
+        private void _screen_ScreenSwitch(Screen obj)
+        {
+            ActiveScreen = obj;
         }
 
         public void InitializeScreen(Screen screen)

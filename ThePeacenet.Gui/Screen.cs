@@ -16,6 +16,13 @@ namespace ThePeacenet.Gui
 
         public IEnumerable<Window> Windows => _windows.OrderBy(x=>x.ZOrder);
 
+        internal event Action<Screen> ScreenSwitch;
+
+        public void GoTo(Screen screen)
+        {
+            ScreenSwitch?.Invoke(screen);
+        }
+
         public virtual void Dispose()
         {
         }
