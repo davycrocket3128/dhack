@@ -101,8 +101,15 @@ namespace ThePeacenet.Desktop
 
             AppButton.Clicked += (sender, e) =>
             {
-                ShowWindow(AppMenu);
-                AppMenu.SetCategory("All");
+                if (Windows.Contains(AppMenu))
+                {
+                    AppMenu.Close();
+                }
+                else
+                {
+                    ShowWindow(AppMenu);
+                    AppMenu.SetCategory("All");
+                }
             };
 
             ResetAppLauncher();

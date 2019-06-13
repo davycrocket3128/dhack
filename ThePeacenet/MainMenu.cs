@@ -22,15 +22,7 @@ namespace ThePeacenet
         private NewIdentityWindow _newIdentityWindow = null;
         private SettingsWindow _settingsWindow = null;
         private SaveInfo _activeSave = null;
-        private Window _blurTestWindow = new Window
-        {
-            WindowTitle = "Background Blur Test",
-            Content = new BackgroundBlur
-            {
-                Content = "This is a background blur widget."
-            }
-        };
-
+        
         public Canvas RootCanvas => FindControl<Canvas>("RootCanvas");
         public StackPanel UsersPanel => FindControl<StackPanel>("UsersPanel");
         public StackPanel ActionsPanel => FindControl<StackPanel>("ActionsPanel");
@@ -172,8 +164,6 @@ namespace ThePeacenet
             {
                 _world.StartGame(_activeSave);
             };
-
-            ShowWindow(_blurTestWindow);
         }
 
         private void NewIdentity_Clicked(object sender, EventArgs e)
