@@ -30,7 +30,7 @@ namespace ThePeacenet.Backend
             _world = world;
         }
 
-        protected void UpdateStoryIdentities()
+        private void UpdateStoryIdentities()
         {
             // Get all of the story character assets.
             var StoryCharacters = _world.Items.GetAll<StoryCharacter>();
@@ -43,7 +43,7 @@ namespace ThePeacenet.Backend
             }
         }
 
-        protected void UpdateStoryCharacter(StoryCharacter InStoryCharacter)
+        private void UpdateStoryCharacter(StoryCharacter InStoryCharacter)
         {
             // The entity ID and identity of the current (or new)
             // character.
@@ -115,7 +115,7 @@ namespace ThePeacenet.Backend
             this.UpdateStoryComputer(InStoryCharacter);
         }
 
-        protected void UpdateStoryComputer(StoryCharacter InStoryCharacter)
+        private void UpdateStoryComputer(StoryCharacter InStoryCharacter)
         {
             // Get the identity of the story character so we can get its computer ID.
             bool StoryEntityIDResult = _world.GetStoryCharacterID(InStoryCharacter, out int StoryEntityID);
@@ -172,7 +172,7 @@ namespace ThePeacenet.Backend
             RootFS.WriteText("/etc/hostname", Host);
         }
 
-        protected void PlaceLootableFiles(IUserLand InUserContext)
+        private void PlaceLootableFiles(IUserLand InUserContext)
         {
             // If the system is a player, then we stop right now.
             if (_world.Identities.Any(x => x.Name == InUserContext.IdentityName && x.IdentityType == IdentityType.Player)) return;
@@ -247,7 +247,7 @@ namespace ThePeacenet.Backend
             }
         }
 
-        protected void GenerateFirewallRules(Computer InComputer)
+        private void GenerateFirewallRules(Computer InComputer)
         {
             // Don't do this if the computer already has firewall rules!
             if (InComputer.Services.Count > 0)
@@ -274,7 +274,7 @@ namespace ThePeacenet.Backend
             }
         }
 
-        protected ProtocolImplementation GetProtocol(Protocol InService, int InSkill)
+        private ProtocolImplementation GetProtocol(Protocol InService, int InSkill)
         {
             int i = 0;
             int count = 100;
@@ -310,7 +310,7 @@ namespace ThePeacenet.Backend
             return protocol;
         }
 
-        protected string[] GetMarkovData(MarkovTrainingDataUsage InUsage)
+        private string[] GetMarkovData(MarkovTrainingDataUsage InUsage)
         {
             List<string> Ret = new List<string>();
             foreach (var Markov in this._world.Items.GetAll<MarkovTrainingDataAsset>())
@@ -323,7 +323,7 @@ namespace ThePeacenet.Backend
             return Ret.ToArray();
         }
 
-        protected string GenerateIPAddress()
+        private string GenerateIPAddress()
         {
             byte Byte1, Byte2, Byte3, Byte4 = 0;
 
@@ -338,7 +338,7 @@ namespace ThePeacenet.Backend
             return $"{Byte1}.{Byte2}.{Byte3}.{Byte4}";
         }
 
-        protected void GenerateIdentityPosition(Identity Pivot, Identity Identity)
+        private void GenerateIdentityPosition(Identity Pivot, Identity Identity)
         {
             const float MIN_DIST_FROM_PIVOT = 50;
             const float MAX_DIST_FROM_PIVOT = 400;
@@ -383,7 +383,7 @@ namespace ThePeacenet.Backend
             this._world.SetEntityPosition(Identity, NewPos);
         }
 
-        protected void GenerateAdjacentNodes(Identity InIdentity)
+        private void GenerateAdjacentNodes(Identity InIdentity)
         {
             // Don't generate any new links if there are any existing links from this NPC.
             // PATCH: Before, this would check for any links to and from the NPC, that's a problem. Now we only check for links from the NPC.
@@ -419,7 +419,7 @@ namespace ThePeacenet.Backend
             }
         }
 
-        protected string ChooseEmailDomain()
+        private string ChooseEmailDomain()
         {
             var Emails = _world.DomainNames.ToArray();
 
@@ -451,7 +451,7 @@ namespace ThePeacenet.Backend
             return Emails[Index];
         }
 
-        protected void GenerateNonPlayerCharacters()
+        private void GenerateNonPlayerCharacters()
         {
             Console.WriteLine("Generating NPCs...");
             this.GenerateEmailServers();
@@ -463,7 +463,7 @@ namespace ThePeacenet.Backend
             }
         }
 
-        protected void ParseCharacterName(string InCharacterName, out string OutUsername, out string OutHostname)
+        private void ParseCharacterName(string InCharacterName, out string OutUsername, out string OutHostname)
         {
             OutUsername = "";
             OutHostname = "";
@@ -512,7 +512,7 @@ namespace ThePeacenet.Backend
             OutHostname = FirstName + "-pc";
         }
 
-        protected Identity GenerateNonPlayerCharacter()
+        private Identity GenerateNonPlayerCharacter()
         {
             Identity Identity = new Identity
             {
@@ -590,7 +590,7 @@ namespace ThePeacenet.Backend
             return Identity;
         }
 
-        protected string GeneratePassword(int InLength)
+        private string GeneratePassword(int InLength)
         {
             string Chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890`~!@#$%^&*()_+-=[]{}\\|'\":;?.,<>";
 
@@ -664,7 +664,7 @@ namespace ThePeacenet.Backend
             _protocolVersions = _world.Items.GetAll<ProtocolImplementation>().ToList();
         }
 
-        protected void GenerateEmailServers()
+        private void GenerateEmailServers()
         {
             const int MIN_EMAIL_SERVERS = 10;
             const int MAX_EMAIL_SERVERS = 25;
@@ -690,7 +690,7 @@ namespace ThePeacenet.Backend
             }
         }
 
-        protected void GenerateCharacterRelationships()
+        private void GenerateCharacterRelationships()
         {
             // We will need to remove all relationships that are between any character and a non-player.
             List<CharacterRelationship> RelationshipsToRemove = new List<CharacterRelationship>();
@@ -763,7 +763,7 @@ namespace ThePeacenet.Backend
             }
         }
 
-        protected Computer GenerateComputer(string InHostname, ComputerType InComputerType, IdentityType InOwnerType)
+        private Computer GenerateComputer(string InHostname, ComputerType InComputerType, IdentityType InOwnerType)
         {
             Console.WriteLine("Generating computer... [hostname: \"{0}\", computer type: \"{1}\", owner type: \"{2}\"]", InHostname, InComputerType, InOwnerType);
 
