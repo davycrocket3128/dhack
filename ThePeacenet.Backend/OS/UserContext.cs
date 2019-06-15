@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ThePeacenet.Backend.AssetTypes;
+using ThePeacenet.Backend.Data;
 
 namespace ThePeacenet.Backend.OS
 {
@@ -21,6 +22,8 @@ namespace ThePeacenet.Backend.OS
         public string Hostname => _system.Hostname;
         public bool IsAdmin => _system.GetUserInfo(_uid).UserType == Data.UserType.Admin;
         public string Username => _system.GetUsername(_uid);
+        public Computer Computer => _system.Computer;
+        public string IPAddress => _system.IPAddress;
 
         public bool Execute(string command, out IProcess process)
         {
