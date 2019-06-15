@@ -102,6 +102,8 @@ namespace ThePeacenet
 
         protected override void LoadContent()
         {
+            ConsoleControl.LoadTerminalFonts(GraphicsDevice, Content);
+
             ResetViewport();
             _guiSystem.ClientSizeChanged();
 

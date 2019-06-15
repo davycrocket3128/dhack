@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoGame.Extended.Input.InputListeners;
 using SpriteFontPlus;
@@ -18,6 +19,43 @@ namespace ThePeacenet.Console
 {
     public sealed class ConsoleControl : Control, IConsoleContext
     {
+        private const int MAX_ZOOMLEVEL = 10;
+
+        public const int TERMINAL_DEFAULT_ROWS = 24;
+        public const int TERMINAL_DEFAULT_COLUMNS = 80;
+
+        private static List<SpriteFont> _regularZoomLevels = new List<SpriteFont>();
+        private static List<SpriteFont> _boldItalicZoomLevels = new List<SpriteFont>();
+        private static List<SpriteFont> _boldZoomLevels = new List<SpriteFont>();
+        private static List<SpriteFont> _italicZoomLevels = new List<SpriteFont>();
+
+        public static void LoadTerminalFonts(GraphicsDevice graphics, ContentManager content)
+        {
+            System.Console.WriteLine("Pre-loading console fonts... This is going to take a bit, but it'll dramatically improve in-game performance!");
+            var regular = content.Load<byte[]>("Gui/Fonts/Terminal/Regular");
+            var bold = content.Load<byte[]>("Gui/Fonts/Terminal/Bold");
+            var boldItalic = content.Load<byte[]>("Gui/Fonts/Terminal/BoldItalic");
+            var italic = content.Load<byte[]>("Gui/Fonts/Terminal/Italic");
+
+            for(int i = 0; i <= MAX_ZOOMLEVEL; i++)
+            {
+                float fontSize = 16 + (2 * i);
+                int texSize = (int)(1024 + (128 * i));
+
+                System.Console.WriteLine("Baking fonts for zoom level {0} ({1}px size, {2}x{2} texture)...", i, fontSize, texSize);
+                var regularBake = TtfFontBaker.Bake(regular, fontSize, texSize, texSize, new[] { CharacterRange.BasicLatin, CharacterRange.Latin1Supplement, CharacterRange.LatinExtendedA, CharacterRange.LatinExtendedB });
+                var boldBake = TtfFontBaker.Bake(bold, fontSize, texSize, texSize, new[] { CharacterRange.BasicLatin, CharacterRange.Latin1Supplement, CharacterRange.LatinExtendedA, CharacterRange.LatinExtendedB });
+                var italicBake = TtfFontBaker.Bake(italic, fontSize, texSize, texSize, new[] { CharacterRange.BasicLatin, CharacterRange.Latin1Supplement, CharacterRange.LatinExtendedA, CharacterRange.LatinExtendedB });
+                var boldItalicBake = TtfFontBaker.Bake(boldItalic, fontSize, texSize, texSize, new[] { CharacterRange.BasicLatin, CharacterRange.Latin1Supplement, CharacterRange.LatinExtendedA, CharacterRange.LatinExtendedB });
+
+                _regularZoomLevels.Add(regularBake.CreateSpriteFont(graphics));
+                _boldZoomLevels.Add(boldBake.CreateSpriteFont(graphics));
+                _boldItalicZoomLevels.Add(boldItalicBake.CreateSpriteFont(graphics));
+                _italicZoomLevels.Add(italicBake.CreateSpriteFont(graphics));
+            }
+            System.Console.WriteLine("Done preloading fonts!");
+        }
+
         private struct TerminalInfo
         {
             public int Lines;
@@ -36,13 +74,9 @@ namespace ThePeacenet.Console
 
         private string _work = "/";
         private UserContext _owner = null;
-        private DynamicSpriteFont _regularFont = null;
-        private DynamicSpriteFont _boldFont = null;
-        private DynamicSpriteFont _italicFont = null;
-        private DynamicSpriteFont _boldItalicFont = null;
         private string _textData = "";
         private float _scrollOffsetY = 0;
-        private float _zoomFactor = 1;
+        private int _zoomLevel = 0;
         private string _textInputBuffer = "";
 
         public UserContext User => _owner;
@@ -59,9 +93,9 @@ namespace ThePeacenet.Console
             }
         }
 
-        private void DrawCharacter(IGuiRenderer renderer, RectangleF rect, DynamicSpriteFont font, Color bg, Color fg, char c)
+        private void DrawCharacter(IGuiRenderer renderer, RectangleF rect, SpriteFont font, Color bg, Color fg, char c)
         {
-            renderer.DrawString(font, c.ToString(), new Vector2(rect.Left, rect.Top), fg, null);
+            renderer.DrawString(font, c.ToString(), new Vector2(rect.Left, rect.Top), fg);
         }
 
         public void Clear()
@@ -73,20 +107,40 @@ namespace ThePeacenet.Console
         {
         }
 
+        private SpriteFont GetFont(bool bold, bool italic)
+        {
+            if (_regularZoomLevels.Count == 0) throw new InvalidOperationException("The game hasn't loaded the console fonts yet.");
+            if (_boldZoomLevels.Count == 0) throw new InvalidOperationException("The game hasn't loaded the console fonts yet.");
+            if (_italicZoomLevels.Count == 0) throw new InvalidOperationException("The game hasn't loaded the console fonts yet.");
+            if (_boldItalicZoomLevels.Count == 0) throw new InvalidOperationException("The game hasn't loaded the console fonts yet.");
+
+            var repo = _regularZoomLevels;
+            if (bold && italic)
+                repo = _boldItalicZoomLevels;
+            else if (bold)
+                repo = _boldZoomLevels;
+            else if (italic)
+                repo = _italicZoomLevels;
+
+            return repo[_zoomLevel];
+        }
+
         private TerminalInfo GetTerminalInfo(IGuiRenderer renderer)
         {
             TerminalInfo ret = new TerminalInfo(0, 0, 0, 0);
 
+            // Get the font for the current zoom level.
+            var font = GetFont(false, false);
+
             // Measure a character with the regular font.
-            var measureTest = _regularFont.MeasureString("#");
+            var measureTest = font.MeasureString("#");
 
             // The state of the terminal render.
             Vector2 size = new Vector2(BoundingRectangle.Width, BoundingRectangle.Height);
-            DynamicSpriteFont font = _regularFont;
             float charX = BoundingRectangle.Left;
             float charY = BoundingRectangle.Top - _scrollOffsetY;
-            float charW = measureTest.X * _zoomFactor;
-            float charH = measureTest.Y * _zoomFactor;
+            float charW = measureTest.X;
+            float charH = measureTest.Y;
             Color fgColor = Color.White;
             Color bgColor = Color.Black;
 
@@ -116,8 +170,8 @@ namespace ThePeacenet.Console
 
                 // Measure the character so we know its width and height.
                 var measure = font.MeasureString(c.ToString());
-                charW = measure.X * _zoomFactor;
-                charH = measure.Y * _zoomFactor;
+                charW = measure.X;
+                charH = measure.Y;
 
                 // If the vertical position of the cursor is on-screen then we can draw.
                 if (charY >= BoundingRectangle.Top && charY <= BoundingRectangle.Bottom && renderer != null)
@@ -223,14 +277,9 @@ namespace ThePeacenet.Console
         {
             _owner = owner;
 
-            _regularFont = content.LoadFont("Gui/Fonts/Terminal/Regular");
-            _boldFont = content.LoadFont("Gui/Fonts/Terminal/Bold");
-            _boldItalicFont = content.LoadFont("Gui/Fonts/Terminal/BoldItalic");
-            _italicFont = content.LoadFont("Gui/Fonts/Terminal/Italic");
-
-            var measure = _regularFont.MeasureString("#");
-            MinWidth = (int)(measure.X * 80);
-            MinHeight = (int)(measure.Y * 25);
+            var measure = GetFont(false, false).MeasureString("#");
+            MinWidth = (int)(measure.X * TERMINAL_DEFAULT_COLUMNS);
+            MinHeight = (int)(measure.Y * TERMINAL_DEFAULT_ROWS);
         }
 
         public override IEnumerable<Control> Children => Enumerable.Empty<Control>();
@@ -251,25 +300,21 @@ namespace ThePeacenet.Console
         {
             if (e.Modifiers.HasFlag(KeyboardModifiers.Control))
             {
-                if (e.Key == Microsoft.Xna.Framework.Input.Keys.OemPlus)
+                if (e.Key == Microsoft.Xna.Framework.Input.Keys.OemPlus && _zoomLevel < MAX_ZOOMLEVEL)
                 {
-                    _zoomFactor += 0.25f;
-                    _regularFont.Size = _regularFont.Size;
-                    _boldFont.Size = _regularFont.Size;
-                    _boldItalicFont.Size = _regularFont.Size;
-                    _italicFont.Size = _regularFont.Size;
-
-                    var measure = _regularFont.MeasureString("#");
-                    MinWidth = (int)(measure.X * 80);
-                    MinHeight = (int)(measure.Y * 25);
+                    _zoomLevel++;
+                    
+                    var measure = GetFont(false, false).MeasureString("#");
+                    MinWidth = (int)(measure.X * TERMINAL_DEFAULT_COLUMNS);
+                    MinHeight = (int)(measure.Y * TERMINAL_DEFAULT_ROWS);
                     return true;
                 }
-                else if (e.Key == Microsoft.Xna.Framework.Input.Keys.OemMinus)
+                else if (e.Key == Microsoft.Xna.Framework.Input.Keys.OemMinus && _zoomLevel > 0)
                 {
-                    if (_zoomFactor - 0.25f >= 1) _zoomFactor -= 0.25f;
-                    var measure = _regularFont.MeasureString("#");
-                    MinWidth = (int)(measure.X * 80);
-                    MinHeight = (int)(measure.Y * 25);
+                    _zoomLevel--;
+                    var measure = GetFont(false, false).MeasureString("#");
+                    MinWidth = (int)(measure.X * TERMINAL_DEFAULT_COLUMNS);
+                    MinHeight = (int)(measure.Y * TERMINAL_DEFAULT_ROWS);
                     return true;
                 }
                 _scrollOffsetY = -1;
