@@ -74,17 +74,14 @@ namespace ThePeacenet.Gui.Controls
 
         public override Size2 GetContentSize(IGuiContext context)
         {
-            if (Content == null)
-            {
-                return BackgroundBrush.ImageSize;
-            }
-
             if (Content is Control control)
                 return control.CalculateActualSize(context);
 
             var text = Content?.ToString();
-            var font = Font ?? context.DefaultFont;
-            return LayoutHelper.MeasureString(font, text ?? string.Empty);
+
+            var info = GetTextInfo(context, text, BoundingRectangle, HorizontalTextAlignment, VerticalTextAlignment);
+            var measure = LayoutHelper.MeasureString(info.Font, info.Text);
+            return measure;
         }
     }
 }
