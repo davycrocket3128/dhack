@@ -41,7 +41,7 @@ namespace ThePeacenet.Desktop
             Window.WindowIcon = Program.Content.Load<Texture2D>(Program.LauncherIcon);
             Desktop.ShowWindow(Window);
             
-            Window.Content = Program.WindowBuilder(Window, Program.Content, console);
+            Window.Content = Program.WindowBuilder(Window, Program.Content, console.User);
         }
     }
 }

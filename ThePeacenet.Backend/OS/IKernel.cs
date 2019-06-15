@@ -3,13 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ThePeacenet.Backend.Data;
 using ThePeacenet.Backend.FileSystem;
 
 namespace ThePeacenet.Backend.OS
 {
-    public interface IKernel : IContentProvider
+    internal interface IKernel : IContentProvider
     {
         WorldState WorldState { get; }
+
+        Identity Identity { get; }
+        Computer Computer { get; }
+
+        void Update(float deltaSeconds);
+
+        SystemContext SystemContext { get; }
 
         IEnumerable<FileRecord> FileRecords { get; }
         IUserLand GetUserLand(int userId);

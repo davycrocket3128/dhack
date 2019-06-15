@@ -17,17 +17,17 @@ namespace ThePeacenet.Commands
         {
             string path = GetAbsolutePath(GetArgument("<path>").ToString());
 
-            if(FileSystem.DirectoryExists(path))
+            if(User.FileSystem.DirectoryExists(path))
             {
                 Console.WriteLine("{0}: {1}: Directory exists.", CommandName, path);
             }
-            else if(FileSystem.FileExists(path))
+            else if(User.FileSystem.FileExists(path))
             {
                 Console.WriteLine("{0}: {1}: File exists.", CommandName, path);
             }
             else
             {
-                FileSystem.CreateDirectory(path);
+                User.FileSystem.CreateDirectory(path);
             }
         }
     }

@@ -36,7 +36,7 @@ namespace ThePeacenet.Backend.Shell
                     NameLength = Program->ID.ToString().Len();
             }*/
 
-            foreach (var Command in Commands)
+            foreach (var Command in User.Commands)
             {
                 // Add it to the list of shit to display.
                 NameMap.Add(Command.Id, Command.Description);

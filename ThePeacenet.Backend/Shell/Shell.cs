@@ -328,12 +328,12 @@ namespace ThePeacenet.Backend.Shell
 
             try
             {
-                var instructionData = ParseCommand(text, HomeFolder);
+                var instructionData = ParseCommand(text, User.HomeFolder);
 
                 if(!string.IsNullOrWhiteSpace(instructionData.OutputFile))
                 {
                     string abs = GetAbsolutePath(instructionData.OutputFile);
-                    if(FileSystem.DirectoryExists(abs))
+                    if(User.FileSystem.DirectoryExists(abs))
                     {
                         Console.WriteLine("{0}: {1}: Directory exists.", CommandName, abs);
                         return;
@@ -349,7 +349,7 @@ namespace ThePeacenet.Backend.Shell
                 foreach(var command in instructionData.Commands)
                 {
                     bool IsPiping = (i < instructionData.Commands.Length - 1);
-                    string home = HomeFolder;
+                    string home = User.HomeFolder;
 
                     string[] tokens = this.Tokenize(command, home);
 

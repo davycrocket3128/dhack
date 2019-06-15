@@ -7,7 +7,7 @@ using ThePeacenet.Backend.FileSystem;
 
 namespace ThePeacenet.Backend.OS
 {
-    public interface IKernelFileSystem
+    internal interface IKernelFileSystem
     {
         List<FileRecord> Records { get; }
         List<Folder> Folders { get; }

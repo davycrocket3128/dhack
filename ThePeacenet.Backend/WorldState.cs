@@ -48,6 +48,11 @@ namespace ThePeacenet.Backend
 
         internal SaveGame CurrentSave => _saveManager.CurrentSave;
 
+        public IEnumerable<Identity> GetAdjacentNodes(Identity identity)
+        {
+            throw new NotImplementedException();
+        }
+
         internal void AssignIP(Computer computer, string ip)
         {
             CurrentSave.ComputerIPMap.Add(ip, computer.Id);
@@ -165,7 +170,7 @@ namespace ThePeacenet.Backend
             }
         }
 
-        public event Action<IUserLand> PlayerSystemReady;
+        public event Action<UserContext> PlayerSystemReady;
 
         public bool AreAllAssetsLoaded => (_itemLoadTask != null && _itemLoadTask.IsCompleted);
 
@@ -231,6 +236,9 @@ namespace ThePeacenet.Backend
                     _hasWorldBeenStarted = true;
                 }
             }
+
+            foreach (var kernel in _kernels)
+                kernel.Update(deltaSeconds);
         }
 
         public void StartNewGame(string playerName)
@@ -255,7 +263,7 @@ namespace ThePeacenet.Backend
             return CurrentSave.Characters.First(x => x.Id == id);
         }
 
-        public IKernel GetKernel(int identity)
+        internal IKernel GetKernel(int identity)
         {
             if (_kernels.Any(x => x.Identity.Id == identity))
                 return _kernels.First(x => x.Identity.Id == identity);
@@ -267,9 +275,9 @@ namespace ThePeacenet.Backend
             return kernel;
         }
 
-        public IUserLand GetPlayerUser()
+        public UserContext GetPlayerUser()
         {
-            return GetKernel(CurrentSave.PlayerCharacterID).GetUserLand(CurrentSave.PlayerUserID);
+            return GetKernel(CurrentSave.PlayerCharacterID).SystemContext.GetUserContext(CurrentSave.PlayerUserID);
         }
     }
 

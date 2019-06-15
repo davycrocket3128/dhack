@@ -24,9 +24,9 @@ namespace ThePeacenet.Commands
         {
             string path = GetAbsolutePath(GetArgument("<file>").ToString());
 
-            if(FileSystem.FileExists(path))
+            if(User.FileSystem.FileExists(path))
             {
-                Console.WriteLine(FileSystem.ReadText(path));
+                Console.WriteLine(User.FileSystem.ReadText(path));
             }
             else
             {

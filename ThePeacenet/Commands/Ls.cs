@@ -17,13 +17,13 @@ namespace ThePeacenet.Commands
         {
             bool listAll = GetArgument("-a").IsTrue;
 
-            foreach(var dir in FileSystem.GetDirectories(Console.WorkingDirectory))
+            foreach(var dir in User.FileSystem.GetDirectories(Console.WorkingDirectory))
             {
                 if (dir.StartsWith(".") && !listAll) continue;
                 Console.WriteLine(dir);
             }
 
-            foreach (var file in FileSystem.GetFiles(Console.WorkingDirectory))
+            foreach (var file in User.FileSystem.GetFiles(Console.WorkingDirectory))
             {
                 if (file.StartsWith(".") && !listAll) continue;
                 Console.WriteLine(file);

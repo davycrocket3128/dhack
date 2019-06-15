@@ -15,7 +15,7 @@ namespace ThePeacenet.Backend.AssetTypes
 {
     public class Program : Asset
     {
-        public Program(ProgramData data, ContentManager content, Func<Window, ContentManager, IUserLand, Control> windowBuilder) : base(data.Name.ToLower().Replace(" ", "_"), content)
+        public Program(ProgramData data, ContentManager content, Func<Window, ContentManager, UserContext, Control> windowBuilder) : base(data.Name.ToLower().Replace(" ", "_"), content)
         {
             this.Name = data.Name;
             this.Description = data.Description;
@@ -38,19 +38,19 @@ namespace ThePeacenet.Backend.AssetTypes
         public bool EnableMinimizeMaximize { get; }
         public bool SingleInstance { get; }
         public RamUsage RamUsage { get; }
-        public Func<Window, ContentManager, IUserLand, Control> WindowBuilder { get; }
+        public Func<Window, ContentManager, UserContext, Control> WindowBuilder { get; }
     }
 
     public class ProgramPage
     {
-        public ProgramPage(string id, Func<GuiHandler, ContentManager, IUserLand, Control> builder)
+        public ProgramPage(string id, Func<GuiHandler, ContentManager, UserContext, Control> builder)
         {
             PageId = id;
             Builder = builder;
         }
 
         public string PageId { get; }
-        public Func<GuiHandler, ContentManager, IUserLand, Control> Builder { get; }
+        public Func<GuiHandler, ContentManager, UserContext, Control> Builder { get; }
     }
 
     public class ProgramData : AssetBuilder<Program>
@@ -93,7 +93,7 @@ namespace ThePeacenet.Backend.AssetTypes
 
                 var windowParameter = Expression.Parameter(typeof(Window), "window");
                 var contentManagerParameter = Expression.Parameter(typeof(ContentManager), "content");
-                var userLandParameter = Expression.Parameter(typeof(IUserLand), "userLand");
+                var userLandParameter = Expression.Parameter(typeof(UserContext), "userLand");
 
                 List<Expression> lambdaBody = new List<Expression>
                 {
@@ -207,7 +207,7 @@ namespace ThePeacenet.Backend.AssetTypes
                 var windowBuilderBody = Expression.Block(rootControlType, variables, lambdaBody);
                 
 
-                var windowBuilder = Expression.Lambda<Func<Window, ContentManager, IUserLand, Control>>(
+                var windowBuilder = Expression.Lambda<Func<Window, ContentManager, UserContext, Control>>(
                     windowBuilderBody,
                     windowParameter,
                     contentManagerParameter,
@@ -286,7 +286,7 @@ namespace ThePeacenet.Backend.AssetTypes
                 }
             }
 
-            var buildMethod = controlType.GetMethod("Build", new[] { typeof(ContentManager), typeof(IUserLand) });
+            var buildMethod = controlType.GetMethod("Build", new[] { typeof(ContentManager), typeof(UserContext) });
 
             if(buildMethod != null)
             {

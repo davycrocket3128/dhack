@@ -35,7 +35,7 @@ namespace ThePeacenet.Console
         }
 
         private string _work = "/";
-        private IUserLand _owner = null;
+        private UserContext _owner = null;
         private DynamicSpriteFont _regularFont = null;
         private DynamicSpriteFont _boldFont = null;
         private DynamicSpriteFont _italicFont = null;
@@ -45,14 +45,14 @@ namespace ThePeacenet.Console
         private float _zoomFactor = 1;
         private string _textInputBuffer = "";
 
-        public IEnumerable<ThePeacenet.Backend.AssetTypes.Program> Programs => _owner.Programs;
+        public UserContext User => _owner;
 
         public string WorkingDirectory
         {
             get => _work;
             set
             {
-                if (value != _work && FileSystem.DirectoryExists(value))
+                if (value != _work && User.FileSystem.DirectoryExists(value))
                 {
                     _work = value;
                 }
@@ -63,25 +63,6 @@ namespace ThePeacenet.Console
         {
             renderer.DrawString(font, c.ToString(), new Vector2(rect.Left, rect.Top), fg, null);
         }
-
-        
-        public string Username => _owner.Username;
-
-        public string Hostname => _owner.Hostname;
-
-        public string HomeFolder => _owner.HomeFolder;
-
-        public string IdentityName => _owner.IdentityName;
-
-        public IFileSystem FileSystem => _owner.FileSystem;
-
-        public string EmailAddress => _owner.EmailAddress;
-
-        public bool IsAdmin => _owner.IsAdmin;
-
-        public ConsoleColor UserColor => _owner.UserColor;
-
-        public IEnumerable<CommandAsset> Commands => _owner.Commands;
 
         public void Clear()
         {
@@ -233,12 +214,12 @@ namespace ThePeacenet.Console
 
         }
 
-        public ConsoleControl(ContentManager content, IUserLand owner) : this()
+        public ConsoleControl(ContentManager content, UserContext owner) : this()
         {
             Build(content, owner);
         }
 
-        public void Build(ContentManager content, IUserLand owner)
+        public void Build(ContentManager content, UserContext owner)
         {
             _owner = owner;
 

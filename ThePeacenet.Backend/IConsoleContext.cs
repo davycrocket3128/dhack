@@ -7,8 +7,10 @@ using ThePeacenet.Backend.OS;
 
 namespace ThePeacenet.Backend
 {
-    public interface IConsoleContext : IUserLand
+    public interface IConsoleContext
     {
+        UserContext User { get; }
+
         void Write(string text);
         void Write(string format, params object[] args);
         void WriteLine(string text);

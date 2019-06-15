@@ -17,7 +17,7 @@ namespace ThePeacenet.Commands
         {
             string path = GetAbsolutePath(GetArgument("<path>").ToString());
             
-            if(FileSystem.DirectoryExists(path))
+            if(User.FileSystem.DirectoryExists(path))
             {
                 Console.WorkingDirectory = path;
             }

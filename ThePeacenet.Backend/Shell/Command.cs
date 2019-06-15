@@ -12,13 +12,11 @@ using System.Collections;
 
 namespace ThePeacenet.Backend.Shell
 {
-    public abstract class Command : ITickable, IProcess, IUserLand
+    public abstract class Command : ITickable, IProcess
     {
         private string[] _arguments = null;
         private IConsoleContext _console = null;
         private string _name = "";
-
-        public IEnumerable<Program> Programs => Console.Programs;
 
         public bool Completed { get; private set; }
         public string[] Arguments => _arguments;
@@ -30,22 +28,6 @@ namespace ThePeacenet.Backend.Shell
         protected internal IConsoleContext ConsoleOverride { get; set; }
         protected virtual bool IsLatent { get => false; }
 
-        public string Username => Console.Username;
-
-        public string Hostname => Console.Hostname;
-
-        public string HomeFolder => Console.HomeFolder;
-
-        public string IdentityName => Console.IdentityName;
-
-        public IFileSystem FileSystem => Console.FileSystem;
-
-        public string EmailAddress => Console.EmailAddress;
-
-        public bool IsAdmin => Console.IsAdmin;
-
-        public ConsoleColor UserColor => Console.UserColor;
-
         public string Name => _name;
 
         public string Path => Name;
@@ -54,15 +36,15 @@ namespace ThePeacenet.Backend.Shell
 
         public RamUsage RamUsage { get; internal set; }
 
-        public IEnumerable<CommandAsset> Commands => Console.Commands;
-
         public virtual void Update(float deltaSeconds) { }
+
+        public UserContext User => Console.User;
 
         public string GetAbsolutePath(string path)
         {
             if (path.StartsWith("/"))
-                return FileSystem.GetAbsolutePath(path);
-            return FileSystem.GetAbsolutePath(Console.WorkingDirectory + "/" + path);
+                return User.FileSystem.GetAbsolutePath(path);
+            return User.FileSystem.GetAbsolutePath(Console.WorkingDirectory + "/" + path);
         }
 
         public Argument GetArgument(string argument)
@@ -102,11 +84,6 @@ namespace ThePeacenet.Backend.Shell
         protected void Complete()
         {
             Completed = true;
-        }
-
-        public bool Execute(string program, out IProcess process)
-        {
-            return Console.Execute(program, out process);
         }
 
         public void Kill()

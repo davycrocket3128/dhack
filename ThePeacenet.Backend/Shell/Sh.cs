@@ -20,9 +20,9 @@ namespace ThePeacenet.Backend.Shell
             get
             {
                 string shebang = "$";
-                if (IsAdmin) shebang = "#";
+                if (User.IsAdmin) shebang = "#";
 
-                return $"{Username}@{Hostname}:{Console.WorkingDirectory.Replace(HomeFolder, "~")}{shebang} ";
+                return $"{User.Username}@{User.Hostname}:{Console.WorkingDirectory.Replace(User.HomeFolder, "~")}{shebang} ";
             }
         }
 
@@ -30,7 +30,7 @@ namespace ThePeacenet.Backend.Shell
         {
             IProcess process = null;
 
-            if(Execute(name, out process) && process is Command)
+            if(User.Execute(name, out process) && process is Command)
             {
                 return process as Command;
             }

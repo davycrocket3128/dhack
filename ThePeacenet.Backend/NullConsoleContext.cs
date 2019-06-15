@@ -10,44 +10,19 @@ namespace ThePeacenet.Backend
 {
     public class NullConsoleContext : IConsoleContext
     {
-        private readonly IUserLand owner;
+        private readonly UserContext owner;
 
-        public IEnumerable<Program> Programs => owner.Programs;
+        public UserContext User => owner;
 
-        public NullConsoleContext(IUserLand owner)
+        public NullConsoleContext(UserContext owner)
         {
             this.owner = owner;
-
-            WorkingDirectory = owner.HomeFolder;
         }
 
         public string WorkingDirectory { get; set; }
 
-        public string Username => owner.Username;
-
-        public string Hostname =>  owner.Hostname;
-
-        public string HomeFolder => owner.HomeFolder;
-
-        public string IdentityName => owner.IdentityName;
-
-        public IFileSystem FileSystem => owner.FileSystem;
-
-        public string EmailAddress => owner.EmailAddress;
-
-        public bool IsAdmin => owner.IsAdmin;
-
-        public ConsoleColor UserColor => owner.UserColor;
-
-        public IEnumerable<CommandAsset> Commands => owner.Commands;
-
         public void Clear()
         {
-        }
-
-        public bool Execute(string program, out IProcess process)
-        {
-            return owner.Execute(program, out process);
         }
 
         public bool GetLine(out string text)

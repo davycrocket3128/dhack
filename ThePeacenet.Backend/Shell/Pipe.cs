@@ -16,6 +16,8 @@ namespace ThePeacenet.Backend.Shell
         private string _redirectPath = "";
         private bool _redirectOverwrite = false;
 
+        public UserContext User => _owner.User;
+
         internal void Redirect(string path, bool overwrite)
         {
             _redirectPath = path;
@@ -28,12 +30,12 @@ namespace ThePeacenet.Backend.Shell
 
             if(_redirectOverwrite)
             {
-                FileSystem.WriteText(_redirectPath, Log.ToString());
+                User.FileSystem.WriteText(_redirectPath, Log.ToString());
             }
             else
             {
-                string text = FileSystem.ReadText(_redirectPath);
-                FileSystem.WriteText(_redirectPath, text + Log.ToString());
+                string text = User.FileSystem.ReadText(_redirectPath);
+                User.FileSystem.WriteText(_redirectPath, text + Log.ToString());
             }
         }
 
@@ -49,26 +51,6 @@ namespace ThePeacenet.Backend.Shell
         private StringBuilder _log = new StringBuilder();
 
         public StringBuilder Log => _log;
-
-        public IEnumerable<Program> Programs => _owner.Programs;
-
-        public string Username => _owner.Username;
-
-        public string Hostname => _owner.Hostname;
-
-        public string HomeFolder => _owner.HomeFolder;
-
-        public string IdentityName => _owner.IdentityName;
-
-        public IFileSystem FileSystem => _owner.FileSystem;
-
-        public string EmailAddress => _owner.EmailAddress;
-
-        public bool IsAdmin => _owner.IsAdmin;
-
-        public ConsoleColor UserColor => _owner.UserColor;
-
-        public IEnumerable<CommandAsset> Commands => _owner.Commands;
 
         public void Clear()
         {
@@ -151,11 +133,6 @@ namespace ThePeacenet.Backend.Shell
         public void WriteLine(string format, params object[] args)
         {
             WriteLine(string.Format(format, args));
-        }
-
-        public bool Execute(string program, out IProcess process)
-        {
-            return _owner.Execute(program, out process);
         }
     }
 }

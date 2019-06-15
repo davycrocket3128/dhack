@@ -47,6 +47,14 @@ namespace ThePeacenet.Backend.Data
         public IdentityType OwnerType { get; set; } = IdentityType.None;
         public List<FirewallRule> Services { get; set; } = new List<FirewallRule>();
         public ComputerType ComputerType { get; set; }
+
+        internal void FixUserIds()
+        {
+            for(int i = 0; i < Users.Count; i++)
+            {
+                Users[i].Id = i;
+            }
+        }
     }
 
     [Serializable]

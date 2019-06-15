@@ -10,18 +10,26 @@ using ThePeacenet.Backend.Shell;
 
 namespace ThePeacenet.Backend.OS
 {
-    public class PlayerKernel : IKernel, IKernelFileSystem
+    internal  class PlayerKernel : IKernel, IKernelFileSystem
     {
+        private SystemContext _systemContext = null;
         private WorldState _worldState = null;
         private readonly int _characterId = 0;
         private readonly int _computerId = 0;
         private List<UserLand> _users = new List<UserLand>();
         public WorldState WorldState => _worldState;
 
+        public SystemContext SystemContext => _systemContext ?? (_systemContext = new SystemContext(this));
+
         public Computer Computer => WorldState.GetComputer(_computerId);
         public Identity Identity => WorldState.GetIdentity(_characterId);
 
         public IEnumerable<FileRecord> FileRecords => Computer.Files;
+
+        public void Update(float deltaSeconds)
+        {
+            SystemContext.Update(deltaSeconds);
+        }
 
         public IEnumerable<CommandAsset> Commands => WorldState.GetAvailableCommands(Computer);
 
@@ -244,7 +252,7 @@ namespace ThePeacenet.Backend.OS
         }
     }
 
-    public class UserLand : IUserLand, IFileSystem
+    internal class UserLand : IUserLand, IFileSystem
     {
         private PlayerKernel _kernel = null;
         private readonly int _uid = 0;

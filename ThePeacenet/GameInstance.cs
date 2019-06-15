@@ -34,7 +34,7 @@ namespace ThePeacenet
         private readonly GraphicsDeviceManager _graphics;
         private GuiSystem _guiSystem = null;
         private WorldState _worldState = null;
-        private IUserLand _playerUserLand = null;
+        private UserContext _playerUserLand = null;
         private IGuiRenderer _renderer = null;
         private DynamicSpriteFont _defaultFont = null;
         private ViewportAdapter _viewportAdapter = null;

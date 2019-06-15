@@ -21,15 +21,15 @@ namespace ThePeacenet.Desktop
     public class DesktopScreen : Screen
     {
         private ContentManager _content = null;
-        private IUserLand _owner = null;
+        private UserContext _owner = null;
 
         protected AppMenuWindow AppMenu { get; }
 
-        public IUserLand User => _owner;
+        public UserContext User => _owner;
         public Rectangle DesktopPanelRect => FindControl<Border>("DesktopPanelBorder").BoundingRectangle;
         public Button AppButton => FindControl<Button>("AppButton");
 
-        public DesktopScreen(ContentManager content, IUserLand ownerUser)
+        public DesktopScreen(ContentManager content, UserContext ownerUser)
         {
             _content = content;
             Skin = content.Load<GuiSkin>("Skins/Serenity");

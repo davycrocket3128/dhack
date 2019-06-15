@@ -7,7 +7,7 @@ using ThePeacenet.Backend.AssetTypes;
 
 namespace ThePeacenet.Backend.OS
 {
-    public interface IUserLand : IContentProvider
+    internal interface IUserLand : IContentProvider
     {
         string Username { get; }
         string Hostname { get; }

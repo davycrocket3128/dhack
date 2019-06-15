@@ -81,6 +81,7 @@
     <Compile Include="AssetTypes\ProtocolImplementationData.cs" />
     <Compile Include="AssetTypes\StoryCharacter.cs" />
     <Compile Include="Data\AdjacentNode.cs" />
+    <Compile Include="Data\AdjacentNodeInfo.cs" />
     <Compile Include="Data\CharacterRelationship.cs" />
     <Compile Include="Data\Computer.cs" />
     <Compile Include="Data\Email.cs" />
@@ -103,7 +104,10 @@
     <Compile Include="OS\IProcess.cs" />
     <Compile Include="OS\IKernel.cs" />
     <Compile Include="OS\IUserLand.cs" />
+    <Compile Include="OS\MailProvider.cs" />
     <Compile Include="OS\PlayerKernel.cs" />
+    <Compile Include="OS\SystemContext.cs" />
+    <Compile Include="OS\UserContext.cs" />
     <Compile Include="ProcgenEngine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomExtensions.cs" />
