@@ -76,6 +76,7 @@
     <Compile Include="AssetTypes\ManualPageAsset.cs" />
     <Compile Include="AssetTypes\MarkovTrainingData.cs" />
     <Compile Include="AssetTypes\Payload.cs" />
+    <Compile Include="AssetTypes\PayloadAsset.cs" />
     <Compile Include="AssetTypes\Program.cs" />
     <Compile Include="AssetTypes\ProgramGui.cs" />
     <Compile Include="AssetTypes\Protocol.cs" />
