@@ -14,6 +14,7 @@ namespace ThePeacenet.Backend.Shell
 {
     public abstract class Command : ITickable, IProcess
     {
+        private bool _started = false;
         private string[] _arguments = null;
         private IConsoleContext _console = null;
         private string _name = "";
@@ -36,7 +37,13 @@ namespace ThePeacenet.Backend.Shell
 
         public RamUsage RamUsage { get; internal set; }
 
-        public virtual void Update(float deltaSeconds) { }
+        protected virtual void OnUpdate(float deltaSeconds) { }
+
+        public void Update(float deltaSeconds)
+        {
+            if (!Completed && _started)
+                OnUpdate(deltaSeconds);
+        }
 
         public UserContext User => Console.User;
 
@@ -75,7 +82,7 @@ namespace ThePeacenet.Backend.Shell
             }
 
             OnRun(_arguments);
-
+            _started = true;
             if (!IsLatent) Completed = true;
         }
 

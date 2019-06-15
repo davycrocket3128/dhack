@@ -68,7 +68,7 @@ namespace ThePeacenet.Backend.Shell
             return false;
         }
 
-        public override void Update(float deltaSeconds)
+        protected override void OnUpdate(float deltaSeconds)
         {
             if (_waitingForCommand && _currentCommand != null)
             {

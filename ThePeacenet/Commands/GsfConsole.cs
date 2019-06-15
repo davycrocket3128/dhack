@@ -66,7 +66,7 @@ namespace ThePeacenet.Commands
             }
         }
 
-        public override void Update(float deltaSeconds)
+        protected override void OnUpdate(float deltaSeconds)
         {
             /*
             if (!this->IsTutorialActive())
@@ -120,7 +120,7 @@ namespace ThePeacenet.Commands
             // shell system take over.
             if (!_isPayloadActive)
             {
-                base.Update(deltaSeconds);
+                base.OnUpdate(deltaSeconds);
             }
         }
 
