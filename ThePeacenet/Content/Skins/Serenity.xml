@@ -322,6 +322,57 @@
         </Styles>
       </Element>
       
+      <!-- CHECK BOXES -->
+      <Element>
+        <Control>ThePeacenet.Gui.Controls.CheckBox</Control>
+        <Styles>
+          <!-- Normal Checkboxes -->
+          <Style>
+            <States>
+              <State>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Texture>Gui/Textures/uncheck</Texture>
+                  </Brush>
+                </Brushes>
+              </State>
+              <State>
+                <Name>CheckedStyle</Name>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Texture>Gui/Textures/check</Texture>
+                  </Brush>
+                </Brushes>
+              </State>
+            </States>
+          </Style>
+          <Style>
+            <Name>Bullet</Name>
+            <States>
+              <State>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Texture>Gui/Textures/unbullet</Texture>
+                  </Brush>
+                </Brushes>
+              </State>
+              <State>
+                <Name>CheckedStyle</Name>
+                <Brushes>
+                  <Brush>
+                    <Name>BackgroundBrush</Name>
+                    <Texture>Gui/Textures/bullet</Texture>
+                  </Brush>
+                </Brushes>
+              </State>
+            </States>
+          </Style>
+        </Styles>
+      </Element>
+      
       <!-- CONSOLE CONTROLS -->
       <Element>
         <Control>ThePeacenet.Console.ConsoleControl</Control>
