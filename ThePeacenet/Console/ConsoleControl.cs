@@ -329,10 +329,13 @@ namespace ThePeacenet.Console
 
             char c = (char)e.Character;
 
-            if (c == '\b' && !string.IsNullOrEmpty(_textInputBuffer))
+            if (c == '\b')
             {
-                _textInputBuffer = _textInputBuffer.Remove(_textInputBuffer.Length - 1);
-                _textData = _textData.Remove(_textData.Length - 1);
+                if (!string.IsNullOrEmpty(_textInputBuffer))
+                {
+                    _textInputBuffer = _textInputBuffer.Remove(_textInputBuffer.Length - 1);
+                    _textData = _textData.Remove(_textData.Length - 1);
+                }
             }
             else if (c == '\r')
             {
