@@ -298,12 +298,19 @@ namespace ThePeacenet.Console
 
         public override bool OnKeyPressed(IGuiContext context, KeyboardEventArgs e)
         {
+            return base.OnKeyPressed(context, e);
+        }
+
+        public override bool OnKeyTyped(IGuiContext context, KeyboardEventArgs e)
+        {
+            if (e.Character == null) return false;
+
             if (e.Modifiers.HasFlag(KeyboardModifiers.Control))
             {
                 if (e.Key == Microsoft.Xna.Framework.Input.Keys.OemPlus && _zoomLevel < MAX_ZOOMLEVEL)
                 {
                     _zoomLevel++;
-                    
+
                     var measure = GetFont(false, false).MeasureString("#");
                     MinWidth = (int)(measure.X * TERMINAL_DEFAULT_COLUMNS);
                     MinHeight = (int)(measure.Y * TERMINAL_DEFAULT_ROWS);
@@ -319,12 +326,6 @@ namespace ThePeacenet.Console
                 }
                 _scrollOffsetY = -1;
             }
-            return base.OnKeyPressed(context, e);
-        }
-
-        public override bool OnKeyTyped(IGuiContext context, KeyboardEventArgs e)
-        {
-            if (e.Character == null) return false;
 
             char c = (char)e.Character;
 
