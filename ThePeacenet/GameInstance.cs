@@ -22,6 +22,15 @@ namespace ThePeacenet
     /// </summary>
     public class GameInstance : Game, IProgramGuiBuilder
     {
+        private static GameInstance _instance = null;
+
+        public static GameInstance Get()
+        {
+            // Someone's going to fucking murder me for turning the MonoGame game loop into a fucking singleton pattern.
+            if (_instance == null) _instance = new GameInstance();
+            return _instance;
+        }
+
         private readonly GraphicsDeviceManager _graphics;
         private GuiSystem _guiSystem = null;
         private WorldState _worldState = null;
@@ -31,7 +40,7 @@ namespace ThePeacenet
         private ViewportAdapter _viewportAdapter = null;
         public GraphicsDeviceManager GraphicsManager => _graphics;
         
-        public GameInstance()
+        private GameInstance()
         {
             _graphics = new GraphicsDeviceManager(this);
             _graphics.HardwareModeSwitch = false;

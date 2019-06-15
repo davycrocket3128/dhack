@@ -13,7 +13,7 @@ namespace ThePeacenet
         [STAThread]
         static void Main()
         {
-            using (var game = new GameInstance())
+            using (var game = GameInstance.Get())
                 game.Run();
         }
     }
