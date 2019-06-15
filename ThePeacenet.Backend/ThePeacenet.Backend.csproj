@@ -109,6 +109,7 @@
     <Compile Include="OS\MailProvider.cs" />
     <Compile Include="OS\NetworkedConsoleContext.cs" />
     <Compile Include="OS\PlayerKernel.cs" />
+    <Compile Include="OS\ServiceInfo.cs" />
     <Compile Include="OS\SystemContext.cs" />
     <Compile Include="OS\UserContext.cs" />
     <Compile Include="ProcgenEngine.cs" />

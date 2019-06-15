@@ -65,6 +65,19 @@ namespace ThePeacenet.Backend.OS
         public IEnumerable<CommandAsset> InstalledCommands => _kernel.Commands;
         public IEnumerable<Exploit> Exploits => Peacenet.Items.GetAll<Exploit>();
         public string IPAddress => Peacenet.GetIPAddress(Computer);
+        public IEnumerable<PayloadAsset> Payloads => Peacenet.Items.GetAll<PayloadAsset>();
+
+        public IEnumerable<ServiceInfo> Services
+        {
+            get
+            {
+                if (Computer.Services.Count == 0)
+                    Peacenet.GenerateServices(Computer);
+
+                foreach (var svc in Computer.Services.Where(x => !x.IsCrashed))
+                    yield return new ServiceInfo(this, svc);
+            }
+        }
 
         internal SystemContext(IKernel kernel)
         {

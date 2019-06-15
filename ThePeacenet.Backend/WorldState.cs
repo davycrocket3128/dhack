@@ -235,6 +235,12 @@ namespace ThePeacenet.Backend
             return kernel;
         }
 
+        public void GenerateServices(Computer computer)
+        {
+            computer.Services.Clear();
+            this._procgen.GenerateFirewallRules(computer);
+        }
+
         public void Initialize(ContentManager content)
         {
             _itemContainer = new ItemContainer(content);

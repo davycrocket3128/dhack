@@ -247,7 +247,7 @@ namespace ThePeacenet.Backend
             }
         }
 
-        private void GenerateFirewallRules(Computer InComputer)
+        internal void GenerateFirewallRules(Computer InComputer)
         {
             // Don't do this if the computer already has firewall rules!
             if (InComputer.Services.Count > 0)

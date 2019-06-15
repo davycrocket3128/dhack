@@ -24,7 +24,9 @@ namespace ThePeacenet.Backend.OS
         public string Username => _system.GetUsername(_uid);
         public Computer Computer => _system.Computer;
         public string IPAddress => _system.IPAddress;
-
+        public IEnumerable<Exploit> Exploits => _system.Exploits;
+        public IEnumerable<PayloadAsset> Payloads => _system.Payloads;
+        
         public bool Execute(string command, out IProcess process)
         {
             return _system.ExecuteAs(_uid, command, out process);
