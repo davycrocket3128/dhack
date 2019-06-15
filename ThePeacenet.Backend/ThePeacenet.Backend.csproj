@@ -75,6 +75,7 @@
     <Compile Include="AssetTypes\FileSpawnLocation.cs" />
     <Compile Include="AssetTypes\ManualPageAsset.cs" />
     <Compile Include="AssetTypes\MarkovTrainingData.cs" />
+    <Compile Include="AssetTypes\Payload.cs" />
     <Compile Include="AssetTypes\Program.cs" />
     <Compile Include="AssetTypes\ProgramGui.cs" />
     <Compile Include="AssetTypes\Protocol.cs" />
@@ -105,6 +106,7 @@
     <Compile Include="OS\IKernel.cs" />
     <Compile Include="OS\IUserLand.cs" />
     <Compile Include="OS\MailProvider.cs" />
+    <Compile Include="OS\NetworkedConsoleContext.cs" />
     <Compile Include="OS\PlayerKernel.cs" />
     <Compile Include="OS\SystemContext.cs" />
     <Compile Include="OS\UserContext.cs" />
