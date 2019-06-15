@@ -69,6 +69,8 @@
     <Compile Include="Controls\Button.cs" />
     <Compile Include="Controls\Canvas.cs" />
     <Compile Include="Controls\CanvasAnchors.cs" />
+    <Compile Include="Controls\CheckBox.cs" />
+    <Compile Include="Controls\CheckLabel.cs" />
     <Compile Include="Controls\CompositeControl.cs" />
     <Compile Include="Controls\ContentControl.cs" />
     <Compile Include="Controls\Control.cs" />

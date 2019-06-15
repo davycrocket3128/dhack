@@ -10,53 +10,36 @@ using ThePeacenet.Gui.Windowing;
 
 namespace ThePeacenet.SystemWindows
 {
-    class SettingsWindow : Window
+    public sealed class SettingsWindow : Window
     {
         private MainMenu _mainMenu = null;
 
-        protected StackPanel Root => Content as StackPanel;
-    
-        protected Button Confirm => FindControl<Button>("Confirm");
-        protected Label Error => FindControl<Label>("ErrorText");
+        public DockPanel Root => Content as DockPanel;
+
+        public StackPanel ScreenResolutionPanel => FindControl<StackPanel>("ScreenResolutionPanel");
+        public StackPanel MainPanel => FindControl<StackPanel>("Main");
 
         public SettingsWindow(MainMenu menu, ContentManager content)
         {
             _mainMenu = menu;
-            WindowTitle = "Settings";
-            WindowIcon = content.Load<Texture2D>("Gui/Icons/gears");
 
-            this.MinHeight = 0;
+            WindowTitle = "System Settings - Under Construction";
+            WindowIcon = content.Load<Texture2D>("Gui/Icons/cogs");
 
-            Content = new StackPanel
-            {
-                Orientation = Orientation.Vertical,
-                Spacing = 5
-            };
+            Content = new DockPanel { LastChildFill = true };
 
-            Root.Items.Add(new Label
-            {
-                Content = "We'll get this done once we have a few more essential controls implemented.",
-                HorizontalTextAlignment = Gui.HorizontalAlignment.Left
-            });
+            Root.Items.Add(new StackPanel { Name = "ScreenResolutionPanel" });
+            Root.Items.Add(new StackPanel { Name = "Main" });
 
-            Root.Items.Add(new Button
-            {
-                Content = new StatusIcon
-                {
-                    Content = "Confirm",
-                    IconBrush = new Gui.Brush(content.Load<Texture2D>("Gui/Icons/check"), 16)
-                },
-                HorizontalAlignment = Gui.HorizontalAlignment.Right,
-                VerticalAlignment = Gui.VerticalAlignment.Bottom,
-                Name = "Confirm"
-            });
+            ScreenResolutionPanel.SetAttachedProperty(DockPanel.DockProperty, Dock.Left);
 
-            Confirm.Clicked += Confirm_Clicked;
-        }
+            ScreenResolutionPanel.MaxWidth = 130;
 
-        private void Confirm_Clicked(object sender, EventArgs e)
-        {
-            Close();
+            ScreenResolutionPanel.Items.Add(new Label { Content = "Screen Resolution", StyleClass = "Heading2" });
+            ScreenResolutionPanel.Items.Add(new Label { Content = "This feature is not yet implemented." });
+
+            MainPanel.Items.Add(new Label { Content = "Graphics", StyleClass = "Heading2" });
+            MainPanel.Items.Add(new CheckLabel { Content = "Fullscreen", Checked = true, Name = "IsFullscreen" });
         }
     }
 }
