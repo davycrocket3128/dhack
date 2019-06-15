@@ -79,6 +79,7 @@
     <Compile Include="Controls\ItemsControl.cs" />
     <Compile Include="Controls\Label.cs" />
     <Compile Include="Controls\LayoutControl.cs" />
+    <Compile Include="Controls\ProgressBar.cs" />
     <Compile Include="Controls\StackPanel.cs" />
     <Compile Include="Controls\StatusIcon.cs" />
     <Compile Include="Controls\TextBox.cs" />

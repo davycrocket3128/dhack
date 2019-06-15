@@ -11,22 +11,25 @@ namespace ThePeacenet
 {
     public class LoadingScreen : Screen
     {
+        public StackPanel Root => Content as StackPanel;
+
         public LoadingScreen(ContentManager content)
         {
-            this.Content = new Border
+            this.Content = new StackPanel
             {
-                Content = new StackPanel
-                {
-                    Orientation = Orientation.Vertical,
-                    HorizontalAlignment = HorizontalAlignment.Centre,
-                    VerticalAlignment = VerticalAlignment.Centre,
-                    Name = "LoadingStacker"
-                }
+                HorizontalAlignment = HorizontalAlignment.Centre,
+                VerticalAlignment = VerticalAlignment.Centre,
+                Spacing = 5
             };
 
-            this.FindControl<StackPanel>("LoadingStacker").Items.Add(new Label
+            Root.Items.Add(new Label
             {
-                Content = "The Peacenet - Project: Greenlight - Loading content..."
+                Content = "The Peacenet - Loading..."
+            });
+
+            Root.Items.Add(new ProgressBar
+            {
+                Marquee = true
             });
         }
     }
