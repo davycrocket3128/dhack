@@ -89,6 +89,11 @@ namespace ThePeacenet.Backend.OS
             return Computer.Users.Any(x => x.Username == InUsername);
         }
 
+        public SystemContext ConnectTo(string host)
+        {
+            return _kernel.ConnectTo(host).SystemContext;
+        }
+
         public IEnumerable<AdjacentNodeInfo> ScanForAdjacentNodes()
         {
             List<AdjacentNodeInfo> nodes = new List<AdjacentNodeInfo>();

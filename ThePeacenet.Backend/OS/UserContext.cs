@@ -29,5 +29,10 @@ namespace ThePeacenet.Backend.OS
         {
             return _system.ExecuteAs(_uid, command, out process);
         }
+
+        public SystemContext ConnectTo(string host)
+        {
+            return _system.ConnectTo(host);
+        }
     }
 }

@@ -219,6 +219,22 @@ namespace ThePeacenet.Backend
             PlayerSystemReady?.Invoke(GetPlayerUser());
         }
 
+        internal IKernel GetKernel(Computer computer)
+        {
+            if (_kernels.Any(x => x.Computer.Id == computer.Id))
+                return _kernels.First(x => x.Computer.Id == computer.Id);
+
+            Identity identity = null;
+            if(computer.OwnerType != IdentityType.None)
+            {
+                identity = this.Identities.First(x => x.Computers.Contains(computer.Id));
+            }
+
+            var kernel = new PlayerKernel(this, identity?.Id ?? -1, computer.Id);
+            _kernels.Add(kernel);
+            return kernel;
+        }
+
         public void Initialize(ContentManager content)
         {
             _itemContainer = new ItemContainer(content);

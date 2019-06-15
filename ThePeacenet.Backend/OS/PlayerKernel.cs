@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,6 +30,68 @@ namespace ThePeacenet.Backend.OS
         public void Update(float deltaSeconds)
         {
             SystemContext.Update(deltaSeconds);
+        }
+
+        public Computer DnsResolve(string host)
+        {
+            // Perform local DNS using /etc/hosts if it exists.
+            var fs = this.GetUserLand(0).FileSystem;
+
+            if(fs.FileExists("/etc/hosts"))
+            {
+                // Read in /etc/hosts into a dictionary of aliases to real addresses.
+                var hosts = new Dictionary<string, string>();
+
+                using (var reader = new StringReader(fs.ReadText("/etc/hosts")))
+                {
+                    while (reader.Peek() != -1)
+                    {
+                        var line = reader.ReadLine();
+
+                        // Skip any blank lines or comments.
+                        if (string.IsNullOrWhiteSpace(line) || line.Trim().StartsWith("#"))
+                            continue;
+
+                        // Trim excess whitespace in the line
+                        line = line.Trim();
+
+                        // Parse out any comments at the end of the line.
+                        if(line.Contains("#"))
+                        {
+                            line = line.Substring(0, line.IndexOf("#")).Trim();
+                        }
+
+                        // Split the line into words.
+                        string[] words = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        if (words.Length != 2) continue;
+
+                        if (!hosts.ContainsKey(words[0]))
+                            hosts.Add(words[0], words[1]);
+                    }
+                }
+
+                int i = 100; // To prevent infinite loop if a host keeps redirecting to the same place.
+                while(hosts.ContainsKey(host) && i > 0)
+                {
+                    host = hosts[host];
+                }
+            }
+
+            // If the host is "localhost" or "127.0.0.1" we resolve to ourself.
+            if (host == "localhost" || host == "127.0.0.1")
+                return Computer;
+
+            // Perform a world DNS resolve.
+            return WorldState.DnsResolve(host);
+        }
+
+        public IKernel ConnectTo(string host)
+        {
+            var pc = DnsResolve(host);
+            if (pc == null) throw new Exception(string.Format("Could not resolve host {0}.", host));
+
+            return WorldState.GetKernel(pc);
         }
 
         public IEnumerable<CommandAsset> Commands => WorldState.GetAvailableCommands(Computer);

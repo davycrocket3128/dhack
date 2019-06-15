@@ -140,14 +140,16 @@ namespace ThePeacenet.Commands
             Console.WriteLine("Connecting to {0}...", TargetIP);
 
             // Try to get a system context for theremote host.
-            /*
-            EConnectionError ConnectionError = EConnectionError::None;
-            if (!InConsole->GetUserContext()->GetPeacenet()->ResolveSystemContext(TargetIP, this->RemoteSystem, ConnectionError))
+            try
             {
-                InConsole->WriteLine(FText::Format(NSLOCTEXT("Gigasploit", "ConnectionError", "{0}: could not connect to remote host."), FText::FromString(InArguments[0])));
-                this->Complete();
+                _remoteSysstem = User.ConnectTo(_enteredHostname);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Error: {0}", ex.Message);
+                Complete();
                 return;
-            }*/
+            }
 
             Console.WriteLine("Type help for a list of commands.");
             Console.WriteLine("Type exploits for a list of your known exploits.");

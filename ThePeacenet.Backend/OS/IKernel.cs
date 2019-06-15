@@ -19,6 +19,9 @@ namespace ThePeacenet.Backend.OS
 
         SystemContext SystemContext { get; }
 
+        Computer DnsResolve(string host);
+        IKernel ConnectTo(string host);
+
         IEnumerable<FileRecord> FileRecords { get; }
         IUserLand GetUserLand(int userId);
         bool Execute(IUserLand user, string program, out IProcess process);
