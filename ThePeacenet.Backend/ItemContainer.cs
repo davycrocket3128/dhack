@@ -91,6 +91,7 @@ namespace ThePeacenet.Backend
             var programData = SearchContent<ProgramData>(assetRoot);
             var markovData = SearchContent<MarkovTrainingData>(assetRoot);
             var storyCharacters = SearchContent<StoryCharacterData>(assetRoot);
+            var payloads = SearchContent<PayloadData>(assetRoot);
 
             Console.WriteLine("Building assets...");
 
@@ -100,6 +101,7 @@ namespace ThePeacenet.Backend
             BuildAssets<ProgramData, Program>(programData);
             BuildAssets<MarkovTrainingData, MarkovTrainingDataAsset>(markovData);
             BuildAssets<StoryCharacterData, StoryCharacter>(storyCharacters);
+            BuildAssets<PayloadData, PayloadAsset>(payloads);
         }
 
         public T GetItem<T>(string id) where T: Asset
