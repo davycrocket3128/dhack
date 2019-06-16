@@ -10,7 +10,6 @@
 
 #-------------------------------- References --------------------------------#
 
-/reference:../../Peon501.Pipeline/bin/Debug/Peon501.Pipeline.dll
 /reference:../../ThePeacenet.Backend/bin/Debug/ThePeacenet.Backend.dll
 /reference:../../ThePeacenet.Gui/bin/Debug/ThePeacenet.Gui.dll
 /reference:SpriteFontPlus.Content.dll
