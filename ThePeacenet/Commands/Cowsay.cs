@@ -13,15 +13,11 @@ namespace ThePeacenet.Commands
     [Usage("<text>")]
     public class Cowsay : Command
     {
-        // This is the text that will go in the cow's speech bubble.
-        string SpeechText = "Hello! I'm a beautiful MonoGame cow.";
-
         protected override void OnRun(string[] args)
         {
             // No sense saving anything that was here, commands work way different from the UE4 codebase.
             // In fact, I ported this thing so well, that I ended up making a one-liner.
-            // Blame AShifter @ loganr.lowe@gmail.com
-            Console.WriteLine(MakeSpeech(SpeechText, GetCow()));
+            Console.WriteLine(MakeSpeech(String.Join(" ", args), GetCow()));
         }
 
         protected string GetCow()

@@ -10,7 +10,8 @@ namespace ThePeacenet.Commands
 {
     [Description("Prints a fortune, like you might find in a fortune cookie.")]
     [UnlockedByDefault]
-    [Usage("none")]
+    [Usage("")]
+    
     public class Fortune : Command
     {
         protected override void OnRun(string[] args)

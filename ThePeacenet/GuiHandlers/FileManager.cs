@@ -9,9 +9,9 @@ namespace ThePeacenet.GuiHandlers
 {
     public class FileManager : GuiHandler
     {
-        public void FileManager_Load(object sender, EventArgs e)
+        public FileManager()
         {
-
+            
         }
     }
 }
