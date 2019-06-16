@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework.Content;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,7 @@ namespace ThePeacenet.Backend
 
         public Window Window => _window;
         public UserContext User { get; internal set; }
+        public ContentManager Content => User.Peacenet.Items.Content;
 
         protected T FindControl<T>(string name) where T : Control
         {

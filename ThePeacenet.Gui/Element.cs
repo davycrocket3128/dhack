@@ -27,6 +27,11 @@ namespace ThePeacenet.Gui
 
     public abstract class Element : INotifyPropertyChanged
     {
+        private int _maxwidth = int.MaxValue;
+        private int _maxheight = int.MaxValue;
+        private int _minwidth = 0;
+        private int _minheight = 0;
+
         public string Name { get; set; }
         public Point Position { get; set; }
         public Point Origin { get; set; }
@@ -80,10 +85,57 @@ namespace ThePeacenet.Gui
 
         protected virtual void OnSizeChanged() { }
 
-        public int MinWidth { get; set; }
-        public int MinHeight { get; set; }
-        public int MaxWidth { get; set; } = int.MaxValue;
-        public int MaxHeight { get; set; } = int.MaxValue;
+        public int MinWidth
+        {
+            get => _minwidth;
+            set
+            {
+                if(_minwidth != value)
+                {
+                    _minwidth = value;
+                    OnPropertyChanged(nameof(MinWidth));
+                }
+            }
+        }
+
+        public int MaxWidth
+        {
+            get => _maxwidth;
+            set
+            {
+                if (_maxwidth != value)
+                {
+                    _maxwidth = value;
+                    OnPropertyChanged(nameof(MaxWidth));
+                }
+            }
+        }
+
+        public int MinHeight
+        {
+            get => _minheight;
+            set
+            {
+                if (_minheight != value)
+                {
+                    _minheight = value;
+                    OnPropertyChanged(nameof(MinHeight));
+                }
+            }
+        }
+
+        public int MaxHeight
+        {
+            get => _maxheight;
+            set
+            {
+                if (_maxheight != value)
+                {
+                    _maxheight = value;
+                    OnPropertyChanged(nameof(MaxHeight));
+                }
+            }
+        }
 
         public int Width
         {

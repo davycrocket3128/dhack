@@ -34,6 +34,7 @@
                 <Type>ThePeacenet.Gui.Controls.DockPanel</Type>
                 <Children>
                   <Child>
+                    <Name>Envelope</Name>
                     <Type>ThePeacenet.Gui.Controls.Image</Type>
                     <Properties>
                       <Property>
@@ -46,7 +47,7 @@
                     <Type>ThePeacenet.Gui.Controls.StackPanel</Type>
                     <Children>
                       <Child>
-                        <Name>UcedogUsername</Name>
+                        <Name>IcedogUsername</Name>
                         <Type>ThePeacenet.Gui.Controls.Label</Type>
                         <Properties>
                           <Property>
@@ -60,7 +61,7 @@
                         </Properties>
                       </Child>
                       <Child>
-                        <Name>UcedogEmail</Name>
+                        <Name>IcedogEmail</Name>
                         <Type>ThePeacenet.Gui.Controls.Label</Type>
                         <Properties>
                           <Property>
@@ -78,6 +79,10 @@
           <Child>
             <Type>ThePeacenet.Gui.Controls.StackPanel</Type>
             <Properties>
+              <Property>
+                <Name>MinWidth</Name>
+                <Value Type="Int32">100</Value>
+              </Property>
               <Property>
                 <Name>Dock</Name>
                 <Value Type="ThePeacenet.Gui.Controls.Dock">Left</Value>
