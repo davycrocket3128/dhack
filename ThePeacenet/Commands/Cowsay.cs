@@ -10,14 +10,46 @@ namespace ThePeacenet.Commands
 {
     [Description("A configurable talking cow.")]
     [UnlockedByDefault]
-    [Usage("<text>")]
+    // No need for a usage string since, unlike Peace Engine, they're not required for
+    // commands like this that only use command-line arguments as a source of text.
     public class Cowsay : Command
     {
         protected override void OnRun(string[] args)
         {
-            // No sense saving anything that was here, commands work way different from the UE4 codebase.
-            // In fact, I ported this thing so well, that I ended up making a one-liner.
-            Console.WriteLine(MakeSpeech(String.Join(" ", args), GetCow()));
+            // Cowsay can get speech text from two places.
+            // - Command-line arguments, just like echo
+            // - Unix pipes.
+            // Command-line arguments will take precedence, so if they're empty
+            // then we'll attempt to read from the pipe.  If we get nothing then
+            // we throw a usage error.
+
+            string speech = string.Empty;
+            if(args.Length > 0)
+            {
+                speech = string.Join(" ", args);
+            }
+            else
+            {
+                bool receivedLine = false;
+                while(Console.GetLine(out string line))
+                {
+                    receivedLine = true;
+                    speech += line + Environment.NewLine;
+                }
+                speech = speech.Trim();
+
+                if(!receivedLine)
+                {
+                    Console.WriteLine(@"cowsay:
+    Usage: 
+        cowsay <text>
+     -- OR --
+        command | cowsay");
+                    return;
+                }
+            }
+
+            Console.WriteLine(MakeSpeech(speech, GetCow()));
         }
 
         protected string GetCow()
