@@ -72,7 +72,7 @@ namespace ThePeacenet.Commands
 
                     foreach (var word in words)
                     {
-                        if (wrappedLine.Length + word.Length > InWrap)
+                        if (wrappedLine.Length + word.Length + 1 > InWrap) // additional + 1 accounts for the space after the word.
                         {
                             list.Add(wrappedLine);
                             wrappedLine = "";
