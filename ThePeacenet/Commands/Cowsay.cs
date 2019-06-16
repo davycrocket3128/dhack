@@ -25,49 +25,40 @@ namespace ThePeacenet.Commands
             return "\\  ^__^\r\n \\ (oo)\\_______\r\n   (__)\\       )\\/\\\r\n       ||----w |\r\n       ||     ||";
         }
 
-        List<string> SplitLines(string InText, int InWrap)
+        private List<string> SplitLines(string InText, int InWrap)
         {
-            List<string> Lines = new List<string> { };
-            string Current = "";
+            var list = new List<string>();
 
-            for (int i = 0; i < InText.Length; i++)
+            var lines = InText.Replace("\r", "").Split('\n');
+
+            foreach(var line in lines)
             {
-                char Char = InText[i];
-
-                switch (Char)
+                if (InWrap > 0)
                 {
-                    case '\0':
-                    case '\b':
-                    case '\t':
-                    case '\v':
-                    case '\r':
-                        continue;
-                    case '\n':
-                        Lines.Add(Current);
-                        Current = "";
-                        continue;
-                    default:
-                        Current += Char;
-                        break;
+                    var wrappedLine = "";
+                    var words = line.Split(' ');
+
+                    foreach (var word in words)
+                    {
+                        if (wrappedLine.Length + word.Length > InWrap)
+                        {
+                            list.Add(wrappedLine);
+                            wrappedLine = "";
+                        }
+                        wrappedLine += word + " ";
+                    }
+                    list.Add(wrappedLine.Trim());
                 }
-
-                if (Current.Length >= InWrap && InWrap > 0)
+                else
                 {
-                    Lines.Add(Current);
-                    Current = "";
+                    list.Add(line);
                 }
             }
 
-            if (Current.Length > 0)
-            {
-                Lines.Add(Current);
-                Current = "";
-            }
-
-            return Lines;
+            return list;
         }
 
-        String MakeSpeech(string InSpeech, string InCow)
+        private string MakeSpeech(string InSpeech, string InCow)
         {
             // Split the cow into individual lines of text. Ouch.
             List<string> cowlines = SplitLines(InCow, 0);
