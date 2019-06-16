@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Commands\Cat.cs" />
     <Compile Include="Commands\Cd.cs" />
+    <Compile Include="Commands\Cowsay.cs" />
     <Compile Include="Commands\Grep.cs" />
     <Compile Include="Commands\GsfConsole.cs" />
     <Compile Include="Commands\Ls.cs" />
