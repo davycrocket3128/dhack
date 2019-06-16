@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:ns="Microsoft.Xna.Framework">
+  <Asset Type="ThePeacenet.Backend.AssetTypes.ProgramData">
+    <Name>Icedog Mail</Name>
+    <Description>View and send emails in The Peacenet.</Description>
+    <LauncherCategory>Networking</LauncherCategory>
+    <LauncherIcon>Gui/Icons/envelope</LauncherIcon>
+    <UnlockedByDefault>true</UnlockedByDefault>
+    <RamUsage>Low</RamUsage>
+
+    <Gui>
+      <EventHandlerClass>ThePeacenet.GuiHandlers.Icedog</EventHandlerClass>
+      
+      <WindowEvents>
+        <Event>
+          <Name>Load</Name>
+          <Handler>Icedog_Load</Handler>
+        </Event>
+      </WindowEvents>
+
+      <Content>
+        <Type>ThePeacenet.Gui.Controls.DockPanel</Type>
+        <Children>
+          <Child>
+            <Type>ThePeacenet.Gui.Controls.Border</Type>
+            <Properties>
+              <Property>
+                <Name>Dock</Name>
+                <Value Type="ThePeacenet.Gui.Controls.Dock">Top</Value>
+              </Property>
+            </Properties>
+            <Children>
+              <Child>
+                <Type>ThePeacenet.Gui.Controls.DockPanel</Type>
+                <Children>
+                  <Child>
+                    <Type>ThePeacenet.Gui.Controls.Image</Type>
+                    <Properties>
+                      <Property>
+                        <Name>Dock</Name>
+                        <Value Type="ThePeacenet.Gui.Controls.Dock">Left</Value>
+                      </Property>
+                    </Properties>
+                  </Child>
+                  <Child>
+                    <Type>ThePeacenet.Gui.Controls.StackPanel</Type>
+                    <Children>
+                      <Child>
+                        <Name>UcedogUsername</Name>
+                        <Type>ThePeacenet.Gui.Controls.Label</Type>
+                        <Properties>
+                          <Property>
+                            <Name>StyleClass</Name>
+                            <Value Type="String">Heading1</Value>
+                          </Property>
+                          <Property>
+                            <Name>Content</Name>
+                            <Value Type="String">Username goes here.</Value>
+                          </Property>
+                        </Properties>
+                      </Child>
+                      <Child>
+                        <Name>UcedogEmail</Name>
+                        <Type>ThePeacenet.Gui.Controls.Label</Type>
+                        <Properties>
+                          <Property>
+                            <Name>Content</Name>
+                            <Value Type="String">Email address goes here.</Value>
+                          </Property>
+                        </Properties>
+                      </Child>
+                    </Children>
+                  </Child>
+                </Children>
+              </Child>
+            </Children>
+          </Child>
+          <Child>
+            <Type>ThePeacenet.Gui.Controls.StackPanel</Type>
+            <Properties>
+              <Property>
+                <Name>Dock</Name>
+                <Value Type="ThePeacenet.Gui.Controls.Dock">Left</Value>
+              </Property>
+            </Properties>
+            <Children>
+              <Child>
+                <Name>InboxButton</Name>
+
+                <Type>ThePeacenet.Gui.Controls.Button</Type>
+                <Children>
+                  <Child>
+                    <Type>ThePeacenet.Gui.Controls.DockPanel</Type>
+                    <Children>
+                      <Child>
+                        <Name>InboxCount</Name>
+                        <Type>ThePeacenet.Gui.Controls.Label</Type>
+                        <Properties>
+                          <Property>
+                            <Name>Content</Name>
+                            <Value Type="String">0</Value>
+                          </Property>
+                          <Property>
+                            <Name>Dock</Name>
+                            <Value Type="ThePeacenet.Gui.Controls.Dock">Right</Value>
+                          </Property>
+                        </Properties>
+                      </Child>
+                      <Child>
+                        <Type>ThePeacenet.Gui.Controls.Label</Type>
+                        <Properties>
+                          <Property>
+                            <Name>Content</Name>
+                            <Value Type="String">Inbox</Value>
+                          </Property>
+                        </Properties>
+                      </Child>
+                    </Children>
+                  </Child>
+                </Children>
+              </Child>
+            </Children>
+          </Child>
+          <Child>
+            <Type>ThePeacenet.Gui.Controls.Overlay</Type>
+            <!-- This is the main area where the emails are actually shown. Each child is a separate screen. -->
+          </Child>
+        </Children>
+      </Content>
+    </Gui>
+  </Asset>
+</XnaContent>

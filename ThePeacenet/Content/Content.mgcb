@@ -9889,6 +9889,11 @@
 /processor:PassThroughProcessor
 /build:Programs/FileManager.xml
 
+#begin Programs/Icedog.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Programs/Icedog.xml
+
 #begin Programs/Terminal.xml
 /importer:XmlImporter
 /processor:PassThroughProcessor

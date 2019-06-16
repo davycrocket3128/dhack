@@ -64,6 +64,7 @@
     <Compile Include="GameConfig.cs" />
     <Compile Include="GameInstance.cs" />
     <Compile Include="GuiHandlers\FileManager.cs" />
+    <Compile Include="GuiHandlers\Icedog.cs" />
     <Compile Include="GuiHandlers\Terminal.cs" />
     <Compile Include="LoadingScreen.cs" />
     <Compile Include="MainMenu.cs" />
