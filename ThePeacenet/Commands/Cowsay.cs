@@ -72,23 +72,22 @@ namespace ThePeacenet.Commands
             // Split the cow into individual lines of text. Ouch.
             List<string> cowlines = SplitLines(InCow, 0);
 
-            // FString is really the UE4 version of a C# StringBuilder anyway lol.
-            // Now that I ported this to MonoGame, this is nothing but a hilarious reminder of the past :^)
-            string sb = "";
+            // In UE4 this was an FString because UE4 doesn't have StringBuilder, but StringBuilder is better for this. - Michael
+            StringBuilder sb = new StringBuilder();
 
             // Wow.  UE4's libraries are so similar to C#'s!
             // But this is C#! Yay MonoGame! Good to know though.
             int length = Math.Min(InSpeech.Length, 30);
 
             // Add the top of the speech bubble.
-            sb += " _";
+            sb.Append(" _");
 
             for (int i = 0; i < length; i++)
             {
-                sb += "_";
+                sb.Append("_");
             }
 
-            sb += "_ \r\n";
+            sb.AppendLine("_ ");
 
             // Now
             // we
@@ -127,36 +126,36 @@ namespace ThePeacenet.Commands
                 string line = lines[i];
 
                 int lineLength = line.Length;
-                int pad = length - lineLength;
+                int pad = Math.Abs(length - lineLength); // Make damn sure this pad count is positive.
 
-                sb += begin + " " + line;
+                sb.Append(begin + " " + line);
 
                 for (int j = 0; j < pad; j++)
                 {
-                    sb += " ";
+                    sb.Append(" ");
                 }
 
-                sb += end + "\r\n";
+                sb.AppendLine(" " + end);
                 
             }
 
-            sb += " -";
+            sb.Append(" -");
             for (int i = 0; i < length; i++)
             {
-                sb += "-";
+                sb.Append("-");
             }
-            sb += "- \r\n";
+            sb.AppendLine("- ");
 
             foreach(string cowline in cowlines)
             {
                 for (int i = 0; i < length + 4; i++)
                 {
-                    sb += " ";
+                    sb.Append(" ");
                 }
-                sb += cowline + "\r\n";
+                sb.AppendLine(cowline);
             }
 
-            return sb;
+            return sb.ToString();
         }
     }
 }

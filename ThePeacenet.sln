@@ -221,8 +221,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source Files", "Source File
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThePeacenet.Gui", "ThePeacenet.Gui\ThePeacenet.Gui.csproj", "{31389202-87D8-4830-85AA-00771D4EC65B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peon501.Pipeline", "Peon501.Pipeline\Peon501.Pipeline.csproj", "{33C83BF8-CB58-4031-B029-2F8B9686EE81}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -269,18 +267,6 @@ Global
 		{31389202-87D8-4830-85AA-00771D4EC65B}.Release|x64.Build.0 = Release|Any CPU
 		{31389202-87D8-4830-85AA-00771D4EC65B}.Release|x86.ActiveCfg = Release|Any CPU
 		{31389202-87D8-4830-85AA-00771D4EC65B}.Release|x86.Build.0 = Release|Any CPU
-		{33C83BF8-CB58-4031-B029-2F8B9686EE81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{33C83BF8-CB58-4031-B029-2F8B9686EE81}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{33C83BF8-CB58-4031-B029-2F8B9686EE81}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{33C83BF8-CB58-4031-B029-2F8B9686EE81}.Debug|x64.Build.0 = Debug|Any CPU
-		{33C83BF8-CB58-4031-B029-2F8B9686EE81}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{33C83BF8-CB58-4031-B029-2F8B9686EE81}.Debug|x86.Build.0 = Debug|Any CPU
-		{33C83BF8-CB58-4031-B029-2F8B9686EE81}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{33C83BF8-CB58-4031-B029-2F8B9686EE81}.Release|Any CPU.Build.0 = Release|Any CPU
-		{33C83BF8-CB58-4031-B029-2F8B9686EE81}.Release|x64.ActiveCfg = Release|Any CPU
-		{33C83BF8-CB58-4031-B029-2F8B9686EE81}.Release|x64.Build.0 = Release|Any CPU
-		{33C83BF8-CB58-4031-B029-2F8B9686EE81}.Release|x86.ActiveCfg = Release|Any CPU
-		{33C83BF8-CB58-4031-B029-2F8B9686EE81}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

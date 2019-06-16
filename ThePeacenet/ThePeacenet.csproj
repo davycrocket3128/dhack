@@ -160,10 +160,6 @@
     <None Include="Content\Skins\Serenity.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Peon501.Pipeline\Peon501.Pipeline.csproj">
-      <Project>{33c83bf8-cb58-4031-b029-2f8b9686ee81}</Project>
-      <Name>Peon501.Pipeline</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ThePeacenet.Backend\ThePeacenet.Backend.csproj">
       <Project>{137c6e21-12da-4948-9e38-bd436fd15571}</Project>
       <Name>ThePeacenet.Backend</Name>
