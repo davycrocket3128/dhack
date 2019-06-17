@@ -23,6 +23,9 @@ namespace ThePeacenet
     public class GameInstance : Game, IProgramGuiBuilder
     {
         private static GameInstance _instance = null;
+        private AudioManager _audio = null;
+
+        public AudioManager Audio => _audio;
 
         public static GameInstance Get()
         {
@@ -48,6 +51,8 @@ namespace ThePeacenet
             IsMouseVisible = true;
 
             Content.RootDirectory = "Content";
+
+            _audio = new AudioManager(Content);
         }
 
         private void Window_ClientSizeChanged(object sender, EventArgs e)
@@ -144,7 +149,7 @@ namespace ThePeacenet
             _worldState.Update(gameTime.GetElapsedSeconds());
             _guiSystem.Update(gameTime);
 
-            
+            Audio.Update(gameTime.GetElapsedSeconds());
 
             base.Update(gameTime);
         }

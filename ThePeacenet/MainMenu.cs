@@ -36,6 +36,8 @@ namespace ThePeacenet
 
         public MainMenu(ContentManager content, WorldState world)
         {
+            GameInstance.Get().Audio.PlaySong("Music/MainMenu");
+
             Skin = content.Load<GuiSkin>("Skins/Serenity");
             _content = content;
             _world = world;

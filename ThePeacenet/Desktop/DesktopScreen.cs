@@ -31,6 +31,8 @@ namespace ThePeacenet.Desktop
 
         public DesktopScreen(ContentManager content, UserContext ownerUser)
         {
+            GameInstance.Get().Audio.FadeToSong("Music/Alert01");
+
             _content = content;
             Skin = content.Load<GuiSkin>("Skins/Serenity");
             WindowTheme.Current = new SerenityWindowTheme(content);

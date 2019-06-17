@@ -19,10 +19,10 @@ namespace ThePeacenet.GuiHandlers
         public void Icedog_Load(object sender, EventArgs e)
         {
             Envelope.BackgroundBrush = new Gui.Brush(Content.Load<Texture2D>("Gui/Icons/envelope"), 48);
-            Envelope.MinWidth = Envelope.MinHeight = 48;
+            Envelope.Width = Envelope.Height = 48;
 
             Username.Content = User.Username;
-            Email.Content = User.EmailAddress;
+            Email.Content = User.EmailAddress + " - DAVY JONES SAYS HI";
         }
     }
 }

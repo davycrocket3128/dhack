@@ -9884,6 +9884,18 @@
 /processor:PassThroughProcessor
 /build:MarkovData/MaleFirstNames01.xml
 
+#begin Music/Alert01.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/Alert01.mp3
+
+#begin Music/MainMenu.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/MainMenu.mp3
+
 #begin Programs/FileManager.xml
 /importer:XmlImporter
 /processor:PassThroughProcessor

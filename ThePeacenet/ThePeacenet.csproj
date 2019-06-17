@@ -47,6 +47,8 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AudioManager.cs" />
+    <Compile Include="Commands\Audio.cs" />
     <Compile Include="Commands\Cat.cs" />
     <Compile Include="Commands\Cd.cs" />
     <Compile Include="Commands\Cowsay.cs" />

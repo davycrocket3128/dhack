@@ -207,7 +207,7 @@ namespace ThePeacenet.Gui.Controls
             if (desiredSize.Width > MaxWidth)
                 desiredSize.Width = MaxWidth;
 
-            if (desiredSize.Height > MaxWidth)
+            if (desiredSize.Height > MaxHeight)
                 desiredSize.Height = MaxHeight;
 
             var width = fixedSize.Width == 0 ? desiredSize.Width : fixedSize.Width;
