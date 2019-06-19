@@ -24,6 +24,8 @@ namespace ThePeacenet.Backend.Shell
         public IConsoleContext Console => ConsoleOverride ?? _console;
         public string CommandName => _name;
 
+        public event EventHandler OnComplete;
+
         private IDictionary<string, ValueObject> _argMap = new Dictionary<string, ValueObject>();
 
         protected internal IConsoleContext ConsoleOverride { get; set; }
@@ -91,6 +93,7 @@ namespace ThePeacenet.Backend.Shell
         protected void Complete()
         {
             Completed = true;
+            OnComplete?.Invoke(this, EventArgs.Empty);
         }
 
         public void Kill()

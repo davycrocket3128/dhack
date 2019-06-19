@@ -112,6 +112,7 @@
     <Compile Include="OS\ServiceInfo.cs" />
     <Compile Include="OS\SystemContext.cs" />
     <Compile Include="OS\UserContext.cs" />
+    <Compile Include="PayloadTypes\RunCommand.cs" />
     <Compile Include="ProcgenEngine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomExtensions.cs" />
