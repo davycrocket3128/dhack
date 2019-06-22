@@ -92,10 +92,17 @@ namespace ThePeacenet.Backend.Data
         {
             using (var gzip = new GZipStream(stream, CompressionMode.Decompress))
             {
-                var save = ReadObject<SaveGame>(gzip);
-                if (save.IsNewGame)
-                    save.Clean();
-                return save;
+                try
+                {
+                    var save = ReadObject<SaveGame>(gzip);
+                    if (save.IsNewGame)
+                        save.Clean();
+                    return save;
+                }
+                catch (Exception ex)
+                {
+                    throw new CorruptedSaveGameException(ex);
+                }
             }
         }
 
@@ -117,6 +124,14 @@ namespace ThePeacenet.Backend.Data
         {
             var bf = new BinaryFormatter();
             return (T)bf.Deserialize(stream);
+        }
+    }
+
+    public class CorruptedSaveGameException : Exception
+    {
+        public CorruptedSaveGameException(Exception innerException) : base("The save file is corrupted and therefore cannot be loaded.", innerException)
+        {
+
         }
     }
 }

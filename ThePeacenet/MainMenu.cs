@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ThePeacenet.Backend;
+using ThePeacenet.Backend.Data;
 using ThePeacenet.Gui;
 using ThePeacenet.Gui.Controls;
 using ThePeacenet.Gui.Windowing;
@@ -164,8 +165,31 @@ namespace ThePeacenet
 
             LoadGame.Clicked += (o, a) =>
             {
-                _world.StartGame(_activeSave);
+                try
+                {
+                    _world.StartGame(_activeSave);
+                }
+                catch(CorruptedSaveGameException ex)
+                {
+                    var ibox = Infobox.Open(this);
+                    ibox.WindowTitle = "Corrupted save file";
+                    ibox.MessageText = "Unfortunately, the save file for " + _activeSave.Name + " could not be loaded because the data is corrupted.  Would you like to delete the corrupted save file or create a new one with this identity?";
+                    ibox.AddButton("Gui/Icons/trash", "Delete save file", OnDeleteSaveFile);
+                    ibox.AddButton("Gui/Icons/plus", "Start new game", OnStartGameWithCorruptedIdentity);
+                    ibox.AddButton("Gui/Icons/times", "Cancel");
+
+                }
             };
+        }
+
+        private void OnDeleteSaveFile()
+        {
+
+        }
+
+        private void OnStartGameWithCorruptedIdentity()
+        {
+
         }
 
         private void NewIdentity_Clicked(object sender, EventArgs e)

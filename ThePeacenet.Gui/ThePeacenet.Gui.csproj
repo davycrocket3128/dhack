@@ -84,6 +84,7 @@
     <Compile Include="Controls\ProgressBar.cs" />
     <Compile Include="Controls\StackPanel.cs" />
     <Compile Include="Controls\StatusIcon.cs" />
+    <Compile Include="Controls\Switcher.cs" />
     <Compile Include="Controls\TextBox.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="ElementCollection.cs" />

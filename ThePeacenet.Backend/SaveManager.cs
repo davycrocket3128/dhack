@@ -143,7 +143,16 @@ namespace ThePeacenet.Backend
 
             if(SaveExists(_currentInfo.Path))
             {
-                _currentSave = LoadFile(_currentInfo) ?? throw new InvalidOperationException("An unknown error occurred loading the save file.");
+                try
+                {
+                    _currentSave = LoadFile(_currentInfo) ?? throw new InvalidOperationException("An unknown error occurred loading the save file.");
+                }
+                catch(Exception ex)
+                {
+                    _currentInfo = null;
+                    _currentSave = null;
+                    throw ex;
+                }
             }
             else
             {

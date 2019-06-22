@@ -107,8 +107,8 @@ namespace ThePeacenet.Gui.Windowing
             _iconImage.SetAttachedProperty(DockPanel.DockProperty, Dock.Left);
             _titleButtons.SetAttachedProperty(DockPanel.DockProperty, Dock.Right);
 
-            _clientArea.MinWidth = 320;
-            _clientArea.MinHeight = 200;
+            _clientArea.MinWidth = 100;
+            _clientArea.MinHeight = 100;
 
             _captionBorder.PointerDrag += TitleBarPointerDrag;
 
