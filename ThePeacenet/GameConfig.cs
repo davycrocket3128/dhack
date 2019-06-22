@@ -14,7 +14,8 @@ namespace ThePeacenet
     {
         public bool StartFullscreen { get; set; } = true;
         public string Resolution { get; set; } = "System";
-        
+        public float MusicVolume { get; set; } = 0;
+
         public bool ParseResolution(out int width, out int height)
         {
             width = 0;
@@ -56,6 +57,8 @@ namespace ThePeacenet
             System.Console.WriteLine("Applying graphics settings...");
 
             game.GraphicsManager.IsFullScreen = StartFullscreen;
+
+            game.Audio.MasterVolume = MusicVolume;
 
             // Apply all graphics settings.
             game.GraphicsManager.ApplyChanges();
