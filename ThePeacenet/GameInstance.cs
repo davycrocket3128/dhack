@@ -27,6 +27,8 @@ namespace ThePeacenet
 
         public AudioManager Audio => _audio;
 
+        public WorldState World => _worldState;
+
         public static GameInstance Get()
         {
             // Someone's going to fucking murder me for turning the MonoGame game loop into a fucking singleton pattern.
@@ -124,8 +126,6 @@ namespace ThePeacenet
             _worldState.PlayerSystemReady += (userland) =>
             {
                 _playerUserLand = userland;
-
-                _guiSystem.ActiveScreen = new DesktopScreen(Content, _playerUserLand);
             };
 
             _worldState.Initialize(Content);

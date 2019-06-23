@@ -48,11 +48,23 @@ namespace ThePeacenet.Backend
         public bool IsNewGame => CurrentSave.IsNewGame;
         public int Seed { get => CurrentSave.WorldSeed; internal set => CurrentSave.WorldSeed = value; }
 
+        private object _multithreadMutex = new object();
+        private Queue<Action> _gameThreadActions = new Queue<Action>();
+
         internal SaveGame CurrentSave => _saveManager.CurrentSave;
 
         public IEnumerable<Identity> GetAdjacentNodes(Identity identity)
         {
             throw new NotImplementedException();
+        }
+
+        public void RunOnGameThread(Action action)
+        {
+            lock(_multithreadMutex)
+            {
+                if (action != null)
+                    _gameThreadActions.Enqueue(action);
+            }
         }
 
         internal void AssignIP(Computer computer, string ip)
@@ -216,15 +228,25 @@ namespace ThePeacenet.Backend
 
             _commandAssets.Clear();
 
-            foreach (var type in ReflectionTools.GetAll<Command>())
+            Task.Run(() =>
             {
-                _commandAssets.Add(CommandAsset.FromCommand(type, _itemContainer.Content));
-            }
+                foreach (var type in ReflectionTools.GetAll<Command>())
+                {
+                    var cmd = CommandAsset.FromCommand(type, _itemContainer.Content);
+                    RunOnGameThread(() =>
+                    {
+                        _commandAssets.Add(cmd);
+                    });
+                }
 
-            // Start first few phases of world generation.
-            _procgen.Initialize();
+                // Start first few phases of world generation.
+                _procgen.Initialize();
 
-            PlayerSystemReady?.Invoke(GetPlayerUser());
+                RunOnGameThread(() =>
+                {
+                    PlayerSystemReady?.Invoke(GetPlayerUser());
+                });
+            });
         }
 
         internal IKernel GetKernel(Computer computer)
@@ -258,6 +280,12 @@ namespace ThePeacenet.Backend
 
         public void Update(float deltaSeconds)
         {
+            lock(_multithreadMutex)
+            {
+                while (_gameThreadActions.Count > 0)
+                    _gameThreadActions.Dequeue().Invoke();
+            }
+
             if(!_hasWorldBeenStarted)
             {
                 if (AreAllAssetsLoaded)

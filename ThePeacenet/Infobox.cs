@@ -31,12 +31,15 @@ namespace ThePeacenet
             Root.Items.Add(new StackPanel
             {
                 Name = "ButtonStacker",
+                Spacing = 3,
+                Padding = new Thickness(15),
                 HorizontalAlignment = HorizontalAlignment.Centre,
                 Orientation = Orientation.Horizontal
             });
             Root.Items.Add(new Image
             {
                 Name = "BigIcon",
+                Padding = new Thickness(15),
                 BackgroundBrush = new Brush(content.Load<Texture2D>("Gui/Icons/warning"), 64),
                 MinWidth = 64,
                 VerticalAlignment = VerticalAlignment.Centre
@@ -44,6 +47,8 @@ namespace ThePeacenet
             Root.Items.Add(new StackPanel
             {
                 Name = "ContentStacker",
+                Spacing = 5,
+                Padding = new Thickness(15),
                 VerticalAlignment = VerticalAlignment.Centre
             });
 

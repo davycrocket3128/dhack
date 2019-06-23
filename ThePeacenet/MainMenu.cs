@@ -151,6 +151,7 @@ namespace ThePeacenet
                 try
                 {
                     _world.StartGame(_activeSave);
+                    GoTo(new BootScreen());
                 }
                 catch(CorruptedSaveGameException ex)
                 {
@@ -234,6 +235,7 @@ namespace ThePeacenet
         public void NewGame(string playerName)
         {
             _world.StartNewGame(playerName);
+            GoTo(new BootScreen());
         }
     }
 }

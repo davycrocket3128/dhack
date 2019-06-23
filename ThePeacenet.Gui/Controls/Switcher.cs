@@ -8,9 +8,17 @@ using MonoGame.Extended;
 
 namespace ThePeacenet.Gui.Controls
 {
-    public class Switcher : ItemsControl
+    public class Switcher : LayoutControl
     {
         private int _activeIndex = 0;
+
+        public Switcher()
+        {
+            Items.ItemRemoved = Items.ItemAdded = (ctrl) =>
+            {
+                OnPropertyChanged(nameof(Items));
+            };
+        }
 
         public override IEnumerable<Control> Children
         {
@@ -18,6 +26,14 @@ namespace ThePeacenet.Gui.Controls
             {
                 if (Items.Count > 0)
                     yield return Items[ActiveIndex];
+            }
+        }
+
+        protected override void Layout(IGuiContext context, Rectangle rectangle)
+        {
+            if(Items.Count > 0)
+            {
+                PlaceControl(context, Children.First(), rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
             }
         }
 
@@ -29,6 +45,7 @@ namespace ThePeacenet.Gui.Controls
                 if(_activeIndex != value)
                 {
                     _activeIndex = value;
+                    OnPropertyChanged(nameof(ActiveIndex));
                 }
             }
         }
