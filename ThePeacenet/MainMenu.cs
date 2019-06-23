@@ -87,26 +87,9 @@ namespace ThePeacenet
             ActiveSavePanel.SetAttachedProperty(Canvas.AnchorProperty, CanvasAnchors.Center);
             ActiveSavePanel.SetAttachedProperty(Canvas.AlignmentProperty, CanvasAnchors.Center);
 
-            foreach(var save in _world.AvailableAgents.OrderByDescending(x=>x.LastPlayed).Take(5).Reverse())
-            {
-                var btn = new Button
-                {
-                    Content = new StatusIcon
-                    {
-                        Content = save.Name,
-                        IconBrush = new Brush(_content.Load<Texture2D>("Gui/Icons/user-circle"), 32)
-                    }
-                };
+            ResetUsers();
 
-                btn.Clicked += (o, a) =>
-                {
-                    this._activeSave = save;
-                };
-
-                UsersPanel.Items.Add(btn);
-            }
-
-            UsersPanel.Items.Add(new Button
+            ActionsPanel.Items.Add(new Button
             {
                 Name = "NewIdentity",
                 Content = new StatusIcon
@@ -116,7 +99,7 @@ namespace ThePeacenet
                 }
             });
 
-            UsersPanel.Items.Add(new Button
+            ActionsPanel.Items.Add(new Button
             {
                 Name = "Settings",
                 Content = new StatusIcon
@@ -182,14 +165,45 @@ namespace ThePeacenet
             };
         }
 
+        private void ResetUsers()
+        {
+            UsersPanel.Items.Clear();
+            _activeSave = null;
+
+            foreach (var save in _world.AvailableAgents.OrderByDescending(x => x.LastPlayed).Take(5).Reverse())
+            {
+                var btn = new Button
+                {
+                    Content = new StatusIcon
+                    {
+                        Content = save.Name,
+                        IconBrush = new Brush(_content.Load<Texture2D>("Gui/Icons/user-circle"), 32)
+                    }
+                };
+
+                btn.Clicked += (o, a) =>
+                {
+                    this._activeSave = save;
+                };
+
+                UsersPanel.Items.Add(btn);
+            }
+        }
+
         private void OnDeleteSaveFile()
         {
-
+            _world.DeleteGame(_activeSave);
+            ResetUsers();
         }
 
         private void OnStartGameWithCorruptedIdentity()
         {
+            string name = _activeSave.Name;
 
+            _world.DeleteGame(_activeSave);
+            ResetUsers();
+
+            _world.StartNewGame(name);
         }
 
         private void NewIdentity_Clicked(object sender, EventArgs e)
@@ -213,6 +227,8 @@ namespace ThePeacenet
                 Username.Content = _activeSave.Name;
                 LastPlayed.Content = _activeSave.LastPlayed.ToShortDateString() + " - " + _activeSave.LastPlayed.ToShortTimeString();
             }
+
+            this.UsersPanel.IsVisible = Windows.Count() == 0;
         }
 
         public void NewGame(string playerName)

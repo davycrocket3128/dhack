@@ -134,6 +134,18 @@ namespace ThePeacenet.Backend
             }
         }
 
+        internal void Delete(SaveInfo save)
+        {
+            if (save == null) throw new ArgumentNullException(nameof(save));
+            if (_currentInfo == save) throw new InvalidOperationException("Cannot delete a save while it's being played.");
+
+            var truePath = GetTruePath(save.Path);
+            if (File.Exists(truePath))
+                File.Delete(truePath);
+
+            _saves.Delete(x => x.Id == save.Id);
+        }
+
         public void Load(SaveInfo info)
         {
             if (_currentInfo != null || _currentSave != null)

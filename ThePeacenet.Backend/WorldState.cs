@@ -31,6 +31,8 @@ namespace ThePeacenet.Backend
 
         public event EventHandler PreloadFinished;
 
+        
+
         public WorldState(IProgramGuiBuilder guiBuilder)
         {
             _guiBuilder = guiBuilder;
@@ -193,6 +195,12 @@ namespace ThePeacenet.Backend
             if (!IsInGame) throw new InvalidOperationException("There's no save file currently loaded.");
 
             _saveManager.Save();
+        }
+
+        public void DeleteGame(SaveInfo info)
+        {
+            if (info == null) return;
+            _saveManager.Delete(info);
         }
 
         public void StartGame(SaveInfo info)
