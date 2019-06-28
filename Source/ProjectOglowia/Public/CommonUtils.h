@@ -71,6 +71,9 @@ public:
 	template<typename T>
 	static bool BinarySearch(TArray<T> InArray, TFunction<int(const T& InA)> InComparer, T& OutElement);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Common Utilities for The Peacenet")
+	static FLinearColor GetForegroundColor(FLinearColor InColor);
+
 	UFUNCTION(BlueprintCallable, Category = "Peacegate", BlueprintPure)
 	static FText GetFriendlyFilesystemStatusCode(const EFilesystemStatusCode InStatusCode);
 

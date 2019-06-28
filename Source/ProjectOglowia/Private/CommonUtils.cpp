@@ -36,6 +36,21 @@
 #include "PlatformApplicationMisc.h"
 #include "SystemContext.h"
 
+FLinearColor UCommonUtils::GetForegroundColor(FLinearColor InColor)
+{
+	float r = InColor.R;
+	float g = InColor.G;
+	float b = InColor.B;
+
+	if((r + g + b) / 3 <= 0.6f)
+	{
+		return FLinearColor(1.f, 1.f, 1.f, 1.f);
+	}
+	else {
+		return FLinearColor(0.f, 0.f, 0.f, 1.f);
+	}
+}
+
 FText UCommonUtils::GetRichTextSegment(const FText& InSourceText, int InEndIndex, bool& FoundIncompleteTag, int& TrueEndIndex)
 {
 	// Convert the source text to a string, that way we can more easily perform parsing
