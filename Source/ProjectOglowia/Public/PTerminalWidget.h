@@ -56,33 +56,62 @@ class PROJECTOGLOWIA_API UPTerminalWidget : public UUserWidget
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitEvent);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FTerminalZoomedEvent, float, InNewCharWidth, float, InNewCharHeight);
 
+// PRIVATE PROPERTIES
 private:
+	UPROPERTY()
+	float ZoomFactor = 1.f;
+
+	UPROPERTY()
+	FVector2D GeometrySize;
+
+	UPROPERTY()
+	bool bCursorActive = true;
+
+	UPROPERTY()
+	float cursorTime = 0;
+
+	UPROPERTY()
+	FString TextBuffer;
+
+	UPROPERTY()
+	FString TextInputBuffer;
+
+	UPROPERTY()
+	bool Selecting = false;
+
+	UPROPERTY()
+	bool NewTextAdded = false;
+
+	UPROPERTY()
+	float ScrollOffsetY;
+
+	UPROPERTY()
+	float MaxScrollOffset;
+
 	UPROPERTY()
 	TArray<FTerminalWriteRequest> WriteStack;
 
 	UPROPERTY()
 	bool WaitingForWrite = false;
 
-public: //variables
+// PUBLIC PROPERTIES
+public:
 	FThreadSafeBool IsInputLineAvailable = false;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Appearance")
-		bool bRenderBackground = true;
+	bool bRenderBackground = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fonts and Colors")
-		FSlateFontInfo RegularTextFont;
+	FSlateFontInfo RegularTextFont;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fonts and Colors")
-		FSlateFontInfo BoldTextFont;
+	FSlateFontInfo BoldTextFont;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fonts and Colors")
-		FSlateFontInfo ItalicTextFont;
+	FSlateFontInfo ItalicTextFont;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fonts and Colors")
-		FSlateFontInfo BoldItalicTextFont;
-
-	UFUNCTION()
-	int GetCharIndexAtPosition(const FGeometry InGeometry, FVector2D InPosition);
+	FSlateFontInfo BoldItalicTextFont;
 
 	UPROPERTY()
 	int SelectionStart = -1;
@@ -90,54 +119,94 @@ public: //variables
 	UPROPERTY()
 	int SelectionEnd = -1;
 
-	/** The time in milliseconds between each cursor blink. */
+/** The time in milliseconds between each cursor blink. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cursor")
-		float CursorBlinkTimeMS;
+	float CursorBlinkTimeMS;
 
-	//The width and height in pixels of a character.
+//The width and height in pixels of a character.
 	UPROPERTY(BlueprintReadOnly)
-		float CharacterWidth;
+	float CharacterWidth;
 
 	UPROPERTY(BlueprintReadOnly)
-		float CharacterHeight;
+	float CharacterHeight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
 	USlateBrushAsset * TerminalBrush;
 
 	/** Called when a command or user requests to "exit" this Terminal. */
 	UPROPERTY(BlueprintAssignable, Category = "Widget Event", meta = (DisplayName = "On Exit"))
-		FOnExitEvent OnExit;
+	FOnExitEvent OnExit;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Console IO|Input")
-		bool EchoInputText = true;
+	bool EchoInputText = true;
 
 	UPROPERTY(BlueprintAssignable)
-		FTerminalZoomedEvent TerminalZoomedEvent;
+	FTerminalZoomedEvent TerminalZoomedEvent;
 
-private: //variables
-	float ZoomFactor = 1.f;
-	FVector2D GeometrySize;
-	bool bCursorActive = true;
-	float cursorTime = 0;
-	FString TextBuffer;
-	FString TextInputBuffer;
-	bool Selecting = false;
-	bool NewTextAdded = false;
-	float ScrollOffsetY;
-	float MaxScrollOffset;
-
+// PUBLIC FUNCTIONS
 public:
+	UFUNCTION()
+	int GetCharIndexAtPosition(const FGeometry InGeometry, FVector2D InPosition);
 
-private: //functions
+	UFUNCTION()
+	void ClearInput() { TextInputBuffer = TEXT(""); }
+
+	UFUNCTION()
+	FString Sanitize(FString InDirtyBitch);
+
+	UFUNCTION(BlueprintCallable)
+	void Exit();
+
+	UFUNCTION(BlueprintCallable, Category = "Console IO|Input",
+		meta = (Latent, LatentInfo = "LatentInfo", HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
+	virtual void ReadLine(UObject* WorldContextObject, struct FLatentActionInfo LatentInfo, FString& OutText);
+
+	UFUNCTION(BlueprintCallable, Category = "Console IO|Fancy Output",
+		meta = (Latent, LatentInfo = "LatentInfo", HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
+	virtual UPTerminalWidget* SlowlyWriteText(UObject* WorldContextObject, struct FLatentActionInfo LatentInfo, const FText& InText, float InDelayTime = 0.05);
+
+	UFUNCTION(BlueprintCallable, Category = "Console IO|Fancy Output",
+		meta = (Latent, LatentInfo = "LatentInfo", HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
+	virtual UPTerminalWidget* SlowlyWriteLine(UObject* WorldContextObject, struct FLatentActionInfo LatentInfo, const FText& InText, float InDelayTime = 0.05);
+
+	UFUNCTION(BlueprintCallable, Category = "Console IO|Fancy Output",
+		meta = (Latent, LatentInfo = "LatentInfo", HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
+	virtual UPTerminalWidget* SlowlyOverwriteLine(UObject* WorldContextObject, struct FLatentActionInfo LatentInfo, const FText& InText, float InDelayTime = 0.05);
+
+	UFUNCTION(BlueprintCallable, Category = "Console IO|Output")
+	UPTerminalWidget* Write(const FText& InText, float DelaySeconds = 0.f);
+
+	UFUNCTION(BlueprintCallable, Category = "Console IO|Output")
+	UPTerminalWidget* WriteLine(const FText& InText, float DelaySeconds = 0.f);
+
+	UFUNCTION(BlueprintCallable, Category = "Console IO|Output")
+	UPTerminalWidget* OverwriteLine(const FText& InText, float DelaySeconds = 0.f);
+
+	UFUNCTION(BlueprintCallable, Category = "Console IO|Output")
+	UPTerminalWidget* Clear();
+
+	UFUNCTION(BlueprintCallable)
+	FString& GetInputText() { return TextInputBuffer; }
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Terminal")
+	void TerminalZoomed(float NewCharWidth, float NewCharHeight);
+
+// PRIVATE FUNCTIONS
+private: 
+	UFUNCTION()
 	bool SkipControlCode(const FString& InBuffer, int& InIndex, bool& OutLiteral) const;
+	
+	UFUNCTION()
 	bool ParseControlCode(const FString& InBuffer, int& InIndex, ETerminalColor& OutColor, FSlateFontInfo& OutFont, bool& OutInvert, bool& OutAttention, bool& OutLiteral) const;
+	
+	UFUNCTION()
 	float GetLineHeight();
 
 	UFUNCTION()
 	FSlateFontInfo ZoomText(FSlateFontInfo InFont) const;
 
-
-public: //functions
+// PUBLIC OVERRIDES
+public: 
 	virtual FReply NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent) override;
 	virtual void NativeConstruct() override;
 	virtual int32 NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
@@ -150,59 +219,19 @@ public: //functions
 	virtual FReply NativeOnMouseMove( const FGeometry& InGeometry, const FPointerEvent& InMouseEvent ) override;
 	virtual FReply NativeOnMouseButtonDown( const FGeometry& InGeometry, const FPointerEvent& InMouseEvent ) override;
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
-	void ClearInput() { TextInputBuffer = TEXT(""); }
-
-	FString Sanitize(FString InDirtyBitch);
-
 #if WITH_EDITOR
 	virtual const FText GetPaletteCategory() override;
 #endif
 
-	UFUNCTION(BlueprintCallable)
-		void Exit();
-
-	UFUNCTION(BlueprintCallable, Category = "Console IO|Input",
-		meta = (Latent, LatentInfo = "LatentInfo", HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
-		virtual void ReadLine(UObject* WorldContextObject, struct FLatentActionInfo LatentInfo, FString& OutText);
-
-	UFUNCTION(BlueprintCallable, Category = "Console IO|Fancy Output",
-		meta = (Latent, LatentInfo = "LatentInfo", HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
-		virtual UPTerminalWidget* SlowlyWriteText(UObject* WorldContextObject, struct FLatentActionInfo LatentInfo, const FText& InText, float InDelayTime = 0.05);
-
-	UFUNCTION(BlueprintCallable, Category = "Console IO|Fancy Output",
-		meta = (Latent, LatentInfo = "LatentInfo", HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
-		virtual UPTerminalWidget* SlowlyWriteLine(UObject* WorldContextObject, struct FLatentActionInfo LatentInfo, const FText& InText, float InDelayTime = 0.05);
-
-	UFUNCTION(BlueprintCallable, Category = "Console IO|Fancy Output",
-		meta = (Latent, LatentInfo = "LatentInfo", HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
-		virtual UPTerminalWidget* SlowlyOverwriteLine(UObject* WorldContextObject, struct FLatentActionInfo LatentInfo, const FText& InText, float InDelayTime = 0.05);
-
-	UFUNCTION(BlueprintCallable, Category = "Console IO|Output")
-		UPTerminalWidget* Write(const FText& InText, float DelaySeconds = 0.f);
-
-	UFUNCTION(BlueprintCallable, Category = "Console IO|Output")
-		UPTerminalWidget* WriteLine(const FText& InText, float DelaySeconds = 0.f);
-
-	UFUNCTION(BlueprintCallable, Category = "Console IO|Output")
-		UPTerminalWidget* OverwriteLine(const FText& InText, float DelaySeconds = 0.f);
-
-	UFUNCTION(BlueprintCallable, Category = "Console IO|Output")
-		UPTerminalWidget* Clear();
-
-	UFUNCTION(BlueprintCallable)
-		FString& GetInputText() { return TextInputBuffer; }
-
-	UFUNCTION(BlueprintImplementableEvent, Category = "Terminal")
-	void TerminalZoomed(float NewCharWidth, float NewCharHeight);
-
+// STATIC FUNCTIONS
 public: //static functions
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Common Utils|Terminal")
-		static FText NewLine();
+	static FText NewLine();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Common Utils|Terminal")
-		static FText CarriageReturn();
+	static FText CarriageReturn();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Common Utils|Terminal")
-		static FText Tab();
+	static FText Tab();
 
 };
