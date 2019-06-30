@@ -53,6 +53,7 @@ class UUserContext;
 class USystemUpgrade;
 class UTutorialPromptState;
 class UPTerminalWidget;
+class UMissionAsset;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FActiveProgramCloseEvent);
 
@@ -99,6 +100,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
 	bool IsMissionActive();
+
+	UFUNCTION(BlueprintCallable, Category = "Mission")
+	void StartMissionIfAvailable(UMissionAsset* InMissionAsset);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool IsSessionActive();

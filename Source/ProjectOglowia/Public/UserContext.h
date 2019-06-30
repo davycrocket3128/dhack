@@ -96,6 +96,9 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Adjacent nodes")
     TArray<FAdjacentNodeInfo> ScanForAdjacentNodes();
 
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Identity")
+    bool HasIdentity();
+
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Upgrades")
     bool IsUpgradeInstalled(USystemUpgrade* InUpgrade);
 

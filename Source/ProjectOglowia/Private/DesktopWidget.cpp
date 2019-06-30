@@ -45,6 +45,19 @@
 #include "MissionActor.h"
 #include "ConsoleContext.h"
 #include "SystemUpgrade.h"
+#include "MissionAsset.h"
+
+void UDesktopWidget::StartMissionIfAvailable(UMissionAsset* InMission)
+{
+	if(this->IsMissionActive()) return;
+
+	if(!InMission) return;
+
+	if(this->GetPeacenet()->SaveGame->CompletedMissions.Contains(InMission))
+		return;
+
+	this->GetPeacenet()->StartMission(InMission);
+}
 
 bool UDesktopWidget::IsUpgradeInstalled(USystemUpgrade* InUpgrade)
 {

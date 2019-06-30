@@ -43,6 +43,11 @@
 #include "PayloadAsset.h"
 #include "SystemUpgrade.h"
 
+bool UUserContext::HasIdentity()
+{
+	return this->GetOwningSystem()->HasIdentity();
+}
+
 float UUserContext::GetStealthiness()
 {
 	return this->GetPeacenet()->GetStealthiness(this->GetOwningSystem()->GetCharacter());
