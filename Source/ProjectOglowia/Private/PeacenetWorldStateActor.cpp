@@ -458,14 +458,14 @@ void APeacenetWorldStateActor::SendMissionMail(UMissionAsset* InMission)
 	MissionEmail.ID = this->SaveGame->EmailMessages.Num();
 	MissionEmail.InReplyTo = -1;
 	this->SaveGame->GetStoryCharacterID(InMission->Assigner, MissionEmail.FromEntity);
-	MissionEmail.ToEntities.Add(SaveGame->PlayerCharacterID);
+	MissionEmail.ToEntities.Add(SaveGame->GetPlayerIdentity());
 	MissionEmail.Mission = InMission;
 	MissionEmail.Subject = InMission->Name.ToString();
 	this->SaveGame->EmailMessages.Add(MissionEmail);
 	this->NewMailAdded.Broadcast();
 
 	// Notify the player of the new email message.
-	this->GetSystemContext(this->SaveGame->PlayerCharacterID)->GetMailProvider()->NotifyReceivedMessage(MissionEmail.ID);
+	this->GetSystemContext(this->SaveGame->PlayerComputerID)->GetMailProvider()->NotifyReceivedMessage(MissionEmail.ID);
 }
 
 void APeacenetWorldStateActor::SendAvailableMissions()
@@ -491,7 +491,7 @@ void APeacenetWorldStateActor::SendAvailableMissions()
 
 		for(auto& MailMessage : this->SaveGame->EmailMessages)
 		{
-			if(MailMessage.ToEntities.Contains(this->SaveGame->PlayerCharacterID) && MailMessage.Mission == Mission)
+			if(MailMessage.ToEntities.Contains(this->SaveGame->GetPlayerIdentity()) && MailMessage.Mission == Mission)
 			{
 				HasMissionMail = true;
 				break;
@@ -643,6 +643,8 @@ void APeacenetWorldStateActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	this->Procgen->Update(DeltaTime);
+
 	// Is the save loaded?
 	if (SaveGame)
 	{
@@ -705,33 +707,34 @@ void APeacenetWorldStateActor::StartGame(TSubclassOf<UDesktopWidget> InDesktopCl
 
 	UPeacenetGameInstance* GameInstance = Cast<UPeacenetGameInstance>(GetGameInstance());
 
-	for(auto GameTypeAsset : GameInstance->GameTypes)
+	// Create a new computer for the player if none is available.
+	if(!this->SaveGame->PlayerHasComputer())
 	{
-		if(GameTypeAsset->Name == this->SaveGame->GameTypeName)
-		{
-			this->GameType = GameTypeAsset;
-			break;
-		}
+		FComputer pc;
+		pc.ID = 0;
+		pc.OwnerType = EComputerOwnerType::Player;
+
+		pc.CurrentWallpaper = nullptr;
+
+		FUser root;
+		root.Username = "root";
+		root.ID = 0;
+		pc.Users.Add(root);
+
+		SaveGame->Computers.Add(pc);
+		SaveGame->PlayerComputerID = pc.ID;
 	}
 
-	check(GameType);
-
-	this->Procgen->Initialize(this);
-
-	// Find the player character.
-	FPeacenetIdentity Character;
-	int CharacterIndex = -1;
-	bool result = this->SaveGame->GetCharacterByID(this->SaveGame->PlayerCharacterID, Character, CharacterIndex);
-	check(result);
+	Procgen->Initialize(this);
 
 	// Create a system context.
 	USystemContext* PlayerSystemContext = NewObject<USystemContext>(this);
 
 	// Link it to the character and computer.
-	PlayerSystemContext->Setup(Character.ComputerID, Character.ID, this);
+	PlayerSystemContext->Setup(this->SaveGame->PlayerComputerID, -1, this);
 
 	// Set up the desktop.
-	PlayerSystemContext->SetupDesktop(this->SaveGame->PlayerUserID);
+	PlayerSystemContext->SetupDesktop(0);
 
 	// Keep the player system context loaded.
 	this->SystemContexts.Add(PlayerSystemContext);
@@ -739,7 +742,8 @@ void APeacenetWorldStateActor::StartGame(TSubclassOf<UDesktopWidget> InDesktopCl
 	this->PlayerSystemReady.Broadcast(PlayerSystemContext);
 
 	// This allows the game to notify the player of any new missions.
-	this->SendAvailableMissions();
+	if(this->SaveGame->PlayerHasIdentity())
+		this->SendAvailableMissions();
 }
 
 bool APeacenetWorldStateActor::FindProgramByName(FName InName, UPeacegateProgramAsset *& OutProgram)
@@ -785,9 +789,6 @@ bool APeacenetWorldStateActor::HasExistingOS()
 
 void APeacenetWorldStateActor::SaveWorld()
 {
-	// update game type, window decorator and desktop class
-	SaveGame->GameTypeName = this->GameType->Name;
-
 	// If we're in a mission, back the fuck out.
 	if(this->IsInMission()) return;
 
@@ -804,4 +805,25 @@ APeacenetWorldStateActor* APeacenetWorldStateActor::LoadExistingOS(const APlayer
 	auto ExistingPeacenet = World->SpawnActor<APeacenetWorldStateActor>();
 
 	return ExistingPeacenet;
+}
+
+APeacenetWorldStateActor* APeacenetWorldStateActor::BootOS(const APlayerController* InPlayerController, bool InDeleteExistingSaveFile)
+{
+	// If we have an existing OS then we'll load that in if, and only if, we aren't deleting the existing OS.
+	if(APeacenetWorldStateActor::HasExistingOS())
+	{
+		if(InDeleteExistingSaveFile)
+		{
+			UGameplayStatics::DeleteGameInSlot(TEXT("PeacegateOS"), 0);
+		}
+		else {
+			return APeacenetWorldStateActor::LoadExistingOS(InPlayerController);
+		}
+	}
+
+	// Spawn a new Peacenet actor.
+	UWorld* world = InPlayerController->GetWorld();
+	APeacenetWorldStateActor* actor = world->SpawnActor<APeacenetWorldStateActor>();
+	actor->SaveGame = NewObject<UPeacenetSaveGame>();
+	return actor;
 }

@@ -41,10 +41,16 @@
 #include "Program.h"
 #include "PeacegateFileSystem.h"
 #include "PayloadAsset.h"
+#include "SystemUpgrade.h"
 
 float UUserContext::GetStealthiness()
 {
 	return this->GetPeacenet()->GetStealthiness(this->GetOwningSystem()->GetCharacter());
+}
+
+bool UUserContext::IsUpgradeInstalled(USystemUpgrade* InUpgrade)
+{
+	return this->GetOwningSystem()->IsUpgradeInstalled(InUpgrade);
 }
 
 void UUserContext::SetStealthiness(float InValue)

@@ -33,60 +33,38 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CryptoWallet.h"
-#include "SystemUpgrade.h"
-#include "PeacenetIdentity.generated.h"
+#include "ManualPageAssetBase.h"
+#include "ManualPageBuilder.h"
+#include "SystemUpgrade.generated.h"
 
-/**
- * Represents a type of Peacenet character identity.
- */
-UENUM(BlueprintType)
-enum class EIdentityType : uint8
-{
-	Player,
-	NonPlayer,
-	Story
-};
+class USystemContext;
 
-/**
- * Represents a character's identity within The Peacenet.
- */
-USTRUCT(BlueprintType)
-struct PROJECTOGLOWIA_API FPeacenetIdentity
+UCLASS(Blueprintable)
+class PROJECTOGLOWIA_API USystemUpgrade : public UManualPageAssetBase
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	int ID;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System Upgrade")
+    int RequiredSkillPoints = 0;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FString CharacterName;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System Upgrade")
+    TArray<USystemUpgrade*> Dependencies;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FString EmailAddress;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System Upgrade")
+    bool CanUserUnlock = true;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FString PreferredAlias;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System Upgrade")
+    bool UnlockedByDefault = false;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	int Skill;
+public:
+    UFUNCTION()
+    bool DependenciesFulfilled(USystemContext* InSystemContext);
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	int ComputerID;
+    UFUNCTION()
+    bool IsUnlocked(USystemContext* InSystemContext);
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TArray<FCryptoWallet> CryptoWallets;
+protected:
+    virtual void BuildManualPage(UManualPageBuilder* InBuilder) override;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float Reputation;	
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TArray<USystemUpgrade*> UnlockedUpgrades;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	EIdentityType CharacterType;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	bool IsMissionImportant = false;
 };

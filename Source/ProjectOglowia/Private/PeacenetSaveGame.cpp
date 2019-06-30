@@ -138,6 +138,36 @@ bool UPeacenetSaveGame::IPAddressAllocated(FString InIPAddress)
 	return false;
 }
 
+bool UPeacenetSaveGame::PlayerHasComputer()
+{
+	return this->PlayerComputerID != -1;
+}
+
+bool UPeacenetSaveGame::PlayerHasIdentity()
+{
+	if(!this->PlayerHasComputer())
+		return false;
+
+	FComputer pc;
+	int i = -1;
+	this->GetComputerByID(this->PlayerComputerID, pc, i);
+
+	return pc.SystemIdentity != -1;
+}
+
+int UPeacenetSaveGame::GetPlayerIdentity()
+{
+	if(this->PlayerHasComputer())
+	{
+		FComputer pc;
+		int i = -1;
+		this->GetComputerByID(this->PlayerComputerID, pc, i);
+
+		return pc.SystemIdentity;
+	}
+	return -1;
+}
+
 void UPeacenetSaveGame::FixEntityIDs()
 {
 	TMap<int, int> ComputerIDMap;
@@ -160,7 +190,8 @@ void UPeacenetSaveGame::FixEntityIDs()
 	}
 
 	// Fix up player character ID
-	PlayerCharacterID = CharacterIDMap[PlayerCharacterID];
+	if(ComputerIDMap.Contains(PlayerComputerID))
+		PlayerComputerID = ComputerIDMap[PlayerComputerID];
 
 	// Fix up IP addresses.
 	TArray<FString> IPsToRemove;

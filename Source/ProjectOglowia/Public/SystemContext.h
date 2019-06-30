@@ -46,6 +46,7 @@
 class UHackable;
 class UDesktopWidget;
 class UPayloadAsset;
+class USystemUpgrade;
 class UProgram;
 class UExploit;
 class URainbowTable;
@@ -122,7 +123,13 @@ public: // Property getters
 	void Destroy();
 
 	UFUNCTION()
+	bool HasIdentity();
+
+	UFUNCTION()
 	bool IsEnvironmentVariableSet(FString InVariable);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Upgrades")
+	bool IsUpgradeInstalled(USystemUpgrade* InUpgrade);
 
 	UFUNCTION()
 	UMailProvider* GetMailProvider();

@@ -44,6 +44,7 @@
 
 class UPeacenetSaveGame;
 class USystemContext;
+class UPTerminalWidget;
 
 /**
  * Common utilities used throughout the entire game.
@@ -54,6 +55,9 @@ class PROJECTOGLOWIA_API UCommonUtils : public UObject
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "Bootup")
+	static float PrintKernelMessages(UPTerminalWidget* InConsole);
+	
 	UFUNCTION(BlueprintCallable, Category = "Peacegate|Setup")
 	static void ParseCharacterName(const FString InCharacterName, FString& OutUsername, FString& OutHostname);
 

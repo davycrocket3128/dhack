@@ -192,9 +192,6 @@ void UPeacenetGameInstance::CreateWorld(FString InCharacterName, UPeacenetGameTy
 	// Set the player's location on the map to the origin.
 	SaveGame->SetEntityPosition(PlayerIdentity.ID, FVector2D(0.f, 0.f));
 
-	// This makes the game auto-possess the character we just created.
-	SaveGame->PlayerCharacterID = PlayerIdentity.ID;
-
 	// Player should know their own existence.
 	SaveGame->PlayerDiscoveredNodes.Add(PlayerIdentity.ID);
 

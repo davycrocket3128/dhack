@@ -99,7 +99,7 @@ void UMissionTask::HandleEvent(FString EventName, TMap<FString, FString> InEvent
 
 UUserContext* UMissionTask::GetPlayerUser()
 {
-    int PlayerID = this->GetPeacenet()->SaveGame->PlayerCharacterID;
+    int PlayerID = this->GetPeacenet()->SaveGame->PlayerComputerID;
     USystemContext* PlayerSystem = this->GetPeacenet()->GetSystemContext(PlayerID);
     return PlayerSystem->GetUserContext(this->GetPeacenet()->SaveGame->PlayerUserID);
 }

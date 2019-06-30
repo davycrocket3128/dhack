@@ -50,6 +50,7 @@ class UAddressBookContext;
 class URainbowTable;
 class UPTerminalWidget;
 class UComputerService;
+class USystemUpgrade;
 class UDesktopWidget;
 class UVulnerability;
 class UProgram;
@@ -94,6 +95,9 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Adjacent nodes")
     TArray<FAdjacentNodeInfo> ScanForAdjacentNodes();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Upgrades")
+    bool IsUpgradeInstalled(USystemUpgrade* InUpgrade);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
     TArray<UWallpaperAsset*> GetAvailableWallpapers();

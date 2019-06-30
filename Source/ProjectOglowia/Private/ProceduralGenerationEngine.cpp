@@ -505,8 +505,6 @@ void UProceduralGenerationEngine::ClearNonPlayerEntities()
 
     // Clear out the player's known entities.
     this->Peacenet->SaveGame->PlayerDiscoveredNodes.Empty();
-    this->Peacenet->SaveGame->PlayerDiscoveredNodes.Add(this->Peacenet->SaveGame->PlayerCharacterID);
-    
 
     // Fix up entity IDs.
     this->Peacenet->SaveGame->FixEntityIDs();
@@ -585,13 +583,6 @@ void UProceduralGenerationEngine::GenerateAdjacentNodes(FPeacenetIdentity& InIde
         if(this->Peacenet->SaveGame->AreAdjacent(InIdentity.ID, LinkedIdentity.ID))
             continue;
 
-        if(this->Peacenet->GameType->GameRules.DoSkillProgression)
-        {
-            int Difference = FMath::Abs(InIdentity.Skill - LinkedIdentity.Skill);
-            if(Difference > MAX_SKILL_DIFFERENCE)
-                continue;
-        }
-
         this->Peacenet->SaveGame->AddAdjacent(InIdentity.ID, LinkedIdentity.ID);
 
         this->GenerateIdentityPosition(InIdentity, LinkedIdentity);
@@ -599,6 +590,9 @@ void UProceduralGenerationEngine::GenerateAdjacentNodes(FPeacenetIdentity& InIde
         Adjacents--;
     }
 }
+
+void UProceduralGenerationEngine::Update(float InDeltaSeconds)
+{}
 
 FString UProceduralGenerationEngine::ChooseEmailDomain()
 {
@@ -672,7 +666,7 @@ FPeacenetIdentity& UProceduralGenerationEngine::GenerateNonPlayerCharacter()
 
     Identity.CharacterName = CharacterName;
     Identity.PreferredAlias = CharacterName;
-    Identity.Skill = RNG.RandRange(1, this->Peacenet->GameType->GameRules.MaximumSkillLevel);
+    Identity.Skill = 0;
 
     float Reputation = RNG.GetFraction();
     bool IsBadRep = RNG.RandRange(0, 6) % 2;
@@ -864,19 +858,8 @@ void UProceduralGenerationEngine::Initialize(APeacenetWorldStateActor* InPeacene
     // Initialize the world seed if the game is new.
     if(Peacenet->SaveGame->IsNewGame)
     {
-        // Get the player character.
-        FPeacenetIdentity Character;
-        int CharacterIndex = -1;
-        bool result = Peacenet->SaveGame->GetCharacterByID(Peacenet->SaveGame->PlayerCharacterID, Character, CharacterIndex);
-        check(result);
-
-        // This creates a hash out of the character name which we can seed the RNG with.
-        // Thus making the player's name dictate how the world generates.
-        TArray<TCHAR> Chars = Character.CharacterName.GetCharArray();
-        int Hash = FCrc::MemCrc32(Chars.GetData(), Chars.Num() * sizeof(TCHAR));
-
-        // Store the seed in the save file in case we need it. WHICH WE FUCKING WILL LET ME TELL YOU.
-        Peacenet->SaveGame->WorldSeed = Hash;
+        // The world seed is the Unix timestamp of the real world's current date and time.
+        Peacenet->SaveGame->WorldSeed = FDateTime::Now().ToUnixTimestamp();
     }
 
     // Recall when we set the world seed in the save file?
@@ -1095,101 +1078,69 @@ void UProceduralGenerationEngine::GenerateCharacterRelationships()
         RelationshipsToRemove.RemoveAt(0);
     }
 
-    bool ConsiderReputation = this->Peacenet->GameType->GameRules.ConsiderReputations;
-
-    if(ConsiderReputation)
+    TArray<FPeacenetIdentity> GoodReps;
+    TArray<FPeacenetIdentity> BadReps;
+        
+    // First pass collects all NPCs and sorts them between good and bad reputations.
+    for(int i = 0; i < this->Peacenet->SaveGame->Characters.Num(); i++)
     {
-        TArray<FPeacenetIdentity> GoodReps;
-        TArray<FPeacenetIdentity> BadReps;
-        
-        // First pass collects all NPCs and sorts them between good and bad reputations.
-        for(int i = 0; i < this->Peacenet->SaveGame->Characters.Num(); i++)
+        FPeacenetIdentity Identity = this->Peacenet->SaveGame->Characters[i];
+
+        if(Identity.CharacterType == EIdentityType::Player)
+            continue;
+
+        if(Identity.Reputation < 0)
+            BadReps.Add(Identity);
+        else
+            GoodReps.Add(Identity);
+    }
+
+    // Second pass goes through every NPC, looks at their reputation, and chooses relationships from the correct list.
+    for(int i = 0; i < this->Peacenet->SaveGame->Characters.Num(); i++)
+    {
+        FPeacenetIdentity First = this->Peacenet->SaveGame->Characters[i];
+
+        if(First.CharacterType == EIdentityType::Player)
+            continue;
+
+        bool Bad = First.Reputation < 0;
+
+        bool MakeEnemy = RNG.RandRange(0, 6) % 2;
+
+        FPeacenetIdentity Second;
+
+        do
         {
-            FPeacenetIdentity Identity = this->Peacenet->SaveGame->Characters[i];
-
-            if(Identity.CharacterType == EIdentityType::Player)
-                continue;
-
-            if(Identity.Reputation < 0)
-                BadReps.Add(Identity);
-            else
-                GoodReps.Add(Identity);
-        }
-
-        // Second pass goes through every NPC, looks at their reputation, and chooses relationships from the correct list.
-        for(int i = 0; i < this->Peacenet->SaveGame->Characters.Num(); i++)
-        {
-            FPeacenetIdentity First = this->Peacenet->SaveGame->Characters[i];
-
-            if(First.CharacterType == EIdentityType::Player)
-                continue;
-
-            bool Bad = First.Reputation < 0;
-
-            bool MakeEnemy = RNG.RandRange(0, 6) % 2;
-
-            FPeacenetIdentity Second;
-
-            do
-            {
-                if(MakeEnemy)
-                {
-                    if(Bad)
-                        Second = GoodReps[RNG.RandRange(0, GoodReps.Num() - 1)];
-                    else
-                        Second = BadReps[RNG.RandRange(0, BadReps.Num() - 1)];
-                }
-                else
-                {
-                    if(Bad)
-                        Second = BadReps[RNG.RandRange(0, BadReps.Num() - 1)];
-                    else
-                        Second = GoodReps[RNG.RandRange(0, GoodReps.Num() - 1)];
-                }
-            } while(this->Peacenet->SaveGame->RelatesWith(First.ID, Second.ID) || Second.CharacterType == EIdentityType::Player);
-        
-            FCharacterRelationship Relationship;
-            Relationship.FirstEntityID = First.ID;
-            Relationship.SecondEntityID = Second.ID;
-            
             if(MakeEnemy)
             {
-                Relationship.RelationshipType = ERelationshipType::Enemy;
+                if(Bad)
+                    Second = GoodReps[RNG.RandRange(0, GoodReps.Num() - 1)];
+                else
+                    Second = BadReps[RNG.RandRange(0, BadReps.Num() - 1)];
             }
             else
             {
-                Relationship.RelationshipType = ERelationshipType::Friend;
+                if(Bad)
+                    Second = BadReps[RNG.RandRange(0, BadReps.Num() - 1)];
+                else
+                    Second = GoodReps[RNG.RandRange(0, GoodReps.Num() - 1)];
             }
-
-            this->Peacenet->SaveGame->CharacterRelationships.Add(Relationship);
-        }
-    }
-    else
-    {
-        for(int i = 0; i < this->Peacenet->SaveGame->Characters.Num(); i++)
+        } while(this->Peacenet->SaveGame->RelatesWith(First.ID, Second.ID) || Second.CharacterType == EIdentityType::Player);
+        
+        FCharacterRelationship Relationship;
+        Relationship.FirstEntityID = First.ID;
+        Relationship.SecondEntityID = Second.ID;
+            
+        if(MakeEnemy)
         {
-            FPeacenetIdentity& FirstChar = this->Peacenet->SaveGame->Characters[i];
-            if(FirstChar.CharacterType == EIdentityType::Player)
-                continue;
-            FPeacenetIdentity Second;
-            do
-            {
-                Second = this->Peacenet->SaveGame->Characters[RNG.RandRange(0, this->Peacenet->SaveGame->Characters.Num()-1)];
-            } while(this->Peacenet->SaveGame->RelatesWith(FirstChar.ID, Second.ID) || Second.CharacterType == EIdentityType::Player);
-
-            FCharacterRelationship Relationship;
-            Relationship.FirstEntityID = FirstChar.ID;
-            Relationship.SecondEntityID = Second.ID;
-
-            bool Enemy = RNG.RandRange(0, 6) % 2;
-
-            if(Enemy)
-                Relationship.RelationshipType = ERelationshipType::Enemy;
-            else
-                Relationship.RelationshipType = ERelationshipType::Friend;
-
-            this->Peacenet->SaveGame->CharacterRelationships.Add(Relationship);
+            Relationship.RelationshipType = ERelationshipType::Enemy;
         }
+        else
+        {
+            Relationship.RelationshipType = ERelationshipType::Friend;
+        }
+
+        this->Peacenet->SaveGame->CharacterRelationships.Add(Relationship);
     }
 }
 

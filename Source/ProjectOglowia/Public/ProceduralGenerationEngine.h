@@ -134,6 +134,9 @@ public:
     FString GenerateIPAddress();
 
     UFUNCTION()
+    void Update(float InDeltaSeconds);
+
+    UFUNCTION()
     void UpdateStoryIdentities();
 
     UFUNCTION()

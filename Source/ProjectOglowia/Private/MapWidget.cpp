@@ -89,8 +89,6 @@ void UMapWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
             FPeacenetIdentity Identity;
             int IdentityIndex;
             bool result = this->OwningUser->GetPeacenet()->SaveGame->GetCharacterByID(NodeID, Identity, IdentityIndex);
-            check(result);
-
             if(!result) continue;
 
             UMapNodeContext* Context = this->GetContext(NodeID);

@@ -50,6 +50,7 @@ class USystemContext;
 class UConsoleContext;
 class APeacenetWorldStateActor;
 class UUserContext;
+class USystemUpgrade;
 class UTutorialPromptState;
 class UPTerminalWidget;
 
@@ -81,17 +82,32 @@ class PROJECTOGLOWIA_API UDesktopWidget : public UUserWidget
 
 private:
 	UPROPERTY()
+	bool SessionActive = false;
+
+	UPROPERTY()
 	FText LastTutorialText;
 
 	UPROPERTY()
 	FText ObjectiveText;
 
 protected:
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Upgrades")
+	bool IsUpgradeInstalled(USystemUpgrade* InUpgrade);
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateTutorial(const FText& InNewText);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
 	bool IsMissionActive();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool IsSessionActive();
+
+	UFUNCTION(BlueprintCallable)
+	void ActivateSession(UUserContext* UserContext);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	TArray<UUserContext*> GetAvailableSessions();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
 	FText GetObjectiveText();

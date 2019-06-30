@@ -44,6 +44,13 @@
 #include "TutorialPromptState.h"
 #include "MissionActor.h"
 #include "ConsoleContext.h"
+#include "SystemUpgrade.h"
+
+bool UDesktopWidget::IsUpgradeInstalled(USystemUpgrade* InUpgrade)
+{
+	if(!this->IsSessionActive()) return false;
+	return this->GetUserContext()->IsUpgradeInstalled(InUpgrade);
+}
 
 float UDesktopWidget::GetStealthiness()
 {
@@ -124,23 +131,6 @@ void UDesktopWidget::NativeConstruct()
 	MissionFailDelegate.BindUFunction(this, "OnMissionFailed");
 	this->SystemContext->GetPeacenet()->MissionFailed.Add(MissionFailDelegate);
 
-
-	// Reset the app launcher.
-	this->ResetAppLauncher();
-
-	// Grab the user's home directory.
-	this->UserHomeDirectory = this->SystemContext->GetUserHomeDirectory(this->UserID);
-
-	// Get the filesystem context for this user.
-	this->Filesystem = this->SystemContext->GetFilesystem(this->UserID);
-
-	// Make sure that we intercept filesystem write operations that pertain to us.
-	TScriptDelegate<> FSOperation;
-	FSOperation.BindUFunction(this, "OnFilesystemOperation");
-
-	this->Filesystem->FilesystemOperation.Add(FSOperation);
-	this->SystemContext->GetFilesystem(0)->FilesystemOperation.Add(FSOperation);
-
 	// Set the default wallpaper if our computer doesn't have one.
 	if(!this->GetSystemContext()->GetComputer().CurrentWallpaper && !this->GetSystemContext()->GetComputer().HasWallpaperBeenSet)
 	{
@@ -161,6 +151,15 @@ void UDesktopWidget::NativeConstruct()
 	TScriptDelegate<> MapUpdateDelegate;
 	MapUpdateDelegate.BindUFunction(this, "UpdateMap");
 	this->SystemContext->GetPeacenet()->MapsUpdated.Add(MapUpdateDelegate);
+
+	if(this->SystemContext->GetComputer().Users.Num() > 1)
+	{
+		this->SessionActive = false;
+	}
+	else 
+	{
+		this->ActivateSession(this->GetUserContext());
+	}
 
 	Super::NativeConstruct();
 }
@@ -222,9 +221,6 @@ void UDesktopWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	check(this->SystemContext);
 	check(this->SystemContext->GetPeacenet());
-
-	// Keep track of the current game rules.
-	this->GameRules = this->SystemContext->GetPeacenet()->GameType->GameRules;
 
 	// Fetch government alert status.
 	this->AlertInfo = this->SystemContext->GetPeacenet()->GetAlertInfo(this->SystemContext->GetCharacter().ID);
@@ -291,6 +287,9 @@ void UDesktopWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 void UDesktopWidget::ResetAppLauncher()
 {
+	if(!IsSessionActive())
+		return;
+
 	// Clear the main menu.
 	this->ClearAppLauncherMainMenu();
 
@@ -304,6 +303,53 @@ void UDesktopWidget::ResetAppLauncher()
 			this->AddAppLauncherMainMenuItem(Program->AppLauncherItem.Category);
 		}
 	}
+}
+
+bool UDesktopWidget::IsSessionActive()
+{
+	return this->SessionActive;
+}
+
+TArray<UUserContext*> UDesktopWidget::GetAvailableSessions()
+{
+	TArray<UUserContext*> Ret;
+
+	if(this->IsSessionActive())
+		return Ret;
+
+	for(auto user : this->SystemContext->GetComputer().Users)
+	{
+		if(user.ID != 0)
+		{
+			Ret.Add(SystemContext->GetUserContext(user.ID));
+		}
+	}
+
+	return Ret;
+}
+
+void UDesktopWidget::ActivateSession(UUserContext* user)
+{
+	if(this->SessionActive) return;
+
+	this->UserID = user->GetUserID();
+	this->SessionActive = true;
+
+	this->ResetDesktopIcons();
+	this->ResetAppLauncher();
+
+	// Grab the user's home directory.
+	this->UserHomeDirectory = this->SystemContext->GetUserHomeDirectory(this->UserID);
+
+	// Get the filesystem context for this user.
+	this->Filesystem = this->SystemContext->GetFilesystem(this->UserID);
+
+	// Make sure that we intercept filesystem write operations that pertain to us.
+	TScriptDelegate<> FSOperation;
+	FSOperation.BindUFunction(this, "OnFilesystemOperation");
+
+	if(!this->Filesystem->FilesystemOperation.Contains(FSOperation))
+		this->Filesystem->FilesystemOperation.Add(FSOperation);
 }
 
 int UDesktopWidget::GetOpenConnectionCount()
@@ -331,6 +377,9 @@ void UDesktopWidget::ResetDesktopIcons()
 
 void UDesktopWidget::ShowAppLauncherCategory(const FString& InCategoryName)
 {
+	if(!IsSessionActive())
+		return;
+
 	// Clear the sub-menu.
 	this->ClearAppLauncherSubMenu();
 
@@ -350,6 +399,9 @@ void UDesktopWidget::ShowAppLauncherCategory(const FString& InCategoryName)
 
 bool UDesktopWidget::OpenProgram(const FName InExecutableName, UProgram*& OutProgram)
 {
+	if(!IsSessionActive())
+		return false;
+
 	return this->SystemContext->OpenProgram(InExecutableName, OutProgram);
 }
 

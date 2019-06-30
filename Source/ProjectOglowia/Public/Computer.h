@@ -181,4 +181,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Workaround bullshit")
 	bool HasWallpaperBeenSet = false;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Computer")
+	int SystemIdentity = -1;
 };

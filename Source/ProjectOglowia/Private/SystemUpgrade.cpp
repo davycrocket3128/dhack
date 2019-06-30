@@ -29,64 +29,39 @@
  *
  ********************************************************************************/
 
-
-#pragma once
-
-#include "CoreMinimal.h"
-#include "CryptoWallet.h"
 #include "SystemUpgrade.h"
-#include "PeacenetIdentity.generated.h"
+#include "SystemContext.h"
 
-/**
- * Represents a type of Peacenet character identity.
- */
-UENUM(BlueprintType)
-enum class EIdentityType : uint8
+bool USystemUpgrade::DependenciesFulfilled(USystemContext* InSystemContext)
 {
-	Player,
-	NonPlayer,
-	Story
-};
+    if(this->Dependencies.Num())
+    {
+        for(auto Dependency : this->Dependencies)
+        {
+            if(!Dependency->IsUnlocked(InSystemContext))
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
 
-/**
- * Represents a character's identity within The Peacenet.
- */
-USTRUCT(BlueprintType)
-struct PROJECTOGLOWIA_API FPeacenetIdentity
+bool USystemUpgrade::IsUnlocked(USystemContext* InSystemContext)
 {
-	GENERATED_BODY()
+    if(InSystemContext->HasIdentity())
+        return false;
 
-public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	int ID;
+    if(!this->DependenciesFulfilled(InSystemContext))
+        return false;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FString CharacterName;
+    if(this->UnlockedByDefault)
+        return true;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FString EmailAddress;
+    return InSystemContext->GetCharacter().UnlockedUpgrades.Contains(this);
+}
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FString PreferredAlias;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	int Skill;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	int ComputerID;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TArray<FCryptoWallet> CryptoWallets;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float Reputation;	
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TArray<USystemUpgrade*> UnlockedUpgrades;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	EIdentityType CharacterType;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	bool IsMissionImportant = false;
-};
+void USystemUpgrade::BuildManualPage(UManualPageBuilder* InBuilder)
+{
+    // TODO: I bless the rains down in Africa.
+}

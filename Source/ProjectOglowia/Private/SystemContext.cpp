@@ -47,6 +47,15 @@
 #include "GraphicalTerminalCommand.h"
 #include "CommandInfo.h"
 #include "PayloadAsset.h"
+#include "SystemUpgrade.h"
+
+bool USystemContext::IsUpgradeInstalled(USystemUpgrade* InUpgrade)
+{
+	if(!InUpgrade)
+		return false;
+
+	return InUpgrade->IsUnlocked(this);
+}
 
 void USystemContext::Destroy()
 {
@@ -250,11 +259,8 @@ TArray<UPeacegateProgramAsset*> USystemContext::GetInstalledPrograms()
 
 	for(auto Program : this->GetPeacenet()->Programs)
 	{
-		if(GetPeacenet()->GameType->GameRules.DoUnlockables)
-		{
-			if(!GetComputer().InstalledPrograms.Contains(Program->ID) && !Program->IsUnlockedByDefault)
-				continue;
-		}
+		if(!GetComputer().InstalledPrograms.Contains(Program->ID) && !Program->IsUnlockedByDefault)
+			continue;
 		OutArray.Add(Program);
 	}
 
@@ -274,15 +280,19 @@ TArray<UCommandInfo*> USystemContext::GetInstalledCommands()
 	{
 		UCommandInfo* Info = GetPeacenet()->CommandInfo[Name];
 
-		if(GetPeacenet()->GameType->GameRules.DoUnlockables)
-		{
-			if(!GetComputer().InstalledCommands.Contains(Name) && !Info->UnlockedByDefault)
-				continue;
-		}
+		if(!GetComputer().InstalledCommands.Contains(Name) && !Info->UnlockedByDefault)
+			continue;
 		Ret.Add(Info);
 	}
 
 	return Ret;
+}
+
+bool USystemContext::HasIdentity()
+{
+	int i = 0;
+	FPeacenetIdentity id;
+	return this->GetPeacenet()->SaveGame->GetCharacterByID(this->CharacterID, id, i);
 }
 
 TArray<FAdjacentNodeInfo> USystemContext::ScanForAdjacentNodes()
@@ -292,6 +302,7 @@ TArray<FAdjacentNodeInfo> USystemContext::ScanForAdjacentNodes()
 	int CharID = this->GetCharacter().ID;
 
 	TArray<FAdjacentNodeInfo> Ret;
+	if(!this->HasIdentity()) return Ret;
 
 	for(auto& OtherIdentity : this->GetPeacenet()->GetAdjacentNodes(this->GetCharacter()))
 	{
@@ -321,14 +332,11 @@ bool USystemContext::OpenProgram(FName InExecutableName, UProgram*& OutProgram, 
 	if(!this->GetPeacenet()->FindProgramByName(InExecutableName, PeacegateProgram))
 		return false;
 
-	if(this->GetPeacenet()->GameType->GameRules.DoUnlockables)
+	if(!this->GetComputer().InstalledPrograms.Contains(InExecutableName) && !PeacegateProgram->IsUnlockedByDefault)
 	{
-		if(!this->GetComputer().InstalledPrograms.Contains(InExecutableName) && !PeacegateProgram->IsUnlockedByDefault)
-		{
-			return false;
-		}
+		return false;
 	}
-
+	
 
 	UProgram* Program = this->GetDesktop()->SpawnProgramFromClass(PeacegateProgram->ProgramClass, PeacegateProgram->FullName, PeacegateProgram->AppLauncherItem.Icon, PeacegateProgram->EnableMinimizeAndMaximize, PeacegateProgram->RAMUsage);
 
@@ -361,12 +369,9 @@ bool USystemContext::TryGetTerminalCommand(FName CommandName, ATerminalCommand *
 	UPeacegateProgramAsset* Program = nullptr;
 	if (GetPeacenet()->FindProgramByName(CommandName, Program))
 	{
-		if(GetPeacenet()->GameType->GameRules.DoUnlockables)
+		if(!GetComputer().InstalledPrograms.Contains(CommandName) && !Program->IsUnlockedByDefault)
 		{
-			if(!GetComputer().InstalledPrograms.Contains(CommandName) && !Program->IsUnlockedByDefault)
-			{
-				return false;
-			}
+			return false;
 		}
 
  		FVector Location(0.0f, 0.0f, 0.0f);
@@ -387,14 +392,11 @@ bool USystemContext::TryGetTerminalCommand(FName CommandName, ATerminalCommand *
 
 	UCommandInfo* Info = GetPeacenet()->CommandInfo[CommandName];
 
-	if(GetPeacenet()->GameType->GameRules.DoUnlockables)
+	if(!GetComputer().InstalledCommands.Contains(CommandName) && !Info->UnlockedByDefault)
 	{
-		if(!GetComputer().InstalledCommands.Contains(CommandName) && !Info->UnlockedByDefault)
-		{
-			return false;
-		}
+		return false;
 	}
-
+	
  	FVector Location(0.0f, 0.0f, 0.0f);
 	FRotator Rotation(0.0f, 0.0f, 0.0f);
  	FActorSpawnParameters SpawnInfo;
@@ -510,12 +512,9 @@ bool USystemContext::GetSuitableProgramForFileExtension(const FString & InExtens
 {
 	for(auto Program : this->GetPeacenet()->Programs)
 	{
-		if(this->GetPeacenet()->GameType->GameRules.DoUnlockables)
+		if(!this->GetComputer().InstalledPrograms.Contains(Program->ID) && !Program->IsUnlockedByDefault)
 		{
-			if(!this->GetComputer().InstalledPrograms.Contains(Program->ID) && !Program->IsUnlockedByDefault)
-			{
-				continue;
-			}
+			continue;
 		}
 
 		if (Program->SupportedFileExtensions.Contains(InExtension))
@@ -553,7 +552,7 @@ FPeacenetIdentity& USystemContext::GetCharacter()
 	FPeacenetIdentity Character;
 
 	bool result = MyPeacenet->SaveGame->GetCharacterByID(this->CharacterID, Character, CharacterIndex);
-	check(result);
+	if(!result) return this->InternalIdentity;
 
 	return MyPeacenet->SaveGame->Characters[CharacterIndex];
 }

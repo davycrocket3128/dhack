@@ -68,13 +68,22 @@ public:
 	bool IsNewGame = true;
 
 	UPROPERTY(VisibleAnywhere, Category = "Peacegate")
-	int PlayerCharacterID = 0;
-
-	UPROPERTY(VisibleAnywhere)
-	TArray<FStoryCharacterIDMap> StoryCharacterIDs;
+	int PlayerComputerID = -1;
 
 	UPROPERTY(VisibleAnywhere, Category = "Peacegate")
 	int PlayerUserID = 0;
+
+	UFUNCTION()
+	int GetPlayerIdentity();
+
+	UFUNCTION()
+	bool PlayerHasComputer();
+
+	UFUNCTION()
+	bool PlayerHasIdentity();
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<FStoryCharacterIDMap> StoryCharacterIDs;
 
 	UPROPERTY(VisibleAnywhere, Category = "Peacegate")
 	TSubclassOf<UWindow> WindowClass;

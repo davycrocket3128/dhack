@@ -42,7 +42,6 @@
 #include "GovernmentAlertStatus.h"
 #include "PeacenetSaveGame.h"
 #include "GovernmentAlertInfo.h"
-#include "GameTypeAsset.h"
 #include "TutorialPromptState.h"
 #include "AlertManager.h"
 #include "PeacenetWorldStateActor.generated.h"
@@ -184,9 +183,6 @@ public: //Properties
 	TSubclassOf<UDesktopWidget> DesktopClass;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Meta = (ExposeOnSpawn))
-	UPeacenetGameTypeAsset* GameType;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Meta = (ExposeOnSpawn))
 	TSubclassOf<UWindow> WindowClass;
 
 	UPROPERTY(BlueprintAssignable, Category = "Peacenet")
@@ -310,6 +306,9 @@ public: // Static functions
 	// Used by the Ubiquity menu to see if the "Boot existing OS" screen should show.
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Peacegate")
 	static bool HasExistingOS();
+
+	UFUNCTION(BlueprintCallable, Category = "Peacegate")
+	static APeacenetWorldStateActor* BootOS(const APlayerController* InPlayerController, bool InDeleteExistingSaveFile = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Peacegate")
 	static APeacenetWorldStateActor* LoadExistingOS(const APlayerController* InPlayerController);
