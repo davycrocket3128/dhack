@@ -46,6 +46,7 @@
 #include "Exploit.h"
 #include "PeacenetGameInstance.h"
 #include "MissionActor.h"
+#include "SystemUpgrade.h"
 #include "Window.h"
 
 void APeacenetWorldStateActor::BroadcastMissionComplete(UMissionAsset* InMissionAsset)
@@ -567,6 +568,18 @@ void APeacenetWorldStateActor::BeginPlay()
 	for(auto ManualAsset : ManualAssets)
 	{
 		this->ManualPages.Add(ManualAsset->GetManualPage());
+	}
+
+	// Load all user-unlockable upgrades.
+	this->UserUnlockableUpgrades.Empty();
+	TArray<USystemUpgrade*> Upgrades;
+	this->LoadAssets<USystemUpgrade>("SystemUpgrade", Upgrades);
+	for(auto Upgrade : Upgrades)
+	{
+		if(Upgrade->CanUserUnlock)
+		{
+			this->UserUnlockableUpgrades.Add(Upgrade);
+		}
 	}
 
 	// Load computer services in.

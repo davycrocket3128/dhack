@@ -60,6 +60,7 @@ class UCommandInfo;
 class UPayloadAsset;
 class UWindow;
 class UMissionAsset;
+class USystemUpgrade;
 
 USTRUCT(BlueprintType)
 struct FGameEventData
@@ -86,6 +87,10 @@ class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
 public: // Constructors
 	// Sets default values for this actor's properties
 	APeacenetWorldStateActor();
+
+	// All of the system upgrades that are available in the upgrade shop (formerly shiftorium in shiftos.)
+	UPROPERTY()
+	TArray<USystemUpgrade*> UserUnlockableUpgrades;
 
 	UPROPERTY()
 	FMissionCompleteEvent MissionCompleteEvent;
