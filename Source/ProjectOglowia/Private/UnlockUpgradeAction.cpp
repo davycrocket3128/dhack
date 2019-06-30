@@ -29,45 +29,15 @@
  *
  ********************************************************************************/
 
+#include "UnlockUpgradeAction.h"
+#include "UserContext.h"
+#include "SystemContext.h"
 
-#pragma once
-
-#include "CoreMinimal.h"
-#include "ManualPageAssetBase.h"
-#include "ManualPageBuilder.h"
-#include "SystemUpgrade.generated.h"
-
-class USystemContext;
-
-UCLASS(Blueprintable)
-class PROJECTOGLOWIA_API USystemUpgrade : public UManualPageAssetBase
+void UUnlockUpgradeAction::NativeStart()
 {
-    GENERATED_BODY()
-
-public:
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System Upgrade")
-    int RequiredSkillPoints = 0;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System Upgrade")
-    TArray<USystemUpgrade*> Dependencies;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System Upgrade")
-    bool CanUserUnlock = true;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System Upgrade")
-    bool UnlockedByDefault = false;
-
-public:
-    UFUNCTION()
-    bool DependenciesFulfilled(USystemContext* InSystemContext);
-
-    UFUNCTION()
-    void TriggerUnlock(USystemContext* InSystemContext);
-
-    UFUNCTION()
-    bool IsUnlocked(USystemContext* InSystemContext);
-
-protected:
-    virtual void BuildManualPage(UManualPageBuilder* InBuilder) override;
-
-};
+    if(this->Upgrade)
+    {
+        this->Upgrade->TriggerUnlock(this->GetPlayerUser()->GetOwningSystem());
+    }
+    this->Complete();
+}

@@ -32,6 +32,16 @@
 #include "SystemUpgrade.h"
 #include "SystemContext.h"
 
+void USystemUpgrade::TriggerUnlock(USystemContext* InSystemContext)
+{
+    if(this->IsUnlocked(InSystemContext)) return;
+
+    if(InSystemContext->HasIdentity())
+    {
+        InSystemContext->GetCharacter().UnlockedUpgrades.Add(this);
+    }
+}
+
 bool USystemUpgrade::DependenciesFulfilled(USystemContext* InSystemContext)
 {
     if(this->Dependencies.Num())

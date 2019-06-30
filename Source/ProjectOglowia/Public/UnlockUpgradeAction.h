@@ -29,45 +29,22 @@
  *
  ********************************************************************************/
 
-
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ManualPageAssetBase.h"
-#include "ManualPageBuilder.h"
-#include "SystemUpgrade.generated.h"
+#include "MissionTask.h"
+#include "SystemUpgrade.h"
+#include "UnlockUpgradeAction.generated.h"
 
-class USystemContext;
-
-UCLASS(Blueprintable)
-class PROJECTOGLOWIA_API USystemUpgrade : public UManualPageAssetBase
+UCLASS(BlueprintType)
+class PROJECTOGLOWIA_API UUnlockUpgradeAction : public UMissionTask 
 {
     GENERATED_BODY()
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System Upgrade")
-    int RequiredSkillPoints = 0;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System Upgrade")
-    TArray<USystemUpgrade*> Dependencies;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System Upgrade")
-    bool CanUserUnlock = true;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System Upgrade")
-    bool UnlockedByDefault = false;
-
-public:
-    UFUNCTION()
-    bool DependenciesFulfilled(USystemContext* InSystemContext);
-
-    UFUNCTION()
-    void TriggerUnlock(USystemContext* InSystemContext);
-
-    UFUNCTION()
-    bool IsUnlocked(USystemContext* InSystemContext);
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    USystemUpgrade* Upgrade;
 
 protected:
-    virtual void BuildManualPage(UManualPageBuilder* InBuilder) override;
-
+    void NativeStart() override;
 };
