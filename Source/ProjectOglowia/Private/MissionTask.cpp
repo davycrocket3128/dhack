@@ -130,6 +130,7 @@ void UMissionTask::Start(AMissionActor* InMission)
 void UMissionTask::Tick(float InDeltaSeconds)
 {
     if(this->IsFailed) return;
+    if(this->IsFinished) return;
 
     this->NativeTick(InDeltaSeconds);
     this->OnTick(InDeltaSeconds);

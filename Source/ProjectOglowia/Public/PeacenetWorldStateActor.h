@@ -39,9 +39,7 @@
 #include "AssetRegistry/Public/IAssetRegistry.h"
 #include "ManualPage.h"
 #include "AssetRegistry/Public/AssetRegistryModule.h"
-#include "GovernmentAlertStatus.h"
 #include "PeacenetSaveGame.h"
-#include "GovernmentAlertInfo.h"
 #include "TutorialPromptState.h"
 #include "AlertManager.h"
 #include "PeacenetWorldStateActor.generated.h"
@@ -143,9 +141,6 @@ private: // Properties
 
 	UPROPERTY()
 	TArray<USystemContext*> SystemContexts;
-
-	UPROPERTY()
-	TMap<int, FGovernmentAlertInfo> GovernmentAlertInfo;
 
 public: //Properties
 	UPROPERTY(BlueprintAssignable)
@@ -256,7 +251,7 @@ public:	// Functions
 	TArray<UPayloadAsset*> GetAllPayloads();
 
 	UFUNCTION()
-	USystemContext* GetSystemContext(int InIdentityID);
+	USystemContext* GetSystemContext(int InComputerID);
 
 	UFUNCTION()
 	TArray<UComputerService*> GetServicesFor(EComputerType InComputerType);
@@ -266,9 +261,6 @@ public:	// Functions
 
 	UFUNCTION()
 	void SaveWorld();
-
-	UFUNCTION()
-	FGovernmentAlertInfo GetAlertInfo(int InCharacterID);
 
 	UFUNCTION(BlueprintCallable, Category = "Peacenet")
 	void StartGame(TSubclassOf<UDesktopWidget> InDesktopClass, TSubclassOf<UWindow> InWindowClass);

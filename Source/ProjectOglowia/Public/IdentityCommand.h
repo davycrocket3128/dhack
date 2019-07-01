@@ -29,22 +29,48 @@
  *
  ********************************************************************************/
 
-
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GovernmentAlertStatus.h"
-#include "GovernmentAlertInfo.generated.h"
+#include "TerminalCommand.h"
+#include "IdentityCommand.generated.h"
 
-USTRUCT(BlueprintType)
-struct FGovernmentAlertInfo
+UCLASS(BlueprintType)
+class PROJECTOGLOWIA_API AIdentityCommand : public ATerminalCommand
 {
     GENERATED_BODY()
 
+private:
+    UPROPERTY()
+    bool HasName = false;
+
+    UPROPERTY()
+    FString IdentityName;
+
+    UPROPERTY()
+    bool UseNameAsAlias = false;
+
+    UPROPERTY()
+    bool HasAlias = false;
+
+    UPROPERTY()
+    bool AliasConfirmed = false;
+
+    UPROPERTY()
+    FString AliasName;
+
 public:
-    UPROPERTY(BlueprintReadOnly, Category = "Government Alert")
-    EGovernmentAlertStatus Status = EGovernmentAlertStatus::NoAlert;
-    
-    UPROPERTY(BlueprintReadOnly, Category = "Government Alert")
-    float AlertLevel = 0.f;
+    AIdentityCommand();
+
+protected:
+    virtual void NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) override;
+
+    UFUNCTION()
+    int GetNextIdentityID();
+
+    UFUNCTION()
+    const FText MakeAliasFrom(FString InName);
+
+public:
+    virtual void Tick(float DeltaSeconds) override;
 };

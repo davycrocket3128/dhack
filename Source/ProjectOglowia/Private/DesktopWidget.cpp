@@ -216,11 +216,6 @@ UConsoleContext * UDesktopWidget::CreateConsole(UPTerminalWidget* InTerminal)
 	return this->SystemContext->GetUserContext(this->UserID)->CreateConsole(InTerminal);
 }
 
-EGovernmentAlertStatus UDesktopWidget::GetAlertStatus()
-{
-	return this->AlertInfo.Status;
-}
-
 void UDesktopWidget::SetWallpaper(UTexture2D* InTexture)
 {
 	this->GetSystemContext()->GetComputer().CurrentWallpaper = InTexture;
@@ -234,9 +229,6 @@ void UDesktopWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	check(this->SystemContext);
 	check(this->SystemContext->GetPeacenet());
-
-	// Fetch government alert status.
-	this->AlertInfo = this->SystemContext->GetPeacenet()->GetAlertInfo(this->SystemContext->GetCharacter().ID);
 
 	this->MyCharacter = this->SystemContext->GetCharacter();
 	this->MyComputer = this->SystemContext->GetComputer();
@@ -272,28 +264,16 @@ void UDesktopWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	// update hostname
 	this->CurrentHostname = this->SystemContext->GetHostname();
 
-	// And now the Peacenet name.
-	this->CurrentPeacenetName = this->MyCharacter.CharacterName;
+	if(this->GetUserContext()->HasIdentity())
+	{
+		// And now the Peacenet name.
+		this->CurrentPeacenetName = this->MyCharacter.CharacterName;
+	}
 
 	this->TimeOfDay = this->SystemContext->GetPeacenet()->GetTimeOfDay();
 
 	// Set our wallpaper.
 	this->WallpaperTexture = this->GetSystemContext()->GetComputer().CurrentWallpaper;
-
-	// Is the game in a tutorial?
-	if(this->GetPeacenet()->GetTutorialState()->IsPromptActive())
-	{
-		// Get the current prompt text. Compare it to the last prompt text.
-		FText CurrentPrompt = this->GetPeacenet()->GetTutorialState()->GetTutorialText();
-		if(!CurrentPrompt.EqualTo(this->LastTutorialText))
-		{
-			// If they're not equal then make them equal and tell Blueprint to get its shit in order.
-			this->LastTutorialText = CurrentPrompt;
-			this->UpdateTutorial(this->LastTutorialText);
-		}
-		
-
-	}
 
 	Super::NativeTick(MyGeometry, InDeltaTime);
 }

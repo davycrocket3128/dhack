@@ -37,9 +37,7 @@
 #include "Text.h"
 #include "TextProperty.h"
 #include "PeacegateProgramAsset.h" 
-#include "GovernmentAlertStatus.h"
 #include "RAMUsage.h"
-#include "GovernmentAlertInfo.h"
 #include "PeacegateFileSystem.h"
 #include "GameRules.h"
 #include "Workspace.h"
@@ -134,9 +132,6 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System")
 	USystemContext* GetSystemContext();
 
-	UPROPERTY()
-	FGovernmentAlertInfo AlertInfo;
-
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	UTutorialPromptState* GetTutorialPrompt();
 
@@ -148,9 +143,6 @@ protected:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsTutorialActive();
-
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Government Alert")
-	EGovernmentAlertStatus GetAlertStatus();
 
 public:
 	UFUNCTION()

@@ -50,7 +50,8 @@ void UTutorialPromptState::ActivatePrompt(const FText& InTitle, const FText& InT
 
 void UTutorialPromptState::DismissPrompt()
 {
-    this->PromptText = this->PromptTitle = FText::FromString("");
+    this->PromptText = FText::GetEmpty();
+    this->PromptTitle = FText::GetEmpty();
     this->PromptActive = false;
 }
 

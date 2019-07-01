@@ -253,34 +253,30 @@ bool APeacenetWorldStateActor::IsPortOpen(FString InIPAddress, int InPort)
 	return false;
 }
 
-USystemContext* APeacenetWorldStateActor::GetSystemContext(int InIdentityID)
+USystemContext* APeacenetWorldStateActor::GetSystemContext(int InComputerID)
 {
 	for(auto Context : this->SystemContexts)
 	{
-		if(Context->GetCharacter().ID == InIdentityID)
+		if(Context->GetComputer().ID == InComputerID)
 			return Context;
 	}
 
 	check(this->SaveGame);
 
-	FPeacenetIdentity Identity;
-	int IdentityIndex;
-	bool result = this->SaveGame->GetCharacterByID(InIdentityID, Identity, IdentityIndex);
-	check(result);
-
 	FComputer Computer;
 	int ComputerIndex;
-	result = this->SaveGame->GetComputerByID(Identity.ComputerID, Computer, ComputerIndex);
+	bool result = this->SaveGame->GetComputerByID(InComputerID, Computer, ComputerIndex);
 	check(result);
 
 	USystemContext* NewContext = NewObject<USystemContext>(this);
 
-	NewContext->Setup(Computer.ID, Identity.ID, this);
+	NewContext->Setup(Computer.ID, Computer.SystemIdentity, this);
 
 	SystemContexts.Add(NewContext);
 
 	return NewContext;
 }
+
 
 bool APeacenetWorldStateActor::GetOwningIdentity(FComputer& InComputer, int& OutIdentityID)
 {
@@ -676,26 +672,6 @@ void APeacenetWorldStateActor::Tick(float DeltaTime)
 		// Save it
 		SaveGame->EpochTime = TimeOfDay;
 	}
-}
-
-FGovernmentAlertInfo APeacenetWorldStateActor::GetAlertInfo(int InCharacterId)
-{
-	check(this->SaveGame);
-
-	FPeacenetIdentity Character;
-	int CharacterIndex;
-	bool result = this->SaveGame->GetCharacterByID(InCharacterId, Character, CharacterIndex);
-	check(result);
-
-	if(!GovernmentAlertInfo.Contains(Character.ID))
-	{
-		FGovernmentAlertInfo Info;
-		Info.Status = EGovernmentAlertStatus::NoAlert;
-		Info.AlertLevel = 0.f;
-		this->GovernmentAlertInfo.Add(Character.ID, Info);
-	}
-
-	return GovernmentAlertInfo[Character.ID];
 }
 
 UTutorialPromptState* APeacenetWorldStateActor::GetTutorialState()

@@ -292,7 +292,7 @@ bool USystemContext::HasIdentity()
 {
 	int i = 0;
 	FPeacenetIdentity id;
-	return this->GetPeacenet()->SaveGame->GetCharacterByID(this->CharacterID, id, i);
+	return this->GetPeacenet()->SaveGame->GetCharacterByID(this->GetComputer().SystemIdentity, id, i);
 }
 
 TArray<FAdjacentNodeInfo> USystemContext::ScanForAdjacentNodes()
@@ -540,19 +540,17 @@ FPeacenetIdentity& USystemContext::GetCharacter()
 {
 	check(this->GetPeacenet());
 
-	if(this->GetComputer().OwnerType == EComputerOwnerType::None)
-	{
-		this->UpdateInternalIdentity();
-		return this->InternalIdentity;
-	}
-
 	auto MyPeacenet = this->GetPeacenet();
 
 	int CharacterIndex = 0;
 	FPeacenetIdentity Character;
 
-	bool result = MyPeacenet->SaveGame->GetCharacterByID(this->CharacterID, Character, CharacterIndex);
-	if(!result) return this->InternalIdentity;
+	bool result = MyPeacenet->SaveGame->GetCharacterByID(this->GetComputer().SystemIdentity, Character, CharacterIndex);
+	if(!result) 
+	{
+		this->UpdateInternalIdentity();
+		return this->InternalIdentity;
+	}
 
 	return MyPeacenet->SaveGame->Characters[CharacterIndex];
 }
