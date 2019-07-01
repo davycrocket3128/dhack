@@ -275,6 +275,15 @@ void UDesktopWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	// Set our wallpaper.
 	this->WallpaperTexture = this->GetSystemContext()->GetComputer().CurrentWallpaper;
 
+	if(this->IsTutorialActive())
+	{
+		if(!this->GetTutorialPrompt()->GetTutorialText().EqualTo(this->LastTutorialText))
+		{
+			this->LastTutorialText = this->GetTutorialPrompt()->GetTutorialText();
+			this->UpdateTutorial(this->LastTutorialText);
+		}
+	}
+
 	Super::NativeTick(MyGeometry, InDeltaTime);
 }
 
