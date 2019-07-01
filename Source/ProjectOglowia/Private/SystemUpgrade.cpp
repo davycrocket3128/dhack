@@ -59,7 +59,7 @@ bool USystemUpgrade::DependenciesFulfilled(USystemContext* InSystemContext)
 
 bool USystemUpgrade::IsUnlocked(USystemContext* InSystemContext)
 {
-    if(InSystemContext->HasIdentity())
+    if(!InSystemContext->HasIdentity())
         return false;
 
     if(!this->DependenciesFulfilled(InSystemContext))
