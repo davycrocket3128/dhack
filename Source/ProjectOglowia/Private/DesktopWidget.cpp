@@ -189,11 +189,13 @@ void UDesktopWidget::SetObjectiveText(const FText& InObjectiveText)
 
 FText UDesktopWidget::GetMissionAcquisition()
 {
+	if(!this->IsMissionActive()) return FText::GetEmpty();
 	return this->GetPeacenet()->GetMissionActor()->GetMissionAsset()->Description;
 }
 
 FText UDesktopWidget::GetMissionName()
 {
+	if(!this->IsMissionActive()) return FText::GetEmpty();
 	return this->GetPeacenet()->GetMissionActor()->GetMissionName();
 }
 

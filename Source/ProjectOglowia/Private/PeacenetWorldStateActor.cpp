@@ -196,7 +196,7 @@ APeacenetWorldStateActor::APeacenetWorldStateActor()
 
 bool APeacenetWorldStateActor::IsInMission()
 {
-	return this->CurrentMission;
+	return this->CurrentMission && this->CurrentMission->IsValidLowLevelFast();
 }
 
 AMissionActor* APeacenetWorldStateActor::GetMissionActor()
@@ -501,16 +501,19 @@ void APeacenetWorldStateActor::SendAvailableMissions()
 	}
 }
 
-void APeacenetWorldStateActor::EndMission()
+void APeacenetWorldStateActor::EndMission(bool DoGameUpdate)
 {
 	// Tells the game we're no longer in a mission.
 	this->CurrentMission = nullptr;
 
-	// Saves the game.
-	this->SaveWorld();
+	if(DoGameUpdate)
+	{
+		// Notifies of any new missions.
+		this->SendAvailableMissions();
 
-	// Notifies of any new missions.
-	this->SendAvailableMissions();
+		// Saves the game.
+		this->SaveWorld();
+	}
 }
 
 float APeacenetWorldStateActor::GetStealthiness(FPeacenetIdentity& InIdentity)

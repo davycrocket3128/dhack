@@ -83,7 +83,7 @@ void AMissionActor::Complete()
         this->Peacenet->SaveGame->CompletedMissions.Add(this->Mission);
 
     // Tell The Peacenet that we've completed.
-    this->Peacenet->EndMission();
+    this->Peacenet->EndMission(true);
 
     // If the mission says "update the music state" then we'll do that now.
     if(this->Mission->UpdateFreeRoamMusicState)
@@ -159,6 +159,9 @@ void AMissionActor::Abort()
 
     // Delete save states.
     this->DeleteSaveStates();
+
+    // Peacenet should know we're done.
+    this->Peacenet->EndMission(false);
 
     // Destroy ourselves.
     this->Peacenet = nullptr;

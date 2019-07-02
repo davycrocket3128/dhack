@@ -168,7 +168,7 @@ public: //Properties
 	bool IsTutorialActive();
 
 	UFUNCTION()
-	void EndMission();
+	void EndMission(bool DoGameUpdate);
 
 	UFUNCTION()
 	bool ResolveHost(FString InHost, FComputer& OutComputer, EConnectionError& OutError);
