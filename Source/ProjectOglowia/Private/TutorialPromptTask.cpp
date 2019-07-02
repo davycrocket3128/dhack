@@ -33,6 +33,23 @@
 #include "PeacenetWorldStateActor.h"
 #include "TutorialPromptState.h"
 
+void UTutorialPromptTask::NativeMissionEnded()
+{
+    // Are we still in the tutorial?
+    if(this->GetPeacenet()->IsTutorialActive())
+    {
+        FText title = this->GetPeacenet()->GetTutorialState()->GetTutorialTitle();
+        FText text = this->GetPeacenet()->GetTutorialState()->GetTutorialText();
+
+        // In case the tutorial that's on-screen isn't the same as what we displayed when the task
+        // started, we'll check if the text matches.  Only then will we dismiss the tutorial.
+        if(title.EqualTo(this->TutorialTitle) && text.EqualTo(this->TutorialText))
+        {
+            this->GetPeacenet()->GetTutorialState()->DismissPrompt();
+        }
+    }
+}
+
 void UTutorialPromptTask::NativeStart()
 {
     this->GetPeacenet()->GetTutorialState()->ActivatePrompt(this->TutorialTitle, this->TutorialText);

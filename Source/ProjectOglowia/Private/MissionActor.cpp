@@ -44,6 +44,13 @@ void AMissionActor::Advance()
     // the mission is completed.
     if(this->CurrentTask >= this->LoadedTasks.Num())
     {
+        // Let the last task know we've ended.
+        int last = this->CurrentTask-1;
+        if(last >= 0 && this->LoadedTasks[last].Task)
+        {
+            this->LoadedTasks[last].Task->MissionEnded();
+        }
+
         this->Complete();
         return;
     }
@@ -154,6 +161,15 @@ void AMissionActor::DeleteSaveStates()
 
 void AMissionActor::Abort()
 {
+    // Let the current task know that we're ending.
+    if(this->CurrentTask >= 0 && this->CurrentTask < this->LoadedTasks.Num())
+    {
+        if(this->LoadedTasks[this->CurrentTask].Task)
+        {
+            this->LoadedTasks[this->CurrentTask].Task->MissionEnded();
+        }
+    }
+
     // Restore the save file.
     this->Peacenet->SaveGame = Cast<UPeacenetSaveGame>(UGameplayStatics::LoadGameFromSlot("PeacegateOS_PreMission", 0));
 

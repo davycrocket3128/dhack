@@ -36,6 +36,18 @@
 #include "SystemContext.h"
 #include "UserContext.h"
 
+void UMissionTask::MissionEnded()
+{
+    // Get rid of the objective text in case we have any.
+    // Save desktops should handle the GUI side of this by not showing the mission acquisition
+    // UI when not in a mission but.... there's such a thing as drunk, stoned or uncaffeinated Michael.
+    this->SetObjectiveText(FText::GetEmpty());
+
+    // And we'll let the user handle cleaning up after ending a mission.
+    this->NativeMissionEnded();
+    this->OnMissionEnded();
+}
+
 void UMissionTask::SetObjectiveText(const FText& InObjectiveText)
 {
     this->GetPlayerUser()->GetOwningSystem()->GetDesktop()->SetObjectiveText(InObjectiveText);

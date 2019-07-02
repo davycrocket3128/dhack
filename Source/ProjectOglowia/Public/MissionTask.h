@@ -62,6 +62,7 @@ protected:
     virtual void NativeStart() {}
     virtual void NativeTick(float InDeltaSeconds) {}
     virtual void NativeEvent(FString EventName, TMap<FString, FString> InEventArgs) {}
+    virtual void NativeMissionEnded() {};
 
     UFUNCTION(BlueprintCallable)
     void SetObjectiveText(const FText& InObjectiveText);
@@ -85,6 +86,9 @@ protected:
     void OnTick(float InDeltaSeconds);
 
     UFUNCTION(BlueprintImplementableEvent)
+    void OnMissionEnded();
+
+    UFUNCTION(BlueprintImplementableEvent)
     void OnHandleEvent(const FString& EventName, const TMap<FString, FString>& InEventArgs);
 
     UFUNCTION(BlueprintCallable, BlueprintPure)
@@ -105,6 +109,9 @@ protected:
 public:
     UFUNCTION()
     bool GetIsFailed();
+
+    UFUNCTION()
+    void MissionEnded();
 
     UFUNCTION()
     FText GetFailMessage();

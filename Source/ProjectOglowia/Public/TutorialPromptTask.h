@@ -53,6 +53,7 @@ public:
     bool WaitForDismiss = true;
 
 protected:
+    virtual void NativeMissionEnded() override;
     virtual void NativeStart() override;
     virtual void NativeTick(float InDeltaSeconds) override;
 };
