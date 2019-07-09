@@ -83,6 +83,9 @@ public:
 
 protected:
     UFUNCTION()
+    void FireCompletionEvents();
+
+    UFUNCTION()
     void Advance();
 
     UFUNCTION()

@@ -34,6 +34,20 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/SaveGame.h"
 
+void AMissionActor::FireCompletionEvents()
+{
+    if(this->Mission && this->Mission->OnCompletion.Num())
+    {
+        for(auto Event : this->Mission->OnCompletion)
+        {
+            if(Event.Action)
+            {
+                Event.Action->MissionCompleted(this);
+            }
+        }
+    }
+}
+
 void AMissionActor::Advance()
 {
     // Advance the current task pointer so the next task
@@ -50,6 +64,11 @@ void AMissionActor::Advance()
         {
             this->LoadedTasks[last].Task->MissionEnded();
         }
+
+        // This lets the mission creator execute actions inside the game
+        // after the player's completed the mission, such as sending the player
+        // an email.
+        this->FireCompletionEvents();
 
         this->Complete();
         return;
