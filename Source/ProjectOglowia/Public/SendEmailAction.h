@@ -32,37 +32,31 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PostCompletionMissionAction.generated.h"
+#include "PostCompletionMissionAction.h"
+#include "UserContext.h"
+#include "SystemContext.h"
+#include "MailProvider.h"
+#include "Text.h"
+#include "TextProperty.h"
+#include "StoryCharacter.h"
+#include "SendEmailAction.generated.h"
 
-class APeacenetWorldStateActor;
-class UUserContext;
-class AMissionActor;
-
-UCLASS(BlueprintType, Blueprintable, Abstract, EditInlineNew)
-class PROJECTOGLOWIA_API UPostCompletionMissionAction : public UObject
+// Sends an email message to the player.
+UCLASS()
+class PROJECTOGLOWIA_API USendEmailAction : public UPostCompletionMissionAction
 {
     GENERATED_BODY()
 
-private:
-    UPROPERTY()
-    AMissionActor* Mission;
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FText Subject;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FText MessageBody;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UStoryCharacter* Sender;
 
 protected:
-    virtual void NativeMissionCompleted() {}
-
-    UFUNCTION(BlueprintImplementableEvent)
-    void OnMissionCompleted();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure)
-    UUserContext* GetPlayerUser();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure)
-    APeacenetWorldStateActor* GetPeacenet();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure)
-    AMissionActor* GetMission();
-
-public:
-    UFUNCTION()
-    void MissionCompleted(AMissionActor* MissionActor);
+    virtual void NativeMissionCompleted() override;
 };

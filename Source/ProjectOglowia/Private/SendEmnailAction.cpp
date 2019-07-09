@@ -29,37 +29,44 @@
  *
  ********************************************************************************/
 
-#include "PostCompletionMissionAction.h"
-#include "PeacenetSaveGame.h"
-#include "MissionActor.h"
-#include "PeacenetWorldStateActor.h"
+#include "SendEmailAction.h"
 #include "UserContext.h"
 #include "SystemContext.h"
+#include "MissionActor.h"
+#include "MissionAsset.h"
+#include "Email.h"
+#include "PeacenetWorldStateActor.h"
+#include "PeacenetSaveGame.h"
 
-APeacenetWorldStateActor* UPostCompletionMissionAction::GetPeacenet()
+void USendEmailAction::NativeMissionCompleted()
 {
-    return this->GetMission()->GetPeacenet();
-}
+    // Get the subject line of the email.  If empty, it is "Re: <mission name>".
+    FText realSubject = this->Subject.IsEmpty() ? FText::Format(NSLOCTEXT("Email", "ReplySubject", "Re: {0}"), this->GetMission()->GetMissionAsset()->Name) : this->Subject;
 
-UUserContext* UPostCompletionMissionAction::GetPlayerUser()
-{
-    int PlayerID = this->GetPeacenet()->SaveGame->PlayerComputerID;
-    USystemContext* PlayerSystem = this->GetPeacenet()->GetSystemContext(PlayerID);
-    return PlayerSystem->GetUserContext(this->GetPeacenet()->SaveGame->PlayerUserID);
-}
+    // Get the real sender of the email.  If none is provided then we'll use the mission's giver.
+    UStoryCharacter* realSender = this->Sender ? this->Sender : this->GetMission()->GetMissionAsset()->Assigner;
 
+    // Make sure the sender definitely isn't null.
+    check(realSender);
 
-void UPostCompletionMissionAction::MissionCompleted(AMissionActor* MissionActor)
-{
-    check(MissionActor);
+    // Get the player's mail provider.
+    UMailProvider* PlayerMail = this->GetPlayerUser()->GetOwningSystem()->GetMailProvider();
 
-    this->Mission = MissionActor;
+    // Get the save file.
+    UPeacenetSaveGame* SaveGame = this->GetPeacenet()->SaveGame;
 
-    this->NativeMissionCompleted();
-    this->OnMissionCompleted();
-}
+    // Create a new email structure.
+    FEmail mail;
+    mail.ID = SaveGame->EmailMessages.Num();
+    mail.InReplyTo = -1;
+	SaveGame->GetStoryCharacterID(realSender, mail.FromEntity);
+    mail.ToEntities.Add(this->GetPlayerUser()->GetOwningSystem()->GetCharacter().ID);
+	mail.Subject = realSubject.ToString();
+	mail.MessageBody = this->MessageBody.ToString();
 
-AMissionActor* UPostCompletionMissionAction::GetMission()
-{
-    return this->Mission;
+    // Store it in the save.
+    SaveGame->EmailMessages.Add(mail);
+	
+	// Notify the player of the new email message.
+	PlayerMail->NotifyReceivedMessage(mail.ID);
 }
