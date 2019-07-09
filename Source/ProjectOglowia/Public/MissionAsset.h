@@ -37,6 +37,7 @@
 #include "TextProperty.h"
 #include "StoryCharacter.h"
 #include "MissionTask.h"
+#include "PostCompletionMissionAction.h"
 #include "MissionAsset.generated.h"
 
 USTRUCT(BlueprintType)
@@ -50,6 +51,16 @@ public:
 
     UPROPERTY(Editanywhere, BlueprintReadOnly, Instanced)
     UMissionTask* Task;
+};
+
+USTRUCT(BlueprintType)
+struct PROJECTOGLOWIA_API FMissionAction
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced)
+    UPostCompletionMissionAction* Action;
 };
 
 UCLASS(Blueprintable, BlueprintType)
@@ -82,4 +93,8 @@ public:
     // Whether or not the game should change the song(s) played during Free Roam.
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "When The Fucking Mission Is Completed")
     bool UpdateFreeRoamMusicState = false;
+
+    // A list of actions to perform when the mission's been completed.
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "When The Fucking Mission Is Completed")
+    TArray<FMissionAction> OnCompletion;
 };
