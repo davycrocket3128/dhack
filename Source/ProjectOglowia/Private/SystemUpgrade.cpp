@@ -33,6 +33,21 @@
 #include "SystemContext.h"
 #include "UserContext.h"
 
+bool USystemUpgrade::ShouldShowUpgradeInUserInterface(UUserContext* InPeacegateUser)
+{
+    if(this->UnlockedByDefault)
+    {
+        return false;
+    }
+
+    if(this->IsUnlocked(InPeacegateUser->GetOwningSystem()) || this->DependenciesFulfilled(InPeacegateUser->GetOwningSystem()))
+    {
+        return true;
+    }
+
+    return false;
+}
+
 void USystemUpgrade::TriggerUnlock(USystemContext* InSystemContext)
 {
     if(this->IsUnlocked(InSystemContext)) return;

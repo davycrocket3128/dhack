@@ -61,6 +61,9 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure)
     bool UpgradeIsUnlockable(UUserContext* InPeacegateUser);
 
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    bool ShouldShowUpgradeInUserInterface(UUserContext* InPeacegateUser);
+
     UFUNCTION()
     bool DependenciesFulfilled(USystemContext* InSystemContext);
 
