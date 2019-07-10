@@ -716,6 +716,7 @@ void APeacenetWorldStateActor::StartGame(TSubclassOf<UDesktopWidget> InDesktopCl
 		FUser root;
 		root.Username = "root";
 		root.ID = 0;
+		root.Domain = EUserDomain::Administrator;
 		pc.Users.Add(root);
 
 		SaveGame->Computers.Add(pc);
