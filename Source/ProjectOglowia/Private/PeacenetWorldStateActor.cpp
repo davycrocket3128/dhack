@@ -447,6 +447,11 @@ TArray<FManualPage> APeacenetWorldStateActor::GetManualPages()
 	return this->ManualPages;
 }
 
+TArray<USystemUpgrade*> APeacenetWorldStateActor::GetAllSystemUpgrades()
+{
+	return this->UserUnlockableUpgrades;
+}
+
 void APeacenetWorldStateActor::SendMissionMail(UMissionAsset* InMission)
 {
 	check(InMission);

@@ -162,6 +162,9 @@ public: //Properties
 	void UpdateMaps();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
+	TArray<USystemUpgrade*> GetAllSystemUpgrades();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UTutorialPromptState* GetTutorialState();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
