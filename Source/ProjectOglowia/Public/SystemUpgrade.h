@@ -58,6 +58,9 @@ public:
     bool UnlockedByDefault = false;
 
 public:
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    bool UpgradeIsUnlockable(UUserContext* InPeacegateUser);
+
     UFUNCTION()
     bool DependenciesFulfilled(USystemContext* InSystemContext);
 

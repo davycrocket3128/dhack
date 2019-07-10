@@ -31,6 +31,7 @@
 
 #include "SystemUpgrade.h"
 #include "SystemContext.h"
+#include "UserContext.h"
 
 void USystemUpgrade::TriggerUnlock(USystemContext* InSystemContext)
 {
@@ -40,6 +41,20 @@ void USystemUpgrade::TriggerUnlock(USystemContext* InSystemContext)
     {
         InSystemContext->GetCharacter().UnlockedUpgrades.Add(this);
     }
+}
+
+bool USystemUpgrade::UpgradeIsUnlockable(UUserContext* InPeacegateUser)
+{
+    if(!this->CanUserUnlock)
+        return false;
+
+    if(!this->IsUnlocked(InPeacegateUser->GetOwningSystem()))
+        return false;
+
+    if(this->IsUnlocked(InPeacegateUser->GetOwningSystem()))
+        return false;
+
+    return true;
 }
 
 bool USystemUpgrade::DependenciesFulfilled(USystemContext* InSystemContext)
