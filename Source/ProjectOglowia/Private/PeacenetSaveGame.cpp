@@ -189,7 +189,7 @@ void UPeacenetSaveGame::FixEntityIDs()
 			Characters[i].ComputerID = ComputerIDMap[Characters[i].ComputerID];
 	}
 
-	// Fix up player character ID
+	// Fix up player computer ID
 	if(ComputerIDMap.Contains(PlayerComputerID))
 		PlayerComputerID = ComputerIDMap[PlayerComputerID];
 
@@ -322,6 +322,40 @@ void UPeacenetSaveGame::FixEntityIDs()
 		DomainNameMap.Remove(DeadDomains[0]);
 		DeadDomains.RemoveAt(0);
 	}
+
+	// With the new identity system in Peacenet 0.2.x, the save file no longer stores
+	// a direct link to the player identity - this information is now stored in the player's
+	// computer data.
+	//
+	// This is also the case for NPC computers, their owning identities are stored within their
+	// save data.  That way, an identity no longer requires a Peacegate computer - allowing us
+	// to generate things like companies and story characters much easier.
+	//
+	// However this means we need to re-assign these identity IDs as the above cleanup code
+	// throws everything out of whack.  Fucking hell.  This is the one part of the codebase
+	// I fucking despise.  I just wanna be with Kaylin.  Fucking kill me.  - Michael
+	for(int i = 0; i < this->Computers.Num(); i++)
+	{
+		// Skip over computers that don't have an owning identity - some computers are like this,
+		// namely those that are part of company networks but not exposed to the public.
+		if(this->Computers[i].SystemIdentity == -1) continue;
+
+		// If our character ID map does not contain a record for the computer's System Identity,
+		// the computer becomes orphaned.  This shouldn't happen unless I fucked something up like
+		// usual at 2 AM with no caffeine but....
+		//
+		// ...it also prevents potential crashes.
+		if(!CharacterIDMap.Contains(this->Computers[i].SystemIdentity))
+		{
+			this->Computers[i].SystemIdentity = -1;
+			continue;
+		}
+
+		// And now we actually fucking reassign the motherfucking piece of shit entity ID.
+		this->Computers[i].SystemIdentity = CharacterIDMap[this->Computers[i].SystemIdentity];
+	}
+
+	// Maybe THAT will stop the game from fucking wiping the player identity.
 }
 
 bool UPeacenetSaveGame::IsTrue(FString InKey)

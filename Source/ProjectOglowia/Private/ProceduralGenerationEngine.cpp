@@ -546,7 +546,12 @@ void UProceduralGenerationEngine::GenerateIdentityPosition(FPeacenetIdentity& Pi
         }
     }
 
-    check(PivotResult);
+    if(!PivotResult)
+    {
+        PivotResult = true;
+        PivotPos = FVector2D(0.f, 0.f);
+        this->Peacenet->SaveGame->SetEntityPosition(Pivot.ID, PivotPos);
+    }
 
     FVector2D NewPos = FVector2D(0.f, 0.f);
     do
