@@ -232,7 +232,17 @@ void AIdentityCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FStri
     else {
         if(InConsole->GetUserContext()->HasIdentity())
         {
+            InConsole->WriteLine(NSLOCTEXT("IdentityCommand", "CurrentIdentity", "Current Peacenet Identity"));
+            InConsole->WriteLine(NSLOCTEXT("IdentityCommand", "CurrentIdentityDashes", "========================="));
+            InConsole->WriteLine(FText::GetEmpty());
+            InConsole->WriteLine(FText::Format(NSLOCTEXT("IdentityCommand", "CurrentName", "Name: {0}"), FText::FromString(this->GetUserContext()->GetCharacterName())));
+            InConsole->WriteLine(FText::Format(NSLOCTEXT("IdentityCommand", "CurrentEmail", "Email: {0}"), FText::FromString(this->GetUserContext()->GetEmailAddress())));
 
+            InConsole->WriteLine(FText::GetEmpty());
+            InConsole->WriteLine(FText::Format(NSLOCTEXT("IdentityCommand", "SkillCounter", "You have {0} Skill points."), FText::AsNumber(this->GetUserContext()->GetOwningSystem()->GetCharacter().Skill)));
+            InConsole->WriteLine(FText::GetEmpty());
+            
+            this->Complete();
         }
         else {
             InConsole->WriteLine(FText::Format(NSLOCTEXT("IdentityCommand", "MustCreateIdentity", "Error: You do not have a Peacenet Identity yet.  Try creating one by running '{0} -c'."), FText::FromString(this->CommandName)));
