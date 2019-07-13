@@ -34,7 +34,6 @@
 
 #include "CoreMinimal.h"
 #include "Window.h"
-#include "RAMUsage.h"
 #include "SystemContext.h"
 #include "Engine/DataAsset.h"
 #include "ManualPageAssetBase.h"
@@ -79,9 +78,6 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Program")
 	bool IsSingleInstance = false;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Resource Usage")
-	ERAMUsage RAMUsage = ERAMUsage::Low;
 
 protected:
 	virtual void BuildManualPage(UManualPageBuilder* InBuilder) override;

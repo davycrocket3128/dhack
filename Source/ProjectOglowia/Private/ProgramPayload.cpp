@@ -44,7 +44,7 @@ void UProgramPayload::NativePayloadDeployed(UConsoleContext* Console, UUserConte
 
     // Create the new program object.
     UWindow* Window;
-    UProgram* RemoteProgram = UProgram::CreateProgram(WindowClass, this->ProgramToOpen->ProgramClass, TargetUser, Window, ProgramToOpen->ID.ToString(), ProgramToOpen->RAMUsage, false);
+    UProgram* RemoteProgram = UProgram::CreateProgram(WindowClass, this->ProgramToOpen->ProgramClass, TargetUser, Window, ProgramToOpen->ID.ToString(), false);
 
     // Set Window title and icon.
     Window->WindowTitle = ProgramToOpen->FullName;

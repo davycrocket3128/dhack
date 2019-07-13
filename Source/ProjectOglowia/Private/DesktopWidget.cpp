@@ -111,11 +111,11 @@ USystemContext* UDesktopWidget::GetSystemContext()
 	return this->SystemContext;
 }
 
-UProgram * UDesktopWidget::SpawnProgramFromClass(TSubclassOf<UProgram> InClass, const FText& InTitle, UTexture2D* InIcon, bool InEnableMinimizeMaximize, ERAMUsage InRAMUsage)
+UProgram * UDesktopWidget::SpawnProgramFromClass(TSubclassOf<UProgram> InClass, const FText& InTitle, UTexture2D* InIcon, bool InEnableMinimizeMaximize)
 {
 	UWindow* OutputWindow = nullptr;
 
-	UProgram* Program = UProgram::CreateProgram(this->SystemContext->GetPeacenet()->WindowClass, InClass, this->SystemContext->GetUserContext(this->UserID), OutputWindow, InTitle.ToString(), InRAMUsage);
+	UProgram* Program = UProgram::CreateProgram(this->SystemContext->GetPeacenet()->WindowClass, InClass, this->SystemContext->GetUserContext(this->UserID), OutputWindow, InTitle.ToString());
 
 	OutputWindow->WindowTitle = InTitle;
 	OutputWindow->Icon = InIcon;

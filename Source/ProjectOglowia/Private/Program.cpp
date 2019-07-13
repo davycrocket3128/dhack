@@ -114,12 +114,10 @@ void UProgram::RequestPlayerAttention(bool PlaySound)
 	this->PlayerAttentionNeeded.Broadcast(PlaySound);
 }
 
-UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSubclassOf<UProgram> InProgramClass, UUserContext* InUserContext, UWindow*& OutWindow, FString InProcessName, ERAMUsage InRAMUsage, bool DoContextSetup)
+UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSubclassOf<UProgram> InProgramClass, UUserContext* InUserContext, UWindow*& OutWindow, FString InProcessName, bool DoContextSetup)
 {
 	// Preventative: make sure the system context isn't null.
 	check(InUserContext);
-
-	// TODO: Take in a user context instead of a system context and user ID.
 	check(InUserContext->GetPeacenet());
 
 	APlayerController* MyPlayer = UGameplayStatics::GetPlayerController(InUserContext->GetPeacenet()->GetWorld(), 0);
@@ -137,7 +135,7 @@ UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSu
 	Window->SetUserContext(InUserContext);
 
 	// Start the process for the program.
-	ProgramInstance->ProcessID = InUserContext->StartProcess(InProcessName, InProcessName, InRAMUsage);
+	ProgramInstance->ProcessID = InUserContext->StartProcess(InProcessName, InProcessName);
 
 	// That above value will be -1 if the player doesn't have enough RAM for the program to run.
 

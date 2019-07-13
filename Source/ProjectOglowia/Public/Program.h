@@ -37,7 +37,6 @@
 #include "Dialog.h"
 #include "PeacenetSiteWidget.h"
 #include "Blueprint/UserWidget.h"
-#include "RAMUsage.h"
 #include "Program.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerAttentionNeededEvent, bool, PlaySound);
@@ -85,7 +84,7 @@ public:
 	FPlayerAttentionNeededEvent PlayerAttentionNeeded;
 
 	UFUNCTION(BlueprintCallable, Category = "Peacegate")
-	static UProgram* CreateProgram(const TSubclassOf<UWindow> InWindowClass, const TSubclassOf<UProgram> InProgramClass, UUserContext* InUserContext, UWindow*& OutWindow, FString InProcessName, ERAMUsage InRAMUsage, bool DoContextSetup = true);
+	static UProgram* CreateProgram(const TSubclassOf<UWindow> InWindowClass, const TSubclassOf<UProgram> InProgramClass, UUserContext* InUserContext, UWindow*& OutWindow, FString InProcessName, bool DoContextSetup = true);
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = "true"))
 	UWindow* Window;

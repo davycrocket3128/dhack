@@ -37,7 +37,6 @@
 #include "Text.h"
 #include "TextProperty.h"
 #include "PeacegateProgramAsset.h" 
-#include "RAMUsage.h"
 #include "PeacegateFileSystem.h"
 #include "GameRules.h"
 #include "Workspace.h"
@@ -171,7 +170,7 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Desktop")
-	UProgram* SpawnProgramFromClass(TSubclassOf<UProgram> InClass, const FText& InTitle, UTexture2D* InIcon, bool InEnableMinimizeMaximize, ERAMUsage InRAMUsage);
+	UProgram* SpawnProgramFromClass(TSubclassOf<UProgram> InClass, const FText& InTitle, UTexture2D* InIcon, bool InEnableMinimizeMaximize);
 
 protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure)

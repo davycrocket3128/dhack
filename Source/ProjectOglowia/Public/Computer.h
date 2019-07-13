@@ -39,7 +39,6 @@
 #include "ComputerType.h"
 #include "FirewallRule.h"
 #include "TextFile.h"
-#include "RAMAmount.h"
 #include "TerminalColor.h"
 #include "Exploit.h"
 #include "PayloadAsset.h"
@@ -175,9 +174,6 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Peacenet Sites")
 	UPeacenetSiteAsset* PeacenetSite = nullptr;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Resource Usage")
-	ERAMAmount RAMAmount = ERAMAmount::Level0;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Workaround bullshit")
 	bool HasWallpaperBeenSet = false;

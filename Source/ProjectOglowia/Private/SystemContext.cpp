@@ -338,7 +338,7 @@ bool USystemContext::OpenProgram(FName InExecutableName, UProgram*& OutProgram, 
 	}
 	
 
-	UProgram* Program = this->GetDesktop()->SpawnProgramFromClass(PeacegateProgram->ProgramClass, PeacegateProgram->FullName, PeacegateProgram->AppLauncherItem.Icon, PeacegateProgram->EnableMinimizeAndMaximize, PeacegateProgram->RAMUsage);
+	UProgram* Program = this->GetDesktop()->SpawnProgramFromClass(PeacegateProgram->ProgramClass, PeacegateProgram->FullName, PeacegateProgram->AppLauncherItem.Icon, PeacegateProgram->EnableMinimizeAndMaximize);
 
 	check(Program);
 
@@ -965,22 +965,8 @@ TArray<FPeacegateProcess> USystemContext::GetRunningProcesses()
 	return this->Processes;
 }
 
-int USystemContext::StartProcess(FString Name, FString FilePath, int UserID, ERAMUsage InRAMUsage)
+int USystemContext::StartProcess(FString Name, FString FilePath, int UserID)
 {
-	int UsageAmountMB = UCommonUtils::GetRAMUsage(InRAMUsage);
-	int MaxRamMB = UCommonUtils::GetRAMAmount(this->GetComputer().RAMAmount);
-	int TotalRAM = 0;
-
-	for(auto& Process : this->GetRunningProcesses())
-	{
-		TotalRAM += Process.RAM;
-	}
-
-	if(UsageAmountMB != 0 && TotalRAM + UsageAmountMB > MaxRamMB)
-	{
-		return -1;
-	}
-
 	int NewPID = 0;
 	for(auto Process : this->GetRunningProcesses())
 	{
@@ -991,7 +977,6 @@ int USystemContext::StartProcess(FString Name, FString FilePath, int UserID, ERA
 	FPeacegateProcess NewProcess;
 	NewProcess.PID = NewPID;
 	NewProcess.UID = UserID;
-	NewProcess.RAM = UsageAmountMB;
 	NewProcess.ProcessName = Name;
 	NewProcess.FilePath = FilePath;
 	this->Processes.Add(NewProcess);

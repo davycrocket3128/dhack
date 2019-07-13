@@ -93,7 +93,7 @@ void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Ar
 
 	this->CommandName = Argv[0];
 	this->Console = InConsole;	
-	this->ProcessID = this->Console->GetUserContext()->StartProcess(this->CommandInfo->ID.ToString(), this->CommandInfo->FullName.ToString(), this->CommandInfo->RAMUsage);
+	this->ProcessID = this->Console->GetUserContext()->StartProcess(this->CommandInfo->ID.ToString(), this->CommandInfo->FullName.ToString());
 
 	if(this->ProcessID == -1)
 	{

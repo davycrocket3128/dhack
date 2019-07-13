@@ -345,45 +345,6 @@ FText UCommonUtils::GetRichTextSegment(const FText& InSourceText, int InEndIndex
 	return FText::FromString(ReturnedText);
 }
 
-int UCommonUtils::GetRAMAmount(ERAMAmount InRAMAmount)
-{
-	switch(InRAMAmount)
-	{
-		case ERAMAmount::Level0:
-			return 256;
-		case ERAMAmount::Level1:
-			return 512;
-		case ERAMAmount::Level2:
-			return 1024;
-		case ERAMAmount::Level3:
-			return 2048;
-		case ERAMAmount::Level4:
-			return 4096;
-		case ERAMAmount::Level5:
-			return 8192;
-		case ERAMAmount::Level6:
-		default:
-			return 16384;
-		
-	}
-}
-
-int UCommonUtils::GetRAMUsage(ERAMUsage InRAMUsage)
-{
-	switch(InRAMUsage)
-	{
-		case ERAMUsage::None:
-			return 0;
-		case ERAMUsage::Low:
-			return 64;
-		case ERAMUsage::Medium:
-			return 128;
-		case ERAMUsage::High:
-		default:
-			return 256;
-	}
-}
-
 void UCommonUtils::ParseURL(FString InURL, FString& OutUsername, FString& OutHost, int& OutPort, FString& OutPath, bool& HasPath, bool& HasUser, bool& HasPort)
 {
 	HasPort=false;
