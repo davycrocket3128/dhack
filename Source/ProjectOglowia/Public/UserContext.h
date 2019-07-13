@@ -46,7 +46,6 @@ class UExploit;
 class UPeacegateFileSystem;
 class APeacenetWorldStateActor;
 class UAddressBookContext;
-class URainbowTable;
 class UPTerminalWidget;
 class UComputerService;
 class USystemUpgrade;
@@ -151,9 +150,6 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
     UPeacegateFileSystem* GetFilesystem();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
-    URainbowTable* GetRainbowTable();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
     APeacenetWorldStateActor* GetPeacenet();

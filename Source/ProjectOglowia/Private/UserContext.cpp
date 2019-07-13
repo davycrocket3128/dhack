@@ -32,7 +32,6 @@
 
 #include "UserContext.h"
 #include "PeacenetWorldStateActor.h"
-#include "RainbowTable.h"
 #include "DesktopWidget.h"
 #include "PTerminalWidget.h"
 #include "Exploit.h"
@@ -161,11 +160,6 @@ FString UUserContext::GetHomeDirectory()
 UPeacegateFileSystem* UUserContext::GetFilesystem()
 {
     return this->OwningSystem->GetFilesystem(this->UserID);
-}
-
-URainbowTable* UUserContext::GetRainbowTable()
-{
-    return this->OwningSystem->GetRainbowTable();
 }
 
 APeacenetWorldStateActor* UUserContext::GetPeacenet()

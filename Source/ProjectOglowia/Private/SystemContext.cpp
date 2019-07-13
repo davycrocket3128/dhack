@@ -42,7 +42,6 @@
 #include "UserContext.h"
 #include "AdjacentNode.h"
 #include "Program.h"
-#include "RainbowTable.h"
 #include "WallpaperAsset.h"
 #include "GraphicalTerminalCommand.h"
 #include "CommandInfo.h"
@@ -103,7 +102,6 @@ void USystemContext::Destroy()
 
 	// Destroy all remaining data in the system context.
 	this->MailProvider = nullptr;
-	this->RainbowTable = nullptr;
 	this->ComputerID = -1;
 	this->CharacterID = -1;
 	this->Processes.Empty();
@@ -606,11 +604,6 @@ APeacenetWorldStateActor* USystemContext::GetPeacenet()
 	return this->Peacenet;
 }
 
-URainbowTable* USystemContext::GetRainbowTable()
-{
-	return this->RainbowTable;
-}
-
 void USystemContext::SetupDesktop(int InUserID)
 {
 	check(!this->GetDesktop());
@@ -761,10 +754,6 @@ void USystemContext::UpdateSystemFiles()
 		// write blank log.
 		RootFS->WriteText("/var/log/peacegate.log", "");
 	}
-
-	// This is also where we init our rainbow table.
-	this->RainbowTable = NewObject<URainbowTable>(this);
-	this->RainbowTable->Setup(this, "/etc/rainbow_table.db", true);
 }
 
 UMailProvider* USystemContext::GetMailProvider()

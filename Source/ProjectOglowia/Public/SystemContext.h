@@ -48,7 +48,6 @@ class UPayloadAsset;
 class USystemUpgrade;
 class UProgram;
 class UExploit;
-class URainbowTable;
 class APeacenetWorldStateActor;
 class UPeacegateProgramAsset;
 
@@ -82,9 +81,6 @@ protected:
 
 	UPROPERTY()
 	TArray<FPeacegateProcess> Processes;
-
-	UPROPERTY()
-	URainbowTable* RainbowTable;
 
 	UPROPERTY()
 	APeacenetWorldStateActor * Peacenet;
@@ -195,9 +191,6 @@ public: // Property getters
 
 	UFUNCTION()
 	FComputer& GetComputer();
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Context")
-	URainbowTable* GetRainbowTable();
 
 	UFUNCTION(BlueprintCallable, Category = "System Context")
 	FString GetHostname();
