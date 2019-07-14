@@ -152,18 +152,13 @@ void USystemContext::UpdateInternalIdentity()
 
 TArray<UPayloadAsset*> USystemContext::GetPayloads()
 {
-	TArray<UPayloadAsset*> UnlockedPayloads = this->GetComputer().Payloads;
-
+	TArray<UPayloadAsset*> Ret;
 	for(auto Payload : this->GetPeacenet()->GetAllPayloads())
 	{
-		if(Payload->UnlockedByDefault)
-		{
-			if(!UnlockedPayloads.Contains(Payload))
-				UnlockedPayloads.Add(Payload);
-		}
+		if(Payload->IsUnlocked(this))
+			Ret.Add(Payload);
 	}
-
-	return UnlockedPayloads;
+	return Ret;
 }
 
 TArray<UExploit*> USystemContext::GetExploits()

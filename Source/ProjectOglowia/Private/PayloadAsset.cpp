@@ -31,3 +31,13 @@
 
 #include "PayloadAsset.h"
 #include "Payload.h"
+#include "SystemContext.h"
+#include "SystemUpgrade.h"
+
+bool UPayloadAsset::IsUnlocked(USystemContext* InSystemContext)
+{
+    if(!this->RequiredUpgrade)
+        return true;
+
+    return InSystemContext && InSystemContext->IsUpgradeInstalled(this->RequiredUpgrade);
+}

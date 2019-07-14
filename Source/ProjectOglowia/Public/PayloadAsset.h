@@ -36,6 +36,8 @@
 #include "PayloadAsset.generated.h"
 
 class UPayload;
+class USystemUpgrade;
+class USystemContext;
 
 UCLASS(Blueprintable, BlueprintType)
 class PROJECTOGLOWIA_API UPayloadAsset : public UDataAsset
@@ -53,8 +55,12 @@ public:
     FText Description;
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Unlocking")
-    bool UnlockedByDefault = true;
+    USystemUpgrade* RequiredUpgrade;
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Action", Instanced)
     UPayload* Payload;
+
+public:
+    UFUNCTION()
+    bool IsUnlocked(USystemContext* InSystemContext);
 };

@@ -124,9 +124,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
 	int ID;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Exploits")
-	TArray<UPayloadAsset*> Payloads;
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
 	TMap<FString, FString> EnvironmentVariables;
 
