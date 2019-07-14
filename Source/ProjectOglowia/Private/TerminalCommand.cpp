@@ -89,7 +89,7 @@ void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Ar
 	// event so that we can see when we get killed by the player.
 	TScriptDelegate<> ProcessEndedDelegate;
 	ProcessEndedDelegate.BindUFunction(this, "HandleProcessEnded");
-	InConsole->GetUserContext()->GetOwningSystem()->ProcessEnded.Add(ProcessEndedDelegate);
+	InConsole->GetUserContext()->OnProcessEnded(ProcessEndedDelegate);
 
 	this->CommandName = Argv[0];
 	this->Console = InConsole;	
@@ -180,7 +180,7 @@ void ATerminalCommand::CompleteInternal(bool KillProcess)
 		this->Console->GetUserContext()->GetPeacenet()->SendGameEvent("CommandComplete", MissionEventData);
 
 		// Tell Peacegate OS that the process has ended.
-		this->Console->GetUserContext()->GetOwningSystem()->FinishProcess(this->ProcessID);
+		this->Console->GetUserContext()->FinishProcess(this->GetUserContext()->GetProcessByID(this->ProcessID));
 	}
 
 	this->Completed.Broadcast();

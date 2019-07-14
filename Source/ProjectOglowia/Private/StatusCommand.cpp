@@ -39,7 +39,7 @@ void AStatusCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString
 
     InConsole->WriteLine(NSLOCTEXT("StatusCommand", "System", "SYSTEM:"));
     InConsole->WriteLine(FText::Format(NSLOCTEXT("StatusCommand", "Hostname", "Hostname: {0}"), FText::FromString(this->GetUserContext()->GetHostname())));
-    InConsole->WriteLine(FText::Format(NSLOCTEXT("StatusCommand", "IPAddress", "IP address: {0}"), FText::FromString(this->GetUserContext()->GetOwningSystem()->GetIPAddress())));
+    InConsole->WriteLine(FText::Format(NSLOCTEXT("StatusCommand", "IPAddress", "IP address: {0}"), FText::FromString(this->GetUserContext()->GetIPAddress())));
     InConsole->WriteLine(FText::Format(NSLOCTEXT("StatusCommand", "Username", "Current user: {0}@{1}"), FText::FromString(this->GetUserContext()->GetUsername()), FText::FromString(this->GetUserContext()->GetHostname())));
 
     InConsole->WriteLine(FText::GetEmpty());
@@ -49,10 +49,10 @@ void AStatusCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString
     if(this->GetUserContext()->HasIdentity())
     {
         InConsole->WriteLine(FText::Format(NSLOCTEXT("StatusCommand", "Fullname", "Full Name: {0}"), FText::FromString(this->GetUserContext()->GetCharacterName())));
-        InConsole->WriteLine(FText::Format(NSLOCTEXT("StatusCommand", "Alias", "Alias: {0}"), FText::FromString(this->GetUserContext()->GetOwningSystem()->GetCharacter().PreferredAlias)));
+        InConsole->WriteLine(FText::Format(NSLOCTEXT("StatusCommand", "Alias", "Alias: {0}"), FText::FromString(this->GetUserContext()->GetPeacenetIdentity().PreferredAlias)));
         InConsole->WriteLine(FText::Format(NSLOCTEXT("StatusCommand", "Email", "Email Address: {0}"), FText::FromString(this->GetUserContext()->GetEmailAddress())));
 
-        InConsole->WriteLine(FText::Format(NSLOCTEXT("StatusCommand", "Skill", "Skill points: {0}"), this->GetUserContext()->GetOwningSystem()->GetCharacter().Skill));
+        InConsole->WriteLine(FText::Format(NSLOCTEXT("StatusCommand", "Skill", "Skill points: {0}"), this->GetUserContext()->GetPeacenetIdentity().Skill));
 
     }
     else {

@@ -65,13 +65,13 @@ public:
     bool ShouldShowUpgradeInUserInterface(UUserContext* InPeacegateUser);
 
     UFUNCTION()
-    bool DependenciesFulfilled(USystemContext* InSystemContext);
+    bool DependenciesFulfilled(UUserContext* InUserContext);
 
     UFUNCTION()
-    void TriggerUnlock(USystemContext* InSystemContext);
+    void TriggerUnlock(UUserContext* InUserContext);
 
     UFUNCTION()
-    bool IsUnlocked(USystemContext* InSystemContext);
+    bool IsUnlocked(UUserContext* InUserContext);
 
 protected:
     virtual void BuildManualPage(UManualPageBuilder* InBuilder) override;

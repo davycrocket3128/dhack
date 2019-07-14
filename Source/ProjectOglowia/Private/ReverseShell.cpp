@@ -112,9 +112,9 @@ bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InComm
 
         // Let the game event system know we've just uploaded a file.
         this->SendGameEvent("FileUpload", {
-            { "SourceIdentity", FString::FromInt(this->GetUserContext()->GetHacker()->GetOwningSystem()->GetCharacter().ID) },
+            { "SourceIdentity", FString::FromInt(this->GetUserContext()->GetHacker()->GetPeacenetIdentity().ID) },
             { "SourcePath", Source },
-            { "DestinationIdentity", FString::FromInt(this->GetUserContext()->GetOwningSystem()->GetCharacter().ID) },
+            { "DestinationIdentity", FString::FromInt(this->GetUserContext()->GetPeacenetIdentity().ID) },
             { "DestinationPath", Destination }
         });
 
@@ -193,9 +193,9 @@ bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InComm
 
         // Let the game event system know we've just downloaded a file.
         this->SendGameEvent("FileDownload", {
-            { "SourceIdentity", FString::FromInt(this->GetUserContext()->GetOwningSystem()->GetCharacter().ID) },
+            { "SourceIdentity", FString::FromInt(this->GetUserContext()->GetPeacenetIdentity().ID) },
             { "SourcePath", Source },
-            { "DestinationIdentity", FString::FromInt(this->GetUserContext()->GetHacker()->GetOwningSystem()->GetCharacter().ID) },
+            { "DestinationIdentity", FString::FromInt(this->GetUserContext()->GetHacker()->GetPeacenetIdentity().ID) },
             { "DestinationPath", Destination }
         });
 

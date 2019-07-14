@@ -43,7 +43,7 @@ void AKillProcessCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FS
         if(Process.PID != this->GetProcessID() && FString::FromInt(Process.PID) == ProcessIDArg || Process.ProcessName == ProcessIDArg)
         {
             InConsole->WriteLine(FText::Format(NSLOCTEXT("Kill", "Success", "&*SUCCESS:&r Killed process &8{0}&7 (pid {1})"), FText::FromString(Process.ProcessName), FText::FromString(FString::FromInt(Process.PID))));
-            InConsole->GetUserContext()->GetOwningSystem()->FinishProcess(Process.PID);
+            InConsole->GetUserContext()->FinishProcess(Process);
         }
     }
 

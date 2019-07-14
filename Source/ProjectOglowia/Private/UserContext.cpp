@@ -162,6 +162,66 @@ UPeacegateFileSystem* UUserContext::GetFilesystem()
     return this->OwningSystem->GetFilesystem(this->UserID);
 }
 
+FPeacegateProcess UUserContext::GetProcessByID(int ProcessID)
+{
+	for(auto Process : this->GetOwningSystem()->GetRunningProcesses())
+	{
+		if(Process.PID == ProcessID)
+			return Process;
+	}
+
+	return FPeacegateProcess();
+}
+
+bool UUserContext::DnsResolve(FString InHost, FComputer& OutComputer, EConnectionError& OutError)
+{
+	return this->GetOwningSystem()->DnsResolve(InHost, OutComputer, OutError);
+}
+
+void UUserContext::FinishProcess(FPeacegateProcess InProcess)
+{
+	// Can only kill processes if we're root or we own them.
+	if(this->IsAdministrator() || InProcess.UID == this->UserID)
+	{
+		this->GetOwningSystem()->FinishProcess(InProcess.PID);
+	}
+}
+
+void UUserContext::OnProcessEnded(TScriptDelegate<> InDelegate)
+{
+	this->GetOwningSystem()->ProcessEnded.Add(InDelegate);
+}
+
+TArray<UPeacegateProgramAsset*> UUserContext::GetInstalledPrograms()
+{
+	return this->GetOwningSystem()->GetInstalledPrograms();
+}
+
+TArray<UCommandInfo*> UUserContext::GetInstalledCommands()
+{
+	return this->GetOwningSystem()->GetInstalledCommands();
+}
+
+FString UUserContext::GetIPAddress()
+{
+	return this->GetOwningSystem()->GetIPAddress();
+}
+
+FComputer& UUserContext::GetComputer()
+{
+	return this->GetOwningSystem()->GetComputer();
+}
+
+FPeacenetIdentity& UUserContext::GetPeacenetIdentity()
+{
+	return this->GetOwningSystem()->GetCharacter();
+}
+
+bool UUserContext::TryGetTerminalCommand(FName CommandName, ATerminalCommand*& Command, FString& InternalUsage, FString& FriendlyUsage)
+{
+	return this->GetOwningSystem()->TryGetTerminalCommand(CommandName, Command, InternalUsage, FriendlyUsage);
+}
+
 APeacenetWorldStateActor* UUserContext::GetPeacenet()
 {
     return this->OwningSystem->GetPeacenet();

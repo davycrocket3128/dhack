@@ -53,7 +53,7 @@ bool USystemContext::IsUpgradeInstalled(USystemUpgrade* InUpgrade)
 	if(!InUpgrade)
 		return false;
 
-	return InUpgrade->IsUnlocked(this);
+	return InUpgrade->IsUnlocked(this->GetUserContext(0));
 }
 
 void USystemContext::Destroy()

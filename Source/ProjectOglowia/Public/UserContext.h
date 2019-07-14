@@ -75,7 +75,31 @@ private:
     UPROPERTY()
     int UserID = 0;
 
+protected:
+    UFUNCTION()
+    USystemContext* GetOwningSystem();
+
 public:
+    void OnProcessEnded(TScriptDelegate<> InDelegate);
+
+    UFUNCTION()
+    FPeacegateProcess GetProcessByID(int ProcessID);
+
+    UFUNCTION()
+    void FinishProcess(FPeacegateProcess Process);
+
+    UFUNCTION()
+    FComputer& GetComputer();
+
+    UFUNCTION()
+    bool DnsResolve(FString InHost, FComputer& OutComputer, EConnectionError& OutError);
+
+    UFUNCTION()
+    FPeacenetIdentity& GetPeacenetIdentity();
+
+    UFUNCTION()
+    bool TryGetTerminalCommand(FName CommandName, ATerminalCommand*& Command, FString& InternalUsage, FString& FriendlyUsage);
+
     UFUNCTION()
     UUserContext* GetHacker();
 
@@ -84,6 +108,15 @@ public:
 
     UFUNCTION()
     void Destroy();
+
+    UFUNCTION()
+    TArray<UPeacegateProgramAsset*> GetInstalledPrograms();
+
+    UFUNCTION()
+    TArray<UCommandInfo*> GetInstalledCommands();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Networking")
+    FString GetIPAddress();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "URL parsing")
     void ParseURL(FString InURL, int InDefaultPort, FString& OutUsername, FString& OutHost, int& OutPort, FString& OutPath);
@@ -156,9 +189,6 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
     UDesktopWidget* GetDesktop();
-
-    UFUNCTION()
-    USystemContext* GetOwningSystem();
 
     UFUNCTION(BlueprintCallable, Category = "User Context")
     bool OpenProgram(FName InExecutableName, UProgram*& OutProgram, bool InCheckForExistingWindow = true);

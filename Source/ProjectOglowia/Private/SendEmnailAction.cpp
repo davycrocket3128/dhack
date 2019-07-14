@@ -50,12 +50,12 @@ void USendEmailAction::NativeMissionCompleted()
     check(realSender);
 
     // Get the player's mail provider.
-    UMailProvider* PlayerMail = this->GetPlayerUser()->GetOwningSystem()->GetMailProvider();
+    UMailProvider* PlayerMail = this->GetPlayerUser()->GetMailProvider();
 
     // Create a new email structure.
     FEmail& mail = this->GetPeacenet()->GetNewEmailMessage();
     this->GetPeacenet()->GetStoryCharacterID(realSender, mail.FromEntity);
-    mail.ToEntities.Add(this->GetPlayerUser()->GetOwningSystem()->GetCharacter().ID);
+    mail.ToEntities.Add(this->GetPlayerUser()->GetPeacenetIdentity().ID);
 	mail.Subject = realSubject.ToString();
 	mail.MessageBody = this->MessageBody.ToString();
 

@@ -56,7 +56,7 @@ bool UProgram::LoadPeacenetSite(FString InURL, UPeacenetSiteWidget*& OutWidget, 
 	FComputer Computer;
 	
 	// Try and resolve the host to a computer.
-	bool result = this->GetUserContext()->GetOwningSystem()->DnsResolve(InURL, Computer, OutConnectionError);
+	bool result = this->GetUserContext()->DnsResolve(InURL, Computer, OutConnectionError);
 	if(!result) return false;
 	
 	// If the computer doesn't have a Peacenet Site assigned to it we'll refuse.
@@ -129,7 +129,7 @@ UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSu
 	// Let the program handle itself being killed...
 	TScriptDelegate<> ProcessEndedDelegate;
 	ProcessEndedDelegate.BindUFunction(ProgramInstance, "HandleProcessEnded");
-	InUserContext->GetOwningSystem()->ProcessEnded.Add(ProcessEndedDelegate);
+	InUserContext->OnProcessEnded(ProcessEndedDelegate);
 
 	// Return the window and program.
 	OutWindow = Window;
@@ -145,7 +145,7 @@ void UProgram::OwningWindowClosed()
 		this->IsClosing = true;
 
 	    // Finish up our process.
-    	this->GetUserContext()->GetOwningSystem()->FinishProcess(this->ProcessID);
+    	this->GetUserContext()->FinishProcess(this->GetUserContext()->GetProcessByID(this->ProcessID));
 	}
 }
 

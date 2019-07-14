@@ -251,7 +251,7 @@ FRandomStream& UProceduralGenerationEngine::GetRNG()
 void UProceduralGenerationEngine::PlaceLootableFiles(UUserContext* InUserContext)
 {
     // If the system is a player, then we stop right now.
-    if(InUserContext->GetOwningSystem()->GetCharacter().CharacterType == EIdentityType::Player) return;
+    if(InUserContext->GetPeacenetIdentity().CharacterType == EIdentityType::Player) return;
 
     // The amount of lootables we are EVER allowed to generate in an NPC.
     int MaxLootables = this->LootableFiles.Num() / 2;

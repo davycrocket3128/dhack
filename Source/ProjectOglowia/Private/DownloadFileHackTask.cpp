@@ -47,14 +47,14 @@ void UDownloadFileHackTask::NativeGameEvent(FString Event, TMap<FString, FString
         FString DestinationIdentity = Arguments["DestinationIdentity"];
 
         FString OurSource = FString::FromInt(this->GetHackedSystem()->GetCharacter().ID);
-        FString OurDestination = FString::FromInt(this->GetPlayerUser()->GetOwningSystem()->GetCharacter().ID);
+        FString OurDestination = FString::FromInt(this->GetPlayerUser()->GetPeacenetIdentity().ID);
 
         // If they match then we can start grabbing filesystem contexts and reading the destination file to make sure it is the file
         // we want the user to upload.
         if(SourceIdentity == OurSource && DestinationIdentity == OurDestination)
         {
             // Use our file record checker to check if the file matches what we want.
-            if(this->FileRecordChecker->FileRecordMatches(this->GetPlayerUser()->GetOwningSystem(), Arguments["DestinationPath"]))
+            if(this->FileRecordChecker->FileRecordMatches(this->GetPlayerUser(), Arguments["DestinationPath"]))
             {
                 // Complete the objective!
                 this->Finish();

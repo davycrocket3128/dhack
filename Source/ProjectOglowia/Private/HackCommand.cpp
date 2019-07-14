@@ -146,7 +146,7 @@ float AHackCommand::AssessStealthiness()
 {
     // If the origin system and remote system are the same, never report anything
     // but pure stealth.  Otherwise the game goes a little apeshit.
-    if(this->GetUserContext()->GetOwningSystem()->GetComputer().ID == this->RemoteSystem->GetComputer().ID)
+    if(this->GetUserContext()->GetComputer().ID == this->RemoteSystem->GetComputer().ID)
         return 1.f;
 
     // Stealthiness is a percentage value.
@@ -171,7 +171,7 @@ float AHackCommand::AssessStealthiness()
     {
         for(auto& file : this->RemoteSystem->GetComputer().TextFiles)
         {
-            if(file.Content.Contains(this->GetUserContext()->GetOwningSystem()->GetIPAddress()))
+            if(file.Content.Contains(this->GetUserContext()->GetIPAddress()))
             {
                 filesContainingIPAddress += 1.f;
             }
@@ -446,12 +446,12 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
 
                 if(Service.IsFiltered)
                 {
-                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": connection blocked by firewall on port " + FString::FromInt(Service.Port));
+                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetIPAddress() + ": connection blocked by firewall on port " + FString::FromInt(Service.Port));
                     InConsole->WriteLine(NSLOCTEXT("Gigasploit", "FurewallDetected", "&4&*Service is filtered.&r&7 Firewall detected."));
                 }
                 else
                 {
-                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": connected to port " + FString::FromInt(Service.Port));
+                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetIPAddress() + ": connected to port " + FString::FromInt(Service.Port));
                     InConsole->WriteLine(NSLOCTEXT("Gigasploit", "KnownVulnerabilities", "Known vulnerabilities:\n"));
 
                     for(auto Exp : InConsole->GetUserContext()->GetExploits())
@@ -469,7 +469,7 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
                         InConsole->WriteLine(NSLOCTEXT("Gigasploit", "NoVulnerabilities", " - &4&*Error:&7&r Gigasploit doesn't know any vulnerabilities in this service's implementation."));
                     }
 
-                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
+                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
                 }
 
                 InConsole->GetUserContext()->GetPeacenet()->SendGameEvent("HackAnalyze", {
@@ -559,7 +559,7 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
 
                 if(Service.IsFiltered)
                 {
-                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": connection blocked by firewall on port " + FString::FromInt(Service.Port));
+                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetIPAddress() + ": connection blocked by firewall on port " + FString::FromInt(Service.Port));
 
                     InConsole->WriteLine(NSLOCTEXT("Gigasploit", "ServiceIsFiltered", "Service is &4&*FILTERED&r&7! Can't continue with exploit."));
                     
@@ -579,7 +579,7 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
 
                 InConsole->WriteLine(NSLOCTEXT("Gigasploit", "ServiceIsOpen", "Service is &3OPEN&7."));
 
-                this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": connected to port " + FString::FromInt(Service.Port));
+                this->RemoteSystem->AppendLog(this->GetUserContext()->GetIPAddress() + ": connected to port " + FString::FromInt(Service.Port));
 
                 if(this->CurrentExploit->Targets.Contains(Service.Service))
                 {
@@ -590,7 +590,7 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
                     if(this->ShouldCrashService())
                     {
                         this->RemoteSystem->AppendLog(Service.Service->Name.ToString() + ": service stopped unexpectedly.");
-                        this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
+                        this->RemoteSystem->AppendLog(this->GetUserContext()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
                         Service.IsCrashed = true;
                         InConsole->WriteLine(NSLOCTEXT("Gigasploit", "ConnectionRefused", "Connection refused."));
                         return true;
@@ -618,13 +618,13 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
 
                     this->ShowPayloadTutorial();
 
-                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
+                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
 
                     return true;
                 }
                 else
                 {
-                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetOwningSystem()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
+                    this->RemoteSystem->AppendLog(this->GetUserContext()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
                     InConsole->WriteLine(NSLOCTEXT("Gigasploit", "ServiceNotVulnerable", "Service is &4&*not vulnerable&r&7 to this exploit. Cannot drop payload."));
                     return true;
                 }

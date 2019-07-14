@@ -47,5 +47,5 @@ public:
     FText FileText;
 
 protected:
-    virtual bool GetDoesFileMatch(USystemContext* InSystemContext, UPeacegateFileSystem* InFileSystem, FFileRecord& InFileRecord, FString Path) override;
+    virtual bool GetDoesFileMatch(UUserContext* InUserContext, UPeacegateFileSystem* InFileSystem, FFileRecord& InFileRecord, FString Path) override;
 };
