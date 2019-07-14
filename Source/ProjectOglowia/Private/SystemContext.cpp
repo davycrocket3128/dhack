@@ -861,13 +861,6 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 		}
 
 	}
-
-	fs->CreateDirectory("/usr/share/wallets", fsStatus);
-
-	for(int i = 0; i < this->GetCharacter().CryptoWallets.Num(); i++)
-	{
-		fs->SetFileRecord("/usr/share/wallets/" + this->GetCharacter().CryptoWallets[i].Address, EFileRecordType::CryptoWallet, i);
-	}
 }
 
 FString USystemContext::GetEmailAddress()

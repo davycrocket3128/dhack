@@ -126,15 +126,6 @@ public:
 	void AssignStoryCharacterID(UStoryCharacter* InStoryCharacter, int InIdentity);
 
 	UFUNCTION()
-	bool CryptoWalletExists(FString InAddress);
-
-	UFUNCTION()
-	bool RemoveFromWallet(FString InWallet, int InAmount);
-
-	UFUNCTION()
-	bool AddToWallet(FString InWallet, int InAmount);
-
-	UFUNCTION()
 	bool IsTrue(FString InKey);
 
 	UFUNCTION()

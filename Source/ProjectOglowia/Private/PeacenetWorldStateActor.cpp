@@ -289,28 +289,6 @@ bool APeacenetWorldStateActor::IsNewGame()
 	return this->SaveGame->IsNewGame;
 }
 
-bool APeacenetWorldStateActor::MakeTransaction(FString InOriginCryptoAddress, FString InTargetCryptoAddress, int InAmount)
-{
-	bool OriginExists = this->SaveGame->CryptoWalletExists(InOriginCryptoAddress);
-	bool TargetExists = this->SaveGame->CryptoWalletExists(InOriginCryptoAddress);
-	
-	check(OriginExists);
-
-	if(!(OriginExists && TargetExists)) return false;
-
-	if(!this->SaveGame->RemoveFromWallet(InOriginCryptoAddress, InAmount)) return false;
-
-	if(!this->SaveGame->AddToWallet(InTargetCryptoAddress, InAmount)) return false;
-
-	this->SendGameEvent("CryptoTransaction", {
-		{ "From", InOriginCryptoAddress },
-		{ "To", InTargetCryptoAddress },
-		{ "Amount", FString::FromInt(InAmount) }
-	});
-
-	return true;
-}
-
 void APeacenetWorldStateActor::SendGameEvent(FString EventName, TMap<FString, FString> InEventData)
 {
 	if(this->CurrentMission)

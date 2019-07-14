@@ -96,54 +96,6 @@ void UPeacenetSaveGame::SetGameStat(FName InStatName, int InValue)
 		this->GameStats.Add(InStatName, InValue);
 }
 
-bool UPeacenetSaveGame::CryptoWalletExists(FString InAddress)
-{
-	for(auto& Identity : this->Characters)
-	{
-		for(auto& Wallet : Identity.CryptoWallets)
-		{
-			if(Wallet.Address == InAddress) return true;
-		}
-	}
-	return false;
-}
-
-bool UPeacenetSaveGame::RemoveFromWallet(FString InWallet, int InAmount)
-{
-	for(auto& Identity : this->Characters)
-	{
-		for(auto& Wallet : Identity.CryptoWallets)
-		{
-			if(Wallet.Address == InWallet)
-			{
-				if(Wallet.Amount < InAmount) return false;
-
-				Wallet.Amount -= InAmount;
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
-bool UPeacenetSaveGame::AddToWallet(FString InWallet, int InAmount)
-{
-	for(auto& Identity : this->Characters)
-	{
-		for(auto& Wallet : Identity.CryptoWallets)
-		{
-			if(Wallet.Address == InWallet)
-			{
-				Wallet.Amount += InAmount;
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
 bool UPeacenetSaveGame::CharacterNameExists(FString CharacterName)
 {
 	for (auto& Character : Characters)
