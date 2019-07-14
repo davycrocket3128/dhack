@@ -95,25 +95,16 @@ public:
     void SpawnPeacenetSites();
 
     UFUNCTION()
-    void GenerateIdentityPosition(FPeacenetIdentity& Pivot, FPeacenetIdentity& Identity);
-
-    UFUNCTION()
     void UpdateStoryCharacter(UStoryCharacter* InStoryCharacter);
 
     UFUNCTION()
     UProtocolVersion* GetProtocol(UComputerService* InService, int InSkill);
 
     UFUNCTION()
-    void GenerateAdjacentNodes(FPeacenetIdentity& InIdentity);
-
-    UFUNCTION()
     void GenerateFirewallRules(FComputer& InComputer);
 
     UFUNCTION()
     void GenerateNonPlayerCharacters();
-
-    UFUNCTION()
-    void GenerateCharacterRelationships();
 
     UFUNCTION()
     FPeacenetIdentity& GenerateNonPlayerCharacter();
@@ -138,12 +129,6 @@ public:
 
     UFUNCTION()
     void UpdateStoryIdentities();
-
-    UFUNCTION()
-    void GenerateUniqueWalletAddress(FCryptoWallet& InWallet, TArray<FString>& InExistingWallets);
-
-    UFUNCTION()
-    void GenerateCryptoWallets();
 
     UFUNCTION()
     void PlaceLootableFiles(UUserContext* InUserContext);

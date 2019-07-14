@@ -414,16 +414,6 @@ void UProceduralGenerationEngine::ClearNonPlayerEntities()
     this->Peacenet->ClearNonPlayerEntities();
 }
 
-void UProceduralGenerationEngine::GenerateIdentityPosition(FPeacenetIdentity& Pivot, FPeacenetIdentity& Identity)
-{
-    // FIXME: Stub.  Remove this.  Remove the whole fucking entity map system.
-}
-
-void UProceduralGenerationEngine::GenerateAdjacentNodes(FPeacenetIdentity& InIdentity)
-{
-    // FIXME: Remoe this too.   
-}
-
 void UProceduralGenerationEngine::Update(float InDeltaSeconds)
 {}
 
@@ -549,27 +539,6 @@ FPeacenetIdentity& UProceduralGenerationEngine::GenerateNonPlayerCharacter()
     return Identity;
 }
 
-void UProceduralGenerationEngine::GenerateCryptoWallets()
-{
-    // STUB
-}
-
-void UProceduralGenerationEngine::GenerateUniqueWalletAddress(FCryptoWallet& InWallet, TArray<FString>& InExistingWallets)
-{
-    FString AllowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-+=";
-    do
-    {
-        InWallet.Address = "";
-        while(InWallet.Address.Len() < 24)
-        {
-            TCHAR Char = AllowedChars[this->RNG.RandRange(0, AllowedChars.Len() - 1)];
-            InWallet.Address.AppendChar(Char);
-        }
-    } while(InExistingWallets.Contains(InWallet.Address));
-
-    InExistingWallets.Add(InWallet.Address);
-}
-
 FString UProceduralGenerationEngine::GeneratePassword(int InLength)
 {
     FString Chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890`~!@#$%^&*()_+-=[]{}\\|'\":;?.,<>";
@@ -656,12 +625,6 @@ void UProceduralGenerationEngine::Initialize(APeacenetWorldStateActor* InPeacene
 
         // PASS 3: SPAWN PEACENET SITES
         this->SpawnPeacenetSites();
-
-        // PASS 4: GENERATE CHARACTER RELATIONSHIPS
-        this->GenerateCharacterRelationships();
-
-        // PASS 5: CRYPTO WALLETS
-        this->GenerateCryptoWallets();
     }
 
     // Array of temporary file assets.
@@ -783,11 +746,6 @@ void UProceduralGenerationEngine::GenerateEmailServers()
 
         ServersToGenerate--;
     }
-}
-
-void UProceduralGenerationEngine::GenerateCharacterRelationships()
-{
-    // STUB
 }
 
 FComputer& UProceduralGenerationEngine::GenerateComputer(FString InHostname, EComputerType InComputerType, EComputerOwnerType InOwnerType)
