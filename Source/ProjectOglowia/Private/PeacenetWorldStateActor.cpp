@@ -631,7 +631,7 @@ void APeacenetWorldStateActor::LoadTerminalCommands()
 		CoffeeIsCode->ID = Program->ID;
 		CoffeeIsCode->FullName = Program->FullName;
 		CoffeeIsCode->Summary = Program->Summary;
-		CoffeeIsCode->UnlockedByDefault = Program->IsUnlockedByDefault;
+		CoffeeIsCode->UnlockedByDefault = !Program->RequiredUpgrade;
 		
 		this->CommandInfo.Add(Program->ID, CoffeeIsCode);
 	}

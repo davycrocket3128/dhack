@@ -257,9 +257,8 @@ TArray<UPeacegateProgramAsset*> USystemContext::GetInstalledPrograms()
 
 	for(auto Program : this->GetPeacenet()->Programs)
 	{
-		if(!GetComputer().InstalledPrograms.Contains(Program->ID) && !Program->IsUnlockedByDefault)
-			continue;
-		OutArray.Add(Program);
+		if(Program->IsUnlocked(this))
+			OutArray.Add(Program);
 	}
 
 	return OutArray;
@@ -306,7 +305,7 @@ bool USystemContext::OpenProgram(FName InExecutableName, UProgram*& OutProgram, 
 	if(!this->GetPeacenet()->FindProgramByName(InExecutableName, PeacegateProgram))
 		return false;
 
-	if(!this->GetComputer().InstalledPrograms.Contains(InExecutableName) && !PeacegateProgram->IsUnlockedByDefault)
+	if(!PeacegateProgram->IsUnlocked(this))
 	{
 		return false;
 	}
@@ -343,7 +342,7 @@ bool USystemContext::TryGetTerminalCommand(FName CommandName, ATerminalCommand *
 	UPeacegateProgramAsset* Program = nullptr;
 	if (GetPeacenet()->FindProgramByName(CommandName, Program))
 	{
-		if(!GetComputer().InstalledPrograms.Contains(CommandName) && !Program->IsUnlockedByDefault)
+		if(!Program->IsUnlocked(this))
 		{
 			return false;
 		}
@@ -484,13 +483,8 @@ bool USystemContext::Authenticate(const FString & Username, const FString & Pass
 
 bool USystemContext::GetSuitableProgramForFileExtension(const FString & InExtension, UPeacegateProgramAsset *& OutProgram)
 {
-	for(auto Program : this->GetPeacenet()->Programs)
+	for(auto Program : this->GetInstalledPrograms())
 	{
-		if(!this->GetComputer().InstalledPrograms.Contains(Program->ID) && !Program->IsUnlockedByDefault)
-		{
-			continue;
-		}
-
 		if (Program->SupportedFileExtensions.Contains(InExtension))
 		{
 			OutProgram = Program;
@@ -870,13 +864,10 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	// Make all programs show in /bin.
 	TArray<UPeacegateProgramAsset*> InstalledPrograms = this->GetInstalledPrograms();
 
-	for(int i = 0; i < this->GetPeacenet()->Programs.Num(); i++)
+	for(int i = 0; i < InstalledPrograms.Num(); i++)
 	{
-		UPeacegateProgramAsset* ProgramAsset = this->GetPeacenet()->Programs[i];
-		if(ProgramAsset->IsUnlockedByDefault || InstalledPrograms.Contains(ProgramAsset))
-		{
-			fs->SetFileRecord("/bin/" + ProgramAsset->ID.ToString(), EFileRecordType::Program, i);
-		}
+		UPeacegateProgramAsset* ProgramAsset = InstalledPrograms[i];
+		fs->SetFileRecord("/bin/" + ProgramAsset->ID.ToString(), EFileRecordType::Program, i);
 	}
 
 	// If the cryptowallets directory exists, delete it.
