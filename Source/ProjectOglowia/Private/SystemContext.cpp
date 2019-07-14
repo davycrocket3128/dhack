@@ -40,7 +40,6 @@
 #include "CommonUtils.h"
 #include "PeacegateProgramAsset.h"
 #include "UserContext.h"
-#include "AdjacentNode.h"
 #include "Program.h"
 #include "WallpaperAsset.h"
 #include "GraphicalTerminalCommand.h"
@@ -279,11 +278,6 @@ TArray<UCommandInfo*> USystemContext::GetInstalledCommands()
 bool USystemContext::HasIdentity()
 {
 	return this->Peacenet->IdentityExists(this->GetComputer().SystemIdentity);
-}
-
-TArray<FAdjacentNodeInfo> USystemContext::ScanForAdjacentNodes()
-{
-	return TArray<FAdjacentNodeInfo>(); // stubby mcstubface
 }
 
 bool USystemContext::OpenProgram(FName InExecutableName, UProgram*& OutProgram, bool InCheckForExistingWindow)
@@ -873,15 +867,6 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	for(int i = 0; i < this->GetCharacter().CryptoWallets.Num(); i++)
 	{
 		fs->SetFileRecord("/usr/share/wallets/" + this->GetCharacter().CryptoWallets[i].Address, EFileRecordType::CryptoWallet, i);
-	}
-
-
-
-	// If we are a player, auto-scan for adjacent nodes so the player desktop gets populated.
-	if(this->GetCharacter().CharacterType == EIdentityType::Player)
-	{
-		// Scan for adjacent identities so the player doesn't have to.
-		this->ScanForAdjacentNodes();
 	}
 }
 

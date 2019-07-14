@@ -425,12 +425,6 @@ void UUserContext::DisableWallpaper()
 	this->GetOwningSystem()->DisableWallpaper();
 }
 
-TArray<FAdjacentNodeInfo> UUserContext::ScanForAdjacentNodes()
-{
-	check(this->GetOwningSystem());
-	return this->GetOwningSystem()->ScanForAdjacentNodes();
-}
-
 void UUserContext::SetCurrentWallpaper(UWallpaperAsset* InWallpaperAsset)
 {
 	this->GetOwningSystem()->SetCurrentWallpaper(InWallpaperAsset);

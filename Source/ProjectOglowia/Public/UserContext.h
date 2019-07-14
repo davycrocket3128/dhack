@@ -39,7 +39,6 @@
 #include "MailProvider.h"
 #include "PeacegateProcess.h"
 #include "TerminalColor.h"
-#include "AdjacentNodeInfo.h"
 #include "UserContext.generated.h"
 
 class UExploit;
@@ -123,9 +122,6 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Email")
     UMailProvider* GetMailProvider();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Adjacent nodes")
-    TArray<FAdjacentNodeInfo> ScanForAdjacentNodes();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Identity")
     bool HasIdentity();

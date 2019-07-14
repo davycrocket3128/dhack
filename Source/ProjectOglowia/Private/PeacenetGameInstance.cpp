@@ -189,12 +189,6 @@ void UPeacenetGameInstance::CreateWorld(FString InCharacterName, UPeacenetGameTy
 	// Add the character to the save file.
 	SaveGame->Characters.Add(PlayerIdentity);
 
-	// Set the player's location on the map to the origin.
-	SaveGame->SetEntityPosition(PlayerIdentity.ID, FVector2D(0.f, 0.f));
-
-	// Player should know their own existence.
-	SaveGame->PlayerDiscoveredNodes.Add(PlayerIdentity.ID);
-
 	// Save the game.
 	UGameplayStatics::SaveGameToSlot(SaveGame, "PeacegateOS", 0);
 }

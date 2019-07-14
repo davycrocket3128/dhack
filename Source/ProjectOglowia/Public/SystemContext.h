@@ -38,7 +38,6 @@
 #include "UserInfo.h"
 #include "PeacenetIdentity.h"
 #include "MailProvider.h"
-#include "AdjacentNodeInfo.h"
 #include "PeacegateProcess.h"
 #include "ConnectionError.h"
 #include "SystemContext.generated.h"
@@ -221,9 +220,6 @@ public:
 
 	UFUNCTION()
 	void SetupDesktop(int InUserID);
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Adjacent nodes")
-	TArray<FAdjacentNodeInfo> ScanForAdjacentNodes();
 
 	UFUNCTION()
 	TArray<UCommandInfo*> GetInstalledCommands();
