@@ -43,9 +43,9 @@ APeacenetWorldStateActor* UPostCompletionMissionAction::GetPeacenet()
 
 UUserContext* UPostCompletionMissionAction::GetPlayerUser()
 {
-    int PlayerID = this->GetPeacenet()->SaveGame->PlayerComputerID;
+    int PlayerID = this->GetPeacenet()->GetPlayerComputer().ID;
     USystemContext* PlayerSystem = this->GetPeacenet()->GetSystemContext(PlayerID);
-    return PlayerSystem->GetUserContext(this->GetPeacenet()->SaveGame->PlayerUserID);
+    return PlayerSystem->GetUserContext(this->GetPeacenet()->GetPlayerUserID());
 }
 
 

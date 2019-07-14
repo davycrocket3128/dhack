@@ -61,20 +61,6 @@ const FText AIdentityCommand::MakeAliasFrom(FString InName)
     return FText::FromString(Ret);
 }
 
-int AIdentityCommand::GetNextIdentityID()
-{
-    int id = 0;
-    FPeacenetIdentity i;
-    int index = 0;
-
-    while(this->GetUserContext()->GetPeacenet()->SaveGame->GetCharacterByID(id, i, index))
-    {
-        id++;
-    }
-
-    return id;
-}
-
 void AIdentityCommand::Tick(float DeltaSeconds)
 {
     if(!this->HasName)
@@ -176,16 +162,14 @@ void AIdentityCommand::Tick(float DeltaSeconds)
             answer = answer.ToLower().TrimStartAndEnd();
             if(answer == "y")
             {
-                FPeacenetIdentity identity;
+                FPeacenetIdentity& identity = this->GetUserContext()->GetPeacenet()->GetNewIdentity();
                 identity.CharacterName = this->IdentityName;
-                identity.CharacterType = (this->GetUserContext()->GetOwningSystem()->GetComputer().ID == this->GetUserContext()->GetPeacenet()->SaveGame->PlayerComputerID) ? EIdentityType::Player : EIdentityType::NonPlayer;
+                identity.CharacterType = (this->GetUserContext()->GetOwningSystem()->GetComputer().ID == this->GetUserContext()->GetPeacenet()->GetPlayerComputer().ID) ? EIdentityType::Player : EIdentityType::NonPlayer;
                 identity.Skill = 0;
                 identity.Reputation = 0.f;
                 identity.PreferredAlias = this->AliasName;
                 identity.ComputerID = this->GetUserContext()->GetOwningSystem()->GetComputer().ID;
-                identity.ID = this->GetNextIdentityID();
                 identity.EmailAddress = identity.PreferredAlias + "@" + this->GetUserContext()->GetPeacenet()->GetProcgen()->ChooseEmailDomain();
-                this->GetUserContext()->GetPeacenet()->SaveGame->Characters.Add(identity);
                 this->GetUserContext()->GetOwningSystem()->GetComputer().SystemIdentity = identity.ID;
 
                 this->AliasConfirmed = true;

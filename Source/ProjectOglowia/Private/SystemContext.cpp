@@ -125,12 +125,12 @@ void USystemContext::IncreaseGameStat(FName InStatName)
 
 bool USystemContext::IsSet(FString InSaveBoolean)
 {
-	return this->GetPeacenet()->SaveGame->IsTrue(InSaveBoolean);
+	return this->GetPeacenet()->IsTrue(InSaveBoolean);
 }
 
 void USystemContext::SetSaveBoolean(FString InSaveBoolean, bool InValue)
 {
-	this->GetPeacenet()->SaveGame->SetValue(InSaveBoolean, InValue);
+	this->GetPeacenet()->SetSaveValue(InSaveBoolean, InValue);
 }
 
 bool USystemContext::IsNewGame()
@@ -288,36 +288,12 @@ TArray<UCommandInfo*> USystemContext::GetInstalledCommands()
 
 bool USystemContext::HasIdentity()
 {
-	int i = 0;
-	FPeacenetIdentity id;
-	return this->GetPeacenet()->SaveGame->GetCharacterByID(this->GetComputer().SystemIdentity, id, i);
+	return this->Peacenet->IdentityExists(this->GetComputer().SystemIdentity);
 }
 
 TArray<FAdjacentNodeInfo> USystemContext::ScanForAdjacentNodes()
 {
-	check(this->GetPeacenet());
-
-	int CharID = this->GetCharacter().ID;
-
-	TArray<FAdjacentNodeInfo> Ret;
-	if(!this->HasIdentity()) return Ret;
-
-	for(auto& OtherIdentity : this->GetPeacenet()->GetAdjacentNodes(this->GetCharacter()))
-	{
-		FAdjacentNodeInfo Node;
-		Node.NodeName = OtherIdentity.CharacterName;
-		Node.Link = FAdjacentNode();
-		Node.Link.NodeA = CharID;
-		Node.Link.NodeB = OtherIdentity.ID;
-		Ret.Add(Node);
-
-		if(!this->GetPeacenet()->SaveGame->PlayerDiscoveredNodes.Contains(OtherIdentity.ID))
-		{
-			this->GetPeacenet()->SaveGame->PlayerDiscoveredNodes.Add(OtherIdentity.ID);
-		}
-	}
-
-	return Ret;
+	return TArray<FAdjacentNodeInfo>(); // stubby mcstubface
 }
 
 bool USystemContext::OpenProgram(FName InExecutableName, UProgram*& OutProgram, bool InCheckForExistingWindow)
@@ -526,7 +502,7 @@ bool USystemContext::GetSuitableProgramForFileExtension(const FString & InExtens
 
 bool USystemContext::IsIPAddress(FString InIPAddress)
 {
-	return this->GetPeacenet()->SaveGame->ComputerIPMap.Contains(InIPAddress);
+	return this->GetPeacenet()->IsIPAddress(InIPAddress);
 }
 
 UDesktopWidget* USystemContext::GetDesktop()
@@ -540,17 +516,13 @@ FPeacenetIdentity& USystemContext::GetCharacter()
 
 	auto MyPeacenet = this->GetPeacenet();
 
-	int CharacterIndex = 0;
-	FPeacenetIdentity Character;
-
-	bool result = MyPeacenet->SaveGame->GetCharacterByID(this->GetComputer().SystemIdentity, Character, CharacterIndex);
-	if(!result) 
+	if(!this->HasIdentity()) 
 	{
 		this->UpdateInternalIdentity();
 		return this->InternalIdentity;
 	}
 
-	return MyPeacenet->SaveGame->Characters[CharacterIndex];
+	return MyPeacenet->GetCharacterByID(this->GetComputer().SystemIdentity);
 }
 
 UUserContext* USystemContext::GetHackerContext(int InUserID, UUserContext* HackingUser)
@@ -591,12 +563,7 @@ FComputer& USystemContext::GetComputer()
 
 	auto MyPeacenet = this->GetPeacenet();
 
-	int ComputerIndex = 0;
-	FComputer Computer;
-
-	check(MyPeacenet->SaveGame->GetComputerByID(this->ComputerID, Computer, ComputerIndex));
-
-	return MyPeacenet->SaveGame->Computers[ComputerIndex];
+	return MyPeacenet->GetComputerByID(this->ComputerID);
 }
 
 APeacenetWorldStateActor* USystemContext::GetPeacenet()
@@ -754,6 +721,25 @@ void USystemContext::UpdateSystemFiles()
 		// write blank log.
 		RootFS->WriteText("/var/log/peacegate.log", "");
 	}
+}
+
+bool USystemContext::DnsResolve(FString InHost, FComputer& OutComputer, EConnectionError& OutConnectionError)
+{
+	// Default the connection error to nothing.
+	OutConnectionError = EConnectionError::None;
+
+	// TODO: /etc/hosts support.
+
+	// If the host is "localhost" or "127.0.0.1" or our hostname we'll return our own computer.
+	if(InHost == "127.0.0.1" || InHost == "localhost" || InHost == this->GetHostname())
+	{
+
+		OutComputer = this->GetComputer();
+		return true;
+	}
+
+	// It's your fucking problem now, world state.
+	return this->GetPeacenet()->DnsResolve(InHost, OutComputer, OutConnectionError);
 }
 
 UMailProvider* USystemContext::GetMailProvider()

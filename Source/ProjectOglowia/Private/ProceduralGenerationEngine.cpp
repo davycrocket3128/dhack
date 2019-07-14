@@ -66,46 +66,32 @@ void UProceduralGenerationEngine::UpdateStoryCharacter(UStoryCharacter* InStoryC
 {
     // The entity ID and identity of the current (or new)
     // character.
-    int EntityID = 0;
-    FPeacenetIdentity Identity;
-
-    // Index of the identity in the save file.
-    int IdentityIndex = -1;
+    int EntityID = -1;
 
     // Does the save file already know about this character?
-    if(this->Peacenet->SaveGame->GetStoryCharacterID(InStoryCharacter, EntityID))
+    if(this->Peacenet->GetStoryCharacterID(InStoryCharacter, EntityID))
     {
         // Fetch the identity from the save file.
         // Debug builds crash if this fails. The save file should report that it couldn't find
         // an entity if the entity ID is invalid.
-        bool result = this->Peacenet->SaveGame->GetCharacterByID(EntityID, Identity, IdentityIndex);
-        check(result);
+        check(this->Peacenet->IdentityExists(EntityID));
     }
-    else
-    {
-        // We don't have an existing identity so we'll generate
-        // a new one real quick and add it to the save file.
-        Identity = FPeacenetIdentity();
 
+    // Are we creating a new identity or editing an existing one?
+    bool create = EntityID == -1;
+
+    // Get a new identity or existing identity memory address based on the result of the above.
+    FPeacenetIdentity& Identity = (create) ? this->Peacenet->GetNewIdentity() : this->Peacenet->GetCharacterByID(EntityID);
+
+    // If we're creating, we need to do a few things.
+    if(create)
+    {
         // This makes sure there's definitely no computer for the NPC.
         // This is done later.
         Identity.ComputerID = -1;
-
-        // This will give us a new ID.
-        for(auto& ExistingIdentity : this->Peacenet->SaveGame->Characters)
-        {
-            if(ExistingIdentity.ID == EntityID)
-                EntityID = ExistingIdentity.ID + 1;
-        }
-
-        // Assign the entity ID to the identity, and make the identity a story character.
-        Identity.ID = EntityID;
+        
+        // Make sure it's a story character.
         Identity.CharacterType = EIdentityType::Story;
-
-        // Retrieve the index of the entity in the save file by getting the
-        // length of the characters array before adding the entity.
-        IdentityIndex = this->Peacenet->SaveGame->Characters.Num();
-        this->Peacenet->SaveGame->Characters.Add(Identity);
     }
 
     // Update the character's name.
@@ -146,11 +132,8 @@ void UProceduralGenerationEngine::UpdateStoryCharacter(UStoryCharacter* InStoryC
         Identity.ComputerID = StoryComputer.ID;
     }
 
-    // Update the identity in the save file.
-    this->Peacenet->SaveGame->Characters[IdentityIndex] = Identity;
-
     // Reassign the character's entity ID.
-    this->Peacenet->SaveGame->AssignStoryCharacterID(InStoryCharacter, EntityID);
+    this->Peacenet->AssignStoryCharacterID(InStoryCharacter, Identity);
 
     // Now we can update the story computer.
     this->UpdateStoryComputer(InStoryCharacter);
@@ -160,51 +143,49 @@ void UProceduralGenerationEngine::UpdateStoryComputer(UStoryCharacter* InStoryCh
 {
     // Get the identity of the story character so we can get its computer ID.
     int StoryEntityID = 0;
-    bool StoryEntityIDResult = this->Peacenet->SaveGame->GetStoryCharacterID(InStoryCharacter, StoryEntityID);
+    bool StoryEntityIDResult = this->Peacenet->GetStoryCharacterID(InStoryCharacter, StoryEntityID);
     check(StoryEntityIDResult);
 
-    // Get the identity using that ID.
-    FPeacenetIdentity Identity;
-    int IdentityIndex = 0;
-    bool result = this->Peacenet->SaveGame->GetCharacterByID(StoryEntityID, Identity, IdentityIndex);
-    check(result);
+    // Check that the story character exists already.
+    check(this->Peacenet->IdentityExists(StoryEntityID));
 
-    // Update the non-root user of the computer so that its username is the same
-    // as what's defined in the story character.
-    for(auto& Computer : this->Peacenet->SaveGame->Computers)
-    {
-        if(Computer.ID == Identity.ComputerID)
-        {
-            for(auto& User : Computer.Users)
-            {
-                if(User.ID == 1)
-                {
-                    if(InStoryCharacter->UseEmailAliasAsUsername)
-                    {
-                        if(InStoryCharacter->UseNameForEmail)
-                        {
-                            User.Username = InStoryCharacter->Name.ToString().ToLower().Replace(TEXT(" "), TEXT("_"));
-                        }
-                        else
-                        {
-                            User.Username = InStoryCharacter->EmailAlias.ToLower().Replace(TEXT(" "), TEXT("_"));
-                        }
-                    }
-                    else
-                    {
-                        User.Username = InStoryCharacter->Username.ToLower().Replace(TEXT(" "), TEXT("_"));
-                    }
-                    break;
-                }
-            }
-            break;
-        }
-    }
+    // Retrieve a reference to the story character data.
+    FPeacenetIdentity& Identity = this->Peacenet->GetCharacterByID(StoryEntityID);
 
     // We have a computer ID, so we're going to create a TEMPORARY System Context to make
     // updating easier.
     USystemContext* SystemContext = NewObject<USystemContext>();
     SystemContext->Setup(Identity.ComputerID, Identity.ID, this->Peacenet);
+
+    // Peacenet 0.1.x would do this before the system context was allocated but
+    // since we can no longer access the save file we'll do this now.
+    // This sort-of abstracts things.
+    //
+    // Oh yeah, we're updating the computer's user table.
+
+    for(auto& User : SystemContext->GetComputer().Users)
+    {
+        if(User.ID == 1)
+        {
+            if(InStoryCharacter->UseEmailAliasAsUsername)
+            {
+                if(InStoryCharacter->UseNameForEmail)
+                {
+                    User.Username = InStoryCharacter->Name.ToString().ToLower().Replace(TEXT(" "), TEXT("_"));
+                }
+                else
+                {
+                    User.Username = InStoryCharacter->EmailAlias.ToLower().Replace(TEXT(" "), TEXT("_"));
+                }
+            }
+            else
+            {
+                User.Username = InStoryCharacter->Username.ToLower().Replace(TEXT(" "), TEXT("_"));
+            }
+            break;
+        }
+    }
+
 
     // Get a filesystem with root privileges from the system context.
     UPeacegateFileSystem* RootFS = SystemContext->GetFilesystem(0);
@@ -351,7 +332,7 @@ void UProceduralGenerationEngine::GenerateFirewallRules(FComputer& InComputer)
     TArray<UComputerService*> Services = this->Peacenet->GetServicesFor(InComputer.ComputerType);
 
     // This gets the skill level of this computer's owning entity if any.
-    int Skill = this->Peacenet->SaveGame->GetSkillOf(InComputer);
+    int Skill = (this->Peacenet->IdentityExists(InComputer.SystemIdentity)) ? this->Peacenet->GetCharacterByID(InComputer.SystemIdentity).Skill : 0;
 
     for(int i = 0; i < Services.Num(); i++)
     {
@@ -432,168 +413,17 @@ FString UProceduralGenerationEngine::GenerateIPAddress()
 
 void UProceduralGenerationEngine::ClearNonPlayerEntities()
 {
-    TArray<int> ComputersToRemove;
-    TArray<int> CharactersToRemove;
-    
-    // Collect all computers that are NPC-owned.
-    for(int i = 0; i < this->Peacenet->SaveGame->Computers.Num(); i++)
-    {
-        FComputer& Computer = this->Peacenet->SaveGame->Computers[i];
-        if(Computer.OwnerType != EComputerOwnerType::Player)
-        {
-            ComputersToRemove.Add(i);
-        }
-    }
-
-    // Collect all characters to remove.
-    for(int i = 0; i < this->Peacenet->SaveGame->Characters.Num(); i++)
-    {
-        FPeacenetIdentity& Character = this->Peacenet->SaveGame->Characters[i];
-        if(Character.CharacterType != EIdentityType::Player)
-        {
-            CharactersToRemove.Add(i);
-        }
-    }
-
-    // Remove all characters..
-    while(CharactersToRemove.Num())
-    {
-        this->Peacenet->SaveGame->Characters.RemoveAt(CharactersToRemove[0]);
-        CharactersToRemove.RemoveAt(0);
-        for(int i = 0; i < CharactersToRemove.Num(); i++)
-            CharactersToRemove[i]--;
-    }
-
-    // Remove all computers.
-    while(ComputersToRemove.Num())
-    {
-        this->Peacenet->SaveGame->Computers.RemoveAt(ComputersToRemove[0]);
-        ComputersToRemove.RemoveAt(0);
-        for(int i = 0; i < ComputersToRemove.Num(); i++)
-            ComputersToRemove[i]--;
-    }
-
-    // Clear entity adjacentness.
-    this->Peacenet->SaveGame->AdjacentNodes.Empty();
-
-    // Remove all entity positions that aren't player.
-    TArray<int> EntityPositionsToRemove;
-    int EntityPositionsRemoved=0;
-    for(int i = 0; i < this->Peacenet->SaveGame->EntityPositions.Num(); i++)
-    {
-        FPeacenetIdentity Identity;
-        int IdentityIndex;
-        bool result = this->Peacenet->SaveGame->GetCharacterByID(this->Peacenet->SaveGame->EntityPositions[i].EntityID, Identity, IdentityIndex);
-        if(result)
-        {
-           if(Identity.CharacterType != EIdentityType::Player) 
-           {
-               EntityPositionsToRemove.Add(i);
-           }
-        }
-        else
-        {
-            EntityPositionsToRemove.Add(i);
-        }
-    }
-    while(EntityPositionsToRemove.Num())
-    {
-        this->Peacenet->SaveGame->EntityPositions.RemoveAt(EntityPositionsToRemove[0] - EntityPositionsRemoved);
-        EntityPositionsRemoved++;
-        EntityPositionsToRemove.RemoveAt(0);
-    }
-
-    // Clear out the player's known entities.
-    this->Peacenet->SaveGame->PlayerDiscoveredNodes.Empty();
-
-    // Fix up entity IDs.
-    this->Peacenet->SaveGame->FixEntityIDs();
+    this->Peacenet->ClearNonPlayerEntities();
 }
 
 void UProceduralGenerationEngine::GenerateIdentityPosition(FPeacenetIdentity& Pivot, FPeacenetIdentity& Identity)
 {
-    const float MIN_DIST_FROM_PIVOT = 50.f;
-    const float MAX_DIST_FROM_PIVOT = 400.f;
-
-
-    FVector2D Test;
-    if(this->Peacenet->SaveGame->GetPosition(Identity.ID, Test))
-        return;
-
-    FVector2D PivotPos;
-    bool PivotResult = this->Peacenet->SaveGame->GetPosition(Pivot.ID, PivotPos);
-
-    if(!PivotResult)
-    {
-        for(auto EntityID : this->Peacenet->SaveGame->GetAllEntities())
-        {
-            FVector2D PivotSquared; // the pivot point of the pivot's new position.
-            if(this->Peacenet->SaveGame->GetPosition(EntityID, PivotSquared))
-            {
-                PivotResult = true;
-
-                PivotPos = FVector2D(0.f, 0.f);
-                do
-                {
-                    PivotPos.X = PivotSquared.X + (RNG.FRandRange(MIN_DIST_FROM_PIVOT, MAX_DIST_FROM_PIVOT) - (MAX_DIST_FROM_PIVOT/2.f));
-                    PivotPos.Y = PivotSquared.Y + (RNG.FRandRange(MIN_DIST_FROM_PIVOT, MAX_DIST_FROM_PIVOT) - (MAX_DIST_FROM_PIVOT/2.f));
-                } while(this->Peacenet->SaveGame->LocationTooCloseToEntity(PivotPos, MIN_DIST_FROM_PIVOT));
-
-                this->Peacenet->SaveGame->SetEntityPosition(Pivot.ID, PivotPos);
-
-                break;
-            }
-        }
-    }
-
-    if(!PivotResult)
-    {
-        PivotResult = true;
-        PivotPos = FVector2D(0.f, 0.f);
-        this->Peacenet->SaveGame->SetEntityPosition(Pivot.ID, PivotPos);
-    }
-
-    FVector2D NewPos = FVector2D(0.f, 0.f);
-    do
-    {
-        NewPos.X = PivotPos.X + (RNG.FRandRange(MIN_DIST_FROM_PIVOT, MAX_DIST_FROM_PIVOT) - (MAX_DIST_FROM_PIVOT/2.f));
-        NewPos.Y = PivotPos.Y + (RNG.FRandRange(MIN_DIST_FROM_PIVOT, MAX_DIST_FROM_PIVOT) - (MAX_DIST_FROM_PIVOT/2.f));
-    } while(this->Peacenet->SaveGame->LocationTooCloseToEntity(NewPos, MIN_DIST_FROM_PIVOT));
-
-    this->Peacenet->SaveGame->SetEntityPosition(Identity.ID, NewPos);
-
+    // FIXME: Stub.  Remove this.  Remove the whole fucking entity map system.
 }
 
 void UProceduralGenerationEngine::GenerateAdjacentNodes(FPeacenetIdentity& InIdentity)
-{   
-    // Don't generate any new links if there are any existing links from this NPC.
-    // PATCH: Before, this would check for any links to and from the NPC, that's a problem. Now we only check for links from the NPC.
-    if(this->Peacenet->SaveGame->GetAdjacents(InIdentity.ID, EAdjacentLinkType::AToB).Num())
-        return;
-
-    const int MIN_ADJACENTS = 2;
-    const int MAX_ADJACENTS = 8;
-    const int MAX_SKILL_DIFFERENCE = 3;
-
-
-    int Adjacents = RNG.RandRange(MIN_ADJACENTS, MAX_ADJACENTS);
-
-    while(Adjacents)
-    {
-        FPeacenetIdentity& LinkedIdentity = this->Peacenet->SaveGame->Characters[RNG.RandRange(0, this->Peacenet->SaveGame->Characters.Num()-1)];
-
-        if(LinkedIdentity.ID == InIdentity.ID)
-            continue;
-
-        if(this->Peacenet->SaveGame->AreAdjacent(InIdentity.ID, LinkedIdentity.ID))
-            continue;
-
-        this->Peacenet->SaveGame->AddAdjacent(InIdentity.ID, LinkedIdentity.ID);
-
-        this->GenerateIdentityPosition(InIdentity, LinkedIdentity);
-
-        Adjacents--;
-    }
+{
+    // FIXME: Remoe this too.   
 }
 
 void UProceduralGenerationEngine::Update(float InDeltaSeconds)
@@ -601,8 +431,7 @@ void UProceduralGenerationEngine::Update(float InDeltaSeconds)
 
 FString UProceduralGenerationEngine::ChooseEmailDomain()
 {
-    TArray<FString> Emails;
-    this->Peacenet->SaveGame->DomainNameMap.GetKeys(Emails);
+    TArray<FString> Emails = this->Peacenet->GetDomainNames();
 
     int Index = 0;
 
@@ -610,12 +439,11 @@ FString UProceduralGenerationEngine::ChooseEmailDomain()
     while(Counter > 0)
     {
         FString Domain = Emails[Index];
-        FString IP = this->Peacenet->SaveGame->DomainNameMap[Domain];
-        int Entity = this->Peacenet->SaveGame->ComputerIPMap[IP];
-
+        
         FComputer Computer;
-        int CompIndex;
-        if(this->Peacenet->SaveGame->GetComputerByID(Entity, Computer, CompIndex))
+        EConnectionError Error = EConnectionError::None;
+
+        if(this->Peacenet->DnsResolve(Domain, Computer, Error))
         {
             if(Computer.ComputerType == EComputerType::EmailServer)
             {
@@ -648,8 +476,8 @@ void UProceduralGenerationEngine::GenerateNonPlayerCharacters()
 
 FPeacenetIdentity& UProceduralGenerationEngine::GenerateNonPlayerCharacter()
 {
-    FPeacenetIdentity Identity;
-    Identity.ID = this->Peacenet->SaveGame->Characters.Num();
+    FPeacenetIdentity& Identity = this->Peacenet->GetNewIdentity();
+
     Identity.CharacterType = EIdentityType::NonPlayer;
 
     bool IsMale = RNG.RandRange(0, 6) % 2;
@@ -667,7 +495,7 @@ FPeacenetIdentity& UProceduralGenerationEngine::GenerateNonPlayerCharacter()
         }
 
         CharacterName = CharacterName + " " + LastNameGenerator->GetMarkovString(0);
-    } while(this->Peacenet->SaveGame->CharacterNameExists(CharacterName));
+    } while(this->Peacenet->CharacterNameExists(CharacterName));
 
     Identity.CharacterName = CharacterName;
     Identity.PreferredAlias = CharacterName;
@@ -714,84 +542,18 @@ FPeacenetIdentity& UProceduralGenerationEngine::GenerateNonPlayerCharacter()
     
     IdentityComputer.Users[0] = RootUser;
     IdentityComputer.Users[1] = NonRootUser;
-    
-    Identity.ComputerID = IdentityComputer.ID;
+    IdentityComputer.SystemIdentity = Identity.ID;
 
-    this->Peacenet->SaveGame->Characters.Add(Identity);
+    Identity.ComputerID = IdentityComputer.ID;
 
     UE_LOG(LogTemp, Display, TEXT("Generated NPC: %s"), *Identity.CharacterName);
 
-    return this->Peacenet->SaveGame->Characters[this->Peacenet->SaveGame->Characters.Num()-1];
+    return Identity;
 }
 
 void UProceduralGenerationEngine::GenerateCryptoWallets()
 {
-    // A list of existing crypto addresses.
-    TArray<FString> ExistingAddresses;
-
-    for(auto& Identity : this->Peacenet->SaveGame->Characters)
-    {
-        // Does the identity have any existing crypto wallets?
-        if(Identity.CryptoWallets.Num()) 
-        {
-            // Go through every crypto wallet.
-            for(auto& Wallet : Identity.CryptoWallets)
-            {
-                // Does the wallet's address conflict with any others? Or,
-                // is the address empty?
-                if(ExistingAddresses.Contains(Wallet.Address) || !Wallet.Address.Len())
-                {
-                    // Generate a unique address for the wallet.
-                    this->GenerateUniqueWalletAddress(Wallet, ExistingAddresses);
-                }
-                else
-                {
-                    // Add the wallet's address to the list of existing ones,
-                    // so we don't generate a conflicting address.
-                    ExistingAddresses.Add(Wallet.Address);
-                }
-            }
-            continue;
-        }
-
-        // The above code makes sure that no existing crypto wallets
-        // have conflicting addresses, and that any new ones we generate
-        // below won't conflict with old ones.
-        //
-        // If we get this far then it's time to generate a wallet.
-        FCryptoWallet NewWallet;
-        this->GenerateUniqueWalletAddress(NewWallet, ExistingAddresses);
-
-        // The wallet now has an address.  Now we have to put
-        // an amount in it.
-        // 
-        // This depends on the identity's type.
-        switch(Identity.CharacterType)
-        {
-            case EIdentityType::Player:
-                // Players get 0.
-                NewWallet.Amount = 0;
-                break;
-            case EIdentityType::NonPlayer:
-                // Non players get (rand(1, 15) * skill) * 100000.
-                NewWallet.Amount = (this->RNG.RandRange(1, 15) * Identity.Skill) * 100000;
-                break;
-            case EIdentityType::Story:
-                // Story characters get their wallet amount from their story character asset.
-                for(auto& StoryCharacter : this->Peacenet->SaveGame->StoryCharacterIDs)
-                {
-                    if(StoryCharacter.Identity == Identity.ID)
-                    {
-                        NewWallet.Amount = StoryCharacter.CharacterAsset->CryptoWalletAmount;
-                        break;
-                    }
-                }
-                break;
-        }
-
-        // Add the wallet to the identity.
-        Identity.CryptoWallets.Add(NewWallet);
-    }
+    // STUB
 }
 
 void UProceduralGenerationEngine::GenerateUniqueWalletAddress(FCryptoWallet& InWallet, TArray<FString>& InExistingWallets)
@@ -860,16 +622,9 @@ void UProceduralGenerationEngine::Initialize(APeacenetWorldStateActor* InPeacene
     }
 
 
-    // Initialize the world seed if the game is new.
-    if(Peacenet->SaveGame->IsNewGame)
-    {
-        // The world seed is the Unix timestamp of the real world's current date and time.
-        Peacenet->SaveGame->WorldSeed = FDateTime::Now().ToUnixTimestamp();
-    }
-
     // Recall when we set the world seed in the save file?
     // This is where we need it.
-    this->RNG = FRandomStream(this->Peacenet->SaveGame->WorldSeed);
+    this->RNG = FRandomStream(this->Peacenet->GetWorldSeed());
 
     // Now that we have an RNG, we can begin creating markov chains!
     this->MaleNameGenerator = NewObject<UMarkovChain>(this);
@@ -893,8 +648,8 @@ void UProceduralGenerationEngine::Initialize(APeacenetWorldStateActor* InPeacene
     // initialize it.
     this->UsernameGenerator->Init(UsernameData, 3, RNG);
 
-    if(this->Peacenet->SaveGame->IsNewGame)
-    {
+    if(this->Peacenet->IsNewGame())
+        {
         // PASS 1: GENERATE NPC IDENTITIES.
         this->GenerateNonPlayerCharacters();
 
@@ -949,36 +704,32 @@ void UProceduralGenerationEngine::SpawnPeacenetSites()
         //
         // This may result in NPCs ending up with invalid email addresses so we'll
         // fix those too.
-        if(this->Peacenet->SaveGame->DomainNameMap.Contains(Site->DomainName))
+        if(this->Peacenet->GetDomainNames().Contains(Site->DomainName))
         {
-            // Back up the IP address that this domain name currently points to.
-            FString IPAddress = this->Peacenet->SaveGame->DomainNameMap[Site->DomainName];
-
             // This generates a new domain which is guaranteed not to be taken.
             FString NewDomain;
             do
             {
                 NewDomain = this->DomainGenerator->GetMarkovString(0).ToLower() + ".com";
-            } while(NewDomain == Site->DomainName || this->Peacenet->SaveGame->DomainNameMap.Contains(NewDomain));
+            } while(NewDomain == Site->DomainName || this->Peacenet->GetDomainNames().Contains(NewDomain));
 
             // Remove the old domain and add the new domain.
-            this->Peacenet->SaveGame->DomainNameMap.Remove(Site->DomainName);
-            this->Peacenet->SaveGame->DomainNameMap.Add(NewDomain, IPAddress);
-
+            this->Peacenet->ReplaceDomain(Site->DomainName, NewDomain);
+            
             // Get the entity ID of the IP address so we can check the computer to see
             // if it's an email server.  If that's the case, then we need to reset
             // all NPCs in the game with the old domain as an email address.
-            int ComputerEntity = this->Peacenet->SaveGame->ComputerIPMap[IPAddress];
-
-            FComputer Computer;
-            int ComputerIndex;
-            bool result = this->Peacenet->SaveGame->GetComputerByID(ComputerEntity, Computer, ComputerIndex);
+            FComputer ComputerTemp;
+            EConnectionError Error = EConnectionError::None;
+            bool result = this->Peacenet->DnsResolve(NewDomain, ComputerTemp, Error);
             check(result);
+
+            FComputer& Computer = this->Peacenet->GetComputerByID(ComputerTemp.ID);
 
             if(Computer.ComputerType == EComputerType::EmailServer)
             {
                 // Go through all characters in the save file.
-                for(auto& Character : this->Peacenet->SaveGame->Characters)
+                for(auto& Character : this->Peacenet->GetCharacters())
                 {
                     // If the character's email address ends with the old domain we need to
                     // set it to the new domain.
@@ -1002,19 +753,10 @@ void UProceduralGenerationEngine::SpawnPeacenetSites()
         SiteComputer.PeacenetSite = Site;
 
         // Generate an IP address for the computer.
-        FString IPAddress = "";
-        for(auto& IP : this->Peacenet->SaveGame->ComputerIPMap)
-        {
-            if(IP.Value == SiteComputer.ID)
-            {
-                IPAddress = IP.Key;
-                break;
-            }
-        }
-        check(IPAddress.Len());
+        FString IPAddress = this->Peacenet->GetIPAddress(SiteComputer);
 
-        // Assign the IP address to the computer, and the domain name to the IP.
-        this->Peacenet->SaveGame->DomainNameMap.Add(Site->DomainName, IPAddress);
+        // Register the new domain.
+        this->Peacenet->RegisterDomain(Site->DomainName, IPAddress);
     }
 }
 
@@ -1028,25 +770,18 @@ void UProceduralGenerationEngine::GenerateEmailServers()
     while(ServersToGenerate > 0)
     {
         FString NewHostname = this->DomainGenerator->GetMarkovString(0).ToLower() + ".com";
-        while(this->Peacenet->SaveGame->DomainNameMap.Contains(NewHostname))
+        while(this->Peacenet->GetDomainNames().Contains(NewHostname))
         {
             NewHostname = this->DomainGenerator->GetMarkovString(0).ToLower() + ".com";
         }
 
         FComputer& Server = this->GenerateComputer(NewHostname, EComputerType::EmailServer, EComputerOwnerType::None);
 
-        FString IPAddress = "";
-        for(auto& IP : this->Peacenet->SaveGame->ComputerIPMap)
-        {
-            if(IP.Value == Server.ID)
-            {
-                IPAddress = IP.Key;
-                break;
-            }
-        }
+        FString IPAddress = this->Peacenet->GetIPAddress(Server);
+
         check(IPAddress.Len());
 
-        this->Peacenet->SaveGame->DomainNameMap.Add(NewHostname, IPAddress);
+        this->Peacenet->RegisterDomain(NewHostname, IPAddress);
 
         ServersToGenerate--;
     }
@@ -1054,107 +789,14 @@ void UProceduralGenerationEngine::GenerateEmailServers()
 
 void UProceduralGenerationEngine::GenerateCharacterRelationships()
 {
-    // We will need to remove all relationships that are between any character and a non-player.
-    TArray<int> RelationshipsToRemove;
-    for(int i = 0; i < this->Peacenet->SaveGame->CharacterRelationships.Num(); i++)
-    {
-        FCharacterRelationship& Relationship = this->Peacenet->SaveGame->CharacterRelationships[i];
-
-        FPeacenetIdentity First;
-        FPeacenetIdentity Second;
-        int FirstIndex, SecondIndex;
-
-        bool FirstResult = this->Peacenet->SaveGame->GetCharacterByID(Relationship.FirstEntityID, First, FirstIndex);
-        bool SecondResult = this->Peacenet->SaveGame->GetCharacterByID(Relationship.SecondEntityID, Second, SecondIndex);
-        
-        check(FirstResult && SecondResult);
-
-        if(First.CharacterType != EIdentityType::Player || Second.CharacterType != EIdentityType::Player)
-        {
-            RelationshipsToRemove.Add(i);
-        }
-    }
-
-    int RelationshipsRemoved = 0;
-    while(RelationshipsToRemove.Num())
-    {
-        this->Peacenet->SaveGame->CharacterRelationships.RemoveAt(RelationshipsToRemove[0] - RelationshipsRemoved);
-        RelationshipsRemoved++;
-        RelationshipsToRemove.RemoveAt(0);
-    }
-
-    TArray<FPeacenetIdentity> GoodReps;
-    TArray<FPeacenetIdentity> BadReps;
-        
-    // First pass collects all NPCs and sorts them between good and bad reputations.
-    for(int i = 0; i < this->Peacenet->SaveGame->Characters.Num(); i++)
-    {
-        FPeacenetIdentity Identity = this->Peacenet->SaveGame->Characters[i];
-
-        if(Identity.CharacterType == EIdentityType::Player)
-            continue;
-
-        if(Identity.Reputation < 0)
-            BadReps.Add(Identity);
-        else
-            GoodReps.Add(Identity);
-    }
-
-    // Second pass goes through every NPC, looks at their reputation, and chooses relationships from the correct list.
-    for(int i = 0; i < this->Peacenet->SaveGame->Characters.Num(); i++)
-    {
-        FPeacenetIdentity First = this->Peacenet->SaveGame->Characters[i];
-
-        if(First.CharacterType == EIdentityType::Player)
-            continue;
-
-        bool Bad = First.Reputation < 0;
-
-        bool MakeEnemy = RNG.RandRange(0, 6) % 2;
-
-        FPeacenetIdentity Second;
-
-        do
-        {
-            if(MakeEnemy)
-            {
-                if(Bad)
-                    Second = GoodReps[RNG.RandRange(0, GoodReps.Num() - 1)];
-                else
-                    Second = BadReps[RNG.RandRange(0, BadReps.Num() - 1)];
-            }
-            else
-            {
-                if(Bad)
-                    Second = BadReps[RNG.RandRange(0, BadReps.Num() - 1)];
-                else
-                    Second = GoodReps[RNG.RandRange(0, GoodReps.Num() - 1)];
-            }
-        } while(this->Peacenet->SaveGame->RelatesWith(First.ID, Second.ID) || Second.CharacterType == EIdentityType::Player);
-        
-        FCharacterRelationship Relationship;
-        Relationship.FirstEntityID = First.ID;
-        Relationship.SecondEntityID = Second.ID;
-            
-        if(MakeEnemy)
-        {
-            Relationship.RelationshipType = ERelationshipType::Enemy;
-        }
-        else
-        {
-            Relationship.RelationshipType = ERelationshipType::Friend;
-        }
-
-        this->Peacenet->SaveGame->CharacterRelationships.Add(Relationship);
-    }
+    // STUB
 }
 
 FComputer& UProceduralGenerationEngine::GenerateComputer(FString InHostname, EComputerType InComputerType, EComputerOwnerType InOwnerType)
 {
-    FComputer Ret;
+    FComputer& Ret = this->Peacenet->GetNewComputer();
 
     // Set up the core metadata.
-    Ret.ID = this->Peacenet->SaveGame->Computers.Num();
     Ret.OwnerType = InOwnerType;
     Ret.ComputerType = InComputerType;
 
@@ -1227,22 +869,10 @@ FComputer& UProceduralGenerationEngine::GenerateComputer(FString InHostname, ECo
     Ret.Users.Add(RootUser);
     Ret.Users.Add(NonRoot);
 
-    // Add the computer to the save file.
-    this->Peacenet->SaveGame->Computers.Add(Ret);
-
-    FString IPAddress;
-    do
-    {
-        IPAddress = this->GenerateIPAddress();
-    } while(this->Peacenet->SaveGame->IPAddressAllocated(IPAddress));
-
-    this->Peacenet->SaveGame->ComputerIPMap.Add(IPAddress, Ret.ID);
-
-    // Grab the index of that computer in the save.
-    int ComputerIndex = this->Peacenet->SaveGame->Computers.Num() - 1;
-
+    FString IPAddress = this->Peacenet->GetIPAddress(Ret);
+    
     UE_LOG(LogTemp, Display, TEXT("Computer generated..."));
 
     // Return it.
-    return this->Peacenet->SaveGame->Computers[ComputerIndex];
+    return Ret;
 }

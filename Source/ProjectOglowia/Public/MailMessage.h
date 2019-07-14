@@ -51,10 +51,6 @@ private:
     UPROPERTY()
     int MessageID = 0;
 
-private:
-    UFUNCTION()
-    UPeacenetSaveGame* GetSaveGame();
-
 public:
     UFUNCTION()
     void Setup(UMailProvider* InProvider, int InMessageID);

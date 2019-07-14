@@ -34,6 +34,86 @@
 #include "Computer.h"
 #include "MissionAsset.h"
 
+void UPeacenetSaveGame::ClearNonPlayerEntities()
+{
+	TArray<int> ComputersToRemove;
+    TArray<int> CharactersToRemove;
+    
+    // Collect all computers that are NPC-owned.
+    for(int i = 0; i < this->Computers.Num(); i++)
+    {
+        FComputer& Computer = this->Computers[i];
+        if(Computer.OwnerType != EComputerOwnerType::Player)
+        {
+            ComputersToRemove.Add(i);
+        }
+    }
+
+    // Collect all characters to remove.
+    for(int i = 0; i < this->Characters.Num(); i++)
+    {
+        FPeacenetIdentity& Character = this->Characters[i];
+        if(Character.CharacterType != EIdentityType::Player)
+        {
+            CharactersToRemove.Add(i);
+        }
+    }
+
+    // Remove all characters..
+    while(CharactersToRemove.Num())
+    {
+        this->Characters.RemoveAt(CharactersToRemove[0]);
+        CharactersToRemove.RemoveAt(0);
+        for(int i = 0; i < CharactersToRemove.Num(); i++)
+            CharactersToRemove[i]--;
+    }
+
+    // Remove all computers.
+    while(ComputersToRemove.Num())
+    {
+        this->Computers.RemoveAt(ComputersToRemove[0]);
+        ComputersToRemove.RemoveAt(0);
+        for(int i = 0; i < ComputersToRemove.Num(); i++)
+            ComputersToRemove[i]--;
+    }
+
+    // Clear entity adjacentness.
+    this->AdjacentNodes.Empty();
+
+    // Remove all entity positions that aren't player.
+    TArray<int> EntityPositionsToRemove;
+    int EntityPositionsRemoved=0;
+    for(int i = 0; i < this->EntityPositions.Num(); i++)
+    {
+        FPeacenetIdentity Identity;
+        int IdentityIndex;
+        bool result = this->GetCharacterByID(this->EntityPositions[i].EntityID, Identity, IdentityIndex);
+        if(result)
+        {
+           if(Identity.CharacterType != EIdentityType::Player) 
+           {
+               EntityPositionsToRemove.Add(i);
+           }
+        }
+        else
+        {
+            EntityPositionsToRemove.Add(i);
+        }
+    }
+    while(EntityPositionsToRemove.Num())
+    {
+        this->EntityPositions.RemoveAt(EntityPositionsToRemove[0] - EntityPositionsRemoved);
+        EntityPositionsRemoved++;
+        EntityPositionsToRemove.RemoveAt(0);
+    }
+
+    // Clear out the player's known entities.
+    this->PlayerDiscoveredNodes.Empty();
+
+    // Fix up entity IDs.
+    this->FixEntityIDs();
+}
+
 int UPeacenetSaveGame::GetGameStat(FName InStatName)
 {
 	if(this->GameStats.Contains(InStatName))

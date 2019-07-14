@@ -60,6 +60,12 @@ class UWindow;
 class UMissionAsset;
 class USystemUpgrade;
 
+// Because literally anything that requires the world state to be friends with it is fucking clingy
+// as fuck.
+#define iamnickensorto friend
+#define iamalsonickensorto friend
+
+
 USTRUCT(BlueprintType)
 struct FGameEventData
 {
@@ -80,6 +86,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMissionCompleteEvent, UMissionAsset
 UCLASS()
 class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
 {
+	iamnickensorto AMissionActor; // AMissionActor's more clingy to the fucking save file than I was to Nick Ensor.  That's...annoying....
+	iamalsonickensorto UMissionTask; // For the love of Kaylin...
+
 	GENERATED_BODY()
 	
 public: // Constructors
@@ -112,6 +121,9 @@ public: // Constructors
 	void SetStealthiness(FPeacenetIdentity& InIdentity, float InValue);
 
 private: // Properties
+	UPROPERTY()
+	UPeacenetSaveGame* SaveGame;
+
 	UPROPERTY()
 	AAlertManager* AlertManager;
 	
@@ -161,6 +173,33 @@ public: //Properties
 	UFUNCTION()
 	void UpdateMaps();
 
+	UFUNCTION()
+	FPeacenetIdentity& GetNewIdentity();
+
+	UFUNCTION()
+	FComputer& GetPlayerComputer();
+
+	UFUNCTION()
+	bool IdentityExists(int EntityID);
+
+	UFUNCTION()
+	FPeacenetIdentity& GetCharacterByID(int EntityID);
+
+	UFUNCTION()
+	TArray<FEmail> GetEmailMessages();
+
+	UFUNCTION()
+	FEmail& GetNewEmailMessage();
+
+	UFUNCTION()
+	bool GetStoryCharacterID(UStoryCharacter* InStoryCharacter, int& OutEntityID);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool IsMissionCompleted(UMissionAsset* InMission);
+
+	UFUNCTION(BlueprintCallable)
+	void SetSaveValue(FString InValueName, bool InValue);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	TArray<USystemUpgrade*> GetAllSystemUpgrades();
 
@@ -195,9 +234,6 @@ public: //Properties
 	FString WorldSlot;
 
 	UPROPERTY()
-	UPeacenetSaveGame* SaveGame;
-
-	UPROPERTY()
 	TArray<UPeacegateProgramAsset*> Programs;
 
 	UPROPERTY()
@@ -222,6 +258,51 @@ public:	// Functions
 
 	UFUNCTION()
 	void FailMission(const FText& InFailMessage);
+
+	UFUNCTION()
+	int GetPlayerUserID();
+
+	UFUNCTION()
+	TArray<FPeacenetIdentity> GetCharacters();
+
+	UFUNCTION()
+	bool IsTrue(FString InSaveBoolean);
+
+	UFUNCTION()
+	bool IsIPAddress(FString InIPAddress);
+
+	UFUNCTION()
+	FComputer& GetComputerByID(int InEntityID);
+
+	UFUNCTION()
+	void ClearNonPlayerEntities();
+
+	UFUNCTION()
+	void RemoveDomain(FString InDomain);
+
+	UFUNCTION()
+	void ReplaceDomain(FString InDomain, FString NewDomain);
+
+	UFUNCTION()
+	void RegisterDomain(FString DomainName, FString DestinationHost);
+
+	UFUNCTION()
+	int GetWorldSeed();
+
+	UFUNCTION()
+	FComputer& GetNewComputer();
+
+	UFUNCTION()
+	bool CharacterNameExists(FString InCharacterName);
+
+	UFUNCTION()
+	TArray<FString> GetDomainNames();
+
+	UFUNCTION()
+	void AssignStoryCharacterID(UStoryCharacter* InStoryCharacter, FPeacenetIdentity& InIdentity);
+
+	UFUNCTION()
+	bool DnsResolve(FString InHost, FComputer& OutComputer, EConnectionError& OutError);
 
 	UFUNCTION()
 	TArray<UExploit*> GetExploits();

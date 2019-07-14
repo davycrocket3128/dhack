@@ -49,6 +49,214 @@
 #include "SystemUpgrade.h"
 #include "Window.h"
 
+FPeacenetIdentity& APeacenetWorldStateActor::GetNewIdentity()
+{
+	// We must have a save file.
+	check(this->SaveGame);
+
+	// Figure out which IDs are taken.
+	TArray<int> TakenIDs;
+	for(auto& Identity : this->SaveGame->Characters)
+	{
+		if(!TakenIDs.Contains(Identity.ID))
+			TakenIDs.Add(Identity.ID);
+	}
+
+	// Find the first ID that isn't taken, starting from 0.
+	int i = 0;
+	while(TakenIDs.Contains(i))
+		i++;
+
+	// Create a new identity with the new entity ID.
+	FPeacenetIdentity id;
+	id.ID = i;
+
+	// Add it to the save file.
+	this->SaveGame->Characters.Add(id);
+
+	// Return a reference to that identity in save memory.
+	return this->SaveGame->Characters[this->SaveGame->Characters.Num() - 1];
+}
+
+bool APeacenetWorldStateActor::GetStoryCharacterID(UStoryCharacter* InStoryCharacter, int& OutEntityID)
+{
+	if(this->SaveGame)
+		return this->SaveGame->GetStoryCharacterID(InStoryCharacter, OutEntityID);
+	return false;
+}
+
+void APeacenetWorldStateActor::SetSaveValue(FString InValueName, bool InValue)
+{
+	if(this->SaveGame) this->SaveGame->SetValue(InValueName, InValue);
+}
+
+FEmail& APeacenetWorldStateActor::GetNewEmailMessage()
+{
+	// Get a list of taken email IDs.
+	TArray<int> TakenIDs;
+	for(auto& Message : this->GetEmailMessages())
+	{
+		if(!TakenIDs.Contains(Message.ID))
+			TakenIDs.Add(Message.ID);
+	}
+
+	// Find the first not-taken ID.
+	int id = 0;
+	while(TakenIDs.Contains(id))
+		id++;
+
+	// Create a new email message with this ID.
+	FEmail mail;
+	mail.ID = id;
+
+	// Add it to the save file.
+	this->SaveGame->EmailMessages.Add(mail);
+
+	// Return a reference to the email in save memory.
+	return this->SaveGame->EmailMessages[this->SaveGame->EmailMessages.Num() - 1];
+}
+
+int APeacenetWorldStateActor::GetPlayerUserID()
+{
+	return this->SaveGame->PlayerUserID;
+}
+
+bool APeacenetWorldStateActor::DnsResolve(FString InHost, FComputer& OutComputer, EConnectionError& OutError)
+{
+	// Default the error to nothing.
+	OutError = EConnectionError::None;
+
+	// Maximum resolution attempts before we abort with a timeout error.
+	// This is an actual error and prevents the game from infinite-looping if
+	// we keep resolving in circles.
+	int MaxHops = 100;
+
+	// Try to resolve any domain names to an IP address.
+	while(this->SaveGame->DomainNameMap.Contains(InHost))
+	{
+		// Resolve the domain.
+		InHost = this->SaveGame->DomainNameMap[InHost];
+		MaxHops--;
+
+		// Break with timeout error if max hops is less than zero.
+		if(MaxHops < 0)
+		{
+			OutError = EConnectionError::ConnectionTimedOut;
+			return false;
+		}
+	}
+
+	// If, at this point, we do not have an IP address in the host, we're going to timeout.
+	if(!this->SaveGame->ComputerIPMap.Contains(InHost))
+	{
+		OutError = EConnectionError::ConnectionTimedOut;
+		return false;
+	}
+
+	// Now we can get a computer ID.
+	int Entity = this->SaveGame->ComputerIPMap[InHost];
+
+	int Index = -1;
+	bool result = this->SaveGame->GetComputerByID(Entity, OutComputer, Index);
+
+	// If we didn't find a computer then we'll timeout.
+	if(!result)
+	{
+		OutError = EConnectionError::ConnectionTimedOut;
+		return false;
+	}
+
+	// Now we have a computer.  I can see the truth.  Only returning true.
+	return true;
+}
+
+bool APeacenetWorldStateActor::CharacterNameExists(FString InCharacterName)
+{
+	return this->SaveGame && this->SaveGame->CharacterNameExists(InCharacterName);
+}
+
+FComputer& APeacenetWorldStateActor::GetNewComputer()
+{
+	TArray<int> TakenIDs;
+	for(auto& PC : this->SaveGame->Computers)
+	{
+		if(!TakenIDs.Contains(PC.ID))
+			TakenIDs.Add(PC.ID);
+	}
+
+	int i = 0;
+	while(TakenIDs.Contains(i))
+		i++;
+
+	FComputer pc;
+	pc.ID = i;
+
+	this->SaveGame->Computers.Add(pc);
+	return this->SaveGame->Computers[this->SaveGame->Computers.Num() - 1];
+}
+
+void APeacenetWorldStateActor::ClearNonPlayerEntities()
+{
+	this->SaveGame->ClearNonPlayerEntities();
+}
+
+TArray<FString> APeacenetWorldStateActor::GetDomainNames()
+{
+	TArray<FString> keys;
+	if(this->SaveGame)
+		this->SaveGame->DomainNameMap.GetKeys(keys);
+	return keys;
+}
+
+void APeacenetWorldStateActor::AssignStoryCharacterID(UStoryCharacter* InStoryCharacter, FPeacenetIdentity& InIdentity)
+{
+	check(this->SaveGame);
+	check(InStoryCharacter);
+
+	this->SaveGame->AssignStoryCharacterID(InStoryCharacter, InIdentity.ID);
+}
+
+FPeacenetIdentity& APeacenetWorldStateActor::GetCharacterByID(int InEntityID)
+{
+	int i = 0;
+	FPeacenetIdentity identity;
+	bool result = this->SaveGame && this->SaveGame->GetCharacterByID(InEntityID, identity, i);
+	check(result);
+	return this->SaveGame->Characters[i];
+}
+
+TArray<FEmail> APeacenetWorldStateActor::GetEmailMessages()
+{
+	check(this->SaveGame);
+
+	return this->SaveGame->EmailMessages;
+}
+
+bool APeacenetWorldStateActor::IdentityExists(int EntityID)
+{
+	FPeacenetIdentity id;
+	int i;
+	return this->SaveGame && this->SaveGame->GetCharacterByID(EntityID, id, i);
+}
+
+FComputer& APeacenetWorldStateActor::GetPlayerComputer()
+{
+	check(this->SaveGame);
+	check(this->SaveGame->PlayerHasComputer());
+
+	FComputer pc;
+	int i = 0;
+	bool result = this->SaveGame->GetComputerByID(this->SaveGame->PlayerComputerID, pc, i);
+	check(result);
+
+	return this->SaveGame->Computers[i];
+}
+
+bool APeacenetWorldStateActor::IsMissionCompleted(UMissionAsset* InMission)
+{
+	return this->SaveGame && InMission && this->SaveGame->CompletedMissions.Contains(InMission);
+}
+
 void APeacenetWorldStateActor::BroadcastMissionComplete(UMissionAsset* InMissionAsset)
 {
 	this->MissionCompleteEvent.Broadcast(InMissionAsset);
@@ -376,6 +584,16 @@ TArray<UComputerService*> APeacenetWorldStateActor::GetServicesFor(EComputerType
 	return Ret;
 }
 
+bool APeacenetWorldStateActor::IsIPAddress(FString InIPAddress)
+{
+	return this->SaveGame && this->SaveGame->ComputerIPMap.Contains(InIPAddress);
+}
+
+bool APeacenetWorldStateActor::IsTrue(FString InSaveBoolean)
+{
+	return this->SaveGame && this->SaveGame->IsTrue(InSaveBoolean);
+}
+
 FString APeacenetWorldStateActor::GetIPAddress(FComputer& InComputer)
 {
 	check(this->SaveGame);
@@ -387,23 +605,10 @@ FString APeacenetWorldStateActor::GetIPAddress(FComputer& InComputer)
 			return IP.Key;
 	}
 
-	// No IP address exists for this computer. So we'll generate one.
-	// First we look through all Peacenet identities to see if one
-	// owns this comuter. If one is found, we generate a public IP.
-	//
-	// Else we generate a private one for an enterprise net (NYI).
-
-	for(auto& Identity: this->SaveGame->Characters)
-	{
-		if(Identity.ComputerID == InComputer.ID)
-		{
-			FString IP = this->Procgen->GenerateIPAddress();
-			this->SaveGame->ComputerIPMap.Add(IP, InComputer.ID);
-			return IP;
-		}
-	}
-
-	return "0.0.0.0";
+	// Peacenet 0.2.x: IP addresses do not, under any circumstances, require Peacenet Identities.
+	FString IP = this->Procgen->GenerateIPAddress();
+	this->SaveGame->ComputerIPMap.Add(IP, InComputer.ID);
+	return IP;
 }
 
 // Loads all the terminal commands in the game
@@ -805,6 +1010,52 @@ APeacenetWorldStateActor* APeacenetWorldStateActor::LoadExistingOS(const APlayer
 	return ExistingPeacenet;
 }
 
+void APeacenetWorldStateActor::RemoveDomain(FString InDomainName)
+{
+	if(this->SaveGame->DomainNameMap.Contains(InDomainName))
+	{
+		this->SaveGame->DomainNameMap.Remove(InDomainName);
+	}
+}
+
+TArray<FPeacenetIdentity> APeacenetWorldStateActor::GetCharacters()
+{
+	return this->SaveGame->Characters;
+}
+
+FComputer& APeacenetWorldStateActor::GetComputerByID(int InEntityID)
+{
+	FComputer pc;
+	int i = -1;
+	bool result = this->SaveGame->GetComputerByID(InEntityID, pc, i);
+	check(result);
+	return this->SaveGame->Computers[i];
+}
+
+void APeacenetWorldStateActor::ReplaceDomain(FString InDomain, FString NewDomain)
+{
+	FString OldDest = this->SaveGame->DomainNameMap[InDomain];
+	this->RemoveDomain(InDomain);
+	this->RegisterDomain(NewDomain, OldDest);
+}
+
+void APeacenetWorldStateActor::RegisterDomain(FString DomainName, FString DestinationHost)
+{
+	if(this->SaveGame->DomainNameMap.Contains(DomainName))
+	{
+		this->SaveGame->DomainNameMap[DomainName] = DestinationHost;
+	}
+	else 
+	{
+		this->SaveGame->DomainNameMap.Add(DomainName, DestinationHost);
+	}
+}
+
+int APeacenetWorldStateActor::GetWorldSeed()
+{
+	return this->SaveGame->WorldSeed;
+}
+
 APeacenetWorldStateActor* APeacenetWorldStateActor::BootOS(const APlayerController* InPlayerController, bool InDeleteExistingSaveFile)
 {
 	// If we have an existing OS then we'll load that in if, and only if, we aren't deleting the existing OS.
@@ -823,5 +1074,6 @@ APeacenetWorldStateActor* APeacenetWorldStateActor::BootOS(const APlayerControll
 	UWorld* world = InPlayerController->GetWorld();
 	APeacenetWorldStateActor* actor = world->SpawnActor<APeacenetWorldStateActor>();
 	actor->SaveGame = NewObject<UPeacenetSaveGame>();
+	actor->SaveGame->WorldSeed = FDateTime::Now().ToUnixTimestamp();
 	return actor;
 }

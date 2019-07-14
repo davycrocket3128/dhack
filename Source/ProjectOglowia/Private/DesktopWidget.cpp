@@ -53,7 +53,7 @@ void UDesktopWidget::StartMissionIfAvailable(UMissionAsset* InMission)
 
 	if(!InMission) return;
 
-	if(this->GetPeacenet()->SaveGame->CompletedMissions.Contains(InMission))
+	if(this->GetPeacenet()->IsMissionCompleted(InMission))
 		return;
 
 	this->GetPeacenet()->StartMission(InMission);

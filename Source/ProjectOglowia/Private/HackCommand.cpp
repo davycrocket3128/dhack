@@ -385,7 +385,7 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
 
     if(Command == "scan")
     {
-        InConsole->GetUserContext()->GetPeacenet()->SaveGame->SetValue("gigasploit.firstScan", true);
+        InConsole->GetUserContext()->GetPeacenet()->SetSaveValue("gigasploit.firstScan", true);
 
         InConsole->WriteLine(NSLOCTEXT("Gigasploit", "StartingScan", "Performing Nmap scan on remote system..."), 0.3f);
         InConsole->WriteLine(FText::GetEmpty());

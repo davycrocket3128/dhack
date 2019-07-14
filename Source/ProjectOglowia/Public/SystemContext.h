@@ -40,6 +40,7 @@
 #include "MailProvider.h"
 #include "AdjacentNodeInfo.h"
 #include "PeacegateProcess.h"
+#include "ConnectionError.h"
 #include "SystemContext.generated.h"
 
 class UHackable;
@@ -191,6 +192,9 @@ public: // Property getters
 
 	UFUNCTION()
 	FComputer& GetComputer();
+
+	UFUNCTION()
+	bool DnsResolve(FString InHost, FComputer& OutComputer, EConnectionError& OutConnectionError);
 
 	UFUNCTION(BlueprintCallable, Category = "System Context")
 	FString GetHostname();

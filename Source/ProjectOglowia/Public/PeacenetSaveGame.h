@@ -136,6 +136,9 @@ public:
 	bool GetStoryCharacterID(UStoryCharacter* InStoryCharacter, int& OutIdentity);
 
 	UFUNCTION()
+	void ClearNonPlayerEntities();
+
+	UFUNCTION()
 	void AssignStoryCharacterID(UStoryCharacter* InStoryCharacter, int InIdentity);
 
 	UFUNCTION()

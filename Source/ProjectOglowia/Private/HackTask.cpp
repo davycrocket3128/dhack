@@ -70,7 +70,7 @@ void UHackTask::NativeStart()
     check(this->StoryCharacter);
 
     // Get the target entity.
-    bool result = this->GetPlayerUser()->GetPeacenet()->SaveGame->GetStoryCharacterID(this->StoryCharacter, this->TargetEntity);
+    bool result = this->GetPlayerUser()->GetPeacenet()->GetStoryCharacterID(this->StoryCharacter, this->TargetEntity);
     check(result);
 
     // Reset the state of the hack.

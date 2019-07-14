@@ -66,9 +66,6 @@ protected:
     virtual void NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) override;
 
     UFUNCTION()
-    int GetNextIdentityID();
-
-    UFUNCTION()
     const FText MakeAliasFrom(FString InName);
 
 public:

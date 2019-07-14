@@ -47,7 +47,7 @@ bool ATerminalCommand::IsTutorialActive()
 
 bool ATerminalCommand::IsSet(FString InSaveBoolean)
 {
-	return this->Console->GetUserContext()->GetPeacenet()->SaveGame->IsTrue(InSaveBoolean);
+	return this->Console->GetUserContext()->GetPeacenet()->IsTrue(InSaveBoolean);
 }
 
 void ATerminalCommand::ShowTutorialIfNotSet(FString InSaveBoolean, const FText& InTutorialTitle, const FText& InTutorialText)
@@ -55,7 +55,7 @@ void ATerminalCommand::ShowTutorialIfNotSet(FString InSaveBoolean, const FText& 
 	if(!this->IsSet(InSaveBoolean) && !this->IsTutorialActive())
 	{
 		this->Console->GetUserContext()->GetPeacenet()->GetTutorialState()->ActivatePrompt(InTutorialTitle, InTutorialText);
-		this->Console->GetUserContext()->GetPeacenet()->SaveGame->SetValue(InSaveBoolean, true);
+		this->Console->GetUserContext()->GetPeacenet()->SetSaveValue(InSaveBoolean, true);
 	}
 }
 
