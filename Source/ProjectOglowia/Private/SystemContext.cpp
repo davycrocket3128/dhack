@@ -277,9 +277,8 @@ TArray<UCommandInfo*> USystemContext::GetInstalledCommands()
 	{
 		UCommandInfo* Info = GetPeacenet()->CommandInfo[Name];
 
-		if(!GetComputer().InstalledCommands.Contains(Name) && !Info->UnlockedByDefault)
-			continue;
-		Ret.Add(Info);
+		if(Info->IsUnlocked(this))
+			Ret.Add(Info);
 	}
 
 	return Ret;
@@ -365,7 +364,7 @@ bool USystemContext::TryGetTerminalCommand(FName CommandName, ATerminalCommand *
 
 	UCommandInfo* Info = GetPeacenet()->CommandInfo[CommandName];
 
-	if(!GetComputer().InstalledCommands.Contains(CommandName) && !Info->UnlockedByDefault)
+	if(!Info->IsUnlocked(this))
 	{
 		return false;
 	}
@@ -854,7 +853,7 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	for(int i = 0; i < CommandKeys.Num(); i++)
 	{
 		UCommandInfo* CommandInfo = this->GetPeacenet()->CommandInfo[CommandKeys[i]];
-		if(CommandInfo->UnlockedByDefault || InstalledCommands.Contains(CommandInfo))
+		if(InstalledCommands.Contains(CommandInfo))
 		{
 			fs->SetFileRecord("/bin/" + CommandInfo->ID.ToString(), EFileRecordType::Command, i);
 		}
@@ -864,10 +863,11 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	// Make all programs show in /bin.
 	TArray<UPeacegateProgramAsset*> InstalledPrograms = this->GetInstalledPrograms();
 
-	for(int i = 0; i < InstalledPrograms.Num(); i++)
+	for(int i = 0; i < this->GetPeacenet()->Programs.Num(); i++)
 	{
-		UPeacegateProgramAsset* ProgramAsset = InstalledPrograms[i];
-		fs->SetFileRecord("/bin/" + ProgramAsset->ID.ToString(), EFileRecordType::Program, i);
+		UPeacegateProgramAsset* ProgramAsset = this->GetPeacenet()->Programs[i];
+		if(InstalledPrograms.Contains(ProgramAsset))
+			fs->SetFileRecord("/bin/" + ProgramAsset->ID.ToString(), EFileRecordType::Program, i);
 	}
 
 	// If the cryptowallets directory exists, delete it.

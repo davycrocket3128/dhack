@@ -154,9 +154,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
 	FName WallpaperID;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
-	TArray<FName> InstalledCommands;
-
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Hacking")
 	TArray<FServiceInfo> ActiveServices;
 
