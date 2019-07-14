@@ -125,9 +125,6 @@ public:
 	int ID;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Exploits")
-	TArray<UExploit*> Exploits;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Exploits")
 	TArray<UPayloadAsset*> Payloads;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")

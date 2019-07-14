@@ -168,16 +168,13 @@ TArray<UPayloadAsset*> USystemContext::GetPayloads()
 
 TArray<UExploit*> USystemContext::GetExploits()
 {
-	for(int i = 0; i < this->GetComputer().Exploits.Num(); i++)
+	TArray<UExploit*> Ret;
+	for(auto Exploit : this->GetPeacenet()->GetExploits())
 	{
-		if(!this->GetComputer().Exploits[i])
-		{
-			this->GetComputer().Exploits.RemoveAt(i);
-			i--;
-		}
+		if(Exploit->IsUnlocked(this))
+			Ret.Add(Exploit);
 	}
-
-	return this->GetComputer().Exploits;
+	return Ret;
 }
 
 FString USystemContext::GetProcessUsername(FPeacegateProcess InProcess)
@@ -831,17 +828,6 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 		if(generateLoots)
 		{
 			this->GetPeacenet()->GetProcgen()->PlaceLootableFiles(this->GetUserContext(user.ID));
-		}
-	}
-
-	// Now we go through all the exploits in the game and, if they're
-	// unlocked by default, we unlock them.
-	for(auto exploit : this->GetPeacenet()->GetExploits())
-	{
-		if(exploit->UnlockedByDefault)
-		{
-			if(!this->GetComputer().Exploits.Contains(exploit))
-				this->GetComputer().Exploits.Add(exploit);
 		}
 	}
 
