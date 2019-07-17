@@ -113,9 +113,10 @@ public:
     UFUNCTION()
     void FlushLineBuffer();
     
-    int Read(TArray<TCHAR> Buffer, int Offset, int Count);
+    int Read(TArray<TCHAR>& Buffer, int Offset, int Count);
     void Write(TArray<TCHAR> Buffer, int Offset, int Count);
-
+    void WriteChar(TCHAR c);
+    bool ReadChar(TCHAR& OutChar);
 
 private:
     UFUNCTION()

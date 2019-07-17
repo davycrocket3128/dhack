@@ -47,7 +47,7 @@ public:
     UFUNCTION()
     int GetPosition();
 
-    int Read(TArray<TCHAR> Buffer, int Offset, int Count);
+    int Read(TArray<TCHAR>& Buffer, int Offset, int Count);
     void Write(TArray<TCHAR> Buffer, int Offset, int Count);
     void WriteChar(TCHAR c);
 };

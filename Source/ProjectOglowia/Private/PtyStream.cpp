@@ -77,7 +77,7 @@ void UPtyStream::Write(TArray<TCHAR> Buffer, int Offset, int Count)
     }
 }
 
-int UPtyStream::Read(TArray<TCHAR> Buffer, int Offset, int Count)
+int UPtyStream::Read(TArray<TCHAR>& Buffer, int Offset, int Count)
 {
     if(!this->IsMaster)
     {
@@ -153,4 +153,20 @@ void UPtyStream::WriteInput(TCHAR c)
         return;
     }
     this->InputStream->WriteChar(c);
+}
+
+void UPtyStream::WriteChar(TCHAR c)
+{
+    TArray<TCHAR> buf = { c };
+    this->Write(buf, 0, 1);
+}
+
+bool UPtyStream::ReadChar(TCHAR& OutChar)
+{
+    TArray<TCHAR> buf = { '\0' };
+    int read = this->Read(buf, 0, 1);
+    if(read < 1)
+        return false;
+    OutChar = buf[0];
+    return true;
 }

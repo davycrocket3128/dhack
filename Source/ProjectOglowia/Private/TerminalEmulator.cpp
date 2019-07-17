@@ -55,19 +55,11 @@
 #define ISCONTROL(c)		(ISCONTROLC0(c) || ISCONTROLC1(c))
 #define ISDELIM(u)		(u && this->WordDelimiters.Contains(FString::Chr(u)))
 
-enum term_mode {
-	MODE_WRAP        = 1 << 0,
-	MODE_INSERT      = 1 << 1,
-	MODE_ALTSCREEN   = 1 << 2,
-	MODE_CRLF        = 1 << 3,
-	MODE_ECHO        = 1 << 4,
-	MODE_PRINT       = 1 << 5,
-	MODE_UTF8        = 1 << 6,
-	MODE_SIXEL       = 1 << 7,
-};
-
 void UTerminalEmulator::NativePreConstruct()
 {
+    // Initialize the pty.
+    this->InitializePty();
+
     // Set rows and columns count.
     this->term.row = this->DefaultRowCount;
     this->term.col = this->DefaultColumnCount;
@@ -80,6 +72,19 @@ void UTerminalEmulator::NativePreConstruct()
 
     // Hello world.
     this->Write("Hello, \x1B[31mred\x1B[0m world!");
+}
+
+void UTerminalEmulator::InitializePty()
+{
+    // Set up the terminal options
+    FPtyOptions options;
+    options.LFlag = ICANON | ECHO;
+    options.C_cc[VERASE] = '\b';
+    options.C_cc[VEOL] = '\r';
+    options.C_cc[VEOL2] = '\n';
+
+    // Create the pseudo terminal streams.
+    UPtyStream::CreatePty(this->Master, this->Slave, options);
 }
 
 bool UTerminalEmulator::IsSelected(int x, int y) const
@@ -194,8 +199,29 @@ int32 UTerminalEmulator::NativePaint(const FPaintArgs& Args, const FGeometry& Al
     return LayerId;
 }
 
+void UTerminalEmulator::TtyRead()
+{
+    // The string that will be written.
+    FString buffer;
+
+    TCHAR c;
+    // Keep reading till we run out of characters to read.
+    while(this->Slave->ReadChar(c))
+    {
+        // Append the character to the string IF it's not null.
+        if(c == '\0') continue;
+        buffer += c;
+    }
+
+    // Write to the terminal display!
+    this->Write(buffer, false);
+}
+
 void UTerminalEmulator::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
+    // Read from the tty and write to the terminal.
+    this->TtyRead();
+
     int cx = this->term.c.x;
 
     LIMIT(this->term.ocx, 0, this->term.col - 1);
@@ -248,6 +274,9 @@ void UTerminalEmulator::InitializeScreen()
     this->term.c.x = 0;
     this->term.c.y = 0;
 
+    this->term.top = 0;
+    this->term.bot = this->term.row;
+
     // Set the cursor color.
     this->term.c.attr.bg = this->BackgroundColor;
     this->term.c.attr.fg = this->ForegroundColor.GetSpecifiedColor();
@@ -258,9 +287,37 @@ void copyTChar(TCHAR u, char* dest, int i)
     memcpy(dest+i, &u, sizeof(TCHAR));
 }
 
+void UTerminalEmulator::HandleControlCode(TCHAR c)
+{
+    switch(c)
+    {
+        case '\t':
+            // TODO: tabs.
+            break;
+        case '\b': // backspace
+            this->MoveTo(term.c.x-1, term.c.y);
+            break;
+        case '\r':
+            this->MoveTo(0, term.c.y);
+            break;
+        case '\v':
+        case '\n':
+        case '\f':
+            this->NewLine(IS_SET(MODE_CRLF));
+            break;
+    }
+}
+
 void UTerminalEmulator::PutChar(TCHAR u)
 {
     // TODO - ANSI escape sequences.
+
+    // Handle control codes.
+    if(ISCONTROL(u))
+    {
+        this->HandleControlCode(u);
+        return;
+    }
 
     // For now we'll just get text showing.
     FGlyph* gp = &term.line[term.c.y][term.c.x];
@@ -365,7 +422,6 @@ void UTerminalEmulator::ClearRegion(int x1, int y1, int x2, int y2)
 	LIMIT(y2, 0, term.row-1);
 
 	for (y = y1; y <= y2; y++) {
-		term.dirty[y] = 1;
 		for (x = x1; x <= x2; x++) {
 			gp = &term.line[y][x];
 			if (this->IsSelected(x, y))
@@ -401,8 +457,22 @@ void UTerminalEmulator::Write(FString InString, bool ShowControl)
     }
 }
 
+FReply UTerminalEmulator::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
+{
+    
+
+    return FReply::Unhandled();
+}
+
 FReply UTerminalEmulator::NativeOnKeyChar(const FGeometry& InGeometry, const FCharacterEvent& InCharEvent)
 {
+    if(InCharEvent.GetCharacter() == '\r')
+    {
+        this->Slave->WriteChar('\r');
+        this->Slave->WriteChar('\n');
+        return FReply::Handled();
+    }
+    this->Slave->WriteChar(InCharEvent.GetCharacter());
     return FReply::Handled();
 }
 

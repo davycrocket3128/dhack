@@ -35,7 +35,19 @@
 #include "Blueprint/UserWidget.h"
 #include "TerminalDrawContext.h"
 #include "Fonts/SlateFontInfo.h"
+#include "PtyStream.h"
 #include "TerminalEmulator.generated.h"
+
+enum term_mode {
+	MODE_WRAP        = 1 << 0,
+	MODE_INSERT      = 1 << 1,
+	MODE_ALTSCREEN   = 1 << 2,
+	MODE_CRLF        = 1 << 3,
+	MODE_ECHO        = 1 << 4,
+	MODE_PRINT       = 1 << 5,
+	MODE_UTF8        = 1 << 6,
+	MODE_SIXEL       = 1 << 7,
+};
 
 UENUM(BlueprintType)
 enum class ECursorShape : uint8
@@ -162,7 +174,7 @@ public:
     int bot;      /* bottom scroll limit */
 	
     UPROPERTY()
-    int mode;     /* terminal mode flags */
+    uint32 mode = MODE_WRAP | MODE_INSERT;     /* terminal mode flags */
 	
     UPROPERTY()
     int esc;      /* escape state flags */
@@ -208,6 +220,12 @@ class PROJECTOGLOWIA_API UTerminalEmulator : public UUserWidget
     GENERATED_BODY()
 
 private:
+    UPROPERTY()
+    UPtyStream* Master;
+
+    UPROPERTY()
+    UPtyStream* Slave;
+
     UPROPERTY()
     FString WordDelimeters = " ";
 
@@ -282,6 +300,9 @@ private:
     UFUNCTION()
     void InitializeScreen();
 
+    UFUNCTION()
+    void InitializePty();
+
     bool IsSelected(int x, int y) const;
     void DrawGlyph(FTerminalDrawContext* DrawContext, FGlyph glyph, int x, int y) const;
     void DrawLine(FTerminalDrawContext* DrawContext, FLine line, int x1, int y, int x2) const;
@@ -294,6 +315,8 @@ private:
     void ClearRegion(int x1, int y1, int x2, int y2);
     void SelectionScroll(int origin, int n);
     void SelectionClear();
+    void TtyRead();
+    void HandleControlCode(TCHAR c);
 
 protected:
     // so we can get mouse/keyboard input from UMG
@@ -314,6 +337,7 @@ protected:
 
     // Handles keyboard input for the terminal.
     virtual FReply NativeOnKeyChar(const FGeometry& InGeometry, const FCharacterEvent& InCharEvent) override;
+    virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 
     virtual FReply NativeOnMouseButtonUp( const FGeometry& InGeometry, const FPointerEvent& InMouseEvent ) override;
 
