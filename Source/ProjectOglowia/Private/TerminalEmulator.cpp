@@ -145,6 +145,8 @@ void UTerminalEmulator::DrawRegion(FTerminalDrawContext* DrawContext, int x1, in
 
 void UTerminalEmulator::DrawCursor(FTerminalDrawContext* DrawContext) const
 {
+    if(!this->HasAnyUserFocus()) return;
+
     float winx = cdraw.cx * cw;
     float winy = cdraw.cy * ch;
 
@@ -167,6 +169,11 @@ void UTerminalEmulator::DrawCursor(FTerminalDrawContext* DrawContext) const
             DrawContext->DrawRect(fg, winx, winy + (ch - this->CursorThickness), cw, this->CursorThickness);
             break;
     }
+}
+
+FReply UTerminalEmulator::NativeOnMouseButtonUp( const FGeometry& InGeometry, const FPointerEvent& InMouseEvent )
+{
+	return FReply::Handled().SetUserFocus(this->TakeWidget());
 }
 
 int32 UTerminalEmulator::NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
@@ -396,6 +403,10 @@ void UTerminalEmulator::Write(FString InString, bool ShowControl)
 
 FReply UTerminalEmulator::NativeOnKeyChar(const FGeometry& InGeometry, const FCharacterEvent& InCharEvent)
 {
-    this->PutChar(InCharEvent.GetCharacter());
     return FReply::Handled();
+}
+
+FReply UTerminalEmulator::NativeOnFocusReceived(const FGeometry & InGeometry, const FFocusEvent & InFocusEvent)
+{
+	return FReply::Handled();
 }

@@ -296,6 +296,13 @@ private:
     void SelectionClear();
 
 protected:
+    // so we can get mouse/keyboard input from UMG
+    virtual bool NativeIsInteractable() const override { return true; }
+    virtual bool NativeSupportsKeyboardFocus() const override { return true; }
+    
+    // Handles receiving of user focus.
+	virtual FReply NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent) override;
+
     // Occurs when it's time for the terminal to render - creates a new draw context and starts rendering the terminal with it.
     virtual int32 NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
 
@@ -307,6 +314,8 @@ protected:
 
     // Handles keyboard input for the terminal.
     virtual FReply NativeOnKeyChar(const FGeometry& InGeometry, const FCharacterEvent& InCharEvent) override;
+
+    virtual FReply NativeOnMouseButtonUp( const FGeometry& InGeometry, const FPointerEvent& InMouseEvent ) override;
 
 public:
     UFUNCTION()
