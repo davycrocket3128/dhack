@@ -32,22 +32,96 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PtyFifoBuffer.generated.h"
+#include "PtyFifoBuffer.h"
+#include "PtyStream.generated.h"
+
+#define PTY_LINEBUFFER_SIZE 1024
+
+#define VEOF 0
+#define VEOL 1
+#define VEOL2 2
+#define VERASE 3
+#define VKILL 5
+#define VINTR 8
+#define VQUIT 9
+#define VSUSP 10
+#define NCCS 20
+
+#define IGNBRK 0x0001
+#define BRKINT 0x0002
+#define ICRNL 0x01000
+#define OPOST 0x0001
+#define ONLCR 0x0002
+#define OXTABS 0x0004
+#define ECHOKE 0x0001
+#define ECHOE 0x0002
+#define ECHO 0x0008
+#define ECHONL 0x0010
+
+#define ISIG 0x0080
+#define ICANON 0x0100
+#define IEXTEN 0x0400
+#define CREAD 0x0800
+
+USTRUCT()
+struct FPtyOptions
+{
+    GENERATED_BODY()
+
+public:
+    uint32 OFlag;
+    uint32 LFlag;
+    TArray<TCHAR> C_cc;
+
+    FPtyOptions()
+    {
+        C_cc.AddZeroed(20);
+    }
+};
 
 UCLASS()
-class PROJECTOGLOWIA_API UPtyFifoBuffer : public UObject
+class PROJECTOGLOWIA_API UPtyStream : public UObject
 {
     GENERATED_BODY()
 
 private:
-    // Contains the actual binary data of the stream.
-    TArray<TCHAR> BitstreamDream;
+    TArray<TCHAR> LineBuffer;
+
+    UPROPERTY()
+    FPtyOptions Options;
+
+    UPROPERTY()
+    UPtyFifoBuffer* InputStream;
+
+    UPROPERTY()
+    UPtyFifoBuffer* OutputStream;
+
+    UPROPERTY()
+    bool IsMaster;
+
+    UPROPERTY()
+    int LineBufferPosition = 0;
+
+private:
+    void WriteOutput(TCHAR c);
+    void WriteInput(TCHAR c);
+
+public:
+    UPtyStream();
+    ~UPtyStream();
+
+    UFUNCTION()
+    void FlushLineBuffer();
+    
+    int Read(TArray<TCHAR> Buffer, int Offset, int Count);
+    void Write(TArray<TCHAR> Buffer, int Offset, int Count);
+
+
+private:
+    UFUNCTION()
+    static UPtyStream* ConstructPtyStream(FPtyOptions InOptions, UPtyFifoBuffer* InputBuffer, UPtyFifoBuffer* OutputBuffer, bool InIsMaster);
 
 public:
     UFUNCTION()
-    int GetPosition();
-
-    int Read(TArray<TCHAR> Buffer, int Offset, int Count);
-    void Write(TArray<TCHAR> Buffer, int Offset, int Count);
-    void WriteChar(TCHAR c);
+    static void CreatePty(UPtyStream*& OutMaster, UPtyStream*& OutSlave, FPtyOptions InOptions);
 };

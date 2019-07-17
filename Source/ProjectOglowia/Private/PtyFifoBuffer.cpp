@@ -36,7 +36,7 @@ int UPtyFifoBuffer::GetPosition()
     return this->BitstreamDream.Num();
 }
 
-int UPtyFifoBuffer::Read(TArray<uint8> Buffer, int Offset, int Count)
+int UPtyFifoBuffer::Read(TArray<TCHAR> Buffer, int Offset, int Count)
 {
     int bytesRead = 0;
 
@@ -52,10 +52,15 @@ int UPtyFifoBuffer::Read(TArray<uint8> Buffer, int Offset, int Count)
     return bytesRead;
 }
 
-void UPtyFifoBuffer::Write(TArray<uint8> Buffer, int Offset, int Count)
+void UPtyFifoBuffer::Write(TArray<TCHAR> Buffer, int Offset, int Count)
 {
     for(int i = Offset; i < Offset + Count; i++)
     {
-        this->BitstreamDream.Add(Buffer[i]);
+        this->WriteChar(Buffer[i]);
     }
+}
+
+void UPtyFifoBuffer::WriteChar(TCHAR c)
+{
+    this->BitstreamDream.Add(c);
 }
