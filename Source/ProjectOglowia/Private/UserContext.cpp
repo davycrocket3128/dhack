@@ -278,25 +278,9 @@ void UUserContext::ShowProgramOnWorkspace(UProgram* InProgram)
 
 UConsoleContext* UUserContext::CreateConsole(UPTerminalWidget* InTerminalWidget)
 {
-    // CHeck the terminal widget, our system context, etc
-    check(this->GetOwningSystem());
-    check(InTerminalWidget);
-
-	UConsoleContext* SubConsole = NewObject<UConsoleContext>(this);
-
-	// Assign it to the terminal widget.
-	SubConsole->SetTerminal(InTerminalWidget);
-
-    // TODO: Give the console context ourselves as a user context,
-    // NOT OUR UNDERLYING SYSTEM AND UID.
-
-	// User ID matches our window.
-	SubConsole->Setup(this);
-
-	SubConsole->SetWorkingDirectory(SubConsole->GetUserContext()->GetHomeDirectory());
-	
-	return SubConsole;
-
+	check(false);
+	// FUCKME: Terminal emulator has the shit we need to create console contexts, and it ain't gonna expose that shit to us.
+	return nullptr;
 }
 
 FString UUserContext::GetUserTypeDisplay()

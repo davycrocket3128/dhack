@@ -110,7 +110,7 @@ void UPtyStream::WriteOutput(TCHAR c)
 
 void UPtyStream::WriteInput(TCHAR c)
 {
-    if ((this->Options.LFlag & ICANON) != 0)
+    if ((this->Options.LFlag & ICANON) != 0 && !this->InputStream->IsRaw())
     {
         if (c == this->Options.C_cc[VERASE])
         {
@@ -169,4 +169,11 @@ bool UPtyStream::ReadChar(TCHAR& OutChar)
         return false;
     OutChar = buf[0];
     return true;
+}
+
+void UPtyStream::RawMode(bool value)
+{
+    this->InputStream->RawMode(value);
+    if(this->InputStream->IsRaw())
+        this->FlushLineBuffer();
 }

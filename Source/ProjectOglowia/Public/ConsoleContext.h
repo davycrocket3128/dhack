@@ -37,6 +37,8 @@
 #include "PeacenetWorldStateActor.h"
 #include "PeacegateFileSystem.h"
 #include "TerminalColor.h"
+#include "PtyStream.h"
+#include "LineNoiseUE4.h"
 #include "ConsoleContext.generated.h"
 
 class UUserContext;
@@ -48,20 +50,41 @@ UCLASS(BlueprintType)
 class PROJECTOGLOWIA_API UConsoleContext : public UObject
 {
 	GENERATED_BODY()
+	DECLARE_DYNAMIC_DELEGATE(FForceTtyUpdate);
+	DECLARE_DYNAMIC_DELEGATE_TwoParams(FConsoleGetSize, int&, OutRows, int&, OutColumns);
 
 private:
+	UPROPERTY()
+	ULineNoise* LineNoise = nullptr;
+
+	UPROPERTY()
+	FForceTtyUpdate UpdateTty;
+
+	UPROPERTY()
+	FConsoleGetSize GetSizeDelegate;
+
+	UPROPERTY()
+	UPtyStream* Pty;
+
 	UPROPERTY()
 	UUserContext* UserContext;
 
 	UPROPERTY()
 	FString WorkingDirectory;
 
-	UPROPERTY()
-	UPTerminalWidget* Terminal;
+private:
+	UFUNCTION()
+	void WriteToPty(FString str);
 
 public:
 	UFUNCTION()
-	void Setup(UUserContext* InUserContext);
+	void OnTtyUpdate(UObject* Callee, FName FunctionName);
+
+	UFUNCTION()
+	void OnGetSize(UObject* Callee, FName FunctionName);
+
+	UFUNCTION()
+	void Setup(UPtyStream* InPty, UUserContext* InUserContext);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Console Context")
 	UUserContext* GetUserContext();
@@ -69,38 +92,26 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Console Context")
 	FString GetWorkingDirectory();
 
-	UFUNCTION()
-	virtual UPTerminalWidget* GetTerminal();
-
-	UFUNCTION()
-	void SetTerminal(UPTerminalWidget* InTerminalWidget);
+	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
+	void MakeBold();
 
 	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
-	virtual void MakeBold();
+	void MakeBoldItalic();
 
 	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
-	virtual void MakeBoldItalic();
+	void MakeItalic();
 
 	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
-	virtual void MakeItalic();
+	void ResetFormatting();
 
 	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
-	virtual void ResetFormatting();
+	void InvertColors();
 
 	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
-	virtual void SetColor(ETerminalColor InColor);
-
-	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
-	virtual void InvertColors();
-
-	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
-	virtual void SetAttention();
+	void SetColor(ETerminalColor InColor);
 
 	UFUNCTION()
-	virtual bool GetLine(FString& OutLine);
-
-	UFUNCTION(BlueprintCallable, Category = "Peacegate")
-	virtual UConsoleContext* CreateChildContext(USystemContext* InSystemContext, int InUserID);
+	bool GetLine(FString& OutLine);
 
 	UFUNCTION(BlueprintCallable, Category = "Console Context")
 	void SetWorkingDirectory(const FString& InPath);
@@ -112,17 +123,60 @@ public:
 	FString GetDisplayWorkingDirectory();
 	
 	UFUNCTION(BlueprintCallable, Category = "Console")
-		virtual void WriteLine(const FText& InText, float DelaySeconds = 0.f) { Terminal->WriteLine(InText, DelaySeconds); }
+	void WriteLine(const FText& InText, float DelaySeconds = 0.f);
 
 	UFUNCTION(BlueprintCallable, Category = "Console")
-	virtual void Write(const FText& InText, float DelaySeconds = 0.f) { Terminal->Write(InText, DelaySeconds); }
+	void Write(const FText& InText, float DelaySeconds = 0.f);
 
 	UFUNCTION(BlueprintCallable, Category = "Console")
-	virtual void OverwriteLine(const FText& InText, float DeltaSeconds = 0.f) { Terminal->OverwriteLine(InText, DeltaSeconds); }
+	void OverwriteLine(const FText& InText, float DeltaSeconds = 0.f);
 
 	UFUNCTION(BlueprintCallable, Category="Console")
-	virtual void Clear() { Terminal->Clear(); }
+	void Clear();
 
 	UFUNCTION(BlueprintCallable, Category="Console", meta=(Latent, LatentInfo="LatentInfo", HidePin="WorldContextObject", DefaultToSelf="WorldContextObject"))
-	virtual void ReadLine(UObject* WorldContextObject, struct FLatentActionInfo LatentInfo, FString& OutText);
+	void ReadLine(UObject* WorldContextObject, struct FLatentActionInfo LatentInfo, FString& OutText);
+
+	// Creates a console context that uses this context's output as input and writes output to an internal buffer which
+	// can then be used as input later.
+	UFUNCTION()
+	UConsoleContext* Pipe();
+
+	// Creates a console context that uses this console's output as input and uses the specified console for output.
+	UFUNCTION()
+	UConsoleContext* PipeOut(UConsoleContext* InConsole);
+
+	// Creates a console context that uses this console as input and writes output to the specified pty buffer.
+	UFUNCTION()
+	UConsoleContext* Redirect(UPtyFifoBuffer* InStream);
+
+	UFUNCTION()
+	UPtyStream* GetPty();
+
+	UFUNCTION()
+	int GetCursorRow();
+
+	UFUNCTION()
+	int GetCursorColumn();
+
+	UFUNCTION()
+	FIntPoint GetCursorPosition();
+
+	UFUNCTION()
+	int GetRows();
+
+	UFUNCTION()
+	int GetColumns();
+
+	UFUNCTION()
+	FIntPoint GetTerminalSize();
+
+	UFUNCTION()
+	void Beep();
+
+	UFUNCTION()
+	void InitAdvancedGetLine(FString InPrompt);
+
+	UFUNCTION()
+	bool UpdateAdvancedGetLine(FString& Line);
 };

@@ -69,9 +69,6 @@ void UTerminalEmulator::NativePreConstruct()
 
     // Hello Blueprint.
     Super::NativePreConstruct();
-
-    // Hello world.
-    this->Write("Hello, \x1B[31mred\x1B[0m world!");
 }
 
 void UTerminalEmulator::InitializePty()
@@ -275,7 +272,7 @@ void UTerminalEmulator::InitializeScreen()
     this->term.c.y = 0;
 
     this->term.top = 0;
-    this->term.bot = this->term.row;
+    this->term.bot = this->term.row - 1;
 
     // Set the cursor color.
     this->term.c.attr.bg = this->BackgroundColor;
@@ -305,13 +302,268 @@ void UTerminalEmulator::HandleControlCode(TCHAR c)
         case '\f':
             this->NewLine(IS_SET(MODE_CRLF));
             break;
+        case '\x1B': // Escape start.
+            this->StartEscapeSequence();
+            break;
+    }
+}
+
+void UTerminalEmulator::StartEscapeSequence()
+{
+    this->escaping = true;
+    this->currentArg = "";
+    this->escapeArgs.Empty();
+    this->escapeMultiLen = false;
+    this->escapeType = '\0';
+}
+
+void UTerminalEmulator::HandleEscapeChar(TCHAR c)
+{
+    // Read another char if the current one is a left square brace.
+    if(c == '[')
+    {
+        this->escapeMultiLen = true;
+        return;
+    }
+
+    // If the character is a digit then we're a multi-length escape code
+    // and the digit gets appended to the current argument.
+    if(c >= '0' && c <= '9' && this->escapeMultiLen)
+    {
+        this->currentArg += c;
+        return;
+    }
+
+    // If we are a semicolon then it's an argument separator.
+    if(c == ';' && this->escapeMultiLen)
+    {
+        // Push the current argument onto the argument array and then
+        // clear it.
+        this->escapeArgs.Add(FCString::Atoi(*this->currentArg));
+        this->currentArg = "";
+        return;
+    }
+
+    // If we're anything else then the escape sequence is over.
+    
+    // If there's still an argument we'll quickly push that:
+    if(this->currentArg.Len() > 0)
+    {
+        this->escapeArgs.Add(FCString::Atoi(*this->currentArg));
+        this->currentArg = "";
+    }
+
+    // Current char becomes type of escape sequence.
+    this->escapeType = c;
+
+    // Handle the escape sequence.
+    this->HandleEscapeSequence();
+
+    // Reset the escape state.
+    this->StartEscapeSequence();
+    this->escaping = false;
+}
+
+void UTerminalEmulator::ScrollDown(int origin, int n)
+{
+    int i;
+    FLine temp;
+
+    LIMIT(n, 0, term.bot - origin + 1);
+    this->ClearRegion(0, term.bot-n+1, term.col-1, term.bot);
+
+    for (i = term.bot; i >= origin+n; i--) {
+		temp = term.line[i];
+		term.line[i] = term.line[i-n];
+		term.line[i-n] = temp;
+	}
+}
+
+void UTerminalEmulator::HandleEscapeSequence()
+{
+    switch(escapeType)
+    {
+        case 'H': // Cursor Home
+        case 'f': // Force Cursor Position
+            // if we're not given a row and column, then move home.
+            // Otherwise move to the row and column.
+            if(this->escapeArgs.Num() == 2)
+            {
+                this->MoveTo(this->escapeArgs[1], this->escapeArgs[0]);
+            }
+            else
+            {
+                this->MoveTo(0, 0);
+            }
+            break;
+        case 'A': // Move up.
+            if(this->escapeArgs.Num())
+            {
+                this->MoveTo(this->term.c.x, this->term.c.y - this->escapeArgs[0]);
+            }
+            else
+            {
+                this->MoveTo(this->term.c.x, this->term.c.y - 1);
+            }
+            break;
+        case 'B':
+            if(this->escapeArgs.Num())
+            {
+                this->MoveTo(this->term.c.x, this->term.c.y + this->escapeArgs[0]);
+            }
+            else
+            {
+                this->MoveTo(this->term.c.x, this->term.c.y + 1);
+            }
+            break;
+        case 'C':
+            if(this->escapeArgs.Num())
+            {
+                this->MoveTo(this->term.c.x + this->escapeArgs[0], this->term.c.y);
+            }
+            else
+            {
+                this->MoveTo(this->term.c.x + 1, this->term.c.y);
+            }
+            break;
+        case 'D':
+            // If we are multi-len this is cursor backward.  Otherwise this scrolls the screen up a line.
+            if(!this->escapeMultiLen)
+            {
+                this->ScrollDown(this->term.top, 1);
+                break;
+            }
+
+            if(this->escapeArgs.Num())
+            {
+                this->MoveTo(this->term.c.x - this->escapeArgs[0], this->term.c.y);
+            }
+            else
+            {
+                this->MoveTo(this->term.c.x - 1, this->term.c.y);
+            }
+            break;
+        case 's': // Save cursor position.
+            this->SavedCursor.x = this->term.c.x;
+            this->SavedCursor.y = this->term.c.y;
+            break;
+        case 'u': // Restore cursor position.
+            this->term.c.x = this->SavedCursor.x;
+            this->term.c.y = this->SavedCursor.y;
+            break;
+        case '7': // save cursor with attributes.
+            this->SavedCursor = this->term.c;
+            break;
+        case '8': //unsave cursor and attributes.
+            this->term.c = this->SavedCursor;
+            break;
+        case 'n': // Device status
+            switch(this->escapeArgs[0])
+            {
+                case 6: // Cursor position.
+                    this->WriteInput("\x1B[" + FString::FromInt(this->term.c.y) + ";" + FString::FromInt(this->term.c.x) + "R");
+                    break;
+                case 5: // are we functioning?
+                    this->WriteInput("\x1B[0n"); // Yes.
+                    break;
+            }
+            break;
+        case 'c': // Reset device.
+            this->NativePreConstruct();
+            break;
+        case 'h':
+            if(this->escapeArgs.Num() && this->escapeArgs[0] == 7)
+            {
+                this->term.mode |= MODE_WRAP;
+            }
+            break;
+        case 'l':
+            if(this->escapeArgs.Num() && this->escapeArgs[0] == 7)
+            {
+                this->term.mode &= ~MODE_WRAP;
+            }
+            break;
+        case 'r': // Scroll Screen
+            // If we're given arguments, they're the area at which we're allowed to scroll.
+            if(this->escapeArgs.Num() == 2)
+            {
+                this->term.top = this->escapeArgs[0];
+                this->term.bot = this->escapeArgs[1];
+            }
+            else 
+            {
+                // Entire screen can be scrolled.
+                this->term.top = 0;
+                this->term.bot = this->term.row - 1;
+            }
+            break;
+        case 'M': // Scroll up.
+            this->ScrollUp(this->term.top, 1);
+            break;
+        case 'K': // Erasing.
+            if(this->escapeArgs.Num() && this->escapeArgs[0] != 0)
+            {
+                switch(this->escapeArgs[0])
+                {
+                    case 1: // erase start of line.
+                        for(int i = 0; i < this->term.c.x; i++)
+                        {
+                            this->term.line[this->term.c.y][i] = this->term.c.attr;
+                            this->term.line[this->term.c.y][i].u = '\0';
+                        }
+                        break;
+                    case 2: // Entire line.
+                        for(int i = 0; i < this->term.col; i++)
+                        {
+                            this->term.line[this->term.c.y][i] = this->term.c.attr;
+                            this->term.line[this->term.c.y][i].u = '\0';
+                        }
+                        break;
+                }
+                return;
+            }
+            // Erase end of line.
+            for(int i = this->term.c.x; i < this->term.col; i++)
+            {
+                this->term.line[this->term.c.y][i] = term.c.attr;
+                this->term.line[this->term.c.y][i].u = '\0';
+            }
+            break;
+        case 'J':
+            if(this->escapeArgs.Num() && this->escapeArgs[0] != 0)
+            {
+                switch(this->escapeArgs[0])
+                {
+                    case 1:
+                        this->ClearRegion(0, 0, this->term.col - 1, this->term.row - this->term.c.y - 1);
+                        break;
+                    case 2:
+                        this->ClearRegion(0, 0, this->term.col - 1, this->term.row - 1);
+                        this->MoveTo(0, 0);
+                        break;
+                }
+                return;
+            }
+            this->ClearRegion(0, this->term.c.y, this->term.col - 1, this->term.row - this->term.c.y - 1);
+            break;
+    }
+}
+
+void UTerminalEmulator::WriteInput(FString data)
+{
+    for(TCHAR c : data)
+    {
+        this->Slave->WriteChar(c);
     }
 }
 
 void UTerminalEmulator::PutChar(TCHAR u)
 {
-    // TODO - ANSI escape sequences.
-
+    if(this->escaping)
+    {
+        this->HandleEscapeChar(u);
+        return;
+    }
     // Handle control codes.
     if(ISCONTROL(u))
     {
@@ -466,12 +718,6 @@ FReply UTerminalEmulator::NativeOnKeyDown(const FGeometry& InGeometry, const FKe
 
 FReply UTerminalEmulator::NativeOnKeyChar(const FGeometry& InGeometry, const FCharacterEvent& InCharEvent)
 {
-    if(InCharEvent.GetCharacter() == '\r')
-    {
-        this->Slave->WriteChar('\r');
-        this->Slave->WriteChar('\n');
-        return FReply::Handled();
-    }
     this->Slave->WriteChar(InCharEvent.GetCharacter());
     return FReply::Handled();
 }
@@ -479,4 +725,22 @@ FReply UTerminalEmulator::NativeOnKeyChar(const FGeometry& InGeometry, const FCh
 FReply UTerminalEmulator::NativeOnFocusReceived(const FGeometry & InGeometry, const FFocusEvent & InFocusEvent)
 {
 	return FReply::Handled();
+}
+
+UConsoleContext* UTerminalEmulator::CreateConsoleContext(UUserContext* PeacegateUser)
+{
+    check(PeacegateUser);
+
+    UConsoleContext* Console = NewObject<UConsoleContext>();
+    Console->Setup(this->Master, PeacegateUser);
+    Console->OnTtyUpdate(this, "TtyRead");
+    Console->OnGetSize(this, "ReportTerminalSize");
+
+    return Console;
+}
+
+void UTerminalEmulator::ReportTerminalSize(int& Rows, int& Cols)
+{
+    Rows = this->term.row;
+    Cols = this->term.col;
 }

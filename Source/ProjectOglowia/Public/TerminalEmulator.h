@@ -36,6 +36,8 @@
 #include "TerminalDrawContext.h"
 #include "Fonts/SlateFontInfo.h"
 #include "PtyStream.h"
+#include "ConsoleContext.h"
+#include "UserContext.h"
 #include "TerminalEmulator.generated.h"
 
 enum term_mode {
@@ -174,7 +176,7 @@ public:
     int bot;      /* bottom scroll limit */
 	
     UPROPERTY()
-    uint32 mode = MODE_WRAP | MODE_INSERT;     /* terminal mode flags */
+    uint32 mode = MODE_WRAP;     /* terminal mode flags */
 	
     UPROPERTY()
     int esc;      /* escape state flags */
@@ -224,6 +226,20 @@ private:
     UPtyStream* Master;
 
     UPROPERTY()
+    bool escaping = false;
+
+    UPROPERTY()
+    bool escapeMultiLen = false;
+
+    UPROPERTY()
+    TArray<int> escapeArgs;
+
+    TCHAR escapeType;
+
+    UPROPERTY()
+    FString currentArg = "";
+
+    UPROPERTY()
     UPtyStream* Slave;
 
     UPROPERTY()
@@ -240,6 +256,8 @@ private:
 
     UPROPERTY()
     float ch;
+
+    FCursor SavedCursor;
 
 public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Configuration")
@@ -315,10 +333,21 @@ private:
     void ClearRegion(int x1, int y1, int x2, int y2);
     void SelectionScroll(int origin, int n);
     void SelectionClear();
-    void TtyRead();
     void HandleControlCode(TCHAR c);
+    void Write(FString InString, bool ShowControl = true);
+    void StartEscapeSequence();
+    void HandleEscapeChar(TCHAR c);
+    void HandleEscapeSequence();
+    void WriteInput(FString data);
+    void ScrollDown(int origin, int n);
 
 protected:
+    UFUNCTION()
+    void TtyRead();
+
+    UFUNCTION()
+    void ReportTerminalSize(int& Rows, int& Cols);
+
     // so we can get mouse/keyboard input from UMG
     virtual bool NativeIsInteractable() const override { return true; }
     virtual bool NativeSupportsKeyboardFocus() const override { return true; }
@@ -342,6 +371,6 @@ protected:
     virtual FReply NativeOnMouseButtonUp( const FGeometry& InGeometry, const FPointerEvent& InMouseEvent ) override;
 
 public:
-    UFUNCTION()
-    void Write(FString InString, bool ShowControl = true);
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Terminal Emulator")
+    UConsoleContext* CreateConsoleContext(UUserContext* PeacegateUser);
 };

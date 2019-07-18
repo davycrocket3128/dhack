@@ -30,7 +30,6 @@
  ********************************************************************************/
 
 #include "Cowsay.h"
-#include "PiperContext.h"
 
 void ACowsay::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
 {

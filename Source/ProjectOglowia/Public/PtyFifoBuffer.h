@@ -43,6 +43,12 @@ private:
     // Contains the actual binary data of the stream.
     TArray<TCHAR> BitstreamDream;
 
+    UPROPERTY()
+    int Pos = 0;
+
+    UPROPERTY()
+    bool Raw = false;
+
 public:
     UFUNCTION()
     int GetPosition();
@@ -50,4 +56,13 @@ public:
     int Read(TArray<TCHAR>& Buffer, int Offset, int Count);
     void Write(TArray<TCHAR> Buffer, int Offset, int Count);
     void WriteChar(TCHAR c);
+
+    UFUNCTION()
+    FString DumpToString();
+
+    UFUNCTION()
+    bool IsRaw();
+
+    UFUNCTION()
+    void RawMode(bool value);
 };

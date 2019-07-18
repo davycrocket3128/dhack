@@ -32,7 +32,7 @@
 #include "CommandShell.h"
 #include "UserContext.h"
 #include "PeacegateFileSystem.h"
-#include "RedirectedConsoleContext.h"
+
 
 ACommandShell::ACommandShell()
 {
@@ -213,6 +213,11 @@ void ACommandShell::FinishSpecialCommand()
     this->CommandCompleted();
 }
 
+void ACommandShell::WriteToOutputFile(FString FileText)
+{
+	// TODO
+}
+
 void ACommandShell::Tick(float InDeltaTime)
 {
     Super::Tick(InDeltaTime);
@@ -223,7 +228,7 @@ void ACommandShell::Tick(float InDeltaTime)
     {
         // Try to read the next line of text from the console.
         FString Input;
-        if(this->GetConsole()->GetLine(Input))
+        if(this->GetConsole()->UpdateAdvancedGetLine(Input))
         {
             // We're not waiting for input anymore.
             this->IsWaitingForInput = false;
@@ -257,11 +262,12 @@ void ACommandShell::Tick(float InDeltaTime)
                 // Update the working directory of the master console so commands like cd work in pipes.
                 this->GetConsole()->SetWorkingDirectory(this->CurrentConsole->GetWorkingDirectory());
 
-                // If the current console is a redirector then we must dump the console's output to the file.
-                if(this->CurrentConsole->IsA<URedirectedConsoleContext>())
+                // If we have a file buffer then we will dump the contents of it to the output file path.
+                if(this->FileBuffer)
                 {
-                    URedirectedConsoleContext* RedirectedConsole = Cast<URedirectedConsoleContext>(this->CurrentConsole);
-                    RedirectedConsole->DumpToFile(this->GetConsole());
+					FString BufContent = this->FileBuffer->DumpToString();
+                    this->WriteToOutputFile(BufContent);
+					this->FileBuffer = nullptr;
                 }
 
                 // Remove the crap.
@@ -346,7 +352,7 @@ void ACommandShell::CommandCompleted()
 
 void ACommandShell::WriteShellPrompt()
 {
-    this->GetConsole()->Write(this->GetShellPrompt());
+    this->GetConsole()->InitAdvancedGetLine(this->GetShellPrompt().ToString());
 }
 
 void ACommandShell::ExecuteLine(FString Input)
@@ -393,7 +399,7 @@ void ACommandShell::ExecuteLine(FString Input)
 	}
 
     // The last piper console context used by a command.
-    UPiperContext* LastPiper = nullptr;
+    UConsoleContext* LastPiper = this->GetConsole();
 
     // Keep track of the current instruction index.  I'm doing it this way because I don't
     // like C for loops as much as I do C++ ones.  But I also need to keep track of the loop
@@ -437,20 +443,17 @@ void ACommandShell::ExecuteLine(FString Input)
         if(IsPiping)
         {
             // Create a piper context.
-            UPiperContext* Piper = NewObject<UPiperContext>();
+            UConsoleContext* Piper = nullptr;
 
             // Set the piper up with a valid user context.
             if(LastPiper)
             {
-                Piper->Setup(LastPiper->GetUserContext());
+                Piper = LastPiper->Pipe();
             }
             else
             {
-                Piper->Setup(this->GetUserContext());
+                Piper = this->GetConsole()->Pipe();
             }
-
-            // Perform further setup.
-            Piper->SetupPiper(LastPiper, nullptr);
 
             // Use this piper as the instruction's intended console.
             // Also set it as the last piper.
@@ -460,45 +463,27 @@ void ACommandShell::ExecuteLine(FString Input)
         else
         {
             // The console that will be used by the command.
-            UPiperContext* Piper = nullptr;
+            UConsoleContext* Piper = nullptr;
             
-            // The console which will be used for output.
-            UConsoleContext* StdOut = nullptr;
-
-            // The console used for input.
-            UPiperContext* StdIn = LastPiper;
-
             // If we're not redirecting output to a file, then output console
             // becomes the same as our shell console and the command console is
             // is just a generic piper.
             if(InstructionData.OutputFile.IsEmpty())
             {
-                Piper = NewObject<UPiperContext>();
-                StdOut = this->GetConsole();
+                Piper = LastPiper->PipeOut(this->GetConsole());
             }
             else
             {
-                // Otherwise we need to create a redirector console.
-                Piper = NewObject<UPiperContext>(this->GetConsole(), URedirectedConsoleContext::StaticClass());
-                auto Redirected = Cast<URedirectedConsoleContext>(Piper);
+				// Create a new fifo bugffer to hold the file output.
+				this->FileBuffer = NewObject<UPtyFifoBuffer>();
 
-                // Set up the redirector so it can output to the file.
-                Redirected->OutputFilePath = InstructionData.OutputFile;
-                Redirected->Overwrite = InstructionData.Overwrites;
-            }
+				// Store the file write instructions
+				this->FilePath = InstructionData.OutputFile;
+				this->FileOverwrite = InstructionData.Overwrites;
 
-            // Set up the piper's user context.
-            if(LastPiper)
-            {
-                Piper->Setup(LastPiper->GetUserContext());
+				// Redirect the piper to our fifo buffer
+				Piper = LastPiper->Redirect(this->FileBuffer);
             }
-            else
-            {
-                Piper->Setup(this->GetUserContext());
-            }
-
-            // And now we set up the piper's input and output!
-            Piper->SetupPiper(StdIn, StdOut);
 
             // And use it for the command.
             Instruction.IntendedContext = Piper;
