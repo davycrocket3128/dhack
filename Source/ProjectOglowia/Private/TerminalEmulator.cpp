@@ -576,7 +576,7 @@ void UTerminalEmulator::PutChar(TCHAR u)
 
     if(IS_SET(MODE_WRAP) && term.c.state & (uint8)ECursorState::WrapNext)
     {
-        gp->mode |= (uint16)EGlyphAttribute::ATTR_WRAP;
+        // gp->mode |= (uint16)EGlyphAttribute::ATTR_WRAP;
         this->NewLine(1);
         gp = &term.line[term.c.y][term.c.x];
     }
