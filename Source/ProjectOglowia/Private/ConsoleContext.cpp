@@ -294,6 +294,7 @@ void UConsoleContext::InitAdvancedGetLine(FString Prompt)
 	check(!this->LineNoise);
 
 	this->LineNoise = NewObject<ULineNoise>();
+	this->LineNoise->SetMultiline(true);
 	this->LineNoise->SetConsole(this, Prompt);
 }
 
