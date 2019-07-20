@@ -33,6 +33,7 @@
 #include "ConsoleContext.h"
 #include "CommonUtils.h"
 #include "UserContext.h"
+#include "ConsoleReadLineLatentAction.h"
 #include "SystemContext.h"
 
 void UConsoleContext::Setup(UPtyStream* InPty, UUserContext* InUserContext)
@@ -158,13 +159,19 @@ void UConsoleContext::SetColors(EConsoleColor InForeground, EConsoleColor InBack
 
 void UConsoleContext::ReadLine(UObject* WorldContextObject, FLatentActionInfo LatentInfo, FString& OutText)
 {
-	// TODO: Blueprint Latent Action for reading a line from the terminal.
-
-	// Unlike before with old terminal, we should just call GetLine every frame
-	// until we get a line of text then report the action as done.
-
-	// Making this thing work without multithreading man... Wow...
-}
+	if (WorldContextObject) 
+	{
+		UWorld* world = WorldContextObject->GetWorld();
+		if (world)
+		{
+			FLatentActionManager& LatentActionManager = world->GetLatentActionManager();
+			if (LatentActionManager.FindExistingAction<FConsoleReadLineLatentAction>(LatentInfo.CallbackTarget, LatentInfo.UUID) == NULL)
+			{
+				//Here in a second, once I confirm the project loads, we need to see whats wrong with this
+				LatentActionManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, new FConsoleReadLineLatentAction(this, LatentInfo, OutText));
+			}
+		}
+	}}
 
 void UConsoleContext::Clear()
 {
