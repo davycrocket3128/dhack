@@ -309,3 +309,46 @@ bool UConsoleContext::UpdateAdvancedGetLine(FString& Line)
 	}
 	return result;
 }
+
+// Resets the terminal's attributes to default values and then sends
+// the terminal modes that correspond to this context's current formatting
+// settings.  Use this when these settings change to have them take effect.
+void UConsoleContext::SetTerminalMode()
+{
+	// Start by resetting the terminal mode to default.
+	this->WriteToPty("\x1B[0");
+
+	// The above is an unterminated escape sequence, I know.  But
+	// we're going to help the game out by batching the terminal modes
+	// into one massive escape sequence since the terminal mode escape
+	// code allows for unlimited arguments.
+
+	// And this is the list of arguments we'll send.
+	TArray<int> args;
+
+	// Send the foreground and background colors as necessary.
+	if(this->IsBackgroundColorSet)
+		args.Add(40 + (int)this->BackgroundColor);
+	if(this->IsForegroundColorSet)
+		args.Add(30 + (int)this->ForegroundColor);
+	
+	// Now for the font attributes...
+	if(this->IsBold) args.Add(1);
+	if(this->IsItalic) args.Add(3); // Thank you Victor Tran! Didn't know this was an accepted mode.
+	if(this->IsUnderline) args.Add(4);
+
+	// Color modes.
+	if(this->IsReversed) args.Add(7);
+	if(this->IsDim) args.Add(2);
+
+	// Blinking and other effects.
+	if(this->IsHidden) args.Add(8);
+	if(this->IsBlinking) args.Add(5);
+
+	// Loop through the above arguments and send them.
+	for(int a : args)
+		this->WriteToPty(";" + FString::FromInt(a));
+
+	// Finish the escape sequence off with the "m" (terminal mode) mode.
+	this->WriteToPty("m");
+}

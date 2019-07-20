@@ -39,6 +39,7 @@
 #include "TerminalColor.h"
 #include "PtyStream.h"
 #include "LineNoiseUE4.h"
+#include "ConsoleColor.h"
 #include "ConsoleContext.generated.h"
 
 class UUserContext;
@@ -54,6 +55,39 @@ class PROJECTOGLOWIA_API UConsoleContext : public UObject
 	DECLARE_DYNAMIC_DELEGATE_TwoParams(FConsoleGetSize, int&, OutRows, int&, OutColumns);
 
 private:
+	UPROPERTY()
+	bool IsBackgroundColorSet = false;
+
+	UPROPERTY()
+	bool IsForegroundColorSet = false;
+
+	UPROPERTY()
+	EConsoleColor BackgroundColor = EConsoleColor::Black;
+
+	UPROPERTY()
+	EConsoleColor ForegroundColor = EConsoleColor::White;
+
+	UPROPERTY()
+	bool IsBold = false;
+
+	UPROPERTY()
+	bool IsItalic = false;
+
+	UPROPERTY()
+	bool IsDim = false;
+
+	UPROPERTY()
+	bool IsUnderline = false;
+
+	UPROPERTY()
+	bool IsBlinking = false;
+
+	UPROPERTY()
+	bool IsReversed = false;
+
+	UPROPERTY()
+	bool IsHidden = false;
+
 	UPROPERTY()
 	ULineNoise* LineNoise = nullptr;
 
@@ -73,6 +107,9 @@ private:
 	FString WorkingDirectory;
 
 private:
+	UFUNCTION()
+	void SetTerminalMode();
+
 	UFUNCTION()
 	void WriteToPty(FString str);
 
