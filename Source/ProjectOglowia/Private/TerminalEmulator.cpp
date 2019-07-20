@@ -68,6 +68,11 @@ void UTerminalEmulator::NativePreConstruct()
     // Initialize the screen.
     this->InitializeScreen();
 
+    // Measure and set minimum size of the UMG widget.
+    float w = 0.f, h = 0.f;
+    UCommonUtils::MeasureChar('#', this->DefaultFont, w, h);
+    this->SetMinimumDesiredSize(FVector2D(w * this->term.col, h * this->term.row));
+
     // Hello Blueprint.
     Super::NativePreConstruct();
 }
