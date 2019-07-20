@@ -111,35 +111,49 @@ void UConsoleContext::WriteToPty(FString str)
 	this->Pty->Write(buf, 0, buf.Num());
 }
 
-void UConsoleContext::MakeBold()
+void UConsoleContext::SetBold(bool InValue)
 {
-	this->WriteToPty("\x1B)");
+	this->IsBold = InValue;
+	this->SetTerminalMode();
 }
 
-void UConsoleContext::MakeBoldItalic()
+void UConsoleContext::SetItalic(bool InValue)
 {
-	this->MakeBold();
-	this->MakeItalic();
+	this->IsItalic = InValue;
+	this->SetTerminalMode();
 }
 
-void UConsoleContext::MakeItalic()
-{
-	// TODO: Don't know how to do italic with ANSI escape sequences yet.  We may need to invent our own sequence.
-}
-
+// Resets all formatting (including colors) to default.
 void UConsoleContext::ResetFormatting()
 {
-	this->WriteToPty("\x1B[0m");
+	this->IsBackgroundColorSet = this->IsForegroundColorSet = false;
+	this->BackgroundColor = EConsoleColor::Black;
+	this->ForegroundColor = EConsoleColor::White;
+	this->IsBold = this->IsItalic = this->IsUnderline = false;
+	this->IsDim = this->IsReversed = this->IsBlinking = false;
+	this->IsHidden = false;
+	this->SetTerminalMode();
 }
 
-void UConsoleContext::InvertColors()
+void UConsoleContext::SetReversed(bool InValue)
 {
-	this->WriteToPty("\x1B[7m");
+	this->IsReversed = InValue;
+	this->SetTerminalMode();
 }
 
-void UConsoleContext::SetColor(ETerminalColor InColor)
+void UConsoleContext::SetColors(EConsoleColor InForeground, EConsoleColor InBackground)
 {
-	// TODO: Map terminal colors to ANSI escape codes, also support background colors.
+	if(this->BackgroundColor != InBackground)
+	{
+		this->IsBackgroundColorSet = true;
+		this->BackgroundColor = InBackground;
+	}
+	if(this->ForegroundColor != InForeground)
+	{
+		this->ForegroundColor = InForeground;
+		this->IsForegroundColorSet = true;
+	}
+	this->SetTerminalMode();
 }
 
 void UConsoleContext::ReadLine(UObject* WorldContextObject, FLatentActionInfo LatentInfo, FString& OutText)

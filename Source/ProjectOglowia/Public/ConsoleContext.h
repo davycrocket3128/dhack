@@ -130,22 +130,19 @@ public:
 	FString GetWorkingDirectory();
 
 	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
-	void MakeBold();
+	void SetBold(bool InValue);
 
 	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
-	void MakeBoldItalic();
-
-	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
-	void MakeItalic();
+	void SetItalic(bool InValue);
 
 	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
 	void ResetFormatting();
 
 	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
-	void InvertColors();
+	void SetReversed(bool InValue);
 
 	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
-	void SetColor(ETerminalColor InColor);
+	void SetColors(EConsoleColor InForeground, EConsoleColor InBackground);
 
 	UFUNCTION()
 	bool GetLine(FString& OutLine);
