@@ -37,6 +37,30 @@
 #include "PlatformApplicationMisc.h"
 #include "SystemContext.h"
 
+FLinearColor UCommonUtils::GetConsoleColor(EConsoleColor InConsoleColor)
+{
+	switch(InConsoleColor)
+	{
+		default:
+		case EConsoleColor::Black:
+			return FLinearColor(0.f, 0.f, 0.f);
+		case EConsoleColor::White:
+			return FLinearColor(1.f, 1.f, 1.f);
+		case EConsoleColor::Red:
+			return FLinearColor(1.f, 0.f, 0.f);
+		case EConsoleColor::Green:
+			return FLinearColor(0.f, 1.f, 0.f);
+		case EConsoleColor::Blue:
+			return FLinearColor(0.f, 0.f, 1.f);
+		case EConsoleColor::Yellow:
+			return FLinearColor(1.f, 1.f, 0.f);
+		case EConsoleColor::Magenta:
+			return FLinearColor(1.f, 0.f, 1.f);
+		case EConsoleColor::Cyan:
+			return FLinearColor(0.f, 1.f, 1.f);
+	}
+}
+
 float UCommonUtils::PrintKernelMessages(UPTerminalWidget* InConsole)
 {
 	// Yes. I know. This looks like it came out of Philip Adams' asshole.  Just looking at it gives me RSI.

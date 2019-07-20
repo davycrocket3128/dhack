@@ -340,6 +340,7 @@ private:
     void HandleEscapeSequence();
     void WriteInput(FString data);
     void ScrollDown(int origin, int n);
+    void UpdateTerminalMode();
 
 protected:
     UFUNCTION()

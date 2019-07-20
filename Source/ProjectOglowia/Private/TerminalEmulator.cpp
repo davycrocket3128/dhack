@@ -32,6 +32,7 @@
 #include "TerminalEmulator.h"
 #include "CommonUtils.h"
 #include "UnrealString.h"
+#include "ConsoleColor.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -379,10 +380,61 @@ void UTerminalEmulator::ScrollDown(int origin, int n)
 	}
 }
 
+void UTerminalEmulator::UpdateTerminalMode()
+{
+    for(int a : this->escapeArgs)
+    {
+        switch(a)
+        {
+            case 0: // Reset everything.
+                this->term.c.attr.mode = 0;
+                this->term.c.attr.bg = this->BackgroundColor;
+                this->term.c.attr.fg = this->ForegroundColor.GetSpecifiedColor();
+                break;
+            case 1: // Bright (bold)
+                this->term.c.attr.mode |= (uint16)EGlyphAttribute::ATTR_BOLD;
+                break;
+            case 2: // Dim.
+                this->term.c.attr.mode |= (uint16)EGlyphAttribute::ATTR_FAINT;
+                break;
+            case 3: // Italic.
+                this->term.c.attr.mode |= (uint16)EGlyphAttribute::ATTR_ITALIC;
+                break;
+            case 4: // Underlined.
+                this->term.c.attr.mode |= (uint16)EGlyphAttribute::ATTR_UNDERLINE;
+                break;
+            case 5: // Blinky blinky inky dinky.
+                this->term.c.attr.mode |= (uint16)EGlyphAttribute::ATTR_BLINK;
+                break;
+            case 6: // Blind Man's Dream.
+                this->term.c.attr.mode |= (uint16)EGlyphAttribute::ATTR_REVERSE;
+                break;
+            case 7: // Hidey hidey motherfucker!
+                this->term.c.attr.mode |= (uint16)EGlyphAttribute::ATTR_INVISIBLE;
+                break;
+        }
+
+        if(a >= 40 && a <= 47)
+        {
+            // Background color
+            this->term.c.attr.bg = UCommonUtils::GetConsoleColor((EConsoleColor)(a - 40));
+        }
+
+        if(a >= 30 && a <= 37)
+        {
+            // Foreground color
+            this->term.c.attr.fg = UCommonUtils::GetConsoleColor((EConsoleColor)(a - 30));
+        }
+    }
+}
+
 void UTerminalEmulator::HandleEscapeSequence()
 {
     switch(escapeType)
     {
+        case 'm': // Set Terminal Mode - sets the cursor attributes.
+            this->UpdateTerminalMode();
+            break;
         case 'H': // Cursor Home
         case 'f': // Force Cursor Position
             // if we're not given a row and column, then move home.

@@ -38,6 +38,7 @@
 #include "TerminalColor.h"
 #include "FileOpenResult.h"
 #include "Camera/CameraComponent.h"
+#include "ConsoleColor.h"
 #include "CommonUtils.generated.h"
 
 class UPeacenetSaveGame;
@@ -99,6 +100,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Common")
 	static void GetFriendlyFileOpenText(EFileOpenResult InResult, FString& OutTitle, FString& OutDescription);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Console")
+	static FLinearColor GetConsoleColor(EConsoleColor InConsoleColor);
 
 	static void MeasureChar(const TCHAR InChar, const FSlateFontInfo& InSlateFont, float& OutWidth, float& OutHeight);
 
