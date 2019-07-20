@@ -95,7 +95,7 @@ void UTerminalEmulator::DrawGlyph(FTerminalDrawContext* DrawContext, FGlyph glyp
 {
     if(glyph.mode & (uint16)EGlyphAttribute::ATTR_WDUMMY) return;
 
-    bool reversed = glyph.mode && (uint16)EGlyphAttribute::ATTR_REVERSE;
+    bool reversed = glyph.mode & (uint16)EGlyphAttribute::ATTR_REVERSE;
 
     FLinearColor bg = (reversed) ? glyph.fg : glyph.bg;
     FLinearColor fg = (reversed) ? glyph.bg : glyph.fg;
