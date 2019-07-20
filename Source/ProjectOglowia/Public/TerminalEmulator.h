@@ -115,6 +115,11 @@ public:
     FGlyph& operator[](int i) { return glyphs[i]; }
 
     int Num() { return glyphs.Num(); }
+
+    void Resize(int n)
+    {
+        this->glyphs.SetNumZeroed(n);
+    }
 };
 
 USTRUCT()
@@ -341,6 +346,7 @@ private:
     void WriteInput(FString data);
     void ScrollDown(int origin, int n);
     void UpdateTerminalMode();
+    void Resize(int col, int row);
 
 protected:
     UFUNCTION()

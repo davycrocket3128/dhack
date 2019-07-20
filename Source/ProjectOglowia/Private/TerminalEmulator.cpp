@@ -77,6 +77,78 @@ void UTerminalEmulator::NativePreConstruct()
     Super::NativePreConstruct();
 }
 
+#define MIN(a, b)		((a) < (b) ? (a) : (b))
+
+void UTerminalEmulator::Resize(int col, int row)
+{
+    	int i;
+	int minrow = MIN(row, term.row);
+	int mincol = MIN(col, term.col);
+	FCursor c;
+
+	check(!(col < 1 || row < 1));
+	
+    /*
+	 * slide screen to keep cursor where we expect it -
+	 * tscrollup would work here, but we can optimize to
+	 * memmove because we're freeing the earlier lines
+	 */
+	for (i = 0; i <= term.c.y - row; i++) {
+		this->term.line[i] = FLine();
+	}
+	/* ensure that both src and dst are not NULL */
+	if (i > 0) {
+		for(int j = i; j < i + row; j++)
+        {
+            this->term.line[j - i] = this->term.line[j];
+            this->term.line[j] = FLine();
+        }
+	}
+	for (i += row; i < term.row; i++) {
+		this->term.line[i] = FLine();
+	}
+
+	/* resize to new height */
+	this->term.line.SetNumZeroed(row);
+    
+	/* resize each row to new width, zero-pad if needed */
+	for (i = 0; i < minrow; i++) {
+		term.line[i].Resize(col);
+	}
+
+	/* allocate any new rows */
+	for (/* i = minrow */; i < row; i++) {
+		term.line[i] = FLine();
+		term.line[i].SetCount(col);
+        for(int j = 0; j < col; j++)
+        {
+            term.line[i][j] = this->term.c.attr;
+            term.line[i][j].u = '\0';
+        }
+	}
+	
+	/* update terminal size */
+	term.col = col;
+	term.row = row;
+	/* reset scrolling region */
+	term.top = 0;
+    term.bot = row - 1;
+	/* make use of the LIMIT in tmoveto */
+	this->MoveTo(term.c.x, term.c.y);
+	/* Clearing both screens (it makes dirty all lines) */
+	c = term.c;
+	for (i = 0; i < 2; i++) {
+		if (mincol < col && 0 < minrow) {
+			this->ClearRegion(mincol, 0, col - 1, minrow - 1);
+		}
+		if (0 < col && minrow < row) {
+			this->ClearRegion(0, minrow, col - 1, row - 1);
+		}
+	}
+	term.c = c;
+
+}
+
 void UTerminalEmulator::InitializePty()
 {
     // Set up the terminal options
@@ -222,6 +294,23 @@ void UTerminalEmulator::TtyRead()
 
 void UTerminalEmulator::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
+    // Get the size of our geometry so we can check if we need to resize.
+    FVector2D drawSize = MyGeometry.GetLocalSize();
+
+    // Measure a character so we know how big each cell is.
+    float w = 0.f, h = 0.f;
+    UCommonUtils::MeasureChar('#', this->DefaultFont, w, h);
+
+    // Get the amount of rows and columns that can fit in our current size.
+    int col = FMath::RoundToInt(drawSize.X / w);
+    int row = FMath::RoundToInt(drawSize.Y / h);
+
+    // If the size doesn't match, we should resize.
+    if(this->term.row != row || this->term.col != col)
+    {
+        this->Resize(col, row);
+    }
+
     // Read from the tty and write to the terminal.
     this->TtyRead();
 
