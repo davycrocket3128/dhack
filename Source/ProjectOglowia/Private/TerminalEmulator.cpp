@@ -209,6 +209,8 @@ void UTerminalEmulator::DrawGlyph(FTerminalDrawContext* DrawContext, FGlyph glyp
     DrawContext->DrawRect(bg, winx, winy, cw, ch);
     if((glyph.mode & (uint16)EGlyphAttribute::ATTR_INVISIBLE) == 0)
     {
+        if((glyph.mode & (uint16)EGlyphAttribute::ATTR_BLINK) && !this->ShowBlinking)
+            return;
         DrawContext->DrawString(text, font, fg, winx, winy);
         if(glyph.mode & (uint16)EGlyphAttribute::ATTR_UNDERLINE)
         {
@@ -312,6 +314,21 @@ void UTerminalEmulator::TtyRead()
 
 void UTerminalEmulator::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
+    // Handle blink timing.
+    if(this->BlinkingTimeout <= 0.f)
+    {
+        this->ShowBlinking = true;
+    }
+    else
+    {
+        this->BlinkTime += InDeltaTime;
+        if(this->BlinkTime >= this->BlinkingTimeout)
+        {
+            this->ShowBlinking = !this->ShowBlinking;
+            this->BlinkTime = 0.f;
+        }
+    }
+
     // Get the size of our geometry so we can check if we need to resize.
     FVector2D drawSize = MyGeometry.GetLocalSize();
 

@@ -262,6 +262,12 @@ private:
     UPROPERTY()
     float ch;
 
+    UPROPERTY()
+    float BlinkTime = 0.f;
+
+    UPROPERTY()
+    bool ShowBlinking = true;
+
     FCursor SavedCursor;
 
 public:
