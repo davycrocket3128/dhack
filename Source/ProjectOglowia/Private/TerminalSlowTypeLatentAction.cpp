@@ -31,6 +31,7 @@
 
 
 #include "TerminalSlowTypeLatentAction.h"
+#include "ConsoleContext.h"
 
 void FTerminalSlowTypeLatentAction::UpdateOperation(FLatentResponse & Response)
 {
@@ -45,7 +46,7 @@ void FTerminalSlowTypeLatentAction::UpdateOperation(FLatentResponse & Response)
 	{
 		Countdown = CountdownTime;
 		TCHAR Character = TextToWrite[CharIndex];
-		TerminalWidgetInstance->Write(FText::FromString(FString::Chr(Character)));
+		TerminalWidgetInstance->GetPty()->WriteChar(Character);
 		CharIndex++;
 	}
 }

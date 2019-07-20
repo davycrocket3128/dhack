@@ -33,7 +33,6 @@
 #include "UserContext.h"
 #include "PeacenetWorldStateActor.h"
 #include "DesktopWidget.h"
-#include "PTerminalWidget.h"
 #include "Exploit.h"
 #include "ConsoleContext.h"
 #include "CommonUtils.h"
@@ -274,13 +273,6 @@ void UUserContext::ShowProgramOnWorkspace(UProgram* InProgram)
 
     // Show it on our workspace.
     this->GetDesktop()->ShowProgramOnWorkspace(InProgram);
-}
-
-UConsoleContext* UUserContext::CreateConsole(UPTerminalWidget* InTerminalWidget)
-{
-	check(false);
-	// FUCKME: Terminal emulator has the shit we need to create console contexts, and it ain't gonna expose that shit to us.
-	return nullptr;
 }
 
 FString UUserContext::GetUserTypeDisplay()

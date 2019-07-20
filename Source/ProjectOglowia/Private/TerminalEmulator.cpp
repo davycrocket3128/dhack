@@ -312,8 +312,28 @@ void UTerminalEmulator::TtyRead()
     this->Write(buffer, false);
 }
 
+void UTerminalEmulator::WriteLine(const FText& InText, float InTime)
+{
+    FTerminalEmulatorWrite write;
+    write.Text = FText::Format(NSLOCTEXT("Terminal", "Line", "{0}\r\n"), InText);
+    write.Time = InTime;
+    this->TextQueue.Add(write);
+}
+
 void UTerminalEmulator::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
+    if(this->TextQueue.Num())
+    {
+        if(this->TextQueue[0].Time < 0)
+        {
+            FString str = this->TextQueue[0].Text.ToString();
+            for(TCHAR c : str)
+                this->Master->WriteChar(c);
+            this->TextQueue.RemoveAt(0);
+        }
+        this->TextQueue[0].Time -= InDeltaTime;
+    }
+
     // Handle blink timing.
     if(this->BlinkingTimeout <= 0.f)
     {

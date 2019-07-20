@@ -45,7 +45,6 @@ class UExploit;
 class UPeacegateFileSystem;
 class APeacenetWorldStateActor;
 class UAddressBookContext;
-class UPTerminalWidget;
 class UComputerService;
 class USystemUpgrade;
 class UDesktopWidget;
@@ -194,9 +193,6 @@ public:
 
     UFUNCTION()
     void ShowProgramOnWorkspace(UProgram* InProgram);
-
-    UFUNCTION(BlueprintCallable, Category = "User Context")
-    UConsoleContext* CreateConsole(UPTerminalWidget* InTerminalWidget);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
     FString GetUserTypeDisplay();

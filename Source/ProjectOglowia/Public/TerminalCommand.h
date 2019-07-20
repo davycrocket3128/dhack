@@ -32,7 +32,6 @@
 
 #pragma once
 
-#include "PTerminalWidget.h"
 #include "CoreMinimal.h"
 #include "DocoptForUnrealBPLibrary.h"
 #include "ConsoleContext.h"

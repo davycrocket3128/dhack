@@ -38,6 +38,7 @@
 #include "PtyStream.h"
 #include "ConsoleContext.h"
 #include "UserContext.h"
+#include "TextProperty.h"
 #include "TerminalEmulator.generated.h"
 
 enum term_mode {
@@ -221,6 +222,19 @@ public:
     FGlyph og;
 };
 
+USTRUCT()
+struct FTerminalEmulatorWrite
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY()
+    float Time;
+
+    UPROPERTY()
+    FText Text;
+};
+
 UCLASS(Blueprintable, BlueprintType)
 class PROJECTOGLOWIA_API UTerminalEmulator : public UUserWidget
 {
@@ -229,6 +243,9 @@ class PROJECTOGLOWIA_API UTerminalEmulator : public UUserWidget
 private:
     UPROPERTY()
     UPtyStream* Master;
+
+    UPROPERTY()
+    TArray<FTerminalEmulatorWrite> TextQueue;
 
     UPROPERTY()
     bool escaping = false;
@@ -386,4 +403,7 @@ protected:
 public:
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Terminal Emulator")
     UConsoleContext* CreateConsoleContext(UUserContext* PeacegateUser);
+
+    UFUNCTION()
+    void WriteLine(const FText& InText, float InDelayTime = 0.f);
 };

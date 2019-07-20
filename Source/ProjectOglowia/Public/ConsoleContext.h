@@ -33,7 +33,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PTerminalWidget.h"
 #include "PeacenetWorldStateActor.h"
 #include "PeacegateFileSystem.h"
 #include "TerminalColor.h"
