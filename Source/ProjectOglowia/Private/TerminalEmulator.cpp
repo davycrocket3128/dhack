@@ -179,18 +179,27 @@ void UTerminalEmulator::DrawGlyph(FTerminalDrawContext* DrawContext, FGlyph glyp
 
     FSlateFontInfo font = this->DefaultFont;
 
-    if(glyph.mode & ((uint16)EGlyphAttribute::ATTR_BOLD | (uint16)EGlyphAttribute::ATTR_ITALIC))
-    {
+    bool bold = glyph.mode & (uint16)EGlyphAttribute::ATTR_BOLD;
+    bool italic = glyph.mode & (uint16)EGlyphAttribute::ATTR_ITALIC;
+    
+    if(bold && italic)
         font = this->BoldItalicFont;
-    }
-    else if(glyph.mode & (uint16)EGlyphAttribute::ATTR_BOLD)
-    {
+    else if(bold)
         font = this->BoldFont;
-    }
-    else if(glyph.mode & (uint16)EGlyphAttribute::ATTR_ITALIC)
-    {
+    else if(italic)
         font = this->ItalicFont;
+
+    bool faint = glyph.mode & (uint16)EGlyphAttribute::ATTR_BOLD_FAINT;
+    if(faint)
+    {
+        bg.R *= 0.5f;
+        bg.G *= 0.5f;
+        bg.B *= 0.5f;
+        fg.R *= 0.5f;
+        fg.G *= 0.5f;
+        fg.B *= 0.5f;
     }
+
 
     FString text = FString::Chr(glyph.u);
 
@@ -198,7 +207,16 @@ void UTerminalEmulator::DrawGlyph(FTerminalDrawContext* DrawContext, FGlyph glyp
     float winy = y * ch;
 
     DrawContext->DrawRect(bg, winx, winy, cw, ch);
-    DrawContext->DrawString(text, font, fg, winx, winy);
+    if((glyph.mode & (uint16)EGlyphAttribute::ATTR_INVISIBLE) == 0)
+    {
+        DrawContext->DrawString(text, font, fg, winx, winy);
+        if(glyph.mode & (uint16)EGlyphAttribute::ATTR_UNDERLINE)
+        {
+            DrawContext->DrawRect(fg, winx, winy + (ch - 2), cw, 2);
+        }
+    }
+
+
 
 }
 
