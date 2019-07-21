@@ -34,8 +34,60 @@
 #include "PeacenetSaveGame.h"
 #include "TerminalEmulator.h"
 #include "Parse.h"
+#include "Window.h"
 #include "PlatformApplicationMisc.h"
 #include "SystemContext.h"
+
+void UCommonUtils::ReorderCanvasPanel(UCanvasPanel* InCanvasPanel, UWindow* InFocusWindow)
+{
+	// First we need to collect a list of all widget slots in ascending Z order.
+	// This will allow us to "normalize" everything.
+	TArray<UCanvasPanelSlot*> SortedSlots;
+
+	int ChildCount = InCanvasPanel->GetChildrenCount();
+	for(int i = 0; i < ChildCount; i++)
+	{
+		auto Widget = InCanvasPanel->GetChildAt(i);
+		UCanvasPanelSlot* Slot = Cast<UCanvasPanelSlot>(Widget->Slot);
+		int ZOrder = Slot->GetZOrder();
+		bool Added = false;
+		for(int j = 0; j < SortedSlots.Num(); j++)
+		{
+			if(SortedSlots[j]->GetZOrder() > ZOrder)
+			{
+				Added = true;
+				SortedSlots.Insert(Slot, j);
+				break;
+			}
+		}
+		if(!Added) SortedSlots.Add(Slot);
+	}
+
+	// Now, we can start rearranging everything properly.
+	for(int i = 0; i < SortedSlots.Num(); i++)
+		SortedSlots[i]->SetZOrder(i);
+
+	// The above should have preserved the visual locations of each widget.
+	
+	// Now we can work on the focus window if we have one.
+	if(InFocusWindow)
+	{
+		// Grab the ZOrder of the focus window before setting it to a sentinel value.
+		UCanvasPanelSlot* FocusSlot = Cast<UCanvasPanelSlot>(InFocusWindow->Slot);
+		int FocusZ = FocusSlot->GetZOrder();
+		FocusSlot->SetZOrder(-1);
+
+		for(int i = 0; i < SortedSlots.Num(); i++)
+		{
+			UCanvasPanelSlot* Slot = SortedSlots[i];
+			if(Slot->GetZOrder() == -1) continue; // Skip the focus window.
+			if(Slot->GetZOrder() > FocusZ)
+				Slot->SetZOrder(Slot->GetZOrder() - 1);
+		}
+
+		FocusSlot->SetZOrder(SortedSlots.Num() - 1);
+	}
+}
 
 FLinearColor UCommonUtils::GetConsoleColor(EConsoleColor InConsoleColor)
 {

@@ -39,11 +39,14 @@
 #include "FileOpenResult.h"
 #include "Camera/CameraComponent.h"
 #include "ConsoleColor.h"
+#include "UMG/Public/Components/CanvasPanel.h"
+#include "UMG/Public/Components/CanvasPanelSlot.h"
 #include "CommonUtils.generated.h"
 
 class UPeacenetSaveGame;
 class USystemContext;
 class UTerminalEmulator;
+class UWindow;
 
 /**
  * Common utilities used throughout the entire game.
@@ -54,6 +57,9 @@ class PROJECTOGLOWIA_API UCommonUtils : public UObject
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "Common Utils")
+	static void ReorderCanvasPanel(UCanvasPanel* InCanvasPanel, UWindow* InFocusWindow);
+
 	UFUNCTION(BlueprintCallable, Category = "Bootup")
 	static float PrintKernelMessages(UTerminalEmulator* InConsole);
 	
