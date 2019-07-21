@@ -85,11 +85,11 @@ void UTerminalEmulator::PutTab(int n)
     if (n > 0) {
 		while (x < term.col && n--)
 			for (++x; x < term.col; ++x)
-				/* nothing */ ;
+			{ /* nothing */ }
 	} else if (n < 0) {
 		while (x > 0 && n++)
 			for (--x; x > 0; --x)
-				/* nothing */ ;
+			{ /* nothing */ }
 	}
 	term.c.x = LIMIT(x, 0, term.col-1);
 
