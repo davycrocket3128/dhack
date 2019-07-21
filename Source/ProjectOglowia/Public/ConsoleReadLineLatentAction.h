@@ -35,20 +35,20 @@
 #include "LatentActions.h"
 #include "Blueprint/UserWidget.h"
 #include "UserWidget.h" //not the same?
-#include "PTerminalWidget.h"
+#include "ConsoleContext.h"
 
 
 
 class FConsoleReadLineLatentAction : public FPendingLatentAction
 {
 public:
-	class UPTerminalWidget* TerminalWidgetInstance;
+	class UConsoleContext* TerminalWidgetInstance;
 	FName ExecutionFunction;
 	int32 OutputLink;
 	FWeakObjectPtr CallbackTarget;
 	FString& OutputText;
 
-	FConsoleReadLineLatentAction(UPTerminalWidget* InTerminal, const FLatentActionInfo& InLatentInfo, FString& OutText)
+	FConsoleReadLineLatentAction(UConsoleContext* InTerminal, const FLatentActionInfo& InLatentInfo, FString& OutText)
 		: TerminalWidgetInstance(InTerminal)
 		, ExecutionFunction(InLatentInfo.ExecutionFunction)
 		, OutputLink(InLatentInfo.Linkage)
@@ -57,12 +57,10 @@ public:
 
 	virtual void UpdateOperation(FLatentResponse& Response) override
 	{
-		OutputText = TerminalWidgetInstance->GetInputText();
-		if (OutputText.EndsWith("\n")) 
+		if (TerminalWidgetInstance->GetLine(OutputText)) 
 		{
-			OutputText.RemoveFromEnd(TEXT("\n"));
 			Response.FinishAndTriggerIf(true, ExecutionFunction, OutputLink, CallbackTarget);
-			TerminalWidgetInstance->ClearInput();
+			TerminalWidgetInstance->WriteLine(FText::GetEmpty());
 		}
 	}
 };

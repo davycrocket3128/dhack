@@ -39,6 +39,5 @@ void UNetworkedConsoleContext::SetupNetworkedConsole(UConsoleContext* InOutputCo
     this->OutputConsole = InOutputConsole;
     this->OwningUser = InOwningUser;
 
-    this->Setup(this->OwningUser);
-    this->SetTerminal(this->OutputConsole->GetTerminal());
+    this->Setup(this->OutputConsole->GetPty(), this->OwningUser);
 }

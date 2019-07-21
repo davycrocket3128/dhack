@@ -50,23 +50,15 @@ void USendEmailAction::NativeMissionCompleted()
     check(realSender);
 
     // Get the player's mail provider.
-    UMailProvider* PlayerMail = this->GetPlayerUser()->GetOwningSystem()->GetMailProvider();
-
-    // Get the save file.
-    UPeacenetSaveGame* SaveGame = this->GetPeacenet()->SaveGame;
+    UMailProvider* PlayerMail = this->GetPlayerUser()->GetMailProvider();
 
     // Create a new email structure.
-    FEmail mail;
-    mail.ID = SaveGame->EmailMessages.Num();
-    mail.InReplyTo = -1;
-	SaveGame->GetStoryCharacterID(realSender, mail.FromEntity);
-    mail.ToEntities.Add(this->GetPlayerUser()->GetOwningSystem()->GetCharacter().ID);
+    FEmail& mail = this->GetPeacenet()->GetNewEmailMessage();
+    this->GetPeacenet()->GetStoryCharacterID(realSender, mail.FromEntity);
+    mail.ToEntities.Add(this->GetPlayerUser()->GetPeacenetIdentity().ID);
 	mail.Subject = realSubject.ToString();
 	mail.MessageBody = this->MessageBody.ToString();
 
-    // Store it in the save.
-    SaveGame->EmailMessages.Add(mail);
-	
-	// Notify the player of the new email message.
+    // Notify the player of the new email message.
 	PlayerMail->NotifyReceivedMessage(mail.ID);
 }

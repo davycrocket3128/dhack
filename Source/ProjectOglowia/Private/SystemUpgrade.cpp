@@ -40,7 +40,7 @@ bool USystemUpgrade::ShouldShowUpgradeInUserInterface(UUserContext* InPeacegateU
         return false;
     }
 
-    if(this->IsUnlocked(InPeacegateUser->GetOwningSystem()) || this->DependenciesFulfilled(InPeacegateUser->GetOwningSystem()))
+    if(this->IsUnlocked(InPeacegateUser) || this->DependenciesFulfilled(InPeacegateUser))
     {
         return true;
     }
@@ -48,13 +48,13 @@ bool USystemUpgrade::ShouldShowUpgradeInUserInterface(UUserContext* InPeacegateU
     return false;
 }
 
-void USystemUpgrade::TriggerUnlock(USystemContext* InSystemContext)
+void USystemUpgrade::TriggerUnlock(UUserContext* InUserContext)
 {
-    if(this->IsUnlocked(InSystemContext)) return;
+    if(this->IsUnlocked(InUserContext)) return;
 
-    if(InSystemContext->HasIdentity())
+    if(InUserContext->HasIdentity())
     {
-        InSystemContext->GetCharacter().UnlockedUpgrades.Add(this);
+        InUserContext->GetPeacenetIdentity().UnlockedUpgrades.Add(this);
     }
 }
 
@@ -63,22 +63,22 @@ bool USystemUpgrade::UpgradeIsUnlockable(UUserContext* InPeacegateUser)
     if(!this->CanUserUnlock)
         return false;
 
-    if(!this->IsUnlocked(InPeacegateUser->GetOwningSystem()))
+    if(!this->IsUnlocked(InPeacegateUser))
         return false;
 
-    if(this->IsUnlocked(InPeacegateUser->GetOwningSystem()))
+    if(this->IsUnlocked(InPeacegateUser))
         return false;
 
     return true;
 }
 
-bool USystemUpgrade::DependenciesFulfilled(USystemContext* InSystemContext)
+bool USystemUpgrade::DependenciesFulfilled(UUserContext* InUserContext)
 {
     if(this->Dependencies.Num())
     {
         for(auto Dependency : this->Dependencies)
         {
-            if(!Dependency->IsUnlocked(InSystemContext))
+            if(!Dependency->IsUnlocked(InUserContext))
             {
                 return false;
             }
@@ -87,18 +87,18 @@ bool USystemUpgrade::DependenciesFulfilled(USystemContext* InSystemContext)
     return true;
 }
 
-bool USystemUpgrade::IsUnlocked(USystemContext* InSystemContext)
+bool USystemUpgrade::IsUnlocked(UUserContext* InUserContext)
 {
-    if(!InSystemContext->HasIdentity())
+    if(!InUserContext->HasIdentity())
         return false;
 
-    if(!this->DependenciesFulfilled(InSystemContext))
+    if(!this->DependenciesFulfilled(InUserContext))
         return false;
 
     if(this->UnlockedByDefault)
         return true;
 
-    return InSystemContext->GetCharacter().UnlockedUpgrades.Contains(this);
+    return InUserContext->GetPeacenetIdentity().UnlockedUpgrades.Contains(this);
 }
 
 void USystemUpgrade::BuildManualPage(UManualPageBuilder* InBuilder)

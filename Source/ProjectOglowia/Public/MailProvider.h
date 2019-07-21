@@ -60,9 +60,6 @@ public:
     void Setup(USystemContext* InOwningSystem);
 
     UFUNCTION()
-    UPeacenetSaveGame* GetSaveGame();
-
-    UFUNCTION()
     APeacenetWorldStateActor* GetPeacenet();
 
     UFUNCTION()

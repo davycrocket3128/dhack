@@ -40,9 +40,7 @@
 #include "CommonUtils.h"
 #include "PeacegateProgramAsset.h"
 #include "UserContext.h"
-#include "AdjacentNode.h"
 #include "Program.h"
-#include "RainbowTable.h"
 #include "WallpaperAsset.h"
 #include "GraphicalTerminalCommand.h"
 #include "CommandInfo.h"
@@ -54,7 +52,7 @@ bool USystemContext::IsUpgradeInstalled(USystemUpgrade* InUpgrade)
 	if(!InUpgrade)
 		return false;
 
-	return InUpgrade->IsUnlocked(this);
+	return InUpgrade->IsUnlocked(this->GetUserContext(0));
 }
 
 void USystemContext::Destroy()
@@ -103,7 +101,6 @@ void USystemContext::Destroy()
 
 	// Destroy all remaining data in the system context.
 	this->MailProvider = nullptr;
-	this->RainbowTable = nullptr;
 	this->ComputerID = -1;
 	this->CharacterID = -1;
 	this->Processes.Empty();
@@ -127,12 +124,12 @@ void USystemContext::IncreaseGameStat(FName InStatName)
 
 bool USystemContext::IsSet(FString InSaveBoolean)
 {
-	return this->GetPeacenet()->SaveGame->IsTrue(InSaveBoolean);
+	return this->GetPeacenet()->IsTrue(InSaveBoolean);
 }
 
 void USystemContext::SetSaveBoolean(FString InSaveBoolean, bool InValue)
 {
-	this->GetPeacenet()->SaveGame->SetValue(InSaveBoolean, InValue);
+	this->GetPeacenet()->SetSaveValue(InSaveBoolean, InValue);
 }
 
 bool USystemContext::IsNewGame()
@@ -154,32 +151,24 @@ void USystemContext::UpdateInternalIdentity()
 
 TArray<UPayloadAsset*> USystemContext::GetPayloads()
 {
-	TArray<UPayloadAsset*> UnlockedPayloads = this->GetComputer().Payloads;
-
+	TArray<UPayloadAsset*> Ret;
 	for(auto Payload : this->GetPeacenet()->GetAllPayloads())
 	{
-		if(Payload->UnlockedByDefault)
-		{
-			if(!UnlockedPayloads.Contains(Payload))
-				UnlockedPayloads.Add(Payload);
-		}
+		if(Payload->IsUnlocked(this))
+			Ret.Add(Payload);
 	}
-
-	return UnlockedPayloads;
+	return Ret;
 }
 
 TArray<UExploit*> USystemContext::GetExploits()
 {
-	for(int i = 0; i < this->GetComputer().Exploits.Num(); i++)
+	TArray<UExploit*> Ret;
+	for(auto Exploit : this->GetPeacenet()->GetExploits())
 	{
-		if(!this->GetComputer().Exploits[i])
-		{
-			this->GetComputer().Exploits.RemoveAt(i);
-			i--;
-		}
+		if(Exploit->IsUnlocked(this))
+			Ret.Add(Exploit);
 	}
-
-	return this->GetComputer().Exploits;
+	return Ret;
 }
 
 FString USystemContext::GetProcessUsername(FPeacegateProcess InProcess)
@@ -259,9 +248,8 @@ TArray<UPeacegateProgramAsset*> USystemContext::GetInstalledPrograms()
 
 	for(auto Program : this->GetPeacenet()->Programs)
 	{
-		if(!GetComputer().InstalledPrograms.Contains(Program->ID) && !Program->IsUnlockedByDefault)
-			continue;
-		OutArray.Add(Program);
+		if(Program->IsUnlocked(this))
+			OutArray.Add(Program);
 	}
 
 	return OutArray;
@@ -280,9 +268,8 @@ TArray<UCommandInfo*> USystemContext::GetInstalledCommands()
 	{
 		UCommandInfo* Info = GetPeacenet()->CommandInfo[Name];
 
-		if(!GetComputer().InstalledCommands.Contains(Name) && !Info->UnlockedByDefault)
-			continue;
-		Ret.Add(Info);
+		if(Info->IsUnlocked(this))
+			Ret.Add(Info);
 	}
 
 	return Ret;
@@ -290,36 +277,7 @@ TArray<UCommandInfo*> USystemContext::GetInstalledCommands()
 
 bool USystemContext::HasIdentity()
 {
-	int i = 0;
-	FPeacenetIdentity id;
-	return this->GetPeacenet()->SaveGame->GetCharacterByID(this->GetComputer().SystemIdentity, id, i);
-}
-
-TArray<FAdjacentNodeInfo> USystemContext::ScanForAdjacentNodes()
-{
-	check(this->GetPeacenet());
-
-	int CharID = this->GetCharacter().ID;
-
-	TArray<FAdjacentNodeInfo> Ret;
-	if(!this->HasIdentity()) return Ret;
-
-	for(auto& OtherIdentity : this->GetPeacenet()->GetAdjacentNodes(this->GetCharacter()))
-	{
-		FAdjacentNodeInfo Node;
-		Node.NodeName = OtherIdentity.CharacterName;
-		Node.Link = FAdjacentNode();
-		Node.Link.NodeA = CharID;
-		Node.Link.NodeB = OtherIdentity.ID;
-		Ret.Add(Node);
-
-		if(!this->GetPeacenet()->SaveGame->PlayerDiscoveredNodes.Contains(OtherIdentity.ID))
-		{
-			this->GetPeacenet()->SaveGame->PlayerDiscoveredNodes.Add(OtherIdentity.ID);
-		}
-	}
-
-	return Ret;
+	return this->Peacenet->IdentityExists(this->GetComputer().SystemIdentity);
 }
 
 bool USystemContext::OpenProgram(FName InExecutableName, UProgram*& OutProgram, bool InCheckForExistingWindow)
@@ -332,7 +290,7 @@ bool USystemContext::OpenProgram(FName InExecutableName, UProgram*& OutProgram, 
 	if(!this->GetPeacenet()->FindProgramByName(InExecutableName, PeacegateProgram))
 		return false;
 
-	if(!this->GetComputer().InstalledPrograms.Contains(InExecutableName) && !PeacegateProgram->IsUnlockedByDefault)
+	if(!PeacegateProgram->IsUnlocked(this))
 	{
 		return false;
 	}
@@ -369,7 +327,7 @@ bool USystemContext::TryGetTerminalCommand(FName CommandName, ATerminalCommand *
 	UPeacegateProgramAsset* Program = nullptr;
 	if (GetPeacenet()->FindProgramByName(CommandName, Program))
 	{
-		if(!GetComputer().InstalledPrograms.Contains(CommandName) && !Program->IsUnlockedByDefault)
+		if(!Program->IsUnlocked(this))
 		{
 			return false;
 		}
@@ -392,7 +350,7 @@ bool USystemContext::TryGetTerminalCommand(FName CommandName, ATerminalCommand *
 
 	UCommandInfo* Info = GetPeacenet()->CommandInfo[CommandName];
 
-	if(!GetComputer().InstalledCommands.Contains(CommandName) && !Info->UnlockedByDefault)
+	if(!Info->IsUnlocked(this))
 	{
 		return false;
 	}
@@ -510,13 +468,8 @@ bool USystemContext::Authenticate(const FString & Username, const FString & Pass
 
 bool USystemContext::GetSuitableProgramForFileExtension(const FString & InExtension, UPeacegateProgramAsset *& OutProgram)
 {
-	for(auto Program : this->GetPeacenet()->Programs)
+	for(auto Program : this->GetInstalledPrograms())
 	{
-		if(!this->GetComputer().InstalledPrograms.Contains(Program->ID) && !Program->IsUnlockedByDefault)
-		{
-			continue;
-		}
-
 		if (Program->SupportedFileExtensions.Contains(InExtension))
 		{
 			OutProgram = Program;
@@ -528,7 +481,7 @@ bool USystemContext::GetSuitableProgramForFileExtension(const FString & InExtens
 
 bool USystemContext::IsIPAddress(FString InIPAddress)
 {
-	return this->GetPeacenet()->SaveGame->ComputerIPMap.Contains(InIPAddress);
+	return this->GetPeacenet()->IsIPAddress(InIPAddress);
 }
 
 UDesktopWidget* USystemContext::GetDesktop()
@@ -542,17 +495,13 @@ FPeacenetIdentity& USystemContext::GetCharacter()
 
 	auto MyPeacenet = this->GetPeacenet();
 
-	int CharacterIndex = 0;
-	FPeacenetIdentity Character;
-
-	bool result = MyPeacenet->SaveGame->GetCharacterByID(this->GetComputer().SystemIdentity, Character, CharacterIndex);
-	if(!result) 
+	if(!this->HasIdentity()) 
 	{
 		this->UpdateInternalIdentity();
 		return this->InternalIdentity;
 	}
 
-	return MyPeacenet->SaveGame->Characters[CharacterIndex];
+	return MyPeacenet->GetCharacterByID(this->GetComputer().SystemIdentity);
 }
 
 UUserContext* USystemContext::GetHackerContext(int InUserID, UUserContext* HackingUser)
@@ -593,22 +542,12 @@ FComputer& USystemContext::GetComputer()
 
 	auto MyPeacenet = this->GetPeacenet();
 
-	int ComputerIndex = 0;
-	FComputer Computer;
-
-	check(MyPeacenet->SaveGame->GetComputerByID(this->ComputerID, Computer, ComputerIndex));
-
-	return MyPeacenet->SaveGame->Computers[ComputerIndex];
+	return MyPeacenet->GetComputerByID(this->ComputerID);
 }
 
 APeacenetWorldStateActor* USystemContext::GetPeacenet()
 {
 	return this->Peacenet;
-}
-
-URainbowTable* USystemContext::GetRainbowTable()
-{
-	return this->RainbowTable;
 }
 
 void USystemContext::SetupDesktop(int InUserID)
@@ -761,10 +700,25 @@ void USystemContext::UpdateSystemFiles()
 		// write blank log.
 		RootFS->WriteText("/var/log/peacegate.log", "");
 	}
+}
 
-	// This is also where we init our rainbow table.
-	this->RainbowTable = NewObject<URainbowTable>(this);
-	this->RainbowTable->Setup(this, "/etc/rainbow_table.db", true);
+bool USystemContext::DnsResolve(FString InHost, FComputer& OutComputer, EConnectionError& OutConnectionError)
+{
+	// Default the connection error to nothing.
+	OutConnectionError = EConnectionError::None;
+
+	// TODO: /etc/hosts support.
+
+	// If the host is "localhost" or "127.0.0.1" or our hostname we'll return our own computer.
+	if(InHost == "127.0.0.1" || InHost == "localhost" || InHost == this->GetHostname())
+	{
+
+		OutComputer = this->GetComputer();
+		return true;
+	}
+
+	// It's your fucking problem now, world state.
+	return this->GetPeacenet()->DnsResolve(InHost, OutComputer, OutConnectionError);
 }
 
 UMailProvider* USystemContext::GetMailProvider()
@@ -866,17 +820,6 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 		}
 	}
 
-	// Now we go through all the exploits in the game and, if they're
-	// unlocked by default, we unlock them.
-	for(auto exploit : this->GetPeacenet()->GetExploits())
-	{
-		if(exploit->UnlockedByDefault)
-		{
-			if(!this->GetComputer().Exploits.Contains(exploit))
-				this->GetComputer().Exploits.Add(exploit);
-		}
-	}
-
 	// Now we'll get all the installed terminal commands to show in /bin.
 	TArray<UCommandInfo*> InstalledCommands = this->GetInstalledCommands();
 	TArray<FName> CommandKeys;
@@ -885,7 +828,7 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	for(int i = 0; i < CommandKeys.Num(); i++)
 	{
 		UCommandInfo* CommandInfo = this->GetPeacenet()->CommandInfo[CommandKeys[i]];
-		if(CommandInfo->UnlockedByDefault || InstalledCommands.Contains(CommandInfo))
+		if(InstalledCommands.Contains(CommandInfo))
 		{
 			fs->SetFileRecord("/bin/" + CommandInfo->ID.ToString(), EFileRecordType::Command, i);
 		}
@@ -898,10 +841,8 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	for(int i = 0; i < this->GetPeacenet()->Programs.Num(); i++)
 	{
 		UPeacegateProgramAsset* ProgramAsset = this->GetPeacenet()->Programs[i];
-		if(ProgramAsset->IsUnlockedByDefault || InstalledPrograms.Contains(ProgramAsset))
-		{
+		if(InstalledPrograms.Contains(ProgramAsset))
 			fs->SetFileRecord("/bin/" + ProgramAsset->ID.ToString(), EFileRecordType::Program, i);
-		}
 	}
 
 	// If the cryptowallets directory exists, delete it.
@@ -919,22 +860,6 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 			fs->CreateDirectory("/usr/share", fsStatus);
 		}
 
-	}
-
-	fs->CreateDirectory("/usr/share/wallets", fsStatus);
-
-	for(int i = 0; i < this->GetCharacter().CryptoWallets.Num(); i++)
-	{
-		fs->SetFileRecord("/usr/share/wallets/" + this->GetCharacter().CryptoWallets[i].Address, EFileRecordType::CryptoWallet, i);
-	}
-
-
-
-	// If we are a player, auto-scan for adjacent nodes so the player desktop gets populated.
-	if(this->GetCharacter().CharacterType == EIdentityType::Player)
-	{
-		// Scan for adjacent identities so the player doesn't have to.
-		this->ScanForAdjacentNodes();
 	}
 }
 

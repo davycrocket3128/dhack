@@ -32,12 +32,36 @@
 #include "CommonUtils.h"
 #include "Engine/Font.h"
 #include "PeacenetSaveGame.h"
-#include "PTerminalWidget.h"
+#include "TerminalEmulator.h"
 #include "Parse.h"
 #include "PlatformApplicationMisc.h"
 #include "SystemContext.h"
 
-float UCommonUtils::PrintKernelMessages(UPTerminalWidget* InConsole)
+FLinearColor UCommonUtils::GetConsoleColor(EConsoleColor InConsoleColor)
+{
+	switch(InConsoleColor)
+	{
+		default:
+		case EConsoleColor::Black:
+			return FLinearColor(0.f, 0.f, 0.f);
+		case EConsoleColor::White:
+			return FLinearColor(1.f, 1.f, 1.f);
+		case EConsoleColor::Red:
+			return FLinearColor(1.f, 0.f, 0.f);
+		case EConsoleColor::Green:
+			return FLinearColor(0.f, 1.f, 0.f);
+		case EConsoleColor::Blue:
+			return FLinearColor(0.f, 0.f, 1.f);
+		case EConsoleColor::Yellow:
+			return FLinearColor(1.f, 1.f, 0.f);
+		case EConsoleColor::Magenta:
+			return FLinearColor(1.f, 0.f, 1.f);
+		case EConsoleColor::Cyan:
+			return FLinearColor(0.f, 1.f, 1.f);
+	}
+}
+
+float UCommonUtils::PrintKernelMessages(UTerminalEmulator* InConsole)
 {
 	// Yes. I know. This looks like it came out of Philip Adams' asshole.  Just looking at it gives me RSI.
 	// That's why I wasn't dumb enough to write this by hand, I wrote a script that generated this code from a real

@@ -33,7 +33,7 @@
 #pragma once
 
 #include "LatentActions.h"
-#include "PTerminalWidget.h"
+#include "ConsoleContext.h"
 #include "CoreMinimal.h"
 
 /**
@@ -42,7 +42,7 @@
 class PROJECTOGLOWIA_API FTerminalSlowTypeLatentAction : public FPendingLatentAction
 {
 public:
-	class UPTerminalWidget* TerminalWidgetInstance;
+	class UConsoleContext* TerminalWidgetInstance;
 	FName ExecutionFunction;
 	int32 OutputLink;
 	FWeakObjectPtr CallbackTarget;
@@ -51,7 +51,7 @@ public:
 	float Countdown;
 	float CountdownTime;
 
-	FTerminalSlowTypeLatentAction(UPTerminalWidget* InTerminal, const FLatentActionInfo& InLatentInfo, const FText& InText, float InCountdown)
+	FTerminalSlowTypeLatentAction(UConsoleContext* InTerminal, const FLatentActionInfo& InLatentInfo, const FText& InText, float InCountdown)
 		: TerminalWidgetInstance(InTerminal)
 		, ExecutionFunction(InLatentInfo.ExecutionFunction)
 		, OutputLink(InLatentInfo.Linkage)

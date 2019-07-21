@@ -31,7 +31,7 @@
 
 #include "TextFileRecordChecker.h"
 
-bool UTextFileRecordChecker::GetDoesFileMatch(USystemContext* InSystemContext, UPeacegateFileSystem* InFileSystem, FFileRecord& InFileRecord, FString Path)
+bool UTextFileRecordChecker::GetDoesFileMatch(UUserContext* InUserContext, UPeacegateFileSystem* InFileSystem, FFileRecord& InFileRecord, FString Path)
 {
     // If the file record itself isn't text then we're D.O.N.E FUCKED.
     if(InFileRecord.RecordType != EFileRecordType::Text) return false;

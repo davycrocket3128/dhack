@@ -37,12 +37,16 @@
 void AHelpCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
 {
     // Get all installed commands and programs.
-    TArray<UPeacegateProgramAsset*> Programs = InConsole->GetUserContext()->GetOwningSystem()->GetInstalledPrograms();
-    TArray<UCommandInfo*> Commands = InConsole->GetUserContext()->GetOwningSystem()->GetInstalledCommands();
+    TArray<UPeacegateProgramAsset*> Programs = InConsole->GetUserContext()->GetInstalledPrograms();
+    TArray<UCommandInfo*> Commands = InConsole->GetUserContext()->GetInstalledCommands();
 
     // user interface bullshitfucks
+    InConsole->ResetFormatting();
+    InConsole->SetBold(true);
+    InConsole->SetItalic(true);
     InConsole->WriteLine(NSLOCTEXT("Help", "HelpTitle", "Help Command"));
     InConsole->WriteLine(NSLOCTEXT("Help", "HelpUnderline", "--------------\n"));
+    InConsole->ResetFormatting();
 
     // All the descriptions of each command name.
     TMap<FString, FString> NameMap;
@@ -77,11 +81,15 @@ void AHelpCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
     // Loop through them.
     for(auto& Key : Keys)
     {
-        InConsole->Write(FText::Format(NSLOCTEXT("Help", "HelpKey", "&F&*{0}:&r&7"), FText::FromString(Key)));
+        InConsole->SetColors(EConsoleColor::Cyan, EConsoleColor::Black);
+        InConsole->Write(FText::FromString(Key));
+        InConsole->ResetFormatting();
         int Spaces = (NameLength - Key.Len()) + 1;
         for(int i = 0; i < Spaces; i++)
             InConsole->Write(FText::FromString(" "));
+        InConsole->SetItalic(true);
         InConsole->WriteLine(FText::FromString(NameMap[Key]));
+        InConsole->ResetFormatting();
     }
     
     this->Complete();

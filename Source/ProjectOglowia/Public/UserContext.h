@@ -39,15 +39,12 @@
 #include "MailProvider.h"
 #include "PeacegateProcess.h"
 #include "TerminalColor.h"
-#include "AdjacentNodeInfo.h"
 #include "UserContext.generated.h"
 
 class UExploit;
 class UPeacegateFileSystem;
 class APeacenetWorldStateActor;
 class UAddressBookContext;
-class URainbowTable;
-class UPTerminalWidget;
 class UComputerService;
 class USystemUpgrade;
 class UDesktopWidget;
@@ -76,7 +73,31 @@ private:
     UPROPERTY()
     int UserID = 0;
 
+protected:
+    UFUNCTION()
+    USystemContext* GetOwningSystem();
+
 public:
+    void OnProcessEnded(TScriptDelegate<> InDelegate);
+
+    UFUNCTION()
+    FPeacegateProcess GetProcessByID(int ProcessID);
+
+    UFUNCTION()
+    void FinishProcess(FPeacegateProcess Process);
+
+    UFUNCTION()
+    FComputer& GetComputer();
+
+    UFUNCTION()
+    bool DnsResolve(FString InHost, FComputer& OutComputer, EConnectionError& OutError);
+
+    UFUNCTION()
+    FPeacenetIdentity& GetPeacenetIdentity();
+
+    UFUNCTION()
+    bool TryGetTerminalCommand(FName CommandName, ATerminalCommand*& Command, FString& InternalUsage, FString& FriendlyUsage);
+
     UFUNCTION()
     UUserContext* GetHacker();
 
@@ -86,14 +107,20 @@ public:
     UFUNCTION()
     void Destroy();
 
+    UFUNCTION()
+    TArray<UPeacegateProgramAsset*> GetInstalledPrograms();
+
+    UFUNCTION()
+    TArray<UCommandInfo*> GetInstalledCommands();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Networking")
+    FString GetIPAddress();
+
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "URL parsing")
     void ParseURL(FString InURL, int InDefaultPort, FString& OutUsername, FString& OutHost, int& OutPort, FString& OutPath);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Email")
     UMailProvider* GetMailProvider();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Adjacent nodes")
-    TArray<FAdjacentNodeInfo> ScanForAdjacentNodes();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Identity")
     bool HasIdentity();
@@ -153,16 +180,10 @@ public:
     UPeacegateFileSystem* GetFilesystem();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
-    URainbowTable* GetRainbowTable();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
     APeacenetWorldStateActor* GetPeacenet();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
     UDesktopWidget* GetDesktop();
-
-    UFUNCTION()
-    USystemContext* GetOwningSystem();
 
     UFUNCTION(BlueprintCallable, Category = "User Context")
     bool OpenProgram(FName InExecutableName, UProgram*& OutProgram, bool InCheckForExistingWindow = true);
@@ -172,9 +193,6 @@ public:
 
     UFUNCTION()
     void ShowProgramOnWorkspace(UProgram* InProgram);
-
-    UFUNCTION(BlueprintCallable, Category = "User Context")
-    UConsoleContext* CreateConsole(UPTerminalWidget* InTerminalWidget);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
     FString GetUserTypeDisplay();

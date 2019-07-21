@@ -38,11 +38,12 @@
 #include "TerminalColor.h"
 #include "FileOpenResult.h"
 #include "Camera/CameraComponent.h"
+#include "ConsoleColor.h"
 #include "CommonUtils.generated.h"
 
 class UPeacenetSaveGame;
 class USystemContext;
-class UPTerminalWidget;
+class UTerminalEmulator;
 
 /**
  * Common utilities used throughout the entire game.
@@ -54,7 +55,7 @@ class PROJECTOGLOWIA_API UCommonUtils : public UObject
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Bootup")
-	static float PrintKernelMessages(UPTerminalWidget* InConsole);
+	static float PrintKernelMessages(UTerminalEmulator* InConsole);
 	
 	UFUNCTION(BlueprintCallable, Category = "Peacegate|Setup")
 	static void ParseCharacterName(const FString InCharacterName, FString& OutUsername, FString& OutHostname);
@@ -99,6 +100,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Common")
 	static void GetFriendlyFileOpenText(EFileOpenResult InResult, FString& OutTitle, FString& OutDescription);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Console")
+	static FLinearColor GetConsoleColor(EConsoleColor InConsoleColor);
 
 	static void MeasureChar(const TCHAR InChar, const FSlateFontInfo& InSlateFont, float& OutWidth, float& OutHeight);
 

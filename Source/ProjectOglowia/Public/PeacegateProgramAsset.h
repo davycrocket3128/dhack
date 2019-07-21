@@ -39,6 +39,9 @@
 #include "ManualPageAssetBase.h"
 #include "PeacegateProgramAsset.generated.h"
 
+class USystemUpgrade;
+class USystemContext;
+
 USTRUCT(BlueprintType)
 struct FAppLauncherItemInformation
 {
@@ -70,8 +73,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Window Management")
 	bool EnableMinimizeAndMaximize = true;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Metadata")
-	bool IsUnlockedByDefault = false;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Unlockable")
+	USystemUpgrade* RequiredUpgrade;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Program")
 	TArray<FString> SupportedFileExtensions;
@@ -81,4 +84,8 @@ public:
 
 protected:
 	virtual void BuildManualPage(UManualPageBuilder* InBuilder) override;
+
+public:
+	UFUNCTION()
+	bool IsUnlocked(USystemContext* InSystemContext);
 };

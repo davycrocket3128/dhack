@@ -38,12 +38,7 @@ bool UMailMessage::MissionIsCompleted()
 {
     if(!this->HasMission()) return false;
 
-    return this->GetSaveGame()->CompletedMissions.Contains(this->GetMainMessage().Mission);
-}
-
-UPeacenetSaveGame* UMailMessage::GetSaveGame()
-{
-    return this->Provider->GetSaveGame();
+    return this->Provider->GetPeacenet()->IsMissionCompleted(this->GetMainMessage().Mission);
 }
 
 bool UMailMessage::CanPlayMission()
@@ -55,7 +50,7 @@ bool UMailMessage::CanPlayMission()
     // We also can't play if the player is in a mission.
     if(this->Provider->GetPeacenet()->IsInMission()) return false;
 
-    return !this->Provider->GetPeacenet()->SaveGame->CompletedMissions.Contains(this->GetMainMessage().Mission);
+    return !this->Provider->GetPeacenet()->IsMissionCompleted(this->GetMainMessage().Mission);
 }
 
 void UMailMessage::BeginMission()
@@ -80,10 +75,7 @@ FText UMailMessage::GetParticipants()
         FirstOther = this->GetMainMessage().ToEntities[0];
     }
 
-    FPeacenetIdentity Identity;
-    int Index = -1;
-    bool result = this->GetSaveGame()->GetCharacterByID(this->GetMainMessage().FromEntity, Identity, Index);
-    check(result);
+    FPeacenetIdentity& Identity = this->Provider->GetPeacenet()->GetCharacterByID(this->GetMainMessage().FromEntity);
     Ret += ", " + Identity.CharacterName;
 
     TArray<int> UniqueOthers;
@@ -196,9 +188,7 @@ FText UMailMessage::GetMessageText()
         FString Text = this->GetMainMessage().Mission->MailMessageText.ToString();
         if(Text.Contains("%agent"))
         {
-            FPeacenetIdentity Agent;
-            int Index;
-            bool result = this->GetSaveGame()->GetCharacterByID(this->Provider->GetIdentityID(), Agent, Index);
+            FPeacenetIdentity Agent = this->Provider->GetPeacenet()->GetCharacterByID(this->Provider->GetIdentityID());
             Text = Text.Replace(TEXT("%agent"), *Agent.CharacterName);
         }
         return FText::FromString(Text);

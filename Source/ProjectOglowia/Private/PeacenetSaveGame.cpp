@@ -34,6 +34,53 @@
 #include "Computer.h"
 #include "MissionAsset.h"
 
+void UPeacenetSaveGame::ClearNonPlayerEntities()
+{
+	TArray<int> ComputersToRemove;
+    TArray<int> CharactersToRemove;
+    
+    // Collect all computers that are NPC-owned.
+    for(int i = 0; i < this->Computers.Num(); i++)
+    {
+        FComputer& Computer = this->Computers[i];
+        if(Computer.OwnerType != EComputerOwnerType::Player)
+        {
+            ComputersToRemove.Add(i);
+        }
+    }
+
+    // Collect all characters to remove.
+    for(int i = 0; i < this->Characters.Num(); i++)
+    {
+        FPeacenetIdentity& Character = this->Characters[i];
+        if(Character.CharacterType != EIdentityType::Player)
+        {
+            CharactersToRemove.Add(i);
+        }
+    }
+
+    // Remove all characters..
+    while(CharactersToRemove.Num())
+    {
+        this->Characters.RemoveAt(CharactersToRemove[0]);
+        CharactersToRemove.RemoveAt(0);
+        for(int i = 0; i < CharactersToRemove.Num(); i++)
+            CharactersToRemove[i]--;
+    }
+
+    // Remove all computers.
+    while(ComputersToRemove.Num())
+    {
+        this->Computers.RemoveAt(ComputersToRemove[0]);
+        ComputersToRemove.RemoveAt(0);
+        for(int i = 0; i < ComputersToRemove.Num(); i++)
+            ComputersToRemove[i]--;
+    }
+
+    // Fix up entity IDs.
+    this->FixEntityIDs();
+}
+
 int UPeacenetSaveGame::GetGameStat(FName InStatName)
 {
 	if(this->GameStats.Contains(InStatName))
@@ -47,54 +94,6 @@ void UPeacenetSaveGame::SetGameStat(FName InStatName, int InValue)
 		this->GameStats[InStatName] = InValue;
 	else
 		this->GameStats.Add(InStatName, InValue);
-}
-
-bool UPeacenetSaveGame::CryptoWalletExists(FString InAddress)
-{
-	for(auto& Identity : this->Characters)
-	{
-		for(auto& Wallet : Identity.CryptoWallets)
-		{
-			if(Wallet.Address == InAddress) return true;
-		}
-	}
-	return false;
-}
-
-bool UPeacenetSaveGame::RemoveFromWallet(FString InWallet, int InAmount)
-{
-	for(auto& Identity : this->Characters)
-	{
-		for(auto& Wallet : Identity.CryptoWallets)
-		{
-			if(Wallet.Address == InWallet)
-			{
-				if(Wallet.Amount < InAmount) return false;
-
-				Wallet.Amount -= InAmount;
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
-bool UPeacenetSaveGame::AddToWallet(FString InWallet, int InAmount)
-{
-	for(auto& Identity : this->Characters)
-	{
-		for(auto& Wallet : Identity.CryptoWallets)
-		{
-			if(Wallet.Address == InWallet)
-			{
-				Wallet.Amount += InAmount;
-				return true;
-			}
-		}
-	}
-
-	return false;
 }
 
 bool UPeacenetSaveGame::CharacterNameExists(FString CharacterName)
@@ -212,56 +211,6 @@ void UPeacenetSaveGame::FixEntityIDs()
 		IPsToRemove.RemoveAt(0);
 	}
 
-	TArray<int> RelationshipsToRemove;
-
-	// Now we fix up character relationships.
-	for(int i = 0; i < CharacterRelationships.Num(); i++)
-	{
-		FCharacterRelationship& Relationship = this->CharacterRelationships[i];
-		if(!(CharacterIDMap.Contains(Relationship.FirstEntityID) && CharacterIDMap.Contains(Relationship.SecondEntityID)))
-		{
-			RelationshipsToRemove.Add(i);
-			continue;
-		}
-
-		Relationship.FirstEntityID = CharacterIDMap[Relationship.FirstEntityID];
-		Relationship.SecondEntityID = CharacterIDMap[Relationship.SecondEntityID];
-	}
-
-	while(RelationshipsToRemove.Num())
-	{
-		CharacterRelationships.RemoveAt(RelationshipsToRemove[0]);
-		RelationshipsToRemove.RemoveAt(0);
-		for(int i = 0; i < RelationshipsToRemove.Num(); i++)
-		{
-			RelationshipsToRemove[i]--;
-		}
-	}
-
-	// Fix up adjacent nodes list.
-	TArray<int> AdjacentsToRemove;
-	for(int i = 0; i < AdjacentNodes.Num(); i++)
-	{
-		FAdjacentNode& Adjacent = this->AdjacentNodes[i];
-		if(CharacterIDMap.Contains(Adjacent.NodeA) && CharacterIDMap.Contains(Adjacent.NodeB))
-		{
-			Adjacent.NodeA = CharacterIDMap[Adjacent.NodeA];
-			Adjacent.NodeB = CharacterIDMap[Adjacent.NodeB];
-		}
-		else
-		{
-			AdjacentsToRemove.Add(i);
-		}
-	}
-
-	int AdjacentsRemoved = 0;
-	while(AdjacentsToRemove.Num())
-	{
-		AdjacentNodes.RemoveAt(AdjacentsToRemove[0] - AdjacentsRemoved);
-		AdjacentsToRemove.RemoveAt(0);
-		AdjacentsRemoved++;
-	}
-
 	// A bug has been found where the game doesn't check
 	// to see if a computer has an IP address before generating
 	// a new one.  This cleanup will fix save files created
@@ -373,31 +322,6 @@ void UPeacenetSaveGame::SetValue(FString InKey, bool InValue)
 		this->Booleans.Add(InKey, InValue);
 }
 
-TArray<int> UPeacenetSaveGame::GetAdjacents(int Node, EAdjacentLinkType LinkType)
-{
-	TArray<int> Ret;
-	for(auto& Adjacent : this->AdjacentNodes)
-	{
-		if(Adjacent.NodeA == Node && (LinkType == EAdjacentLinkType::Bidirectional || LinkType == EAdjacentLinkType::AToB))
-			Ret.Add(Adjacent.NodeB);
-		else if(Adjacent.NodeB == Node && (LinkType == EAdjacentLinkType::Bidirectional || LinkType == EAdjacentLinkType::BToA))
-			Ret.Add(Adjacent.NodeA);
-	}
-	return Ret;
-}
-
-bool UPeacenetSaveGame::RelatesWith(int InFirstEntity, int InSecondEntity)
-{
-	for(auto& Relationship : this->CharacterRelationships)
-	{
-		if(Relationship.FirstEntityID == InFirstEntity && Relationship.SecondEntityID == InSecondEntity)
-			return true;
-		if(Relationship.SecondEntityID == InFirstEntity && Relationship.FirstEntityID == InSecondEntity)
-			return true;	
-	}
-	return false;
-}
-
 bool UPeacenetSaveGame::GetCharacterByID(int InEntityID, FPeacenetIdentity & OutCharacter, int& OutIndex)
 {
 	int min = 0;
@@ -462,39 +386,6 @@ bool UPeacenetSaveGame::GetComputerByID(int InEntityID, FComputer& OutComputer, 
 	return false;
 }
 
-void UPeacenetSaveGame::AddAdjacent(int NodeA, int NodeB)
-{
-	check(!this->AreAdjacent(NodeA, NodeB));
-
-	int CharAIndex, CharBIndex;
-	FPeacenetIdentity CharA, CharB;
-	bool ResultA = GetCharacterByID(NodeA, CharA, CharAIndex);
-	bool ResultB = GetCharacterByID(NodeB, CharB, CharBIndex);
-	
-	check(ResultA && ResultB);
-
-	FAdjacentNode Adjacent;
-	Adjacent.NodeA = NodeA;
-	Adjacent.NodeB = NodeB;
-	AdjacentNodes.Add(Adjacent);
-}
-
-void UPeacenetSaveGame::RemoveAdjacent(int NodeA, int NodeB)
-{
-	check(this->AreAdjacent(NodeA, NodeB));
-
-	for(int i = 0; i < this->AdjacentNodes.Num(); i++)
-	{
-		FAdjacentNode& Adjacent = AdjacentNodes[i];
-
-		if((Adjacent.NodeA == NodeA && Adjacent.NodeB == NodeB) || (Adjacent.NodeA == NodeB && Adjacent.NodeB == NodeA))
-		{
-			AdjacentNodes.RemoveAt(i);
-			return;
-		}
-	}
-}
-
 TArray<int> UPeacenetSaveGame::GetAllEntities()
 {
 	TArray<int> Ret;
@@ -503,52 +394,6 @@ TArray<int> UPeacenetSaveGame::GetAllEntities()
 		Ret.Add(Identity.ID);
 	}
 	return Ret;
-}
-
-bool UPeacenetSaveGame::AreAdjacent(int NodeA, int NodeB)
-{
-	for(int i = 0; i < AdjacentNodes.Num(); i++)
-	{
-		FAdjacentNode& Adjacent = AdjacentNodes[i];
-		if((Adjacent.NodeA == NodeA && Adjacent.NodeB == NodeB) || (Adjacent.NodeA == NodeB && Adjacent.NodeB == NodeA))
-			return true;
-	}
-	return false;
-}
-
-void UPeacenetSaveGame::SetEntityPosition(int EntityID, FVector2D Position)
-{
-	for(auto& EntityPosition : EntityPositions)
-	{
-		if(EntityPosition.EntityID == EntityID)
-		{
-			EntityPosition.Position = Position;
-			return;
-		}
-	}
-
-	FPeacenetIdentity Identity;
-	int IdentityIndex;
-	bool result = this->GetCharacterByID(EntityID, Identity, IdentityIndex);
-	check(result);
-
-	FEntityPosition NewPos;
-	NewPos.EntityID = EntityID;
-	NewPos.Position = Position;
-	EntityPositions.Add(NewPos);
-}
-
-bool UPeacenetSaveGame::GetPosition(int EntityID, FVector2D& OutPosition)
-{
-	for(auto& EntityPos : EntityPositions)
-	{
-		if(EntityPos.EntityID == EntityID)
-		{
-			OutPosition = EntityPos.Position;
-			return true;
-		}
-	}
-	return false;
 }
 
 bool UPeacenetSaveGame::GetStoryCharacterID(UStoryCharacter* InStoryCharacter, int& OutIdentity)
@@ -624,15 +469,4 @@ TArray<FEmail> UPeacenetSaveGame::GetEmailsForIdentity(FPeacenetIdentity& InIden
 	}
 
 	return Ret;
-}
-
-bool UPeacenetSaveGame::LocationTooCloseToEntity(FVector2D InLocation, float InMinimumDistance)
-{
-	for(auto& Position : EntityPositions)
-	{
-		float dist = FMath::Abs(FVector2D::Distance(InLocation, Position.Position));
-		if(dist <= InMinimumDistance)
-			return true;
-	}
-	return false;
 }

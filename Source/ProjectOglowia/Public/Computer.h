@@ -124,12 +124,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
 	int ID;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Exploits")
-	TArray<UExploit*> Exploits;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Exploits")
-	TArray<UPayloadAsset*> Payloads;
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
 	TMap<FString, FString> EnvironmentVariables;
 
@@ -153,12 +147,6 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
 	FName WallpaperID;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
-	TArray<FName> InstalledPrograms;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
-	TArray<FName> InstalledCommands;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Hacking")
 	TArray<FServiceInfo> ActiveServices;

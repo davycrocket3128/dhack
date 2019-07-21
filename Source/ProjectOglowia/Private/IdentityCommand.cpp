@@ -61,20 +61,6 @@ const FText AIdentityCommand::MakeAliasFrom(FString InName)
     return FText::FromString(Ret);
 }
 
-int AIdentityCommand::GetNextIdentityID()
-{
-    int id = 0;
-    FPeacenetIdentity i;
-    int index = 0;
-
-    while(this->GetUserContext()->GetPeacenet()->SaveGame->GetCharacterByID(id, i, index))
-    {
-        id++;
-    }
-
-    return id;
-}
-
 void AIdentityCommand::Tick(float DeltaSeconds)
 {
     if(!this->HasName)
@@ -176,17 +162,15 @@ void AIdentityCommand::Tick(float DeltaSeconds)
             answer = answer.ToLower().TrimStartAndEnd();
             if(answer == "y")
             {
-                FPeacenetIdentity identity;
+                FPeacenetIdentity& identity = this->GetUserContext()->GetPeacenet()->GetNewIdentity();
                 identity.CharacterName = this->IdentityName;
-                identity.CharacterType = (this->GetUserContext()->GetOwningSystem()->GetComputer().ID == this->GetUserContext()->GetPeacenet()->SaveGame->PlayerComputerID) ? EIdentityType::Player : EIdentityType::NonPlayer;
+                identity.CharacterType = (this->GetUserContext()->GetComputer().ID == this->GetUserContext()->GetPeacenet()->GetPlayerComputer().ID) ? EIdentityType::Player : EIdentityType::NonPlayer;
                 identity.Skill = 0;
                 identity.Reputation = 0.f;
                 identity.PreferredAlias = this->AliasName;
-                identity.ComputerID = this->GetUserContext()->GetOwningSystem()->GetComputer().ID;
-                identity.ID = this->GetNextIdentityID();
+                identity.ComputerID = this->GetUserContext()->GetComputer().ID;
                 identity.EmailAddress = identity.PreferredAlias + "@" + this->GetUserContext()->GetPeacenet()->GetProcgen()->ChooseEmailDomain();
-                this->GetUserContext()->GetPeacenet()->SaveGame->Characters.Add(identity);
-                this->GetUserContext()->GetOwningSystem()->GetComputer().SystemIdentity = identity.ID;
+                this->GetUserContext()->GetComputer().SystemIdentity = identity.ID;
 
                 this->AliasConfirmed = true;
                 this->Complete();
@@ -239,7 +223,7 @@ void AIdentityCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FStri
             InConsole->WriteLine(FText::Format(NSLOCTEXT("IdentityCommand", "CurrentEmail", "Email: {0}"), FText::FromString(this->GetUserContext()->GetEmailAddress())));
 
             InConsole->WriteLine(FText::GetEmpty());
-            InConsole->WriteLine(FText::Format(NSLOCTEXT("IdentityCommand", "SkillCounter", "You have {0} Skill points."), FText::AsNumber(this->GetUserContext()->GetOwningSystem()->GetCharacter().Skill)));
+            InConsole->WriteLine(FText::Format(NSLOCTEXT("IdentityCommand", "SkillCounter", "You have {0} Skill points."), FText::AsNumber(this->GetUserContext()->GetPeacenetIdentity().Skill)));
             InConsole->WriteLine(FText::GetEmpty());
             
             this->Complete();

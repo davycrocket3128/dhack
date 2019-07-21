@@ -38,8 +38,8 @@
 #include "UserInfo.h"
 #include "PeacenetIdentity.h"
 #include "MailProvider.h"
-#include "AdjacentNodeInfo.h"
 #include "PeacegateProcess.h"
+#include "ConnectionError.h"
 #include "SystemContext.generated.h"
 
 class UHackable;
@@ -48,7 +48,6 @@ class UPayloadAsset;
 class USystemUpgrade;
 class UProgram;
 class UExploit;
-class URainbowTable;
 class APeacenetWorldStateActor;
 class UPeacegateProgramAsset;
 
@@ -82,9 +81,6 @@ protected:
 
 	UPROPERTY()
 	TArray<FPeacegateProcess> Processes;
-
-	UPROPERTY()
-	URainbowTable* RainbowTable;
 
 	UPROPERTY()
 	APeacenetWorldStateActor * Peacenet;
@@ -196,8 +192,8 @@ public: // Property getters
 	UFUNCTION()
 	FComputer& GetComputer();
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Context")
-	URainbowTable* GetRainbowTable();
+	UFUNCTION()
+	bool DnsResolve(FString InHost, FComputer& OutComputer, EConnectionError& OutConnectionError);
 
 	UFUNCTION(BlueprintCallable, Category = "System Context")
 	FString GetHostname();
@@ -224,9 +220,6 @@ public:
 
 	UFUNCTION()
 	void SetupDesktop(int InUserID);
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Adjacent nodes")
-	TArray<FAdjacentNodeInfo> ScanForAdjacentNodes();
 
 	UFUNCTION()
 	TArray<UCommandInfo*> GetInstalledCommands();

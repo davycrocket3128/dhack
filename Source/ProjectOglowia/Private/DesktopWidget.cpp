@@ -35,7 +35,6 @@
 #include "SystemContext.h"
 #include "Computer.h"
 #include "UserContext.h"
-#include "PTerminalWidget.h"
 #include "GameTypeAsset.h"
 #include "PeacenetIdentity.h"
 #include "CommonUtils.h"
@@ -53,7 +52,7 @@ void UDesktopWidget::StartMissionIfAvailable(UMissionAsset* InMission)
 
 	if(!InMission) return;
 
-	if(this->GetPeacenet()->SaveGame->CompletedMissions.Contains(InMission))
+	if(this->GetPeacenet()->IsMissionCompleted(InMission))
 		return;
 
 	this->GetPeacenet()->StartMission(InMission);
@@ -210,12 +209,6 @@ void UDesktopWidget::AbandonMission()
 	{
 		this->GetPeacenet()->GetMissionActor()->FailCurrentTask(NSLOCTEXT("Mission", "Abandoned", "The mission was abandoned."));
 	}
-}
-
-UConsoleContext * UDesktopWidget::CreateConsole(UPTerminalWidget* InTerminal)
-{
-	// DEPRECATED IN FAVOUR OF UUserContext::CreateConsole().
-	return this->SystemContext->GetUserContext(this->UserID)->CreateConsole(InTerminal);
 }
 
 void UDesktopWidget::SetWallpaper(UTexture2D* InTexture)

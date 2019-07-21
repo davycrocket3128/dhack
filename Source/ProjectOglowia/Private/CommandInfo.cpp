@@ -30,6 +30,16 @@
  ********************************************************************************/
 
 #include "CommandInfo.h"
+#include "SystemContext.h"
+#include "SystemUpgrade.h"
+
+bool UCommandInfo::IsUnlocked(USystemContext* InSystemContext)
+{
+	if(!this->RequiredUpgrade)
+		return true;
+
+	return InSystemContext && InSystemContext->IsUpgradeInstalled(this->RequiredUpgrade);
+}
 
 void UCommandInfo::BuildManualPage(UManualPageBuilder* InBuilder)
 {

@@ -46,7 +46,7 @@ void UUploadFileHackTask::NativeGameEvent(FString Event, TMap<FString, FString> 
         FString SourceIdentity = Arguments["SourceIdentity"];
         FString DestinationIdentity = Arguments["DestinationIdentity"];
 
-        FString OurSource = FString::FromInt(this->GetPlayerUser()->GetOwningSystem()->GetCharacter().ID);
+        FString OurSource = FString::FromInt(this->GetPlayerUser()->GetPeacenetIdentity().ID);
         FString OurDestination = FString::FromInt(this->GetHackedSystem()->GetCharacter().ID);
 
         // If they match then we can start grabbing filesystem contexts and reading the destination file to make sure it is the file
@@ -54,7 +54,7 @@ void UUploadFileHackTask::NativeGameEvent(FString Event, TMap<FString, FString> 
         if(SourceIdentity == OurSource && DestinationIdentity == OurDestination)
         {
             // Use our file record checker to check if the file matches what we want.
-            if(this->FileRecordChecker->FileRecordMatches(this->GetHackedSystem(), Arguments["DestinationPath"]))
+            if(this->FileRecordChecker->FileRecordMatches(this->GetHackedSystem()->GetUserContext(0), Arguments["DestinationPath"]))
             {
                 // Complete the objective!
                 this->Finish();

@@ -35,15 +35,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
 #include "PeacenetIdentity.h"
-#include "CharacterRelationship.h"
 #include "DesktopWidget.h"
-#include "AdjacentNode.h"
 #include "Computer.h"
 #include "Window.h"
 #include "StoryCharacterIDMap.h"
 #include "Email.h"
-#include "AdjacentLinkType.h"
-#include "EntityPosition.h"
 #include "PeacenetSaveGame.generated.h"
 
 class UDesktopWidget;
@@ -91,14 +87,8 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Peacegate")
 	FString GameTypeName;
 
-	UPROPERTY(VisibleAnywhere, Category = "Peacenet")
-	TArray<FCharacterRelationship> CharacterRelationships;
-
 	UPROPERTY(VisibleAnywhere, Category = "Entities")
 	TArray<FComputer> Computers;
-
-	UPROPERTY(VisibleAnywhere, Category = "Entities")
-	TArray<FEntityPosition> EntityPositions;
 
 	UPROPERTY(VisibleAnywhere, Category = "Entities")
 	TArray<FPeacenetIdentity> Characters;
@@ -122,13 +112,7 @@ public:
 	TArray<FEmail> EmailMessages;
 
 	UPROPERTY(VisibleAnywhere, Category = "Master Password Table")
-	TArray<FAdjacentNode> AdjacentNodes;
-
-	UPROPERTY(VisibleAnywhere, Category = "Master Password Table")
 	int WorldSeed = -1;
-
-	UPROPERTY(VisibleAnywhere, Category = "Adjacent nodes")
-	TArray<int> PlayerDiscoveredNodes;
 
 	const float SECONDS_DAY_LENGTH = 86400.f;
 
@@ -136,16 +120,10 @@ public:
 	bool GetStoryCharacterID(UStoryCharacter* InStoryCharacter, int& OutIdentity);
 
 	UFUNCTION()
+	void ClearNonPlayerEntities();
+
+	UFUNCTION()
 	void AssignStoryCharacterID(UStoryCharacter* InStoryCharacter, int InIdentity);
-
-	UFUNCTION()
-	bool CryptoWalletExists(FString InAddress);
-
-	UFUNCTION()
-	bool RemoveFromWallet(FString InWallet, int InAmount);
-
-	UFUNCTION()
-	bool AddToWallet(FString InWallet, int InAmount);
 
 	UFUNCTION()
 	bool IsTrue(FString InKey);
@@ -163,22 +141,7 @@ public:
 	void FixEntityIDs();
 
 	UFUNCTION()
-	TArray<int> GetAdjacents(int Node, EAdjacentLinkType LinkType = EAdjacentLinkType::Bidirectional);
-
-	UFUNCTION()
 	TArray<int> GetAllEntities();
-
-	UFUNCTION()
-	void AddAdjacent(int NodeA, int NodeB);
-
-	UFUNCTION()
-	void RemoveAdjacent(int NodeA, int NodeB);
-
-	UFUNCTION()
-	bool AreAdjacent(int NodeA, int NodeB);
-
-	UFUNCTION()
-	bool RelatesWith(int InFirstEntity, int InSecondEntity);
 
 	UFUNCTION()
 	int GetGameStat(FName InStatName);
@@ -202,14 +165,5 @@ public:
 	bool GetComputerByID(int InEntityID, FComputer& OutComputer, int& OutIndex);
 
 	UFUNCTION()
-	void SetEntityPosition(int EntityID, FVector2D Position);
-
-	UFUNCTION()
-	bool GetPosition(int EntityID, FVector2D& OutPosition);
-
-	UFUNCTION()
 	int GetSkillOf(FComputer& InComputer);
-
-	UFUNCTION()
-	bool LocationTooCloseToEntity(FVector2D InLocation, float InMinimumDistance);
 };

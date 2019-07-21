@@ -49,7 +49,6 @@ class APeacenetWorldStateActor;
 class UUserContext;
 class USystemUpgrade;
 class UTutorialPromptState;
-class UPTerminalWidget;
 class UMissionAsset;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FActiveProgramCloseEvent);
@@ -190,10 +189,6 @@ protected:
 
 private:
 	bool bIsWaitingForNotification = false;
-
-protected:
-	UFUNCTION(BlueprintCallable, Category = "Console")
-	UConsoleContext* CreateConsole(UPTerminalWidget* InTerminal);
 
 public:
 	UPROPERTY()

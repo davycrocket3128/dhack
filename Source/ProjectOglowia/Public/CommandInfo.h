@@ -38,6 +38,9 @@
 #include "ManualPageAssetBase.h"
 #include "CommandInfo.generated.h"
 
+class USystemUpgrade;
+class USystemContext;
+
 UCLASS(Blueprintable)
 class PROJECTOGLOWIA_API UCommandInfo : public UManualPageAssetBase
 {
@@ -52,12 +55,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Command")
 	TSubclassOf<ATerminalCommand> CommandClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Metadata")
-	bool UnlockedByDefault = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Unlockable")
+	USystemUpgrade* RequiredUpgrade;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Help")
 	bool ShowInHelp = true;
 
 protected:
 	virtual void BuildManualPage(UManualPageBuilder* InBuilder) override;
+
+public:
+	UFUNCTION()
+	bool IsUnlocked(USystemContext* InSystemContext);
 };

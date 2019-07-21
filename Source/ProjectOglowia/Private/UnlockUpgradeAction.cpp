@@ -37,7 +37,7 @@ void UUnlockUpgradeAction::NativeStart()
 {
     if(this->Upgrade)
     {
-        this->Upgrade->TriggerUnlock(this->GetPlayerUser()->GetOwningSystem());
+        this->Upgrade->TriggerUnlock(this->GetPlayerUser());
     }
     this->Complete();
 }

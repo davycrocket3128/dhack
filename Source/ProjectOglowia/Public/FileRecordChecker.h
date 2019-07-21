@@ -33,7 +33,7 @@
 
 #include "CoreMinimal.h"
 #include "PeacegateFileSystem.h"
-#include "SystemContext.h"
+#include "UserContext.h"
 #include "FileRecordChecker.generated.h"
 
 UCLASS(Abstract, EditInlineNew, BlueprintType)
@@ -42,9 +42,9 @@ class PROJECTOGLOWIA_API UFileRecordChecker : public UObject
     GENERATED_BODY()
 
 protected:
-    virtual bool GetDoesFileMatch(USystemContext* InSystemContext, UPeacegateFileSystem* InFileSystem, FFileRecord& InFileRecord, FString Path) { return false; }
+    virtual bool GetDoesFileMatch(UUserContext* InUserContext, UPeacegateFileSystem* InFileSystem, FFileRecord& InFileRecord, FString Path) { return false; }
 
 public:
     UFUNCTION()
-    bool FileRecordMatches(USystemContext* InSystemContext, FString InFilePath);
+    bool FileRecordMatches(UUserContext* InUserContext, FString InFilePath);
 };

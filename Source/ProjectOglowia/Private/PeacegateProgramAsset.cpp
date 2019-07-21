@@ -30,6 +30,16 @@
  ********************************************************************************/
 
 #include "PeacegateProgramAsset.h"
+#include "SystemUpgrade.h"
+#include "SystemContext.h"
+
+bool UPeacegateProgramAsset::IsUnlocked(USystemContext* InSystemContext)
+{
+    if(!this->RequiredUpgrade)
+        return true;
+
+    return InSystemContext && InSystemContext->IsUpgradeInstalled(this->RequiredUpgrade);
+}
 
 void UPeacegateProgramAsset::BuildManualPage(UManualPageBuilder* InBuilder)
 {

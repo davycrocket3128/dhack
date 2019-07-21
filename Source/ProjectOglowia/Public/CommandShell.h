@@ -35,6 +35,7 @@
 #include "TerminalCommand.h"
 #include "CommandRunInstruction.h"
 #include "TerminalCommandParserLibrary.h"
+#include "PtyFifoBuffer.h"
 #include "CommandShell.generated.h"
 
 UCLASS(BlueprintType, Abstract)
@@ -61,8 +62,21 @@ private:
     UPROPERTY()
     ATerminalCommand* CurrentCommand = nullptr;
 
+    UPROPERTY()
+    UPtyFifoBuffer* FileBuffer = nullptr;
+
+    UPROPERTY()
+    FString FilePath = "";
+
+    UPROPERTY()
+    bool FileOverwrite = false;
+
 public:
     ACommandShell();
+
+private:
+    UFUNCTION()
+    void WriteToOutputFile(FString FileText);
 
 protected:
     virtual void Tick(float InDeltaTime) override;

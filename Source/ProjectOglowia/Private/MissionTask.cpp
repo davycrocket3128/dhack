@@ -50,7 +50,7 @@ void UMissionTask::MissionEnded()
 
 void UMissionTask::SetObjectiveText(const FText& InObjectiveText)
 {
-    this->GetPlayerUser()->GetOwningSystem()->GetDesktop()->SetObjectiveText(InObjectiveText);
+    this->GetPlayerUser()->GetDesktop()->SetObjectiveText(InObjectiveText);
 }
 
 AMissionActor* UMissionTask::GetMissionActor()

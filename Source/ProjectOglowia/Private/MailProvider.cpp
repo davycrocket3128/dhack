@@ -91,7 +91,7 @@ int UMailProvider::GetMissionsCount()
         {
             if(!missions.Contains(message.Mission))
             {
-                if(!this->OwningSystem->GetPeacenet()->SaveGame->CompletedMissions.Contains(message.Mission))
+                if(!this->OwningSystem->GetPeacenet()->IsMissionCompleted(message.Mission))
                 {
                     missions.Add(message.Mission);
                     count++;
@@ -109,7 +109,7 @@ void UMailProvider::SendMailInternal(TArray<int> InRecipients, FString InSubject
     int MyEntityID = this->OwningSystem->GetCharacter().ID;
 
     // Create the new message and set the from value.
-    FEmail NewMail;
+    FEmail NewMail = this->GetPeacenet()->GetNewEmailMessage();
     NewMail.FromEntity = MyEntityID;
     
     // Set the subject and message text values.
@@ -119,42 +119,29 @@ void UMailProvider::SendMailInternal(TArray<int> InRecipients, FString InSubject
     // Check all entities in recipient list to make sure they exist in the save file.
     for(auto EntityID : InRecipients)
     {
-        FPeacenetIdentity Identity;
-        int Index;
-        bool result = this->GetSaveGame()->GetCharacterByID(EntityID, Identity, Index);
-        check(result);
+        check(this->GetPeacenet()->IdentityExists(EntityID));
     }
 
     // Set the recipient list.
     NewMail.ToEntities = InRecipients;
 
     // If "in reply to" is not -1, check to make sure it is a valid message ID.
-    // This will also get us a new message ID.
-    int NewID = 0;
-
     if(InReplyTo != -1)
     {
         bool FoundMail = false;
 
-        for(auto ExistingMessage : this->GetSaveGame()->EmailMessages)
+        for(auto ExistingMessage : this->GetPeacenet()->GetEmailMessages())
         {
             if(ExistingMessage.ID == InReplyTo)
             {
+                NewMail.InReplyTo = InReplyTo;
                 FoundMail = true;
+                break;
             }
-
-            if(NewID <= ExistingMessage.ID)
-                NewID = ExistingMessage.ID + 1;
         }
 
         check(FoundMail);
     }
-
-    // Assign the new message ID.
-    NewMail.ID = NewID;
-
-    // Add it to the save file.
-    this->GetSaveGame()->EmailMessages.Add(NewMail);
 
     // Notify all recipients that they've received an email.
     for(auto Recipient : InRecipients)
@@ -198,14 +185,15 @@ void UMailProvider::Setup(USystemContext* InOwningSystem)
     this->OwningSystem = InOwningSystem;
 }
 
-UPeacenetSaveGame* UMailProvider::GetSaveGame()
-{
-    return this->OwningSystem->GetPeacenet()->SaveGame;
-}
-
 TArray<FEmail> UMailProvider::GetMailMessages()
 {
-    return this->GetSaveGame()->GetEmailsForIdentity(this->OwningSystem->GetCharacter());
+    TArray<FEmail> MyEmails;
+    for(auto Email : this->GetPeacenet()->GetEmailMessages())
+    {
+        if(Email.FromEntity == this->OwningSystem->GetCharacter().ID || Email.ToEntities.Contains(this->OwningSystem->GetCharacter().ID))
+            MyEmails.Add(Email);
+    }
+    return MyEmails;
 }
 
 TArray<FEmail> UMailProvider::GetInbox()

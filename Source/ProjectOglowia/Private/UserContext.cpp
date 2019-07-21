@@ -32,9 +32,7 @@
 
 #include "UserContext.h"
 #include "PeacenetWorldStateActor.h"
-#include "RainbowTable.h"
 #include "DesktopWidget.h"
-#include "PTerminalWidget.h"
 #include "Exploit.h"
 #include "ConsoleContext.h"
 #include "CommonUtils.h"
@@ -163,9 +161,64 @@ UPeacegateFileSystem* UUserContext::GetFilesystem()
     return this->OwningSystem->GetFilesystem(this->UserID);
 }
 
-URainbowTable* UUserContext::GetRainbowTable()
+FPeacegateProcess UUserContext::GetProcessByID(int ProcessID)
 {
-    return this->OwningSystem->GetRainbowTable();
+	for(auto Process : this->GetOwningSystem()->GetRunningProcesses())
+	{
+		if(Process.PID == ProcessID)
+			return Process;
+	}
+
+	return FPeacegateProcess();
+}
+
+bool UUserContext::DnsResolve(FString InHost, FComputer& OutComputer, EConnectionError& OutError)
+{
+	return this->GetOwningSystem()->DnsResolve(InHost, OutComputer, OutError);
+}
+
+void UUserContext::FinishProcess(FPeacegateProcess InProcess)
+{
+	// Can only kill processes if we're root or we own them.
+	if(this->IsAdministrator() || InProcess.UID == this->UserID)
+	{
+		this->GetOwningSystem()->FinishProcess(InProcess.PID);
+	}
+}
+
+void UUserContext::OnProcessEnded(TScriptDelegate<> InDelegate)
+{
+	this->GetOwningSystem()->ProcessEnded.Add(InDelegate);
+}
+
+TArray<UPeacegateProgramAsset*> UUserContext::GetInstalledPrograms()
+{
+	return this->GetOwningSystem()->GetInstalledPrograms();
+}
+
+TArray<UCommandInfo*> UUserContext::GetInstalledCommands()
+{
+	return this->GetOwningSystem()->GetInstalledCommands();
+}
+
+FString UUserContext::GetIPAddress()
+{
+	return this->GetOwningSystem()->GetIPAddress();
+}
+
+FComputer& UUserContext::GetComputer()
+{
+	return this->GetOwningSystem()->GetComputer();
+}
+
+FPeacenetIdentity& UUserContext::GetPeacenetIdentity()
+{
+	return this->GetOwningSystem()->GetCharacter();
+}
+
+bool UUserContext::TryGetTerminalCommand(FName CommandName, ATerminalCommand*& Command, FString& InternalUsage, FString& FriendlyUsage)
+{
+	return this->GetOwningSystem()->TryGetTerminalCommand(CommandName, Command, InternalUsage, FriendlyUsage);
 }
 
 APeacenetWorldStateActor* UUserContext::GetPeacenet()
@@ -220,29 +273,6 @@ void UUserContext::ShowProgramOnWorkspace(UProgram* InProgram)
 
     // Show it on our workspace.
     this->GetDesktop()->ShowProgramOnWorkspace(InProgram);
-}
-
-UConsoleContext* UUserContext::CreateConsole(UPTerminalWidget* InTerminalWidget)
-{
-    // CHeck the terminal widget, our system context, etc
-    check(this->GetOwningSystem());
-    check(InTerminalWidget);
-
-	UConsoleContext* SubConsole = NewObject<UConsoleContext>(this);
-
-	// Assign it to the terminal widget.
-	SubConsole->SetTerminal(InTerminalWidget);
-
-    // TODO: Give the console context ourselves as a user context,
-    // NOT OUR UNDERLYING SYSTEM AND UID.
-
-	// User ID matches our window.
-	SubConsole->Setup(this);
-
-	SubConsole->SetWorkingDirectory(SubConsole->GetUserContext()->GetHomeDirectory());
-	
-	return SubConsole;
-
 }
 
 FString UUserContext::GetUserTypeDisplay()
@@ -369,12 +399,6 @@ UTexture2D* UUserContext::GetCurrentWallpaper()
 void UUserContext::DisableWallpaper()
 {
 	this->GetOwningSystem()->DisableWallpaper();
-}
-
-TArray<FAdjacentNodeInfo> UUserContext::ScanForAdjacentNodes()
-{
-	check(this->GetOwningSystem());
-	return this->GetOwningSystem()->ScanForAdjacentNodes();
 }
 
 void UUserContext::SetCurrentWallpaper(UWallpaperAsset* InWallpaperAsset)

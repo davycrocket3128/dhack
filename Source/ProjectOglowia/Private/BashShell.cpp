@@ -78,7 +78,7 @@ ATerminalCommand* ABashShell::GetCommand(FString Command)
 			}
 		}
 	}
-	else if (this->GetUserContext()->GetOwningSystem()->TryGetTerminalCommand(FName(*Command), CommandObject, InternalUsage, FriendlyUsage))
+	else if (this->GetUserContext()->TryGetTerminalCommand(FName(*Command), CommandObject, InternalUsage, FriendlyUsage))
 	{
 		return CommandObject;
 	}

@@ -52,47 +52,21 @@ void UProgram::HandleProcessEnded(const FPeacegateProcess& InProcess)
 
 bool UProgram::LoadPeacenetSite(FString InURL, UPeacenetSiteWidget*& OutWidget, EConnectionError& OutConnectionError)
 {
-	FString IPAddress;
-
-	if(this->GetUserContext()->GetPeacenet()->SaveGame->DomainNameMap.Contains(InURL))
-	{
-		IPAddress = this->GetUserContext()->GetPeacenet()->SaveGame->DomainNameMap[InURL];
-	}
-	else if(this->GetUserContext()->GetPeacenet()->SaveGame->ComputerIPMap.Contains(InURL))
-	{
-		IPAddress = InURL;
-	}
-	else
-	{
-		OutConnectionError = EConnectionError::ConnectionTimedOut;
-		return false;
-	}
-
-	int ComputerEntity = this->GetUserContext()->GetPeacenet()->SaveGame->ComputerIPMap[IPAddress];
-
+	// The computer that holds the Peacenet Site we want.
 	FComputer Computer;
-	int ComputerIndex;
-	bool result=  this->GetUserContext()->GetPeacenet()->SaveGame->GetComputerByID(ComputerEntity, Computer, ComputerIndex);
-	check(result);
-
-	if(Computer.ComputerType != EComputerType::PeacenetSite)
+	
+	// Try and resolve the host to a computer.
+	bool result = this->GetUserContext()->DnsResolve(InURL, Computer, OutConnectionError);
+	if(!result) return false;
+	
+	// If the computer doesn't have a Peacenet Site assigned to it we'll refuse.
+	if(!Computer.PeacenetSite || !Computer.PeacenetSite->PeacenetSite)
 	{
 		OutConnectionError = EConnectionError::ConnectionRefused;
 		return false;
 	}
 
-	if(!Computer.PeacenetSite)
-	{
-		OutConnectionError = EConnectionError::ConnectionRefused;
-		return false;
-	}
-
-	if(!Computer.PeacenetSite->PeacenetSite)
-	{
-		OutConnectionError = EConnectionError::ConnectionRefused;
-		return false;
-	}
-
+	// Construct the widget associated with the Peacenet site.
 	OutWidget = CreateWidget<UPeacenetSiteWidget, APlayerController>(this->GetOwningPlayer(), Computer.PeacenetSite->PeacenetSite);
 	OutWidget->Setup(Computer.PeacenetSite, this);
 	OutConnectionError = EConnectionError::None;
@@ -155,7 +129,7 @@ UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSu
 	// Let the program handle itself being killed...
 	TScriptDelegate<> ProcessEndedDelegate;
 	ProcessEndedDelegate.BindUFunction(ProgramInstance, "HandleProcessEnded");
-	InUserContext->GetOwningSystem()->ProcessEnded.Add(ProcessEndedDelegate);
+	InUserContext->OnProcessEnded(ProcessEndedDelegate);
 
 	// Return the window and program.
 	OutWindow = Window;
@@ -171,7 +145,7 @@ void UProgram::OwningWindowClosed()
 		this->IsClosing = true;
 
 	    // Finish up our process.
-    	this->GetUserContext()->GetOwningSystem()->FinishProcess(this->ProcessID);
+    	this->GetUserContext()->FinishProcess(this->GetUserContext()->GetProcessByID(this->ProcessID));
 	}
 }
 
