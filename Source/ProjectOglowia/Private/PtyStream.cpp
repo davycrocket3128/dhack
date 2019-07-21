@@ -145,7 +145,7 @@ void UPtyStream::WriteInput(TCHAR c)
             this->WriteOutput(c);
         }
 
-        if (c == '\n')
+        if (c == this->Options.C_cc[VEOL] || c == this->Options.C_cc[VEOL2])
         {
             this->FlushLineBuffer();
         }
