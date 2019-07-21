@@ -370,6 +370,7 @@ private:
     void ScrollDown(int origin, int n);
     void UpdateTerminalMode();
     void Resize(int col, int row);
+    void PutTab(int n);
 
 protected:
     UFUNCTION()

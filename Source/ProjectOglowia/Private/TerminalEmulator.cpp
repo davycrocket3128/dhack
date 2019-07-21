@@ -79,6 +79,22 @@ void UTerminalEmulator::NativePreConstruct()
 
 #define MIN(a, b)		((a) < (b) ? (a) : (b))
 
+void UTerminalEmulator::PutTab(int n)
+{
+    int x = this->term.c.x;
+    if (n > 0) {
+		while (x < term.col && n--)
+			for (++x; x < term.col; ++x)
+				/* nothing */ ;
+	} else if (n < 0) {
+		while (x > 0 && n++)
+			for (--x; x > 0; --x)
+				/* nothing */ ;
+	}
+	term.c.x = LIMIT(x, 0, term.col-1);
+
+}
+
 void UTerminalEmulator::Resize(int col, int row)
 {
     	int i;
@@ -439,7 +455,7 @@ void UTerminalEmulator::HandleControlCode(TCHAR c)
     switch(c)
     {
         case '\t':
-            // TODO: tabs.
+            this->PutTab(1);
             break;
         case '\b': // backspace
             this->MoveTo(term.c.x-1, term.c.y);
