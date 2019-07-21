@@ -45,18 +45,36 @@ void AManualCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString
         if(ManualPage.ID.ToString() == ManualName)
         {
             // We have a match.
+            InConsole->SetForegroundColor(EConsoleColor::Yellow);
+            InConsole->SetBold(true);
             InConsole->WriteLine(ManualPage.FullName);
             for(int i = 0; i < ManualPage.FullName.ToString().Len(); i++)
             {
                 InConsole->Write(FText::FromString("="));
             }
+            InConsole->SetBold(false);
+            InConsole->ResetForegroundColor();
+
             InConsole->WriteLine(FText::GetEmpty());
-            InConsole->WriteLine(NSLOCTEXT("Manual", "Summary", "&f&*Summary&r&7"));
+
+            InConsole->SetBold(true);
+            InConsole->SetUnderline(true);
+            InConsole->WriteLine(NSLOCTEXT("Manual", "Summary", "Summary"));
+            InConsole->SetBold(false);
+            InConsole->SetUnderline(false);
+
             InConsole->WriteLine(ManualPage.Summary);
+            
             InConsole->WriteLine(FText::GetEmpty());
+            
             for(auto Metadata : ManualPage.ManualMetadata)
             {
-                InConsole->WriteLine(FText::Format(NSLOCTEXT("Manual", "MetadataTitle", "&f&*{0}&r&7"), Metadata.Title));
+                InConsole->SetBold(true);
+                InConsole->SetUnderline(true);
+                InConsole->WriteLine(Metadata.Title);
+                InConsole->SetBold(false);
+                InConsole->SetUnderline(false);
+                
                 InConsole->WriteLine(Metadata.Content);
                 InConsole->WriteLine(FText::GetEmpty());    
             }
@@ -79,19 +97,27 @@ void AManualCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString
         }
     }
 
-    InConsole->WriteLine(FText::Format(NSLOCTEXT("Manual", "NoPagesFound", "No manual page named &3&*{0}&7&r was found."), FText::FromString(ManualName)));
-
+    InConsole->SetBold(true);
+    InConsole->SetItalic(true);
+    InConsole->SetForegroundColor(EConsoleColor::Red);
+    InConsole->WriteLine(FText::Format(NSLOCTEXT("Manual", "NoPagesFound", "No manual page named \"{0}\" was found."), FText::FromString(ManualName)));
+    
     if(!LikelyPages.Num())
     {
+        InConsole->ResetFormatting();
         this->Complete();
         return;
     }
     
     InConsole->WriteLine(NSLOCTEXT("Manual", "Likelies", "However, these manual pages might have what you're looking for:\r\n"));
+    InConsole->ResetFormatting();
+    InConsole->SetBold(true);
+    InConsole->SetForegroundColor(EConsoleColor::Yellow);
     for(auto ManualPage : LikelyPages)
     {
-        InConsole->WriteLine(FText::Format(NSLOCTEXT("Manual", "LikelyPage", " - &3&*{0}&r&7"), FText::FromName(ManualPage.ID)));
+        InConsole->WriteLine(FText::Format(NSLOCTEXT("Manual", "LikelyPage", " - {0}"), FText::FromName(ManualPage.ID)));
     }
     InConsole->WriteLine(FText::GetEmpty());
+    InConsole->ResetFormatting();
     this->Complete();
 }

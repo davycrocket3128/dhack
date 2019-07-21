@@ -135,6 +135,9 @@ public:
 	void SetItalic(bool InValue);
 
 	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
+	void SetUnderline(bool InValue);
+
+	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
 	void ResetFormatting();
 
 	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
@@ -142,6 +145,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
 	void SetColors(EConsoleColor InForeground, EConsoleColor InBackground);
+
+	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
+	void SetForegroundColor(EConsoleColor InColor);
+
+	UFUNCTION(BlueprintCallable, Category = "Console|Formatting")
+	void ResetForegroundColor();
 
 	UFUNCTION()
 	bool GetLine(FString& OutLine);

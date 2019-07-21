@@ -142,6 +142,24 @@ void UConsoleContext::SetReversed(bool InValue)
 	this->SetTerminalMode();
 }
 
+void UConsoleContext::SetForegroundColor(EConsoleColor InColor)
+{
+	this->SetColors(InColor, this->BackgroundColor);
+}
+
+void UConsoleContext::ResetForegroundColor()
+{
+	this->IsForegroundColorSet = false;
+	this->ForegroundColor = EConsoleColor::White;
+	this->SetTerminalMode();
+}
+
+void UConsoleContext::SetUnderline(bool InValue)
+{
+	this->IsUnderline = InValue;
+	this->SetTerminalMode();
+}
+
 void UConsoleContext::SetColors(EConsoleColor InForeground, EConsoleColor InBackground)
 {
 	if(this->BackgroundColor != InBackground)
