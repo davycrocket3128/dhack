@@ -391,3 +391,8 @@ void UConsoleContext::SetTerminalMode()
 	// Finish the escape sequence off with the "m" (terminal mode) mode.
 	this->WriteToPty("m");
 }
+
+FString UConsoleContext::Tab()
+{
+	return "\t";
+}
