@@ -35,6 +35,7 @@
 #include "CoreMinimal.h"
 #include "ManualPageAssetBase.h"
 #include "ManualPageBuilder.h"
+#include "Engine/Texture2D.h"
 #include "SystemUpgrade.generated.h"
 
 class USystemContext;
@@ -53,6 +54,9 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System Upgrade")
     bool CanUserUnlock = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System Upgrade")
+    UTexture2D* PreviewScreenshot;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System Upgrade")
     bool UnlockedByDefault = false;
