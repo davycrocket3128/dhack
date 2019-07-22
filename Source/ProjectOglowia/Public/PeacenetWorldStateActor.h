@@ -341,9 +341,6 @@ public:	// Functions
 	TArray<UComputerService*> GetServicesFor(EComputerType InComputerType);
 
 	UFUNCTION()
-	bool ResolveSystemContext(FString InHost, USystemContext*& OutSystem, EConnectionError& OutError);
-
-	UFUNCTION()
 	void SaveWorld();
 
 	UFUNCTION(BlueprintCallable, Category = "Peacenet")

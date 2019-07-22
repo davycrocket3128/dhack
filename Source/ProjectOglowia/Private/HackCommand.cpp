@@ -216,12 +216,15 @@ void AHackCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
 
     // Try to get a system context for theremote host.
     EConnectionError ConnectionError = EConnectionError::None;
-    if(!InConsole->GetUserContext()->GetPeacenet()->ResolveSystemContext(TargetIP, this->RemoteSystem, ConnectionError))
+    FComputer RemotePC;
+    if(!InConsole->GetUserContext()->DnsResolve(TargetIP, RemotePC, ConnectionError))
     {
         InConsole->WriteLine(FText::Format(NSLOCTEXT("Gigasploit", "ConnectionError", "{0}: could not connect to remote host."), FText::FromString(InArguments[0])));
         this->Complete();
         return;
     }
+
+    this->RemoteSystem = this->GetUserContext()->GetPeacenet()->GetSystemContext(RemotePC.ID);
 
     InConsole->WriteLine(NSLOCTEXT("Gigasploit", "HelpPrompt", "Type &Fhelp&7 for a list of commands."));
     InConsole->WriteLine(NSLOCTEXT("Gigasploit", "ExploitsPrompt", "Type &Fexploits&7 for a list of your known exploits."));

@@ -313,53 +313,6 @@ bool APeacenetWorldStateActor::IdentityHasSystemContext(int InIdentityID)
 	return false;
 }
 
-bool APeacenetWorldStateActor::ResolveSystemContext(FString InHost, USystemContext*& OutSystem, EConnectionError& OutError)
-{
-	// What the fuck are we connecting to and does it even exist?
-	FComputer pc;
-	if(!this->ResolveHost(InHost, pc, OutError))
-		return false;
-
-	// Now that we have a Computer ID, we can search existing contexts for a matching ID.
-	for(auto Context : this->SystemContexts)
-	{
-		if(Context->GetComputer().ID == pc.ID)
-		{
-			OutSystem = Context;
-			return true;
-		}
-	}
-
-	// Okay, this is the hard issue. Creating a new context.
-	// Doing this is literally a pain in my ass.
-	// Like my ass is sore.
-	//
-	// I need a character identity.
-	int Identity = -1;
-	if(pc.OwnerType != EComputerOwnerType::None)
-	{
-		if (!this->GetOwningIdentity(pc, Identity))
-		{
-			OutError = EConnectionError::ConnectionTimedOut;
-			return false;
-		}
-	}
-	// Now that we have a PC and an identity, we can create a system context.
-	USystemContext* NewContext = NewObject<USystemContext>(this);
-
-	// Assign the context to the identity and computer and this Peacenet.
-	NewContext->Setup(pc.ID, Identity, this);
-
-	// Give it to the caller.
-	OutSystem = NewContext;
-
-	// Keep it from being collected.
-	this->SystemContexts.Add(NewContext);
-
-	// Done!
-	return true;
-}
-
 void APeacenetWorldStateActor::FailMission(const FText& InFailMessage)
 {
 	check(this->CurrentMission);
