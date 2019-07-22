@@ -302,8 +302,10 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
 
         TArray<FString> ExploitNames;
     
-        InConsole->WriteLine(NSLOCTEXT("Gigasploit", "AvailableExploits", "&FAvailable exploits"));
-        InConsole->WriteLine(NSLOCTEXT("Gigasploit", "AvailableExploitsUnderline", "--------------------&7\n"));
+        InConsole->SetBold(true);
+        InConsole->WriteLine(NSLOCTEXT("Gigasploit", "AvailableExploits", "Available exploits"));
+        InConsole->WriteLine(NSLOCTEXT("Gigasploit", "AvailableExploitsUnderline", "--------------------\n"));
+        InConsole->SetBold(false);
 
         bool FoundExploit = false;
 
@@ -313,12 +315,19 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
             if(SearchQuery.Len() == 0 || ExploitName.Contains(SearchQuery, ESearchCase::IgnoreCase))
             {
                 FoundExploit = true;
+                InConsole->SetForegroundColor(EConsoleColor::Yellow);
                 InConsole->WriteLine(FText::FromString(ExploitName), 0.2f);
+                InConsole->ResetFormatting();
             }
         }
 
         if(!FoundExploit)
-            InConsole->WriteLine(NSLOCTEXT("Gigasploit", "NoExploitsFound", "\t&4No exploits found matching that query.&7"));
+        {
+            InConsole->SetBold(true);
+            InConsole->SetForegroundColor(EConsoleColor::Red);
+            InConsole->WriteLine(NSLOCTEXT("Gigasploit", "NoExploitsFound", "\tNo exploits found matching that name."));
+            InConsole->ResetFormatting();
+        }
 
         InConsole->WriteLine(FText::GetEmpty());
         return true;
@@ -336,8 +345,10 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
 
         TArray<FString> ExploitNames;
     
-        InConsole->WriteLine(NSLOCTEXT("Gigasploit", "AvailablePayloads", "&FAvailable payloads"));
-        InConsole->WriteLine(NSLOCTEXT("Gigasploit", "AvailablePayloadsUnderline", "--------------------&7\n"));
+        InConsole->SetBold(true);
+        InConsole->WriteLine(NSLOCTEXT("Gigasploit", "AvailablePayloads", "Available payloads"));
+        InConsole->WriteLine(NSLOCTEXT("Gigasploit", "AvailablePayloadsUnderline", "--------------------\n"));
+        InConsole->SetBold(false);
 
         bool FoundExploit = false;
 
@@ -347,12 +358,19 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
             if(SearchQuery.Len() == 0 || ExploitName.Contains(SearchQuery, ESearchCase::IgnoreCase))
             {
                 FoundExploit = true;
+                InConsole->SetForegroundColor(EConsoleColor::Yellow);
                 InConsole->WriteLine(FText::FromString(ExploitName), 0.2f);
+                InConsole->ResetFormatting();
             }
         }
 
         if(!FoundExploit)
-            InConsole->WriteLine(NSLOCTEXT("Gigasploit", "NoPayloadsFound", "&4No payloads found matching that query.&7"));
+        {
+            InConsole->SetBold(true);
+            InConsole->SetForegroundColor(EConsoleColor::Red);
+            InConsole->WriteLine(NSLOCTEXT("Gigasploit", "NoPayloadsFound", "No payloads found matching that query."));
+            InConsole->ResetFormatting();
+        }
 
         InConsole->WriteLine(FText::GetEmpty());
         return true;
@@ -362,7 +380,10 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
     {
         if(!Arguments.Num())
         {
-            InConsole->WriteLine(NSLOCTEXT("Gigasploit", "UseCommandUsage", "&4&*error:&r too few arguments given. Do you want to use an exploit or payload?&7"));
+            InConsole->SetBold(true);
+            InConsole->SetForegroundColor(EConsoleColor::Red);
+            InConsole->WriteLine(NSLOCTEXT("Gigasploit", "UseCommandUsage", "error: too few arguments given. Do you want to use an exploit or payload?"));
+            InConsole->ResetFormatting();
             return true;
         }
 
@@ -382,13 +403,16 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
             {
                 if(Exploit->ID.ToString() == ExploitName)
                 {
-                    InConsole->WriteLine(FText::Format(NSLOCTEXT("Gigasploit", "UsingExploit", "Using exploit &F{0}&7."), Exploit->FullName));
+                    InConsole->WriteLine(FText::Format(NSLOCTEXT("Gigasploit", "UsingExploit", "Using exploit {0}."), Exploit->FullName));
                     this->CurrentExploit = Exploit;
                     return true;
                 }
             }
 
-            InConsole->WriteLine(NSLOCTEXT("Gigasploit", "ExploitDoesNotExist", "&4&*error:&r exploit doesn't exist.&7"));
+            InConsole->SetBold(true);
+            InConsole->SetForegroundColor(EConsoleColor::Red);
+            InConsole->WriteLine(NSLOCTEXT("Gigasploit", "ExploitDoesNotExist", "error: exploit doesn't exist."));
+            InConsole->ResetFormatting();
             return true;
         }
         else if(ItemType == "payload")
@@ -397,49 +421,108 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
             {
                 if(Exploit->Name.ToString() == ExploitName)
                 {
-                    InConsole->WriteLine(FText::Format(NSLOCTEXT("Gigasploit", "UsingPayload", "Using payload &F{0}&7."), Exploit->FullName));
+                    InConsole->WriteLine(FText::Format(NSLOCTEXT("Gigasploit", "UsingPayload", "Using payload {0}."), Exploit->FullName));
                     this->CurrentPayload = Exploit;
                     return true;
                 }
             }
 
-            InConsole->WriteLine(NSLOCTEXT("Gigasploit", "PayloadDoesNotExist", "&4&*error:&r payload doesn't exist.&7"));
+            InConsole->SetBold(true);
+            InConsole->SetForegroundColor(EConsoleColor::Red);
+            InConsole->WriteLine(NSLOCTEXT("Gigasploit", "PayloadDoesNotExist", "error: payload doesn't exist."));
+            InConsole->ResetFormatting();
             return true;
         }
         else
         {
-            InConsole->WriteLine(NSLOCTEXT("Gigasploit", "InvalidItemType", "&4&*error:&r Invalid item type.&7"));
+            InConsole->SetBold(true);
+            InConsole->SetForegroundColor(EConsoleColor::Red);
+            InConsole->WriteLine(NSLOCTEXT("Gigasploit", "InvalidItemType", "error: Invalid item type."));
+            InConsole->ResetFormatting();
             return true;
         }
     }
 
     if(Command == "scan")
     {
-        InConsole->GetUserContext()->GetPeacenet()->SetSaveValue("gigasploit.firstScan", true);
+        int LongestSvcLen = 0;
+        int LongestPortLen = 0;
+        int LongestStatLen = 0;
 
-        InConsole->WriteLine(NSLOCTEXT("Gigasploit", "StartingScan", "Performing Nmap scan on remote system..."), 0.3f);
-        InConsole->WriteLine(FText::GetEmpty());
-        InConsole->WriteLine(NSLOCTEXT("Gigasploit", "ScanHeadings", "PORT\t\tSTATUS\tSERVICE"), 0.5f);
-        InConsole->WriteLine(NSLOCTEXT("Gigasploit", "ScanUnderline", "-----\t\t-------\t--------"));
-        InConsole->WriteLine(FText::GetEmpty());
-        for(auto Service : this->RemoteSystem->GetComputer().FirewallRules)
+        TArray<FString> Ports;
+        TArray<FText> Names;
+        TArray<bool> Filters;
+
+        for(auto Svc : this->RemoteSystem->GetComputer().FirewallRules)
         {
-            if(Service.IsCrashed) continue;
+            if(Svc.IsCrashed) continue;
 
-            InConsole->Write(FText::FromString(FString::FromInt(Service.Port)), 1.f); // FIXME: Please.  Use FText::AsNumber() but NO GROUPING!!
-            InConsole->Write(FText::FromString("\t\t"));
+            FText FilteredStat = NSLOCTEXT("GsfConsole", "Open", "Open");
+            if(Svc.IsFiltered)
+                FilteredStat = NSLOCTEXT("GsfConsole", "Filtered", "Filtered");
 
-            if(Service.IsFiltered)
-            {
-                InConsole->Write(NSLOCTEXT("Gigasploit", "Filtered", "filtered"));
-            }
-            else
-            {
-                InConsole->Write(NSLOCTEXT("Gigasploit", "Open", "open"));
-            }
-            InConsole->Write(FText::FromString("\t"));
-            InConsole->WriteLine(Service.Service->Protocol->Name);
+            int StatLen = FilteredStat.ToString().Len();
+            if(StatLen > LongestStatLen)
+                LongestStatLen = StatLen;
+
+            FText Name = Svc.Service->Protocol->Name;
+            if(Name.ToString().Len() > LongestSvcLen)
+                LongestSvcLen = Name.ToString().Len();
+
+            FString Port = FString::FromInt(Svc.Port);
+            if(Port.Len() > LongestPortLen)
+                LongestPortLen = Port.Len();
+
+            Names.Add(Name);
+            Ports.Add(Port);
+            Filters.Add(Svc.IsFiltered);
         }
+
+        FText NameHead = NSLOCTEXT("GsfConsole", "ScanNameHead", "Name");
+        FText PortHead = NSLOCTEXT("GsfConsole", "ScanPortHead", "Port");
+        FText FilteredHead = NSLOCTEXT("GsfConsole", "ScanFilterHead", "Status");
+        
+        int NameHeadLen = NameHead.ToString().Len();
+        int PortHeadLen = PortHead.ToString().Len();
+        int FilterHeadLen = FilteredHead.ToString().Len();
+
+        if(NameHeadLen > LongestSvcLen) LongestSvcLen = NameHeadLen;
+        if(PortHeadLen > LongestPortLen) LongestPortLen = PortHeadLen;
+        if(FilterHeadLen > LongestStatLen) LongestStatLen = FilterHeadLen;
+
+        InConsole->SetBold(true);
+        InConsole->Write(PortHead);
+        for(int i = 0; i <= LongestPortLen - PortHeadLen; i++)
+            InConsole->Write(FText::FromString(" "));
+        InConsole->Write(FilteredHead);
+        for(int i = 0; i <= LongestStatLen - FilterHeadLen; i++)
+            InConsole->Write(FText::FromString(" "));
+        InConsole->WriteLine(NameHead);
+        InConsole->SetBold(false);
+
+        InConsole->WriteLine(FText::GetEmpty());
+
+        for(int i = 0; i < Names.Num(); i++)
+        {
+            FText Name = Names[i];
+            FText Port = FText::FromString(Ports[i]);
+            FText Filter = Filters[i] ? NSLOCTEXT("GsfConsole", "Filtered", "Filtered") : NSLOCTEXT("GsfConsole", "Open", "Open");
+
+            int NameLen = Name.ToString().Len();
+            int PortLen = Port.ToString().Len();
+            int FilterLen = Filter.ToString().Len();
+
+            InConsole->Write(Port);
+            for(int j = 0; j <= (LongestPortLen - PortLen); j++)
+                InConsole->Write(FText::FromString(" "));
+            InConsole->Write(Filter);
+            for(int j = 0; j <= (LongestStatLen - FilterLen); j++)
+                InConsole->Write(FText::FromString(" "));
+            InConsole->WriteLine(Name);
+        }
+
+        InConsole->ResetFormatting();
+        InConsole->WriteLine(FText::GetEmpty());
         return true;
     }
 

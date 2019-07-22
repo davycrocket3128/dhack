@@ -148,9 +148,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
 	FName WallpaperID;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Hacking")
-	TArray<FServiceInfo> ActiveServices;
-
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Computer")
 	UTexture2D* CurrentWallpaper;
 
