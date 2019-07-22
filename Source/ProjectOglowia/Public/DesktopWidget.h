@@ -92,7 +92,7 @@ protected:
 	bool IsUpgradeInstalled(USystemUpgrade* InUpgrade);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void UpdateTutorial(const FText& InNewText);
+	void UpdateTutorial(const FText& InTitle, const FText& InNewText, UTutorialPromptState* InTutorialPromptState);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
 	bool IsMissionActive();

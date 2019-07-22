@@ -270,15 +270,6 @@ void UDesktopWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	// Set our wallpaper.
 	this->WallpaperTexture = this->GetSystemContext()->GetComputer().CurrentWallpaper;
 
-	if(this->IsTutorialActive())
-	{
-		if(!this->GetTutorialPrompt()->GetTutorialText().EqualTo(this->LastTutorialText))
-		{
-			this->LastTutorialText = this->GetTutorialPrompt()->GetTutorialText();
-			this->UpdateTutorial(this->LastTutorialText);
-		}
-	}
-
 	Super::NativeTick(MyGeometry, InDeltaTime);
 }
 
@@ -347,6 +338,13 @@ void UDesktopWidget::ActivateSession(UUserContext* user)
 
 	if(!this->Filesystem->FilesystemOperation.Contains(FSOperation))
 		this->Filesystem->FilesystemOperation.Add(FSOperation);
+
+	// Bind to the tutorial prompt's activate event.
+	TScriptDelegate<> TutorialEvent;
+	TutorialEvent.BindUFunction(this, "UpdateTutorial");
+
+	if(!this->GetTutorialPrompt()->TutorialActivated.Contains(TutorialEvent))
+		this->GetTutorialPrompt()->TutorialActivated.Add(TutorialEvent);
 }
 
 int UDesktopWidget::GetOpenConnectionCount()
