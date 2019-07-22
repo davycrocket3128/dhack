@@ -231,22 +231,30 @@ void AHackCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
     this->EnteredHostname = TargetIP;
 
     // Prompt that we're about to connect to it.
-    InConsole->WriteLine(FText::Format(NSLOCTEXT("Gigasploit", "ConnectingToHost", "Connecting to &F{0}&7..."), FText::FromString(TargetIP)));
-
+    InConsole->Write(NSLOCTEXT("GsfConsole", "ConnectionTo", "Connecting to "));
+    InConsole->SetBold(true);
+    InConsole->SetForegroundColor(EConsoleColor::Cyan);
+    InConsole->Write(FText::FromString(TargetIP));
+    InConsole->ResetFormatting();
+    InConsole->WriteLine(NSLOCTEXT("General", "Uhh", "..."));
+    
     // Try to get a system context for theremote host.
     EConnectionError ConnectionError = EConnectionError::None;
     FComputer RemotePC;
     if(!InConsole->GetUserContext()->DnsResolve(TargetIP, RemotePC, ConnectionError))
     {
+        InConsole->SetBold(true);
+        InConsole->SetForegroundColor(EConsoleColor::Red);
         InConsole->WriteLine(FText::Format(NSLOCTEXT("Gigasploit", "ConnectionError", "{0}: could not connect to remote host."), FText::FromString(InArguments[0])));
+        InConsole->ResetFormatting();
         this->Complete();
         return;
     }
 
     this->RemoteSystem = this->GetUserContext()->GetPeacenet()->GetSystemContext(RemotePC.ID);
 
-    InConsole->WriteLine(NSLOCTEXT("Gigasploit", "HelpPrompt", "Type &Fhelp&7 for a list of commands."));
-    InConsole->WriteLine(NSLOCTEXT("Gigasploit", "ExploitsPrompt", "Type &Fexploits&7 for a list of your known exploits."));
+    InConsole->WriteLine(NSLOCTEXT("Gigasploit", "HelpPrompt", "Type \x1b[1mhelp\x1b[0m for a list of commands."));
+    InConsole->WriteLine(NSLOCTEXT("Gigasploit", "ExploitsPrompt", "Type \x1b[1mexploits\x1b[0m for a list of your known exploits."));
 
     // Broadcast a mission event that a hack has started.
     InConsole->GetUserContext()->GetPeacenet()->SendGameEvent("HackStart", {

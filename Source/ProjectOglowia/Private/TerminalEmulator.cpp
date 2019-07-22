@@ -215,6 +215,15 @@ void UTerminalEmulator::DrawGlyph(FTerminalDrawContext* DrawContext, FGlyph glyp
         fg.G *= 0.5f;
         fg.B *= 0.5f;
     }
+    else
+    {
+        if(!bold)
+        {
+            fg.R *= 0.75f;
+            fg.G *= 0.75f;
+            fg.B *= 0.75f;
+        }
+    }
 
 
     FString text = FString::Chr(glyph.u);
