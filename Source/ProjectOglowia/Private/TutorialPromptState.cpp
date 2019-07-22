@@ -46,6 +46,8 @@ void UTutorialPromptState::ActivatePrompt(const FText& InTitle, const FText& InT
     this->PromptTitle = InTitle;
     this->PromptText = InText;
     this->PromptActive = true;
+
+    this->TutorialActivated.Broadcast(InTitle, InText, this);
 }
 
 void UTutorialPromptState::DismissPrompt()

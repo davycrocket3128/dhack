@@ -41,6 +41,8 @@ class PROJECTOGLOWIA_API UTutorialPromptState : public UObject
 {
     GENERATED_BODY()
 
+    DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FTutorialActivatedEvent, const FText&, InTitle, const FText&, InText, UTutorialPromptState*, InTutorialState);
+
 private:
     UPROPERTY()
     FText PromptTitle;
@@ -52,6 +54,9 @@ private:
     bool PromptActive = false;
 
 public:
+    UPROPERTY(BlueprintAssignable)
+    FTutorialActivatedEvent TutorialActivated;
+
     UFUNCTION(BlueprintCallable)
     void ActivatePrompt(const FText& InTitle, const FText& InText);
     
