@@ -64,9 +64,6 @@ void AHackCommand::OnDisconnect()
 
 FText AHackCommand::GetShellPrompt()
 {
-    // The format string that is used to create the prompt text.
-    FText PromptFormat = NSLOCTEXT("Gigasploit", "Prompt", "&3{0} &7(&6&*{1}&r&F/&C&*{2}&r&7)> ");
-
     // The text that will be substituted into the above format string.
     FString Host = this->EnteredHostname;
     FText Exploit = NSLOCTEXT("Gigasploit", "None", "none");
@@ -83,7 +80,29 @@ FText AHackCommand::GetShellPrompt()
         Payload = this->CurrentPayload->FullName;
     }
 
-    return FText::Format(PromptFormat, FText::FromString(Host), Exploit, Payload);
+    // Write the hack command status shit to the console directly.
+    // New advanced getline API isn't great for future-proofed ANSI
+    // escape sequences.
+    this->GetConsole()->WriteLine(FText::GetEmpty());
+    this->GetConsole()->SetBold(true);
+    this->GetConsole()->Write(NSLOCTEXT("GsfConsole", "CurrentExploit", "Current exploit: "));
+    this->GetConsole()->SetBold(false);
+    this->GetConsole()->SetForegroundColor(EConsoleColor::Yellow);
+    this->GetConsole()->WriteLine(Exploit);
+    this->GetConsole()->ResetForegroundColor();
+
+    this->GetConsole()->SetBold(true);
+    this->GetConsole()->Write(NSLOCTEXT("GsfConsole", "CurrentPayload", "Current payload: "));
+    this->GetConsole()->SetBold(false);
+    this->GetConsole()->SetForegroundColor(EConsoleColor::Red);
+    this->GetConsole()->WriteLine(Payload);
+    this->GetConsole()->ResetForegroundColor();
+    
+    this->GetConsole()->ResetFormatting();
+
+    this->GetConsole()->WriteLine(FText::GetEmpty());
+
+    return FText::Format(NSLOCTEXT("GsfConsole", "Prompt", "{0}> "), FText::FromString(Host));
 }
 
 void AHackCommand::Tick(float InDeltaSeconds)
