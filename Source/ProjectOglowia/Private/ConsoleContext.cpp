@@ -74,7 +74,8 @@ bool UConsoleContext::GetLine(FString& OutLine)
 		res = true;
 		line += c;
 	}
-	OutLine = line;
+	OutLine = line.TrimStartAndEnd(); // get rid of the \r\n at the end.
+	this->WriteToPty("\r\n");
 	return res;
 }
 
