@@ -33,6 +33,7 @@
 #include "CommonUtils.h"
 #include "UnrealString.h"
 #include "ConsoleColor.h"
+#include "TutorialPromptState.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -347,7 +348,7 @@ void UTerminalEmulator::WriteLine(const FText& InText, float InTime)
 
 void UTerminalEmulator::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
-    if(this->TextQueue.Num())
+    if(this->TextQueue.Num() && !this->IsInTutorial)
     {
         if(this->TextQueue[0].Time < 0)
         {
@@ -392,7 +393,7 @@ void UTerminalEmulator::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
     }
 
     // Read from the tty and write to the terminal.
-    this->TtyRead();
+    if(!this->IsInTutorial) this->TtyRead();
 
     int cx = this->term.c.x;
 
@@ -944,6 +945,15 @@ FReply UTerminalEmulator::NativeOnKeyDown(const FGeometry& InGeometry, const FKe
 
 FReply UTerminalEmulator::NativeOnKeyChar(const FGeometry& InGeometry, const FCharacterEvent& InCharEvent)
 {
+    if(IsInTutorial)
+    {
+        if(InCharEvent.GetCharacter() == '\r')
+        {
+            this->DismissTutorial();
+        }
+        return FReply::Handled();
+    }
+
     this->Slave->WriteChar(InCharEvent.GetCharacter());
     return FReply::Handled();
 }
@@ -969,4 +979,167 @@ void UTerminalEmulator::ReportTerminalSize(int& Rows, int& Cols)
 {
     Rows = this->term.row;
     Cols = this->term.col;
+}
+
+void UTerminalEmulator::DismissTutorial()
+{
+    if(!this->IsInTutorial) return;
+
+    FCursor c = this->term.altc;
+    TArray<FLine> line = this->term.alt;
+
+    this->term.alt = this->term.line;
+    this->term.altc = this->term.c;
+
+    this->term.line = line;
+    this->term.c = c;    
+
+    this->IsInTutorial = false;
+    this->TutorialState->DismissPrompt();
+    this->TutorialState = nullptr;
+}
+
+void UTerminalEmulator::ShowTutorial(const FText& InTitle, const FText& InText, UTutorialPromptState* Tutorial)
+{
+    if(!this->IsInTutorial)
+    {
+        FCursor c = this->term.c;
+        TArray<FLine> line = this->term.line;
+
+        this->term.alt = this->term.line;
+        this->term.altc = this->term.c;
+
+        this->term.line = line;
+        this->term.c = c;    
+
+        this->IsInTutorial = true;
+        this->TutorialState = Tutorial;
+    }
+
+    this->ClearRegion(0, 0, this->term.col-1, this->term.row - 1);
+    this->MoveTo(0,0);
+
+    this->Write("\r\n");
+
+    int MaxLen = 80;
+
+    this->term.c.attr.mode = (uint16)EGlyphAttribute::ATTR_BOLD;
+
+    if(InTitle.ToString().Len() <= MaxLen)
+    {
+        this->MoveTo((this->term.col - InTitle.ToString().Len()) / 2, this->term.c.y);
+        Write(InTitle.ToString());
+    }
+    else 
+    {
+        TArray<FString> TitleWords;
+        InTitle.ToString().ParseIntoArray(TitleWords, *this->WordDelimeters, false);
+
+        int L = 0;
+        int Start = (this->term.col - MaxLen) / 2;
+
+        this->MoveTo(Start, this->term.c.y);
+
+        for(FString Word : TitleWords)
+        {
+            Word = Word + " ";
+            if(Word.Len() > MaxLen)
+            {
+                int WL = Word.Len() - 1;
+                int i = 0;
+                while(WL > 0)
+                {
+                    Write(FString::Chr(Word[i]));
+                    L++;
+                    i++;
+                    if((L % MaxLen) == 0)
+                    {
+                        L = 0;
+                        Write("\r\n");
+                        this->MoveTo(Start, this->term.c.y);
+                    }
+                    WL--;
+                }
+            }
+            else
+            {
+                if(L + Word.Len() > MaxLen)
+                {
+                    L = 0;
+                    Write("\r\n");
+                    MoveTo(Start, this->term.c.y);
+                }
+                Write(Word);
+                L += Word.Len();
+            }
+        }
+
+    }
+
+    this->Write("\r\n\r\n");
+    this->term.c.attr.mode = 0;
+
+    if(InText.ToString().Len() <= MaxLen)
+    {
+        this->MoveTo((this->term.col - InText.ToString().Len()) / 2, this->term.c.y);
+        Write(InText.ToString());
+    }
+    else 
+    {
+        TArray<FString> TitleWords;
+        InText.ToString().ParseIntoArray(TitleWords, *this->WordDelimeters, false);
+
+        int L = 0;
+        int Start = (this->term.col - MaxLen) / 2;
+
+        this->MoveTo(Start, this->term.c.y);
+
+        for(FString Word : TitleWords)
+        {
+            Word = Word + " ";
+            if(Word.Len() > MaxLen)
+            {
+                int WL = Word.Len() - 1;
+                int i = 0;
+                while(WL > 0)
+                {
+                    Write(FString::Chr(Word[i]));
+                    L++;
+                    i++;
+                    if((L % MaxLen) == 0)
+                    {
+                        L = 0;
+                        Write("\r\n");
+                        this->MoveTo(Start, this->term.c.y);
+                    }
+                    WL--;
+                }
+            }
+            else
+            {
+                if(L + Word.Len() > MaxLen)
+                {
+                    L = 0;
+                    Write("\r\n");
+                    MoveTo(Start, this->term.c.y);
+                }
+                Write(Word);
+                L += Word.Len();
+            }
+        }
+
+    }
+
+    this->Write("\r\n\r\n\r\n");
+    this->term.c.attr.mode |= (uint16)EGlyphAttribute::ATTR_BOLD;
+
+    this->term.c.attr.fg = UCommonUtils::GetConsoleColor(EConsoleColor::Green);
+
+    FText PromptText = NSLOCTEXT("General", "PressEnter", "Press <enter> to continue.");
+    FString PromptStr = PromptText.ToString();
+
+    this->MoveTo((this->term.col - PromptStr.Len()) / 2, this->term.c.y);
+    this->Write(PromptStr);
+
+    this->term.c.attr.mode |= (uint16)EGlyphAttribute::ATTR_REVERSE;
 }

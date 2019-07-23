@@ -45,9 +45,12 @@ AGraphicalTerminalCommand::~AGraphicalTerminalCommand()
 
 void AGraphicalTerminalCommand::NativeRunCommand(UConsoleContext * InConsole, TArray<FString> InArguments)
 {
-	if (!InConsole->GetUserContext()->GetDesktop())
+	if(!InConsole->GetUserContext()->GetDesktop() || InConsole->GetUserContext()->GetDesktop()->IsInTextMode())
 	{
-		InConsole->WriteLine(NSLOCTEXT("Peacegate", "NoGUI", "error: cannot connect to Xorg server (Is Peacegate Desktop running?)"));
+		InConsole->SetBold(true);
+		InConsole->SetForegroundColor(EConsoleColor::Red);
+		InConsole->WriteLine(NSLOCTEXT("General", "TextModeError", "You cannot run this program in text mode because it requires an X11 window manager."));
+		InConsole->ResetFormatting();
 		this->Complete();
 		return;
 	}

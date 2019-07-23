@@ -41,6 +41,8 @@
 #include "TextProperty.h"
 #include "TerminalEmulator.generated.h"
 
+class UTutorialPromptState;
+
 enum term_mode {
 	MODE_WRAP        = 1 << 0,
 	MODE_INSERT      = 1 << 1,
@@ -170,6 +172,9 @@ public:
     FCursor c;    /* cursor */
 	
     UPROPERTY()
+    FCursor altc;
+
+    UPROPERTY()
     int ocx;      /* old cursor col */
 	
     UPROPERTY()
@@ -242,6 +247,9 @@ class PROJECTOGLOWIA_API UTerminalEmulator : public UUserWidget
 
 private:
     UPROPERTY()
+    bool IsInTutorial = false;
+
+    UPROPERTY()
     UPtyStream* Master;
 
     UPROPERTY()
@@ -281,6 +289,9 @@ private:
 
     UPROPERTY()
     float BlinkTime = 0.f;
+
+    UPROPERTY()
+    UTutorialPromptState* TutorialState;
 
     UPROPERTY()
     bool ShowBlinking = true;
@@ -371,6 +382,7 @@ private:
     void UpdateTerminalMode();
     void Resize(int col, int row);
     void PutTab(int n);
+    void DismissTutorial();
 
 protected:
     UFUNCTION()
@@ -404,6 +416,9 @@ protected:
 public:
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Terminal Emulator")
     UConsoleContext* CreateConsoleContext(UUserContext* PeacegateUser);
+
+    UFUNCTION(BlueprintCallable)
+    void ShowTutorial(const FText& InTitle, const FText& InText, UTutorialPromptState* Tutorial);
 
     UFUNCTION()
     void WriteLine(const FText& InText, float InDelayTime = 0.f);
