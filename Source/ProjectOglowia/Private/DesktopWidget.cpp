@@ -76,6 +76,11 @@ void UDesktopWidget::ShowProgramOnWorkspace(UProgram* InProgram)
 	check(this->GetWorkspace());
 	check(InProgram->Window);
 
+	// If we're in text mode then automatically deactivate it.
+	// This is because GUI programs can still be run as commands, even in text mode.
+	if(this->IsInTextMode())
+		this->DeactivateTextMode();
+
 	// Add the program's window to our workspace.
 	this->GetWorkspace()->AddWindow(InProgram->Window);
 }
