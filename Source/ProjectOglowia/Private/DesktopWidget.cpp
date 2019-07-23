@@ -273,6 +273,32 @@ void UDesktopWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	Super::NativeTick(MyGeometry, InDeltaTime);
 }
 
+bool UDesktopWidget::IsInTextMode()
+{
+	if(!this->IsSessionActive()) return false;
+	if(!this->SupportsTextMode()) return false;
+
+	return this->DetermineIsTextMode();
+}
+
+void UDesktopWidget::ActivateTextMode()
+{
+	if(!this->IsSessionActive()) return;
+	if(this->IsInTextMode()) return;
+	if(!this->SupportsTextMode()) return;
+
+	this->TextModeActivated();
+}
+
+void UDesktopWidget::DeactivateTextMode()
+{
+	if(!this->IsSessionActive()) return;
+	if(!this->IsInTextMode()) return;
+	if(!this->SupportsTextMode()) return;
+
+	this->TextModeDeactivated();
+}
+
 void UDesktopWidget::ResetAppLauncher()
 {
 	if(!IsSessionActive())

@@ -88,6 +88,18 @@ private:
 	FText ObjectiveText;
 
 protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	bool SupportsTextMode();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	bool DetermineIsTextMode();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void TextModeActivated();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void TextModeDeactivated();
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Upgrades")
 	bool IsUpgradeInstalled(USystemUpgrade* InUpgrade);
 
@@ -143,6 +155,15 @@ protected:
 	bool IsTutorialActive();
 
 public:
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Desktop")
+	bool IsInTextMode();
+
+	UFUNCTION(BlueprintCallable, Category = "Desktop")
+	void ActivateTextMode();
+
+	UFUNCTION(BlueprintCallable, Category = "Desktop")
+	void DeactivateTextMode();
+
 	UFUNCTION()
 	void SetObjectiveText(const FText& InObjectiveText);
 
