@@ -44,7 +44,7 @@ void FTerminalDrawContext::DrawRect(FLinearColor color, float x, float y, float 
     FSlateBrush brush = FSlateColorBrush(FLinearColor::White);
 
     FSlateDrawElement::MakeBox(this->DrawElements, this->LayerId, this->AllottedGeometry.ToPaintGeometry(FVector2D(x, y), FVector2D(w, h)), &brush, ESlateDrawEffect::None, color);
-    this->LayerId++;
+    // this->LayerId++;
 }
 
 void FTerminalDrawContext::DrawString(FString string, FSlateFontInfo font, FLinearColor color, float x, float y)
@@ -62,5 +62,5 @@ void FTerminalDrawContext::DrawString(FString string, FSlateFontInfo font, FLine
 		ESlateDrawEffect::None,
         color);
 
-    this->LayerId++;
+    // this->LayerId++;
 }
