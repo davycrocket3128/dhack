@@ -225,4 +225,8 @@ public:
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Console|Special Characters")
 	static FString Tab();
+
+protected:
+	UFUNCTION()
+	void InvokeTtyUpdate();
 };

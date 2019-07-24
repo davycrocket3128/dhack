@@ -84,6 +84,9 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Provider")
     int GetMissionsCount();
 
+    UFUNCTION()
+    UMailMessage* GetMessageByID(int InID);
+
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mail Provider")
     TArray<UMailMessage*> GetMessagesInInbox();
 

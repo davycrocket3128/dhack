@@ -34,6 +34,20 @@
 #include "PeacenetWorldStateActor.h"
 #include "PeacenetSaveGame.h"
 
+UMailMessage* UMailProvider::GetMessageByID(int InID)
+{
+    for(FEmail Email : this->GetMailMessages())
+    {
+        if(Email.ID == InID)
+        {
+            UMailMessage* Message = NewObject<UMailMessage>();
+            Message->Setup(this, InID);
+            return Message;
+        }
+    }
+    return nullptr;
+}
+
 TArray<UMailMessage*> UMailProvider::GetMessagesWithMissions()
 {
     TArray<UMailMessage*> ret;

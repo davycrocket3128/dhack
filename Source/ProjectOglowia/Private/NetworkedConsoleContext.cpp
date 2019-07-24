@@ -40,4 +40,18 @@ void UNetworkedConsoleContext::SetupNetworkedConsole(UConsoleContext* InOutputCo
     this->OwningUser = InOwningUser;
 
     this->Setup(this->OutputConsole->GetPty(), this->OwningUser);
+
+    // The output console knows how to get the terminal's supported columns and rows so we need
+    // to set ourselves up to use it instead.
+    this->OnGetSize(this, "GetOutputConsoleSize");
+
+    // Do the same for forced TTY updates.
+    this->OnTtyUpdate(this->OutputConsole, "InvokeTtyUpdate");
+}
+
+void UNetworkedConsoleContext::GetOutputConsoleSize(int& OutRows, int& OutColumns)
+{
+    FIntPoint OutputSize = this->OutputConsole->GetTerminalSize();
+    OutRows = OutputSize.Y;
+    OutColumns = OutputSize.X;
 }

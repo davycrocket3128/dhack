@@ -64,6 +64,11 @@ UUserContext* UConsoleContext::GetUserContext()
 	return this->UserContext;
 }
 
+void UConsoleContext::InvokeTtyUpdate()
+{
+	this->UpdateTty.ExecuteIfBound();
+}
+
 bool UConsoleContext::GetLine(FString& OutLine)
 {
 	FString line;

@@ -30,8 +30,45 @@
  ********************************************************************************/
 
 #include "MailCommand.h"
+#include "DocoptForUnrealBPLibrary.h"
+#include "DocoptForUnreal.h"
+#include "UserContext.h"
+#include "SystemContext.h"
 
 void AMailCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
 {
+    UMailProvider* MailProvider = this->GetUserContext()->GetMailProvider();
+
+    if(this->ArgumentMap["view"]->AsBoolean())
+    {
+        int id = this->ArgumentMap["<id>"]->AsNumber();
+
+        UMailMessage* Message = MailProvider->GetMessageByID(id);
+        if(Message)
+        {
+            InConsole->WriteLine(FText::GetEmpty());
+            InConsole->WriteLine(Message->GetSubject());
+            InConsole->WriteLine(FText::GetEmpty());
+            InConsole->Write(NSLOCTEXT("MailCommand", "MailParticipants", "Participants: "));
+            InConsole->WriteLine(Message->GetParticipants());
+            InConsole->WriteLine(FText::GetEmpty());
+            InConsole->WriteLine(Message->GetMessageText());
+            InConsole->WriteLine(FText::GetEmpty());
+            if(Message->HasMission())
+            {
+                InConsole->WriteLine(FText::GetEmpty());
+                InConsole->Write(NSLOCTEXT("MailCommand", "MissionAcquisition", "Mission acquisition: "));
+                InConsole->WriteLine(Message->GetMissionAcquisition());
+                InConsole->WriteLine(FText::GetEmpty());
+                InConsole->WriteLine(FText::Format(NSLOCTEXT("MailCommand", "StartMissionPrompt", "Use 'mail start {0}' to start this mission."), FText::AsNumber(id)));
+                InConsole->WriteLine(FText::GetEmpty());
+            }
+            this->Complete();
+            return;
+        }
+
+        InConsole->WriteLine(NSLOCTEXT("MailCommand", "MessageNotFound", "No message with the specified ID was found."));
+    }
+
     this->Complete();
 }

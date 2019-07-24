@@ -54,6 +54,10 @@ private:
     UPROPERTY()
     UUserContext* OwningUser;
 
+protected:
+    UFUNCTION()
+    void GetOutputConsoleSize(int& OutRows, int& OutColumns);
+
 public:
     UFUNCTION()
     void SetupNetworkedConsole(UConsoleContext* InOutputConsole, UUserContext* InOwningUser);
