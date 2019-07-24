@@ -207,7 +207,8 @@ void AMissionActor::Abort()
 
 void AMissionActor::SendGameEvent(FString EventName, TMap<FString, FString> InEventData)
 {
-    this->LoadedTasks[this->CurrentTask].Task->HandleEvent(EventName, InEventData);
+    if(this->CurrentTask >= 0 && this->CurrentTask < this->LoadedTasks.Num() && this->LoadedTasks[this->CurrentTask].Task)
+        this->LoadedTasks[this->CurrentTask].Task->HandleEvent(EventName, InEventData);
 }
 
 APeacenetWorldStateActor* AMissionActor::GetPeacenet()

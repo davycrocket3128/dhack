@@ -34,6 +34,11 @@
 #include "PeacenetSaveGame.h"
 #include "PeacenetWorldStateActor.h"
 
+FString UMailMessage::GetMessageId()
+{
+    return FString::FromInt(this->MessageID);
+}
+
 bool UMailMessage::MissionIsCompleted()
 {
     if(!this->HasMission()) return false;

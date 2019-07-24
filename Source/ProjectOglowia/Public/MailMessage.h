@@ -53,6 +53,9 @@ private:
 
 public:
     UFUNCTION()
+    FString GetMessageId();
+
+    UFUNCTION()
     void Setup(UMailProvider* InProvider, int InMessageID);
 
     UFUNCTION()

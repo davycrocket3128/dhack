@@ -47,9 +47,14 @@ void AMailCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
         if(Message)
         {
             InConsole->WriteLine(FText::GetEmpty());
+            InConsole->SetBold(true);
+            InConsole->SetUnderline(true);
+            InConsole->SetForegroundColor(EConsoleColor::Green);
             InConsole->WriteLine(Message->GetSubject());
+            InConsole->SetUnderline(false);
             InConsole->WriteLine(FText::GetEmpty());
             InConsole->Write(NSLOCTEXT("MailCommand", "MailParticipants", "Participants: "));
+            InConsole->ResetFormatting();
             InConsole->WriteLine(Message->GetParticipants());
             InConsole->WriteLine(FText::GetEmpty());
             InConsole->WriteLine(Message->GetMessageText());
@@ -57,18 +62,148 @@ void AMailCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
             if(Message->HasMission())
             {
                 InConsole->WriteLine(FText::GetEmpty());
+                InConsole->SetBold(true);
+                InConsole->SetForegroundColor(EConsoleColor::Magenta);
                 InConsole->Write(NSLOCTEXT("MailCommand", "MissionAcquisition", "Mission acquisition: "));
+                InConsole->ResetFormatting();
                 InConsole->WriteLine(Message->GetMissionAcquisition());
                 InConsole->WriteLine(FText::GetEmpty());
+                InConsole->SetItalic(true);
                 InConsole->WriteLine(FText::Format(NSLOCTEXT("MailCommand", "StartMissionPrompt", "Use 'mail start {0}' to start this mission."), FText::AsNumber(id)));
+                InConsole->ResetFormatting();
                 InConsole->WriteLine(FText::GetEmpty());
             }
             this->Complete();
             return;
         }
 
+        InConsole->SetForegroundColor(EConsoleColor::Yellow);
         InConsole->WriteLine(NSLOCTEXT("MailCommand", "MessageNotFound", "No message with the specified ID was found."));
+        InConsole->ResetFormatting();
+    }
+    else if(this->ArgumentMap["inbox"]->AsBoolean())
+    {
+        InConsole->SetBold(true);
+        InConsole->SetForegroundColor(EConsoleColor::Yellow);
+        InConsole->WriteLine(FText::Format(NSLOCTEXT("MailCommand", "ViewingInbox", "Viewing inbox of {0}:"), FText::FromString(this->GetUserContext()->GetEmailAddress())));
+        InConsole->WriteLine(FText::GetEmpty());
+        InConsole->ResetFormatting();
+
+        this->WriteMessageList(InConsole, MailProvider->GetMessagesInInbox());
+    }
+    else if(this->ArgumentMap["outbox"]->AsBoolean())
+    {
+        InConsole->SetBold(true);
+        InConsole->SetForegroundColor(EConsoleColor::Yellow);
+        InConsole->WriteLine(FText::Format(NSLOCTEXT("MailCommand", "ViewingOutbox", "Viewing outbox of {0}:"), FText::FromString(this->GetUserContext()->GetEmailAddress())));
+        InConsole->WriteLine(FText::GetEmpty());
+        InConsole->ResetFormatting();
+
+        InConsole->WriteLine(NSLOCTEXT("General", "NYI", "Not yet implemented."));
+    }
+    else if(this->ArgumentMap["missions"]->AsBoolean())
+    {
+        InConsole->SetBold(true);
+        InConsole->SetForegroundColor(EConsoleColor::Yellow);
+        InConsole->WriteLine(FText::Format(NSLOCTEXT("MailCommand", "ViewingMissions", "Viewing available missions in mailbox of {0}:"), FText::FromString(this->GetUserContext()->GetEmailAddress())));
+        InConsole->WriteLine(FText::GetEmpty());
+        InConsole->ResetFormatting();
+
+        this->WriteMessageList(InConsole, MailProvider->GetMessagesWithMissions());
+    }
+    else if(this->ArgumentMap["start"]->AsBoolean())
+    {
+        int id = this->ArgumentMap["<id>"]->AsNumber();
+
+        auto Message = MailProvider->GetMessageByID(id);
+
+        if(Message)
+        {
+            if(Message->HasMission())
+            {
+                if(Message->CanPlayMission())
+                {
+                    InConsole->WriteLine(NSLOCTEXT("MailCommand", "StartingMission", "Starting mission..."));
+                    Message->BeginMission();
+                    this->Complete();
+                    return;
+                }
+
+                InConsole->SetForegroundColor(EConsoleColor::Yellow);
+                InConsole->WriteLine(NSLOCTEXT("MailCommand", "MissionNotPlayable", "You cannot start this mission right now - either it has already been completed or you are in another mission."));
+                InConsole->ResetFormatting();
+
+                this->Complete();
+                return;
+            }
+
+            InConsole->SetForegroundColor(EConsoleColor::Yellow);
+            InConsole->WriteLine(NSLOCTEXT("MailCommand", "MessageNotMission", "The specified mail message does not contain a mission, therefore it cannot be started."));
+            InConsole->ResetFormatting();
+
+            this->Complete();
+            return;
+        }
+
+        InConsole->SetForegroundColor(EConsoleColor::Yellow);
+        InConsole->WriteLine(NSLOCTEXT("MailCommand", "MessageNotFound", "No message with the specified ID was found."));
+        InConsole->ResetFormatting();
+    }
+    this->Complete();
+}
+
+void AMailCommand::WriteMessageList(UConsoleContext* InConsole, TArray<UMailMessage*> InMessages)
+{
+    TArray<UMailMessage*> Messages;
+    
+    FText ParticipantsHead = NSLOCTEXT("MailCommand", "ParticipantsHead", "Participants");
+    FText SubjectHead = NSLOCTEXT("MailCommand", "SubjectHead", "Subject");
+    FText IdHead = NSLOCTEXT("MailCommand", "IdHead", "#");
+    
+    int LongestId = IdHead.ToString().Len();
+    int LongestSubject = SubjectHead.ToString().Len();
+    int LongestParticipants = ParticipantsHead.ToString().Len();
+
+    for(auto Message : InMessages)
+    {
+        Messages.Add(Message);
+        int IdLen = Message->GetMessageId().Len();
+        int SubjectLen = Message->GetSubject().ToString().Len();
+        int ParticipantsLen = Message->GetParticipants().ToString().Len();
+        if(IdLen > LongestId) LongestId = IdLen;
+        if(SubjectLen > LongestSubject) LongestSubject = SubjectLen;
+        if(ParticipantsLen > LongestParticipants) LongestParticipants = ParticipantsLen;
     }
 
-    this->Complete();
+    InConsole->SetBold(true);
+
+    InConsole->Write(IdHead);
+    for(int i = 0; i <= LongestId - IdHead.ToString().Len(); i++)
+        InConsole->Write(FText::FromString(" "));
+    InConsole->Write(SubjectHead);
+    for(int i = 0; i <= LongestSubject - SubjectHead.ToString().Len(); i++)
+        InConsole->Write(FText::FromString(" "));
+    InConsole->WriteLine(ParticipantsHead);
+    InConsole->WriteLine(FText::GetEmpty());
+
+    InConsole->ResetFormatting();
+
+    for(auto Message : Messages)
+    {
+        InConsole->Write(FText::FromString(Message->GetMessageId()));
+        for(int i = 0; i <= LongestId - Message->GetMessageId().Len(); i++)
+            InConsole->Write(FText::FromString(" "));
+        InConsole->Write(Message->GetSubject());
+        for(int i = 0; i <= LongestSubject - Message->GetSubject().ToString().Len(); i++)
+            InConsole->Write(FText::FromString(" "));
+        InConsole->WriteLine(Message->GetParticipants());
+    }
+
+    InConsole->WriteLine(FText::GetEmpty());
+    
+    InConsole->SetItalic(true);
+    InConsole->WriteLine(NSLOCTEXT("MailCommand", "ViewPrompt", "Use 'mail view <#>' to view a message from the list above."));
+    InConsole->SetItalic(false);
+
+    InConsole->WriteLine(FText::GetEmpty());
 }

@@ -37,6 +37,8 @@
 #include "MailProvider.h"
 #include "MailCommand.generated.h"
 
+class UMailMessage;
+
 UCLASS()
 class PROJECTOGLOWIA_API AMailCommand : public ATerminalCommand
 {
@@ -44,4 +46,7 @@ class PROJECTOGLOWIA_API AMailCommand : public ATerminalCommand
 
 protected:
     virtual void NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) override;
+
+    UFUNCTION()
+    void WriteMessageList(UConsoleContext* InConsole, TArray<UMailMessage*> InMessages);
 };
