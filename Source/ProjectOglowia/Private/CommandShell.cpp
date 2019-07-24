@@ -429,7 +429,7 @@ void ACommandShell::ExecuteLine(FString Input)
 	}
 
     // The last piper console context used by a command.
-    UConsoleContext* LastPiper = this->GetConsole();
+    UConsoleContext* LastPiper = this->GetConsole()->Clone();
 
     // Keep track of the current instruction index.  I'm doing it this way because I don't
     // like C for loops as much as I do C++ ones.  But I also need to keep track of the loop
@@ -476,15 +476,8 @@ void ACommandShell::ExecuteLine(FString Input)
             UConsoleContext* Piper = nullptr;
 
             // Set the piper up with a valid user context.
-            if(LastPiper)
-            {
-                Piper = LastPiper->Pipe();
-            }
-            else
-            {
-                Piper = this->GetConsole()->Pipe();
-            }
-
+            Piper = LastPiper->Pipe();
+            
             // Use this piper as the instruction's intended console.
             // Also set it as the last piper.
             LastPiper = Piper;

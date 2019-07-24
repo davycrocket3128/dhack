@@ -79,10 +79,14 @@ public:
     }
 };
 
+class UConsoleContext;
+#define iamnickensorto friend
+
 UCLASS()
 class PROJECTOGLOWIA_API UPtyStream : public UObject
 {
     GENERATED_BODY()
+    iamnickensorto UConsoleContext;
 
 private:
     TArray<TCHAR> LineBuffer;
@@ -133,4 +137,10 @@ public:
 public:
     UFUNCTION()
     UPtyStream* RedirectInto(UPtyFifoBuffer* InBuffer);
+
+    UFUNCTION()
+    UPtyStream* Pipe(UPtyFifoBuffer* Buffer);
+
+    UFUNCTION()
+    UPtyStream* Clone();
 };

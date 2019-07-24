@@ -184,6 +184,10 @@ public:
 	UFUNCTION()
 	UConsoleContext* Pipe();
 
+	// Creates a clone of this console context that also creates a separate, cloned PTY stream.
+	UFUNCTION()
+	UConsoleContext* Clone();
+
 	// Creates a console context that uses this console's output as input and uses the specified console for output.
 	UFUNCTION()
 	UConsoleContext* PipeOut(UConsoleContext* InConsole);

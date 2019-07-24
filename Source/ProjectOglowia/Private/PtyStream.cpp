@@ -187,3 +187,34 @@ UPtyStream* UPtyStream::RedirectInto(UPtyFifoBuffer* InBuffer)
     Redirected->IsMaster = this->IsMaster;
     return Redirected;
 }
+
+UPtyStream* UPtyStream::Pipe(UPtyFifoBuffer* Buffer)
+{
+    // Create a new PTY stream...
+    UPtyStream* PipeStream = NewObject<UPtyStream>();
+
+    // This stream outputs to our output stream and reads from
+    // the shared buffer.
+    PipeStream->OutputStream = this->OutputStream;
+    PipeStream->InputStream = Buffer;
+
+    // And we need to output to the buffer for this to work.
+    this->OutputStream = Buffer;
+
+    // Copy over our settings...
+    PipeStream->Options = this->Options;
+    PipeStream->IsMaster = this->IsMaster;
+
+    // And return the pipe.
+    return PipeStream;
+}
+
+UPtyStream* UPtyStream::Clone()
+{
+    UPtyStream* Cloned = NewObject<UPtyStream>();
+    Cloned->OutputStream = this->OutputStream;
+    Cloned->InputStream = this->InputStream;
+    Cloned->IsMaster = this->IsMaster;
+    Cloned->Options = this->Options;
+    return Cloned;
+}

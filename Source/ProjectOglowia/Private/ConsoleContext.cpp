@@ -245,35 +245,58 @@ void UConsoleContext::OverwriteLine(const FText& InText, float InDelaySeconds)
 
 UConsoleContext* UConsoleContext::Pipe()
 {
-	// TODO
-	return this;
+	// So this involves creating a new buffer...
+	UPtyFifoBuffer* SharedBuffer = NewObject<UPtyFifoBuffer>();
+
+	// And now we can create a pty stream that reads from this buffer.
+	UPtyStream* PipeStream = this->GetPty()->Pipe(SharedBuffer);
+
+	// The pipe method above will also modify our PTY stream
+	// to output to that shared buffer.  ...That's what a fucking
+	// pipe is supposed to do.
+	//
+	// Now we create the console context that uses that stream.
+	UConsoleContext* PipeConsole = NewObject<UConsoleContext>();
+
+	PipeConsole->Setup(PipeStream, this->UserContext);
+
+	PipeConsole->WorkingDirectory = this->WorkingDirectory;
+
+	PipeConsole->UpdateTty = this->UpdateTty;
+	PipeConsole->GetSizeDelegate = this->GetSizeDelegate;
+
+	return PipeConsole;
 }
 
 UConsoleContext* UConsoleContext::Redirect(UPtyFifoBuffer* InBuffer)
 {
-	// All this really takes is creating a new PTY stream that uses the specified buffer for output.
-	UPtyStream* BufferedOutput = this->GetPty()->RedirectInto(InBuffer);
+	// A redirect is basically a pipe as we need to pipe ourselves as input into the redirected console,
+	// so we'll use Pipe() to do that.
+	UConsoleContext* RedirectedConsole = this->Pipe();
 
-	// Now we just create a console context...
-	UConsoleContext* RedirectedConsole = NewObject<UConsoleContext>();
+	// And now all we need to do is simply have the redirected pty output to the buffer!
+	RedirectedConsole->Pty->OutputStream = InBuffer;
 
-	// .. that uses the buffered PTY stream and our user context...
-	RedirectedConsole->Setup(BufferedOutput, this->UserContext);
-
-	// .. and knows how to talk to our terminal...
-	RedirectedConsole->UpdateTty = this->UpdateTty;
-	RedirectedConsole->GetSizeDelegate = this->GetSizeDelegate;
-
-	// .. and is in our working directory.
-	RedirectedConsole->WorkingDirectory = this->WorkingDirectory;
-	
+	// All good.
 	return RedirectedConsole;
+	
+}
+
+UConsoleContext* UConsoleContext::Clone()
+{
+	UConsoleContext* Cloned = NewObject<UConsoleContext>();
+	Cloned->Setup(this->GetPty()->Clone(), this->UserContext);
+	Cloned->WorkingDirectory = this->WorkingDirectory;
+	Cloned->UpdateTty = this->UpdateTty;
+	Cloned->GetSizeDelegate = this->GetSizeDelegate;
+	return Cloned;
 }
 
 UConsoleContext* UConsoleContext::PipeOut(UConsoleContext* InConsole)
 {
-	// TODO
-	return this;
+	UConsoleContext* PipedConsole = this->Pipe();
+	PipedConsole->Pty->OutputStream = InConsole->Pty->OutputStream;
+	return PipedConsole;
 }
 
 UPtyStream* UConsoleContext::GetPty()
