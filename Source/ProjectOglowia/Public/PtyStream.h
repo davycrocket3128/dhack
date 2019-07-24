@@ -129,4 +129,8 @@ private:
 public:
     UFUNCTION()
     static void CreatePty(UPtyStream*& OutMaster, UPtyStream*& OutSlave, FPtyOptions InOptions);
+
+public:
+    UFUNCTION()
+    UPtyStream* RedirectInto(UPtyFifoBuffer* InBuffer);
 };

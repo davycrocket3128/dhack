@@ -32,6 +32,7 @@
 #include "CommandShell.h"
 #include "UserContext.h"
 #include "PeacegateFileSystem.h"
+#include "CommonUtils.h"
 
 
 ACommandShell::ACommandShell()
@@ -215,7 +216,36 @@ void ACommandShell::FinishSpecialCommand()
 
 void ACommandShell::WriteToOutputFile(FString FileText)
 {
-	// TODO
+	FString path = this->GetConsole()->CombineWithWorkingDirectory(this->FilePath);
+	bool overwrite = this->FileOverwrite;
+	UPeacegateFileSystem* fs = this->GetUserContext()->GetFilesystem();
+	EFilesystemStatusCode Status = EFilesystemStatusCode::OK;
+
+	if(fs->DirectoryExists(path))
+	{
+		this->GetConsole()->WriteLine(NSLOCTEXT("Bash", "DirectoryExists", "bash: redirect: error: Directory exists."));
+		return;
+	}
+
+	if(overwrite || !fs->FileExists(path))
+	{
+		fs->WriteText(path, FileText);
+	}
+	else
+	{
+		// Read the contents of the file.
+		FString content;
+		if(!fs->ReadText(path, content, Status))
+		{
+			this->GetConsole()->WriteLine(FText::Format(NSLOCTEXT("Bash", "FileReadError", "bash: redirect: error: {0}"), UCommonUtils::GetFriendlyFilesystemStatusCode(Status)));
+			return;
+		}
+		content += FileText;
+		fs->WriteText(path, content);
+	}
+	this->FilePath = "";
+	this->FileBuffer = nullptr;
+	this->FileOverwrite = false;
 }
 
 void ACommandShell::Tick(float InDeltaTime)

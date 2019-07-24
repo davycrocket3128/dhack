@@ -177,3 +177,13 @@ void UPtyStream::RawMode(bool value)
     if(this->InputStream->IsRaw())
         this->FlushLineBuffer();
 }
+
+UPtyStream* UPtyStream::RedirectInto(UPtyFifoBuffer* InBuffer)
+{
+    UPtyStream* Redirected = NewObject<UPtyStream>();
+    Redirected->OutputStream = InBuffer;
+    Redirected->InputStream = this->InputStream;
+    Redirected->Options = this->Options;
+    Redirected->IsMaster = this->IsMaster;
+    return Redirected;
+}

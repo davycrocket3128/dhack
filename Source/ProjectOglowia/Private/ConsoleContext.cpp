@@ -251,8 +251,23 @@ UConsoleContext* UConsoleContext::Pipe()
 
 UConsoleContext* UConsoleContext::Redirect(UPtyFifoBuffer* InBuffer)
 {
-	// TODO
-	return this;
+	// All this really takes is creating a new PTY stream that uses the specified buffer for output.
+	UPtyStream* BufferedOutput = this->GetPty()->RedirectInto(InBuffer);
+
+	// Now we just create a console context...
+	UConsoleContext* RedirectedConsole = NewObject<UConsoleContext>();
+
+	// .. that uses the buffered PTY stream and our user context...
+	RedirectedConsole->Setup(BufferedOutput, this->UserContext);
+
+	// .. and knows how to talk to our terminal...
+	RedirectedConsole->UpdateTty = this->UpdateTty;
+	RedirectedConsole->GetSizeDelegate = this->GetSizeDelegate;
+
+	// .. and is in our working directory.
+	RedirectedConsole->WorkingDirectory = this->WorkingDirectory;
+	
+	return RedirectedConsole;
 }
 
 UConsoleContext* UConsoleContext::PipeOut(UConsoleContext* InConsole)
