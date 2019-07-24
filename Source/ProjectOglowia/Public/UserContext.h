@@ -125,6 +125,9 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Identity")
     bool HasIdentity();
 
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
+    int GetSkill();
+
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Upgrades")
     bool IsUpgradeInstalled(USystemUpgrade* InUpgrade);
 

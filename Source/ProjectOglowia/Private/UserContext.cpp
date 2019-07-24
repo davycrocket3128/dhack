@@ -41,6 +41,12 @@
 #include "PayloadAsset.h"
 #include "SystemUpgrade.h"
 
+int UUserContext::GetSkill()
+{
+	if(!this->HasIdentity()) return 0;
+	return this->GetOwningSystem()->GetCharacter().Skill;
+}
+
 bool UUserContext::HasIdentity()
 {
 	return this->GetOwningSystem()->HasIdentity();
