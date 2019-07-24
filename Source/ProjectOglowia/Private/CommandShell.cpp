@@ -429,7 +429,7 @@ void ACommandShell::ExecuteLine(FString Input)
 	}
 
     // The last piper console context used by a command.
-    UConsoleContext* LastPiper = this->GetConsole()->Clone();
+    UConsoleContext* LastPiper = nullptr;
 
     // Keep track of the current instruction index.  I'm doing it this way because I don't
     // like C for loops as much as I do C++ ones.  But I also need to keep track of the loop
@@ -476,7 +476,10 @@ void ACommandShell::ExecuteLine(FString Input)
             UConsoleContext* Piper = nullptr;
 
             // Set the piper up with a valid user context.
-            Piper = LastPiper->Pipe();
+            if(LastPiper)
+				Piper = LastPiper->Pipe();
+			else
+				Piper = this->GetConsole()->Clone()->Pipe();
             
             // Use this piper as the instruction's intended console.
             // Also set it as the last piper.
@@ -493,7 +496,10 @@ void ACommandShell::ExecuteLine(FString Input)
             // is just a generic piper.
             if(InstructionData.OutputFile.IsEmpty())
             {
-                Piper = LastPiper->PipeOut(this->GetConsole());
+                if(LastPiper)
+					Piper = LastPiper->PipeOut(this->GetConsole());
+				else
+					Piper = this->GetConsole();
             }
             else
             {
@@ -505,7 +511,10 @@ void ACommandShell::ExecuteLine(FString Input)
 				this->FileOverwrite = InstructionData.Overwrites;
 
 				// Redirect the piper to our fifo buffer
-				Piper = LastPiper->Redirect(this->FileBuffer);
+				if(LastPiper)
+					Piper = LastPiper->Redirect(this->FileBuffer);
+				else
+					Piper = this->GetConsole()->Clone()->Redirect(this->FileBuffer);
             }
 
             // And use it for the command.

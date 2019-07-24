@@ -180,9 +180,11 @@ void AMailCommand::WriteMessageList(UConsoleContext* InConsole, TArray<UMailMess
     InConsole->Write(IdHead);
     for(int i = 0; i <= LongestId - IdHead.ToString().Len(); i++)
         InConsole->Write(FText::FromString(" "));
+    InConsole->Write(FText::FromString(" | "));
     InConsole->Write(SubjectHead);
     for(int i = 0; i <= LongestSubject - SubjectHead.ToString().Len(); i++)
         InConsole->Write(FText::FromString(" "));
+    InConsole->Write(FText::FromString(" | "));
     InConsole->WriteLine(ParticipantsHead);
     InConsole->WriteLine(FText::GetEmpty());
 
@@ -193,10 +195,19 @@ void AMailCommand::WriteMessageList(UConsoleContext* InConsole, TArray<UMailMess
         InConsole->Write(FText::FromString(Message->GetMessageId()));
         for(int i = 0; i <= LongestId - Message->GetMessageId().Len(); i++)
             InConsole->Write(FText::FromString(" "));
+        InConsole->Write(FText::FromString(" | "));
         InConsole->Write(Message->GetSubject());
         for(int i = 0; i <= LongestSubject - Message->GetSubject().ToString().Len(); i++)
             InConsole->Write(FText::FromString(" "));
+        InConsole->Write(FText::FromString(" | "));
         InConsole->WriteLine(Message->GetParticipants());
+    }
+
+    if(!Messages.Num())
+    {
+        InConsole->SetForegroundColor(EConsoleColor::Magenta);
+        InConsole->WriteLine(NSLOCTEXT("MailCommand", "EmptyMailbox", "This mailbox is empty, no messages can be displayed."));
+        InConsole->ResetFormatting();
     }
 
     InConsole->WriteLine(FText::GetEmpty());
