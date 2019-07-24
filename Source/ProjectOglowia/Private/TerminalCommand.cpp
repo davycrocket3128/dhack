@@ -170,6 +170,7 @@ void ATerminalCommand::CompleteInternal(bool KillProcess)
 		// Add docopt arguments to the event data.
 		for(auto DocoptArg : this->ArgumentMap)
 		{
+			if(DocoptArg.Value->IsEmpty()) continue;
 			if(!MissionEventData.Contains(DocoptArg.Key))
 			{
 				MissionEventData.Add(DocoptArg.Key, DocoptArg.Value->AsString());

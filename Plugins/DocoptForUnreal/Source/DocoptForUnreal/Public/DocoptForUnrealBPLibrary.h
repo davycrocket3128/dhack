@@ -15,6 +15,9 @@ public:
 	docopt::value UnderlyingValue;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Docopt|Value")
+	bool IsEmpty();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Docopt|Value")
 	bool IsBoolean();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Docopt|Value")

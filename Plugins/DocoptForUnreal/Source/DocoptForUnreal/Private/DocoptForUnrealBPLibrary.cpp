@@ -152,6 +152,11 @@ FString UDocoptValue::AsString()
 	return FString(UnderlyingValue.asString().c_str());
 }
 
+bool UDocoptValue::IsEmpty()
+{
+	return this->UnderlyingValue.isEmpty();
+}
+
 TArray<FString> UDocoptValue::AsList()
 {
 	check(IsList());

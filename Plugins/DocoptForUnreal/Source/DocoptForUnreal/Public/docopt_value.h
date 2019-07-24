@@ -42,6 +42,7 @@ namespace docopt {
 		explicit operator bool() const { return kind != Kind::Empty; }
 		
 		// Test the type contained by this value object
+		bool isEmpty()		const { return kind==Kind::Empty; }
 		bool isBool()       const { return kind==Kind::Bool; }
 		bool isString()     const { return kind==Kind::String; }
 		bool isLong()       const { return kind==Kind::Long; }
