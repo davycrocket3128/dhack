@@ -119,7 +119,56 @@ void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Ar
 
 		if(HasError)
 		{
+			InConsole->SetForegroundColor(EConsoleColor::Magenta);
 			InConsole->WriteLine(FText::Format(NSLOCTEXT("TerminalCommand", "DocoptError", "{0}: {1}"), FText::FromString(CommandName), FText::FromString(Error)));
+			InConsole->ResetForegroundColor();
+			InConsole->WriteLine(FText::GetEmpty());
+			InConsole->WriteLine(NSLOCTEXT("TerminalCommand", "Usage", "Usage: "));
+			
+			bool PrintAll = true;
+			
+			for(auto UsageStr : this->CommandInfo->UsageStrings)
+			{
+				bool Print = true;
+				for(FString arg : Argv)
+				{
+					if(!UsageStr.Contains(arg))
+					{
+						Print = false;
+						break;
+					}
+				}
+
+				if(!Print) continue;
+
+				PrintAll = false;
+
+				InConsole->SetForegroundColor(EConsoleColor::Green);
+				InConsole->Write(FText::FromString(" "));
+				InConsole->Write(FText::FromString(this->CommandName));
+				InConsole->ResetForegroundColor();
+				InConsole->Write(FText::FromString(" "));
+				InConsole->WriteLine(FText::FromString(UsageStr));
+			}
+
+			if(PrintAll)
+			{
+				for(auto UsageStr : this->CommandInfo->UsageStrings)
+				{
+					InConsole->SetForegroundColor(EConsoleColor::Green);
+					InConsole->Write(FText::FromString(" "));
+					InConsole->Write(FText::FromString(this->CommandName));
+					InConsole->ResetForegroundColor();
+					InConsole->Write(FText::FromString(" "));
+					InConsole->WriteLine(FText::FromString(UsageStr));
+				}
+			}
+
+			InConsole->ResetFormatting();
+			InConsole->WriteLine(FText::GetEmpty());
+
+			InConsole->WriteLine(FText::Format(NSLOCTEXT("TerminalCommand", "MoreInfo", "See 'man {0}' for more information about this command."), FText::FromString(this->CommandName)));
+
 			this->Complete();
 			return;
 		}
