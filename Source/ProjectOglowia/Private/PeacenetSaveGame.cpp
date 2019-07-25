@@ -205,6 +205,7 @@ void UPeacenetSaveGame::FixEntityIDs()
 			IPsToRemove.Add(IPAddress.Key);
 		}
 	}
+
 	while(IPsToRemove.Num())
 	{
 		ComputerIPMap.Remove(IPsToRemove[0]);
@@ -305,6 +306,64 @@ void UPeacenetSaveGame::FixEntityIDs()
 	}
 
 	// Maybe THAT will stop the game from fucking wiping the player identity.
+
+	// COMPUTER LINKS
+	// ==============
+	//
+	// I'm too lazy to code a full LAN system for the game like I want to
+	// so, for 0.3.0, this is how the player's able to scan for nearby devices
+	// to hack.
+	// 
+	// Essentially, right now, Peacenet is one massive network.
+	//
+	// We're going to make sure all compuyter links are valid and,
+	// if one has an invalid entity ID we can't map, then we will
+	// remove the link.
+	TArray<int> InvalidLinks;
+
+	for(int i = 0; i < this->ComputerLinks.Num(); i++)
+	{
+		FComputerLink& Link = this->ComputerLinks[i];
+		if(ComputerIDMap.Contains(Link.ComputerA) && ComputerIDMap.Contains(Link.ComputerB))
+		{
+			Link.ComputerA = ComputerIDMap[Link.ComputerA];
+			Link.ComputerB = ComputerIDMap[Link.ComputerB];
+		}
+		else
+		{
+			InvalidLinks.Add(i);
+		}
+	}
+
+	// Now we remove any invalid links.
+	//
+	// Gonna try something different in 0.3.x, invalid entities should
+	// be removed in reverse.  That should fix bugs.
+	// If it works then all the above entity removals in this function will do it too.
+	while(InvalidLinks.Num())
+	{
+		int Last = InvalidLinks.Num() - 1;
+		this->ComputerLinks.RemoveAt(InvalidLinks[Last]);
+		InvalidLinks.RemoveAt(Last);
+	}
+
+	// Also do the same for known PCs.
+	TArray<int> BadKnownPCs;
+	for(int i = 0; i < this->PlayerKnownPCs.Num(); i++)
+	{
+		int id = PlayerKnownPCs[i];
+		if(ComputerIDMap.Contains(id))
+			PlayerKnownPCs[i] = ComputerIDMap[id];
+		else
+			BadKnownPCs.Add(i);
+	}
+
+	while(BadKnownPCs.Num())
+	{
+		int Last = BadKnownPCs.Num() - 1;
+		this->PlayerKnownPCs.RemoveAt(BadKnownPCs[Last]);
+		BadKnownPCs.RemoveAt(Last);
+	}
 }
 
 bool UPeacenetSaveGame::IsTrue(FString InKey)

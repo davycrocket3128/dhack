@@ -39,6 +39,7 @@
 #include "Computer.h"
 #include "Window.h"
 #include "StoryCharacterIDMap.h"
+#include "ComputerLink.h"
 #include "Email.h"
 #include "PeacenetSaveGame.generated.h"
 
@@ -66,6 +67,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Peacegate")
 	int PlayerComputerID = -1;
 
+	UPROPERTY(VisibleAnywhere, Category = "Save Game")
+	TArray<int> PlayerKnownPCs;
+
 	UPROPERTY(VisibleAnywhere, Category = "Peacegate")
 	int PlayerUserID = 0;
 
@@ -92,6 +96,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = "Entities")
 	TArray<FPeacenetIdentity> Characters;
+
+	UPROPERTY(VisibleAnywhere, Category = "Save Game")
+	TArray<FComputerLink> ComputerLinks;
 
 	UPROPERTY(VisibleAnywhere, Category = "World")
 	float EpochTime = 43200.f;
