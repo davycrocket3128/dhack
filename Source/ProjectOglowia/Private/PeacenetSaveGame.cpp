@@ -269,8 +269,9 @@ void UPeacenetSaveGame::FixEntityIDs()
 	// Removes all dead domain names from the game.
 	while(DeadDomains.Num())
 	{
-		DomainNameMap.Remove(DeadDomains[0]);
-		DeadDomains.RemoveAt(0);
+		int Last = DeadDomains.Num() - 1;
+		DomainNameMap.Remove(DeadDomains[Last]);
+		DeadDomains.RemoveAt(Last);
 	}
 
 	// With the new identity system in Peacenet 0.2.x, the save file no longer stores
