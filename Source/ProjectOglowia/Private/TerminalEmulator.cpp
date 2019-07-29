@@ -34,6 +34,7 @@
 #include "UnrealString.h"
 #include "ConsoleColor.h"
 #include "TutorialPromptState.h"
+#include "PlatformApplicationMisc.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -185,11 +186,17 @@ bool UTerminalEmulator::IsSelected(int x, int y) const
     return false;
 }
 
+#define MAX(a, b) ((a) > (b)) ? (a) : (b)
+
 void UTerminalEmulator::DrawGlyph(FTerminalDrawContext* DrawContext, FGlyph glyph, int x, int y) const
 {
+    int index = y * this->term.col + x;
+    int ss = MIN(this->selStart, this->selEnd);
+    int se = MAX(this->selStart, this->selEnd);
+
     if(glyph.mode & (uint16)EGlyphAttribute::ATTR_WDUMMY) return;
 
-    bool reversed = glyph.mode & (uint16)EGlyphAttribute::ATTR_REVERSE;
+    bool reversed = (glyph.mode & (uint16)EGlyphAttribute::ATTR_REVERSE) || (index >= ss && index <= se);
 
     FLinearColor bg = (reversed) ? glyph.fg : glyph.bg;
     FLinearColor fg = (reversed) ? glyph.bg : glyph.fg;
@@ -258,6 +265,40 @@ void UTerminalEmulator::NativeOnMouseLeave(const FPointerEvent& InPointerEvent)
     this->isMouseInTerminal = false;
 }
 
+FReply UTerminalEmulator::NativeOnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& InPointerEvent)
+{
+    if(InPointerEvent.GetEffectingButton().GetFName() == "LeftMouseButton")
+    {
+        if(this->selState == ETerminalSelectionState::Idle)
+        {
+            const FVector2D ass = InPointerEvent.GetScreenSpacePosition();
+            FVector2D bigAss = MyGeometry.AbsoluteToLocal(ass);
+
+            float w = 0, h = 0;
+            UCommonUtils::MeasureChar('#', this->DefaultFont, w, h);
+
+            int x = FMath::FloorToInt(bigAss.X / w);
+            int y = FMath::FloorToInt(bigAss.Y / h);
+
+            this->selStart = y * term.col + x;
+            this->selEnd = this->selStart;
+
+            this->selState = ETerminalSelectionState::Selecting;
+
+            return FReply::Handled();
+        }
+        if(this->selState == ETerminalSelectionState::Ready)
+        {
+            this->selStart = -1;
+            this->selEnd = -1;
+            this->selState = ETerminalSelectionState::Idle;
+            return FReply::Handled();
+        }
+    }
+
+    return FReply::Unhandled();
+}
+
 FReply UTerminalEmulator::NativeOnMouseMove(const FGeometry& MyGeometry, const FPointerEvent& InPointerEvent)
 {
     const FVector2D ass = InPointerEvent.GetScreenSpacePosition();
@@ -271,6 +312,11 @@ FReply UTerminalEmulator::NativeOnMouseMove(const FGeometry& MyGeometry, const F
 
     this->mouseX = x;
     this->mouseY = y;
+
+    if(this->selState == ETerminalSelectionState::Selecting)
+    {
+        this->selEnd = y * this->term.col + x;
+    }
 
     return FReply::Handled();
 }
@@ -324,8 +370,78 @@ void UTerminalEmulator::DrawCursor(FTerminalDrawContext* DrawContext) const
     }
 }
 
+void UTerminalEmulator::CopySelection()
+{
+    FString DumpDest;
+    int i = -1;
+    
+    int ss = MIN(this->selStart, this->selEnd);
+    int se = MAX(this->selStart, this->selEnd);
+            
+    for(int y = 0; y < this->term.row; y++)
+    {
+        for(int x = 0; x < this->term.col; x++)
+        {
+            i = y * this->term.col + x;
+            if(i >= ss && i <= se)
+            {
+                TCHAR c = this->term.line[y][x].u;
+                if(c == '\0') continue;
+                DumpDest += c;
+            }
+        }
+        if(i >= ss && i <= se)
+        {
+            DumpDest += "\r\n";
+        }
+
+        i = -1;
+    }
+
+    if(DumpDest.Len())
+    {
+        FPlatformApplicationMisc::ClipboardCopy(*DumpDest);
+    }
+}
+
+void UTerminalEmulator::PasteToInput()
+{
+    FString PasteDest;
+    FPlatformApplicationMisc::ClipboardPaste(PasteDest);
+
+    if(PasteDest.Len())
+    {
+        for(TCHAR c : PasteDest)
+        {
+            this->Slave->WriteChar(c);
+        }
+    }
+}
+
 FReply UTerminalEmulator::NativeOnMouseButtonUp( const FGeometry& InGeometry, const FPointerEvent& InMouseEvent )
 {
+    if(InMouseEvent.GetEffectingButton().GetFName() == "LeftMouseButton")
+    {
+        if(this->selState == ETerminalSelectionState::Selecting)
+        {
+            this->selState = ETerminalSelectionState::Ready;
+        }
+    }
+    if(InMouseEvent.GetEffectingButton().GetFName() == "RightMouseButton")
+    {
+        if(this->selState == ETerminalSelectionState::Ready)
+        {
+            this->CopySelection();
+            this->selStart = -1;
+            this->selEnd = -1;
+            this->selState = ETerminalSelectionState::Idle;
+        }
+        else if(this->selState == ETerminalSelectionState::Idle)
+        {
+            this->PasteToInput();
+        }
+    }
+
 	return FReply::Handled().SetUserFocus(this->TakeWidget());
 }
 

@@ -240,6 +240,14 @@ public:
     FText Text;
 };
 
+UENUM()
+enum class ETerminalSelectionState
+{
+    Idle,
+    Selecting,
+    Ready
+};
+
 UCLASS(Blueprintable, BlueprintType)
 class PROJECTOGLOWIA_API UTerminalEmulator : public UUserWidget
 {
@@ -295,6 +303,15 @@ private:
 
     UPROPERTY()
     bool ShowBlinking = true;
+
+    UPROPERTY()
+    ETerminalSelectionState selState = ETerminalSelectionState::Idle;
+
+    UPROPERTY()
+    int selStart = -1;
+
+    UPROPERTY()
+    int selEnd = -1;
 
     UPROPERTY()
     int mouseX = 0;
@@ -393,6 +410,8 @@ private:
     void Resize(int col, int row);
     void PutTab(int n);
     void DismissTutorial();
+    void CopySelection();
+    void PasteToInput();
 
 protected:
     UFUNCTION()
@@ -415,6 +434,9 @@ protected:
     virtual void NativeOnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& InPointerEvent) override;
     virtual void NativeOnMouseLeave(const FPointerEvent& InPointerEvent) override;
     virtual FReply NativeOnMouseMove(const FGeometry& MyGeometry, const FPointerEvent& InPointerEvent) override;
+
+    // Mouse button shit for selection.
+    virtual FReply NativeOnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& InPointerEvent) override;
 
     // This is where we'll update the terminal's state.
     virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
