@@ -167,6 +167,30 @@ int UPeacenetSaveGame::GetPlayerIdentity()
 	return -1;
 }
 
+TArray<int> UPeacenetSaveGame::GetLinkedSystems(FComputer& InOrigin)
+{
+	TArray<int> Ret;
+	for(auto& Link : this->ComputerLinks)
+	{
+		if(Link.ComputerA == InOrigin.ID)
+		{
+			Ret.Add(Link.ComputerB);
+			continue;
+		}
+		if(Link.ComputerB == InOrigin.ID)
+		{
+			Ret.Add(Link.ComputerA);
+			continue;
+		}
+	}
+	for(int ID : Ret)
+	{
+		if(!PlayerKnownPCs.Contains(ID))
+			PlayerKnownPCs.Add(ID);
+	}
+	return Ret;
+}
+
 void UPeacenetSaveGame::FixEntityIDs()
 {
 	TMap<int, int> ComputerIDMap;

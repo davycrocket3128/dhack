@@ -296,6 +296,15 @@ private:
     UPROPERTY()
     bool ShowBlinking = true;
 
+    UPROPERTY()
+    int mouseX = 0;
+    
+    UPROPERTY()
+    int mouseY = 0;
+
+    UPROPERTY()
+    bool isMouseInTerminal = false;
+
     FCursor SavedCursor;
 
 public:
@@ -365,6 +374,7 @@ private:
     void DrawLine(FTerminalDrawContext* DrawContext, FLine line, int x1, int y, int x2) const;
     void DrawRegion(FTerminalDrawContext* DrawContext, int x1, int y1, int x2, int y2) const;
     void DrawCursor(FTerminalDrawContext* DrawContext) const;
+    void DrawMouseCursor(FTerminalDrawContext* DrawContext) const;
     void PutChar(TCHAR c);
     void NewLine(int firstCol);
     void MoveTo(int x, int y);
@@ -400,6 +410,11 @@ protected:
 
     // Occurs when it's time for the terminal to render - creates a new draw context and starts rendering the terminal with it.
     virtual int32 NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
+
+    // Mouse movement shit for selection.
+    virtual void NativeOnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& InPointerEvent) override;
+    virtual void NativeOnMouseLeave(const FPointerEvent& InPointerEvent) override;
+    virtual FReply NativeOnMouseMove(const FGeometry& MyGeometry, const FPointerEvent& InPointerEvent) override;
 
     // This is where we'll update the terminal's state.
     virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;

@@ -313,6 +313,61 @@ bool APeacenetWorldStateActor::IdentityHasSystemContext(int InIdentityID)
 	return false;
 }
 
+TArray<FString> APeacenetWorldStateActor::GetLinkedHosts(USystemContext* InSystem)
+{
+	// Generate any links that need to be generated.
+	this->Procgen->GenerateLinks(InSystem->GetComputer());
+
+	// Get all of the linked entities for the system.
+	TArray<int> LinkedPCs = this->SaveGame->GetLinkedSystems(InSystem->GetComputer());
+
+	// The list of hosts we're going to return:
+	TArray<FString> Ret;
+
+	for(int System : LinkedPCs)
+	{
+		Ret.Add(this->ReverseDns(System));
+	}
+
+	return Ret;
+}
+
+FString APeacenetWorldStateActor::ReverseDns(int ComputerID)
+{
+	FString IP;
+	for(auto IPMap : this->SaveGame->ComputerIPMap)
+	{
+		if(IPMap.Value == ComputerID)
+		{
+			IP = IPMap.Key;
+			break;
+		}
+	}
+
+	if(IP.Len())
+	{
+		bool KeepGoing = true;
+		while(KeepGoing)
+		{
+			bool Found = false;
+
+			for(auto Dns : this->SaveGame->DomainNameMap)
+			{
+				if(Dns.Value == IP)
+				{
+					IP = Dns.Key;
+					Found = true;
+					break;
+				}
+			}
+
+			if(!Found)
+				KeepGoing = false;
+		}
+	}
+	return IP;
+}
+
 void APeacenetWorldStateActor::FailMission(const FText& InFailMessage)
 {
 	check(this->CurrentMission);

@@ -98,6 +98,9 @@ public:
     void UpdateStoryCharacter(UStoryCharacter* InStoryCharacter);
 
     UFUNCTION()
+    void GenerateLinks(FComputer& InOrigin);
+
+    UFUNCTION()
     UProtocolVersion* GetProtocol(UComputerService* InService, int InSkill);
 
     UFUNCTION()

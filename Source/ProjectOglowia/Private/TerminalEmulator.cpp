@@ -248,6 +248,33 @@ void UTerminalEmulator::DrawGlyph(FTerminalDrawContext* DrawContext, FGlyph glyp
 
 }
 
+void UTerminalEmulator::NativeOnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& InPointerEvent)
+{
+    this->isMouseInTerminal = true;
+}
+
+void UTerminalEmulator::NativeOnMouseLeave(const FPointerEvent& InPointerEvent)
+{
+    this->isMouseInTerminal = false;
+}
+
+FReply UTerminalEmulator::NativeOnMouseMove(const FGeometry& MyGeometry, const FPointerEvent& InPointerEvent)
+{
+    const FVector2D ass = InPointerEvent.GetScreenSpacePosition();
+    FVector2D bigAss = MyGeometry.AbsoluteToLocal(ass);
+
+    float w = 0, h = 0;
+    UCommonUtils::MeasureChar('#', this->DefaultFont, w, h);
+
+    int x = FMath::FloorToInt(bigAss.X / w);
+    int y = FMath::FloorToInt(bigAss.Y / h);
+
+    this->mouseX = x;
+    this->mouseY = y;
+
+    return FReply::Handled();
+}
+
 void UTerminalEmulator::DrawLine(FTerminalDrawContext* DrawContext, FLine line, int x1, int y, int x2) const
 {
     for(int x = x1; x < x2; x++)
@@ -313,11 +340,31 @@ int32 UTerminalEmulator::NativePaint(const FPaintArgs& Args, const FGeometry& Al
     // Draw the cursor.
     this->DrawCursor(DrawContext);
 
+    // Draw the mouse cursor.
+    this->DrawMouseCursor(DrawContext);
+
     // Get the layer ID of the draw context.
     LayerId = DrawContext->GetLayerId();
 
     // Return the layer ID.
     return LayerId;
+}
+
+void UTerminalEmulator::DrawMouseCursor(FTerminalDrawContext* DrawContext) const
+{
+    if(this->isMouseInTerminal)
+    {
+        int x = this->mouseX;
+        int y = this->mouseY;
+
+        float w = 0, h = 0;
+        UCommonUtils::MeasureChar('#', this->DefaultFont, w, h);
+
+        float winx = x * w;
+        float winy = y * h;
+
+        DrawContext->DrawRect(FLinearColor(1.f, 1.f, 1.f, 0.5f), winx, winy, w, h);
+    }
 }
 
 void UTerminalEmulator::TtyRead()

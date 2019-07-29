@@ -151,6 +151,9 @@ public:
 	TArray<int> GetAllEntities();
 
 	UFUNCTION()
+	TArray<int> GetLinkedSystems(FComputer& InOrigin);
+
+	UFUNCTION()
 	int GetGameStat(FName InStatName);
 
 	UFUNCTION()

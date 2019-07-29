@@ -250,6 +250,9 @@ public:
 	template<typename AssetType>
 	bool LoadAssets(FName ClassName, TArray<AssetType*>& OutArray);
 
+private:
+	FString ReverseDns(int ComputerID);
+
 public:	// Functions
 	FText GetTimeOfDay();
 
@@ -339,6 +342,9 @@ public:	// Functions
 
 	UFUNCTION()
 	TArray<UComputerService*> GetServicesFor(EComputerType InComputerType);
+
+	UFUNCTION()
+	TArray<FString> GetLinkedHosts(USystemContext* InSystemContext);
 
 	UFUNCTION()
 	void SaveWorld();

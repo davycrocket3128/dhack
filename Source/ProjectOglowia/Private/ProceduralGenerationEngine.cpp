@@ -46,6 +46,11 @@
 #include "PeacenetSiteAsset.h"
 #include "PeacenetWorldStateActor.h"
 
+void UProceduralGenerationEngine::GenerateLinks(FComputer& InOrigin)
+{
+    // TODO.
+}
+
 void UProceduralGenerationEngine::UpdateStoryIdentities()
 {
     // Load in all of the story character assets.
