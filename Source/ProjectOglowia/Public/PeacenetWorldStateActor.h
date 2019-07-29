@@ -82,6 +82,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMailMessageSendEvent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMissionFailureEvent, AMissionActor*, MissionState, const FText&, FailMessage);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FGameEventSent, FString, InEventName, FGameEventData, InEventData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMissionCompleteEvent, UMissionAsset*, InMission);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FQuitRequestEvent);
 
 UCLASS()
 class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
@@ -158,6 +159,9 @@ public: //Properties
 	UPROPERTY(BlueprintAssignable)
 	FMissionFailureEvent MissionFailed;
 
+	UPROPERTY(BlueprintAssignable)
+	FQuitRequestEvent GameQuitRequested;
+
 	UPROPERTY()
 	FMailMessageSendEvent NewMailAdded;
 
@@ -190,6 +194,9 @@ public: //Properties
 
 	UFUNCTION()
 	FEmail& GetNewEmailMessage();
+
+	UFUNCTION()
+	void QuitGame();
 
 	UFUNCTION()
 	bool GetStoryCharacterID(UStoryCharacter* InStoryCharacter, int& OutEntityID);

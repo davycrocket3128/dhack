@@ -313,6 +313,11 @@ bool APeacenetWorldStateActor::IdentityHasSystemContext(int InIdentityID)
 	return false;
 }
 
+void APeacenetWorldStateActor::QuitGame()
+{
+	this->GameQuitRequested.Broadcast();
+}
+
 TArray<FString> APeacenetWorldStateActor::GetLinkedHosts(USystemContext* InSystem)
 {
 	// Generate any links that need to be generated.
