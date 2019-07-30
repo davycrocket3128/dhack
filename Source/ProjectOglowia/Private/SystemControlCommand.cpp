@@ -210,7 +210,7 @@ void ASystemControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<
             {
                 Installed.Add(Upgrade);
             }
-            else if(Upgrade->UpgradeIsUnlockable(this->GetUserContext()))
+            else
             {
                 Available.Add(Upgrade);
             }
@@ -232,6 +232,17 @@ void ASystemControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<
             
         }
 
+        if(Available.Num() == 0)
+        {
+            InConsole->SetForegroundColor(EConsoleColor::Magenta);
+            InConsole->SetItalic(true);
+            InConsole->WriteLine(NSLOCTEXT("SystemCtl", "NoAvailableUpgrades", "There are no upgrades to display in this list."));
+            InConsole->ResetFormatting();
+            InConsole->WriteEmptyLine();
+        }
+
+        InConsole->WriteLine(NSLOCTEXT("SystemCtl", "DisableTip", "Use systemctl disable <upgrade> to disable an upgrade above."));
+
         InConsole->WriteLine(FText::GetEmpty());
 
         InConsole->SetBold(true);
@@ -244,12 +255,37 @@ void ASystemControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<
         for(auto Upgrade : Available)
         {
             InConsole->Write(FText::FromString(" - "));
-            InConsole->SetForegroundColor(EConsoleColor::Green);
+            if(Upgrade->UpgradeIsUnlockable(this->GetUserContext()))
+            {
+                InConsole->SetForegroundColor(EConsoleColor::Green);
+            }
+            else 
+            {
+                InConsole->SetForegroundColor(EConsoleColor::Red);
+            }
             InConsole->Write(FText::FromName(Upgrade->ID));
             InConsole->ResetFormatting();
             InConsole->Write(FText::FromString(": "));
             InConsole->WriteLine(FText::Format(NSLOCTEXT("SystemCtl", "UpgradeSkill", "{0} XP"), FText::AsNumber(Upgrade->RequiredSkillPoints)));
         }
+
+        if(Available.Num() == 0)
+        {
+            InConsole->SetForegroundColor(EConsoleColor::Magenta);
+            InConsole->SetItalic(true);
+            InConsole->WriteLine(NSLOCTEXT("SystemCtl", "NoAvailableUpgrades", "There are no upgrades to display in this list."));
+            InConsole->ResetFormatting();
+            InConsole->WriteEmptyLine();
+        }
+        else 
+        {
+            InConsole->WriteEmptyLine();
+            InConsole->WriteLine(NSLOCTEXT("SystemCtl", "UpgradeListLegend", "Legend:\r\n  Red: Not unlocked yet.\r\n  Green: Available."));
+            InConsole->WriteEmptyLine();
+        }
+
+        InConsole->WriteLine(NSLOCTEXT("SystemCtl", "EnableTip", "Use systemctl enable <upgrade> to enable an upgrade above."));
+
 
         InConsole->WriteEmptyLine();
     }
