@@ -751,15 +751,7 @@ void APeacenetWorldStateActor::BeginPlay()
 
 	// Load all user-unlockable upgrades.
 	this->UserUnlockableUpgrades.Empty();
-	TArray<USystemUpgrade*> Upgrades;
-	this->LoadAssets<USystemUpgrade>("SystemUpgrade", Upgrades);
-	for(auto Upgrade : Upgrades)
-	{
-		if(Upgrade->CanUserUnlock)
-		{
-			this->UserUnlockableUpgrades.Add(Upgrade);
-		}
-	}
+	this->LoadAssets<USystemUpgrade>("SystemUpgrade", this->UserUnlockableUpgrades);
 
 	// Load computer services in.
 	this->LoadAssets<UComputerService>("ComputerService", this->ComputerServices);

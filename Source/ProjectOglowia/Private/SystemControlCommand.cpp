@@ -241,7 +241,7 @@ void ASystemControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<
         InConsole->ResetFormatting();
         InConsole->WriteLine(FText::GetEmpty());
 
-        for(auto Upgrade : Installed)
+        for(auto Upgrade : Available)
         {
             InConsole->Write(FText::FromString(" - "));
             InConsole->SetForegroundColor(EConsoleColor::Green);
