@@ -165,6 +165,9 @@ public:
 	FString GetDisplayWorkingDirectory();
 	
 	UFUNCTION(BlueprintCallable, Category = "Console")
+	void WriteEmptyLine();
+
+	UFUNCTION(BlueprintCallable, Category = "Console")
 	void WriteLine(const FText& InText, float DelaySeconds = 0.f);
 
 	UFUNCTION(BlueprintCallable, Category = "Console")

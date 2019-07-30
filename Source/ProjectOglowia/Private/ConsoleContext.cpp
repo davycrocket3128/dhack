@@ -69,6 +69,11 @@ void UConsoleContext::InvokeTtyUpdate()
 	this->UpdateTty.ExecuteIfBound();
 }
 
+void UConsoleContext::WriteEmptyLine()
+{
+	this->WriteToPty("\r\n");
+}
+
 bool UConsoleContext::GetLine(FString& OutLine)
 {
 	FString line;

@@ -89,6 +89,22 @@ void UCommonUtils::ReorderCanvasPanel(UCanvasPanel* InCanvasPanel, UWindow* InFo
 	}
 }
 
+bool UCommonUtils::UpgradeDependsOn(UUserContext* UserContext, USystemUpgrade* Target, USystemUpgrade* Dependency)
+{
+	if(Target->Dependencies.Num() == 0) return false;
+
+	for(auto TargetDep : Target->Dependencies)
+	{
+		if(TargetDep == Dependency)
+			return true;
+
+		bool result = UpgradeDependsOn(UserContext, TargetDep, Dependency);
+		if(result) return true;
+	}
+
+	return false;
+}
+
 FLinearColor UCommonUtils::GetConsoleColor(EConsoleColor InConsoleColor)
 {
 	switch(InConsoleColor)

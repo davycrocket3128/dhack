@@ -60,6 +60,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Common Utils")
 	static void ReorderCanvasPanel(UCanvasPanel* InCanvasPanel, UWindow* InFocusWindow);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Upgrades")
+	static bool UpgradeDependsOn(UUserContext* UserContext, USystemUpgrade* Target, USystemUpgrade* Dependency);
+
 	UFUNCTION(BlueprintCallable, Category = "Bootup")
 	static float PrintKernelMessages(UTerminalEmulator* InConsole);
 	
