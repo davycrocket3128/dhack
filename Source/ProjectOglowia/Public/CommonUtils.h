@@ -83,6 +83,9 @@ public:
 	template<typename T>
 	static bool BinarySearch(TArray<T> InArray, TFunction<int(const T& InA)> InComparer, T& OutElement);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Common Utils")
+	static FText GetConnectionError(EConnectionError InError);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Common Utilities for The Peacenet")
 	static FLinearColor GetForegroundColor(FLinearColor InColor);
 
@@ -120,6 +123,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Clipboard")
 	static void PutClipboardText(FString InText);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Parsing")
+	static void ParseHost(FString InHost, FString& OutAddress, bool& HasPort, int& OutPort);
 
 	UFUNCTION(BlueprintCallable, Category = "Settings")
 	static void SetEnableBloom(UCameraComponent* InCamera, bool InEnableBloom);

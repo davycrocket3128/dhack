@@ -157,7 +157,8 @@ bool APeacenetWorldStateActor::DnsResolve(FString InHost, FComputer& OutComputer
 	int Entity = this->SaveGame->ComputerIPMap[InHost];
 
 	int Index = -1;
-	bool result = this->SaveGame->GetComputerByID(Entity, OutComputer, Index);
+	FComputer pc;
+	bool result = this->SaveGame->GetComputerByID(Entity, pc, Index);
 
 	// If we didn't find a computer then we'll timeout.
 	if(!result)
@@ -165,6 +166,12 @@ bool APeacenetWorldStateActor::DnsResolve(FString InHost, FComputer& OutComputer
 		OutError = EConnectionError::ConnectionTimedOut;
 		return false;
 	}
+
+	// Now we force the game to generate firewall rules for the system.
+	this->Procgen->GenerateFirewallRules(this->GetComputerByID(Entity));
+
+	// And now we give the computer to the caller.
+	OutComputer = this->GetComputerByID(Entity);
 
 	// Now we have a computer.  I can see the truth.  Only returning true.
 	return true;

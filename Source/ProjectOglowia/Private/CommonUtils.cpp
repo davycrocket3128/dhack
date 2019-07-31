@@ -37,6 +37,7 @@
 #include "Window.h"
 #include "PlatformApplicationMisc.h"
 #include "SystemContext.h"
+#include "Regex.h"
 
 void UCommonUtils::ReorderCanvasPanel(UCanvasPanel* InCanvasPanel, UWindow* InFocusWindow)
 {
@@ -86,6 +87,51 @@ void UCommonUtils::ReorderCanvasPanel(UCanvasPanel* InCanvasPanel, UWindow* InFo
 		}
 
 		FocusSlot->SetZOrder(SortedSlots.Num() - 1);
+	}
+}
+
+FText UCommonUtils::GetConnectionError(EConnectionError InConnectionError)
+{
+	switch(InConnectionError)
+	{
+		case EConnectionError::None:
+			return NSLOCTEXT("Connection", "Success", "Connection successful.");
+		case EConnectionError::HostNotFound:
+			return NSLOCTEXT("Connection", "HostNotFound", "Could not resolve host.");
+		case EConnectionError::ConnectionRefused:
+			return NSLOCTEXT("Connection", "Refused", "Connection refused.");
+		case EConnectionError::ConnectionTimedOut:
+			return NSLOCTEXT("Connection", "Timeout", "Connection timed out.");
+		default:
+			return NSLOCTEXT("Connection", "Unknown", "Unspecified error.");
+	}
+}
+
+void UCommonUtils::ParseHost(FString InHost, FString& OutAddress, bool& HasPort, int& OutPort)
+{
+	// Regex pattern used to parse address and port out of host.
+	FRegexPattern HostPattern("(.*):(\\d*)");
+
+	// Create a matcher that uses the pattern and host.
+	FRegexMatcher Matcher(HostPattern, InHost);
+
+	// If the pattern matches then we have a port.
+	if(Matcher.FindNext())
+	{
+		HasPort = true;
+
+		// The address is whatever's in the first capture group.
+		OutAddress = Matcher.GetCaptureGroup(1);
+
+		// The port is in the second capture group.
+		OutPort = FCString::Atoi(*Matcher.GetCaptureGroup(2));
+	}
+	else
+	{
+		// No port!
+		HasPort = false;
+		OutPort = -1;
+		OutAddress = InHost;
 	}
 }
 

@@ -31,6 +31,8 @@
 
 #include "NmapCommand.h"
 #include "UserContext.h"
+#include "CommonUtils.h"
+#include "ProtocolVersion.h"
 
 // nmap
 //
@@ -74,7 +76,177 @@ void ANmapCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
     }
     else 
     {
-        InConsole->WriteLine(NSLOCTEXT("General", "NYI", "Not yet implemented."));
+        FString Address;
+        int Port;
+        bool HasPort;
+
+        // Parse out the port and determine if we even have one.
+        UCommonUtils::ParseHost(this->ArgumentMap["<target>"]->AsString(), Address, HasPort, Port);
+
+        // Now we can do the DNS resolve.
+        FComputer Computer;
+        EConnectionError ConnectionError;
+        bool Resolved = this->GetUserContext()->DnsResolve(Address, Computer, ConnectionError);
+
+        InConsole->WriteLine(FText::Format(NSLOCTEXT("Nmap", "ScanReport", "Nmap scan report for {0}:"), FText::FromString(Address)));
+
+        if(Resolved)
+        {
+            InConsole->WriteLine(NSLOCTEXT("Nmap", "HostUp", "Host is up."));
+
+            if(HasPort)
+            {
+                for(auto Service : Computer.FirewallRules)
+                {
+                    if(Service.Port == Port && !Service.IsCrashed)
+                    {
+                        bool FoundVulns = false;
+
+                        InConsole->SetBold(true);
+                        InConsole->Write(NSLOCTEXT("Nmap", "AnalysisProtocol", "Protocol: "));
+                        InConsole->SetBold(false);
+                        InConsole->WriteLine(Service.Service->Protocol->Name);
+
+                        InConsole->SetBold(true);
+                        InConsole->Write(NSLOCTEXT("Nmap", "DetectedService", "Detected implementation: "));
+                        InConsole->SetBold(false);
+                        InConsole->WriteLine(Service.Service->Name);
+
+                        InConsole->WriteEmptyLine();
+
+                        if(Service.IsFiltered)
+                        {
+                            InConsole->SetBold(true);
+                            InConsole->SetForegroundColor(EConsoleColor::Red);
+                            InConsole->WriteLine(NSLOCTEXT("Nmap", "FurewallDetected", "Service is filtered. Firewall detected."));
+                            InConsole->ResetFormatting();
+                        }
+                        else
+                        {
+                            InConsole->SetBold(true);
+                            InConsole->WriteLine(NSLOCTEXT("Nmap", "KnownVulnerabilities", "Known vulnerabilities:\n"));
+                            InConsole->ResetFormatting();
+
+                            for(auto Exp : InConsole->GetUserContext()->GetExploits())
+                            {
+                                if(Exp->Targets.Contains(Service.Service))
+                                {
+                                    FoundVulns = true;
+                                    InConsole->Write(FText::FromString(" - "));
+                                    InConsole->SetForegroundColor(EConsoleColor::Yellow);
+                                    InConsole->WriteLine(Exp->FullName);
+                                    InConsole->ResetForegroundColor();
+                                }
+                            }
+
+                            if(!FoundVulns)
+                            {
+                                InConsole->Write(FText::FromString(" - "));
+                                InConsole->SetForegroundColor(EConsoleColor::Red);
+                                InConsole->WriteLine(NSLOCTEXT("Nmap", "NoVulnerabilities", "Error: Nmap doesn't know any vulnerabilities in this service's implementation."));
+                                InConsole->ResetFormatting();
+                            }
+
+                            this->Complete();
+                            return;
+                        }
+                    }
+                }
+
+                InConsole->SetBold(true);
+                InConsole->SetForegroundColor(EConsoleColor::Red);
+                InConsole->WriteLine(NSLOCTEXT("Nmap", "AnalysisFailed", "Analysis failed: Remote system not listening on this port."));
+                InConsole->ResetFormatting();
+
+            }
+            else
+            {
+                int LongestSvcLen = 0;
+                int LongestPortLen = 0;
+                int LongestStatLen = 0;
+
+                TArray<FString> Ports;
+                TArray<FText> Names;
+                TArray<bool> Filters;
+
+                for(auto Svc : Computer.FirewallRules)
+                {
+                    if(Svc.IsCrashed) continue;
+
+                    FText FilteredStat = NSLOCTEXT("Nmap", "Open", "Open");
+                    if(Svc.IsFiltered)
+                        FilteredStat = NSLOCTEXT("Nmap", "Filtered", "Filtered");
+
+                    int StatLen = FilteredStat.ToString().Len();
+                    if(StatLen > LongestStatLen)
+                        LongestStatLen = StatLen;
+
+                    FText Name = Svc.Service->Protocol->Name;
+                    if(Name.ToString().Len() > LongestSvcLen)
+                        LongestSvcLen = Name.ToString().Len();
+
+                    FString SvcPort = FString::FromInt(Svc.Port);
+                    if(SvcPort.Len() > LongestPortLen)
+                        LongestPortLen = SvcPort.Len();
+
+                    Names.Add(Name);
+                    Ports.Add(SvcPort);
+                    Filters.Add(Svc.IsFiltered);
+                }
+
+                FText NameHead = NSLOCTEXT("Nmap", "ScanNameHead", "Name");
+                FText PortHead = NSLOCTEXT("Nmap", "ScanPortHead", "Port");
+                FText FilteredHead = NSLOCTEXT("Nmap", "ScanFilterHead", "Status");
+                
+                int NameHeadLen = NameHead.ToString().Len();
+                int PortHeadLen = PortHead.ToString().Len();
+                int FilterHeadLen = FilteredHead.ToString().Len();
+
+                if(NameHeadLen > LongestSvcLen) LongestSvcLen = NameHeadLen;
+                if(PortHeadLen > LongestPortLen) LongestPortLen = PortHeadLen;
+                if(FilterHeadLen > LongestStatLen) LongestStatLen = FilterHeadLen;
+
+                InConsole->SetBold(true);
+                InConsole->Write(PortHead);
+                for(int i = 0; i <= LongestPortLen - PortHeadLen; i++)
+                    InConsole->Write(FText::FromString(" "));
+                InConsole->Write(FilteredHead);
+                for(int i = 0; i <= LongestStatLen - FilterHeadLen; i++)
+                    InConsole->Write(FText::FromString(" "));
+                InConsole->WriteLine(NameHead);
+                InConsole->SetBold(false);
+
+                InConsole->WriteLine(FText::GetEmpty());
+
+                for(int i = 0; i < Names.Num(); i++)
+                {
+                    FText Name = Names[i];
+                    FText SvcPort = FText::FromString(Ports[i]);
+                    FText Filter = Filters[i] ? NSLOCTEXT("Nmap", "Filtered", "Filtered") : NSLOCTEXT("Nmap", "Open", "Open");
+
+                    int NameLen = Name.ToString().Len();
+                    int PortLen = SvcPort.ToString().Len();
+                    int FilterLen = Filter.ToString().Len();
+
+                    InConsole->Write(SvcPort);
+                    for(int j = 0; j <= (LongestPortLen - PortLen); j++)
+                        InConsole->Write(FText::FromString(" "));
+                    InConsole->Write(Filter);
+                    for(int j = 0; j <= (LongestStatLen - FilterLen); j++)
+                        InConsole->Write(FText::FromString(" "));
+                    InConsole->WriteLine(Name);
+                }
+
+                InConsole->ResetFormatting();
+                InConsole->WriteLine(FText::GetEmpty());
+            }
+        }
+        else
+        {
+            InConsole->SetForegroundColor(EConsoleColor::Magenta);
+            InConsole->WriteLine(UCommonUtils::GetConnectionError(ConnectionError));
+            InConsole->ResetFormatting();
+        }
     }
 
     this->Complete();
