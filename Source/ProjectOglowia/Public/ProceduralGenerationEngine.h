@@ -98,6 +98,9 @@ public:
     bool GetNextLink(FComputer& InOrigin, int& OutLinkId);
 
     UFUNCTION()
+    bool HasAnyValidVersion(UComputerService* InService);
+
+    UFUNCTION()
     void UpdateStoryCharacter(UStoryCharacter* InStoryCharacter);
 
     UFUNCTION()

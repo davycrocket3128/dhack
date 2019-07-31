@@ -30,6 +30,7 @@
  ********************************************************************************/
 
 #include "NmapCommand.h"
+#include "UserContext.h"
 
 // nmap
 //
@@ -63,5 +64,18 @@
 //                nmap 86.75.30.9:80           - See nmap kaylincomputing.com:80 example.
 void ANmapCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
 {
+    if(this->ArgumentMap["<target>"]->IsEmpty())
+    {
+        // Scan for nearby hosts.
+        for(auto Host : this->GetUserContext()->GetNearbyHosts())
+        {
+            InConsole->WriteLine(FText::FromString(Host));
+        }
+    }
+    else 
+    {
+        InConsole->WriteLine(NSLOCTEXT("General", "NYI", "Not yet implemented."));
+    }
+
     this->Complete();
 }

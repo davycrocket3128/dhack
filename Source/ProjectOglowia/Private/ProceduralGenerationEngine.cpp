@@ -518,7 +518,7 @@ void UProceduralGenerationEngine::GenerateFirewallRules(FComputer& InComputer)
 
     for(int i = 0; i < Services.Num(); i++)
     {
-        if(Services[i]->IsDefault || RNG.RandRange(0, 6) % 2)
+        if((Services[i]->IsDefault || RNG.RandRange(0, 6) % 2) && this->HasAnyValidVersion(Services[i])) 
         {
             FFirewallRule Rule;
             Rule.Port = Services[i]->Port;
@@ -527,6 +527,16 @@ void UProceduralGenerationEngine::GenerateFirewallRules(FComputer& InComputer)
             InComputer.FirewallRules.Add(Rule);
         }
     }
+}
+
+bool UProceduralGenerationEngine::HasAnyValidVersion(UComputerService* InComputerService)
+{
+    for(auto Version : this->ProtocolVersions)
+    {
+        if(Version->Protocol == InComputerService) return true;
+    }
+
+    return false;
 }
 
 UProtocolVersion* UProceduralGenerationEngine::GetProtocol(UComputerService* InService, int InSkill)
@@ -539,13 +549,6 @@ UProtocolVersion* UProceduralGenerationEngine::GetProtocol(UComputerService* InS
     {
         UProtocolVersion* protocolVersion = this->ProtocolVersions[i];
         if(protocolVersion->Protocol != InService)
-        {
-            i++;
-            if(i >= this->ProtocolVersions.Num())
-                i=0;
-            continue;
-        }
-        if(protocolVersion->MinimumSkillLevel > InSkill)        
         {
             i++;
             if(i >= this->ProtocolVersions.Num())

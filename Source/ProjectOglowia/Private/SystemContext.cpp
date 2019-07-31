@@ -47,6 +47,11 @@
 #include "PayloadAsset.h"
 #include "SystemUpgrade.h"
 
+TArray<FString> USystemContext::GetNearbyHosts()
+{
+	return this->GetPeacenet()->GetLinkedHosts(this);
+}
+
 bool USystemContext::IsUpgradeInstalled(USystemUpgrade* InUpgrade)
 {
 	if(!InUpgrade)

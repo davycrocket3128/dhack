@@ -81,6 +81,9 @@ public:
     void OnProcessEnded(TScriptDelegate<> InDelegate);
 
     UFUNCTION()
+    TArray<FString> GetNearbyHosts();
+
+    UFUNCTION()
     FPeacegateProcess GetProcessByID(int ProcessID);
 
     UFUNCTION()

@@ -205,6 +205,9 @@ public:
 	UFUNCTION()
 	void AppendLog(FString InLogText);
 
+	UFUNCTION()
+	TArray<FString> GetNearbyHosts();
+
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Process List")
 	TArray<FPeacegateProcess> GetRunningProcesses();

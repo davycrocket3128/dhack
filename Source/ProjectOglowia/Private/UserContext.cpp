@@ -41,6 +41,11 @@
 #include "PayloadAsset.h"
 #include "SystemUpgrade.h"
 
+TArray<FString> UUserContext::GetNearbyHosts()
+{
+	return this->GetOwningSystem()->GetNearbyHosts();
+}
+
 int UUserContext::GetSkill()
 {
 	if(!this->HasIdentity()) return 0;
