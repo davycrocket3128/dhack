@@ -48,7 +48,186 @@
 
 void UProceduralGenerationEngine::GenerateLinks(FComputer& InOrigin)
 {
-    // TODO.
+    // COMPUTER LINK GENERATION
+    //
+    // Computer Links are the game's underlying representation of the Peacenet
+    // network.  They are used internally by nmap for adjacent node scanning.
+    //
+    // Prerequisites:
+    //  - A computer should have no more than 5 links, and no less than one link.
+    //  - Two computers should be linked together if they own the same
+    //    Peacenet Identity.  This is an exception to the max links rule.
+    //  - A player computer must have at least one hackable link.
+    //  - Story computers should be linked to the player if their
+    //    Story Character metadata states as such.
+    // 
+    // Story computers and same-identity computers are considered "special"
+    // by the game and thus DO NOT count against the max-links limit.  However
+    // they do count as meeting the minimum requirement of one link.
+    //
+    // This is so that a computer doesn't HAVE to be linked to a non-special link
+    // if there are enough special links to meet the minimum link requirement.
+    
+
+    // First we'll start with same-identity links.  This only happens
+    // if the computer given to us has an identity.
+    if(InOrigin.SystemIdentity > -1)
+    {
+        // Iterate through all computers in the game.
+        for(FComputer& Computer : this->Peacenet->SaveGame->Computers)
+        {
+            // Check if the identity matches.
+            if(Computer.SystemIdentity == InOrigin.SystemIdentity)
+            {
+                // If the two computers are not linked, add a link.
+                if(!this->Peacenet->SaveGame->GetLinkedSystems(InOrigin).Contains(Computer.ID))
+                {
+                    FComputerLink NewLink;
+                    NewLink.ComputerA = InOrigin.ID;
+                    NewLink.ComputerB = Computer.ID;
+                    this->Peacenet->SaveGame->ComputerLinks.Add(NewLink);
+                }
+            }
+        }
+    }
+
+    // Now, we'll go through all of the story characters in the game.
+    if(InOrigin.OwnerType == EComputerOwnerType::Player)
+    {
+        for(auto StoryChar : this->Peacenet->SaveGame->StoryCharacterIDs)
+        {
+            // Check if the character should link to the player.
+            if(StoryChar.CharacterAsset->ShouldLinkToPlayer)
+            {
+                // Find the computer whose system identity matches the story character.
+                for(FComputer& Computer : this->Peacenet->SaveGame->Computers)   
+                {
+                    if(Computer.SystemIdentity == StoryChar.Identity)
+                    {
+                        // Add a link if these systems are not linked.
+                        if(!this->Peacenet->SaveGame->GetLinkedSystems(InOrigin).Contains(Computer.ID))
+                        {
+                            FComputerLink NewLink;
+                            NewLink.ComputerA = InOrigin.ID;
+                            NewLink.ComputerB = Computer.ID;
+                            this->Peacenet->SaveGame->ComputerLinks.Add(NewLink);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Determine how many non-special systems we need to link.
+    int LinksToFulfill = 5;
+    int Specials = 0;
+    for(int Link : this->Peacenet->SaveGame->GetLinkedSystems(InOrigin))
+    {
+        FComputer LinkedSys;
+        int LinkedIndex = -1;
+        this->Peacenet->SaveGame->GetComputerByID(Link, LinkedSys, LinkedIndex);
+
+        if(LinkedSys.SystemIdentity == InOrigin.SystemIdentity && InOrigin.SystemIdentity > -1) 
+        {
+            Specials++;
+            continue;
+        }
+
+        bool IsStory = false;
+        if(InOrigin.OwnerType == EComputerOwnerType::Player)
+        {
+            for(auto StoryChar : this->Peacenet->SaveGame->StoryCharacterIDs)
+            {
+                if(StoryChar.CharacterAsset->ShouldLinkToPlayer && StoryChar.Identity == LinkedSys.SystemIdentity)
+                {   
+                    Specials++;
+                    IsStory = true;
+                    break;
+                }
+            }
+        }
+
+        if(!IsStory) LinksToFulfill--;
+
+        if(LinksToFulfill <= 0) break;
+    }
+
+    // Generate non-special links while we still need to.
+    int NextLinkId = -1;
+    while(LinksToFulfill && this->GetNextLink(InOrigin, NextLinkId))
+    {
+        // Link the fucker!
+        FComputerLink NewLink;
+        NewLink.ComputerA = InOrigin.ID;
+        NewLink.ComputerB = NextLinkId;
+        this->Peacenet->SaveGame->ComputerLinks.Add(NewLink);
+
+        LinksToFulfill--;
+    }
+
+    // Check to make sure the computer has the minimum amount of links.
+    check(this->Peacenet->SaveGame->GetLinkedSystems(InOrigin).Num() > 0);
+
+    // Check to make sure there are no more than 5 non-special links.
+    check(this->Peacenet->SaveGame->GetLinkedSystems(InOrigin).Num() - Specials <= 5);
+}
+
+bool UProceduralGenerationEngine::GetNextLink(FComputer& InOrigin, int& OutLinkId)
+{
+    // Reset link id.
+    OutLinkId = -1;
+
+    // Go through all computers in the save file.
+    for(FComputer& Computer : this->Peacenet->SaveGame->Computers)
+    {
+        // Avoid the origin.
+        if(Computer.ID == InOrigin.ID) continue;
+
+        // Avoid same-identity computers.
+        if(Computer.SystemIdentity == InOrigin.SystemIdentity && InOrigin.SystemIdentity > -1) continue;
+
+        // Avoid already-linked computers.
+        if(this->Peacenet->SaveGame->GetLinkedSystems(InOrigin).Contains(Computer.ID)) continue;
+
+        // Avoid any computers that already have 5 non-special links.
+        int NonSpecialLinks = 0;
+        for(int Link : this->Peacenet->SaveGame->GetLinkedSystems(Computer))
+        {
+            // Retrieve the computer of the link.
+            FComputer LinkedSys;
+            int LinkedIndex = -1;
+            this->Peacenet->SaveGame->GetComputerByID(Link, LinkedSys, LinkedIndex);
+
+            // If the system identities match it's a special link.
+            if(Computer.SystemIdentity == LinkedSys.SystemIdentity && Computer.SystemIdentity > -1) continue;
+            
+            // If the computer is a player and the linked system is a story character that should be
+            // linked to the player then it is a special.
+            if(Computer.OwnerType == EComputerOwnerType::Player)
+            {
+                bool IsStory = false;
+                for(auto StoryChar : this->Peacenet->SaveGame->StoryCharacterIDs)
+                {
+                    if(StoryChar.CharacterAsset->ShouldLinkToPlayer && StoryChar.Identity == LinkedSys.SystemIdentity)
+                    {
+                        IsStory = true;
+                        break;
+                    }
+                }
+                if(IsStory) continue;
+            }
+
+            // Increase non-special links count.
+            NonSpecialLinks++;
+        }
+
+        if(NonSpecialLinks > 5) continue;
+
+        // We should be fine.
+        OutLinkId = Computer.ID;
+        break;
+    }
+    return OutLinkId > -1;
 }
 
 void UProceduralGenerationEngine::UpdateStoryIdentities()

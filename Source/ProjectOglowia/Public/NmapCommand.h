@@ -32,43 +32,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/DataAsset.h"
-#include "Text.h"
-#include "TextProperty.h"
-#include "Exploit.h"
-#include "StoryCharacter.generated.h"
+#include "TerminalCommand.h"
+#include "NmapCommand.generated.h"
 
-UCLASS(Blueprintable, BlueprintType)
-class PROJECTOGLOWIA_API UStoryCharacter : public UDataAsset
+UCLASS()
+class PROJECTOGLOWIA_API ANmapCommand : public ATerminalCommand
 {
     GENERATED_BODY()
 
-public:
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Metadata")
-    FText Name;
-
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Email")
-    bool UseNameForEmail = true;
-
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Email")
-    FString EmailAlias;
-
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
-    bool UseNameForHostname = false;
-
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
-    FString Hostname = "";
-
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
-    bool UseEmailAliasAsUsername = true;
-
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
-    bool ShouldLinkToPlayer = true;
-
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
-    FString Username;
-
-    // A list of exploits which the resulting character's computer will definitely spawn with.
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Loots")
-    TArray<UExploit*> Exploits;
+protected:
+    virtual void NativeRunCommand(UConsoleContext* InConsoleContext, TArray<FString> InArguments) override;
 };

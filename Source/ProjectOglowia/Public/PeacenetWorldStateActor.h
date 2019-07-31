@@ -89,6 +89,7 @@ class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
 {
 	iamnickensorto AMissionActor; // AMissionActor's more clingy to the fucking save file than I was to Nick Ensor.  That's...annoying....
 	iamalsonickensorto UMissionTask; // For the love of Kaylin...
+	iamalsonickensorto UProceduralGenerationEngine;
 
 	GENERATED_BODY()
 	

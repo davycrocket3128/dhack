@@ -95,6 +95,9 @@ public:
     void SpawnPeacenetSites();
 
     UFUNCTION()
+    bool GetNextLink(FComputer& InOrigin, int& OutLinkId);
+
+    UFUNCTION()
     void UpdateStoryCharacter(UStoryCharacter* InStoryCharacter);
 
     UFUNCTION()
