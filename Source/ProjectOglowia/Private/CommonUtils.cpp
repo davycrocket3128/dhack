@@ -180,7 +180,8 @@ float UCommonUtils::PrintKernelMessages(UTerminalEmulator* InConsole)
 	// Yes. I know. This looks like it came out of Philip Adams' asshole.  Just looking at it gives me RSI.
 	// That's why I wasn't dumb enough to write this by hand, I wrote a script that generated this code from a real
 	// Linux dmesg log.  -- Michael
-	InConsole->WriteLine(FText::FromString("[    0.000000] Linux version 4.15.0-50-generic (buildd@lcy01-amd64-013) (gcc version 7.3.0 (Ubuntu 7.3.0-16ubuntu3)) #54-Ubuntu SMP Mon May 6 18:46:08 UTC 2019 (Ubuntu 4.15.0-50.54-generic 4.15.18)"), 0.f);
+	//fixed it --Richie
+	InConsole->WriteLine(FText::FromString("[    0.000000] Linux version 4.15.0-50-generic (buildd@lcy01-amd64-013) (gcc version 7.9.0 (peacegate 7.9.0-16peacegate3)) #54-peacegate SMP Mon May 6 18:46:08 UTC 2030 (Peacegate 4.15.0-50.54-generic 4.15.18)"), 0.f);
 	InConsole->WriteLine(FText::FromString("[    0.000000] Command line: BOOT_IMAGE=/boot/vmlinuz-4.15.0-50-generic root=UUID=b9df59e6-c806-4851-befa-12402bca5828 ro console=tty1 console=ttyS0"), 0.f);
 	InConsole->WriteLine(FText::FromString("[    0.000000] KERNEL supported cpus:"), 0.f);
 	InConsole->WriteLine(FText::FromString("[    0.000000]   Intel GenuineIntel"), 0.f);
@@ -201,7 +202,7 @@ float UCommonUtils::PrintKernelMessages(UTerminalEmulator* InConsole)
 	InConsole->WriteLine(FText::FromString("[    0.000000] BIOS-e820: [mem 0x00000000fffc0000-0x00000000ffffffff] reserved"), 0.f);
 	InConsole->WriteLine(FText::FromString("[    0.000000] NX (Execute Disable) protection: active"), 0.f);
 	InConsole->WriteLine(FText::FromString("[    0.000000] SMBIOS 2.4 present."), 0.f);
-	InConsole->WriteLine(FText::FromString("[    0.000000] DMI: DigitalOcean Droplet, BIOS 20171212 12/12/2017"), 0.f);
+	InConsole->WriteLine(FText::FromString("[    0.000000] DMI: DigitalOcean Droplet, BIOS 20301212 12/12/2030"), 0.f);
 	InConsole->WriteLine(FText::FromString("[    0.000000] Hypervisor detected: KVM"), 0.f);
 	InConsole->WriteLine(FText::FromString("[    0.000000] e820: update [mem 0x00000000-0x00000fff] usable ==> reserved"), 0.f);
 	InConsole->WriteLine(FText::FromString("[    0.000000] e820: remove [mem 0x000a0000-0x000fffff] usable"), 0.f);
