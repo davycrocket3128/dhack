@@ -1,0 +1,19 @@
+{
+	"FileVersion" : 3,
+	
+	"FriendlyName" : "Peacenet Debug Tools",
+	"Version" : 1,
+	"VersionName" : "1.0",
+	"CreatedBy" : "Bit Phoenix Software",
+	"CreatedByURL" : "https://bitphoenixsoftware.com/",
+	"EngineVersion" : "4.22.3",
+	"Description" : "Adds various Peacegate programs, commands, exploits and more to the game for use during debugging.",
+	"Category" : "User Mod",
+	"EnabledByDefault" : true,
+
+	"Modules" :
+	[
+	],
+
+	"CanContainContent" : true
+}

@@ -62,8 +62,8 @@ class USystemUpgrade;
 
 // Because literally anything that requires the world state to be friends with it is fucking clingy
 // as fuck.
-#define iamnickensorto friend
-#define iamalsonickensorto friend
+#define mystalkeris friend
+#define myotherstalkeris friend
 
 
 USTRUCT(BlueprintType)
@@ -87,9 +87,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FQuitRequestEvent);
 UCLASS()
 class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
 {
-	iamnickensorto AMissionActor; // AMissionActor's more clingy to the fucking save file than I was to Nick Ensor.  That's...annoying....
-	iamalsonickensorto UMissionTask; // For the love of Kaylin...
-	iamalsonickensorto UProceduralGenerationEngine;
+	mystalkeris AMissionActor; // AMissionActor's more clingy to the fucking save file than I was to Nick Ensor.  That's...annoying....
+	myotherstalkeris UMissionTask; // For the love of Kaylin...
+	myotherstalkeris UProceduralGenerationEngine;
 
 	GENERATED_BODY()
 	

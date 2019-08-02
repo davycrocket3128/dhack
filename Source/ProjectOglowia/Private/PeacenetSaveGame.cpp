@@ -172,12 +172,12 @@ TArray<int> UPeacenetSaveGame::GetLinkedSystems(FComputer& InOrigin)
 	TArray<int> Ret;
 	for(auto& Link : this->ComputerLinks)
 	{
-		if(Link.ComputerA == InOrigin.ID)
+		if(Link.ComputerA == InOrigin.ID && Link.ComputerB != InOrigin.ID)
 		{
 			Ret.Add(Link.ComputerB);
 			continue;
 		}
-		if(Link.ComputerB == InOrigin.ID)
+		if(Link.ComputerB == InOrigin.ID && Link.ComputerA != InOrigin.ID)
 		{
 			Ret.Add(Link.ComputerA);
 			continue;

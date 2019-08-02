@@ -76,13 +76,14 @@ enum class EFilesystemStatusCode : uint8
 	FileOrDirectoryExists,
 	DirectoryNotEmpty,
 	PermissionDenied,
-	UnknownError
+	UnknownError,
+	NotYetImplemented
 };
 
 /**
  * Encapsulates a filesystem of a Peacenet computer.
  */
-UCLASS(Blueprintable)
+UCLASS(BlueprintType)
 class PROJECTOGLOWIA_API UPeacegateFileSystem : public UObject
 {
 	GENERATED_BODY()
