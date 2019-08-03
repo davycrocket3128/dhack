@@ -355,6 +355,9 @@ public:	// Functions
 	TArray<FString> GetLinkedHosts(USystemContext* InSystemContext);
 
 	UFUNCTION()
+	TArray<FString> GetPlayerKnownHosts();
+
+	UFUNCTION()
 	void SaveWorld();
 
 	UFUNCTION(BlueprintCallable, Category = "Peacenet")

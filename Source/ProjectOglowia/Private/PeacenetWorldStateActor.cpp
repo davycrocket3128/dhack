@@ -308,6 +308,18 @@ void APeacenetWorldStateActor::SendGameEvent(FString EventName, TMap<FString, FS
 	this->GameEventSent.Broadcast(EventName, Data);
 }
 
+TArray<FString> APeacenetWorldStateActor::GetPlayerKnownHosts()
+{
+	TArray<FString> Ret;
+
+	for(auto HostID : this->SaveGame->PlayerKnownPCs)
+	{
+		Ret.Add(this->ReverseDns(HostID));
+	}
+
+	return Ret;
+}
+
 bool APeacenetWorldStateActor::IdentityHasSystemContext(int InIdentityID)
 {
 	for(auto SystemContext : this->SystemContexts)

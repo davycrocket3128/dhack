@@ -364,6 +364,11 @@ bool UUserContext::OpenFile(const FString& InPath, EFileOpenResult& OutResult)
 	return true;
 }
 
+TArray<FString> UUserContext::GetKnownHosts()
+{
+	return this->GetPeacenet()->GetPlayerKnownHosts();
+}
+
 EUserColor UUserContext::GetUserColor()
 {
 	for(auto& User : this->GetOwningSystem()->GetComputer().Users)

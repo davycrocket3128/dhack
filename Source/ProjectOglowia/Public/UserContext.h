@@ -131,6 +131,9 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
     int GetSkill();
 
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
+    TArray<FString> GetKnownHosts();
+
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Upgrades")
     bool IsUpgradeInstalled(USystemUpgrade* InUpgrade);
 
