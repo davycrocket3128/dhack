@@ -663,42 +663,32 @@ UPeacegateFileSystem * UCommonUtils::CreateFilesystem(USystemContext* InSystemCo
 
 FLinearColor UCommonUtils::GetUserColor(EUserColor InColor)
 {
-	switch (InColor)
+	FColor Result = FColor(0x00, 0x00, 0x00, 0xFF);
+
+	switch(InColor)
 	{
-	case EUserColor::Black:
-	default:
-		return FLinearColor::Black;
-	case EUserColor::Blue:
-		return FLinearColor(0.f, 0.f, 0.5f, 1.f);
-	case EUserColor::Red:
-		return FLinearColor(0.5f, 0.f, 0.f, 1.f);
-	case EUserColor::Green:
-		return FLinearColor(0.f, 0.5f, 0.f, 1.f);
-	case EUserColor::Aqua:
-		return FLinearColor(0.f, 0.5f, 0.5f, 1.f);
-	case EUserColor::Purple:
-		return FLinearColor(0.5f, 0.f, 0.5f, 1.f);
-	case EUserColor::Yellow:
-		return FLinearColor(0.5f, 0.5f, 0.f, 1.f);
-	case EUserColor::Gray:
-		return FLinearColor(0.5f, 0.5f, 0.5f, 1.f);
-	case EUserColor::White:
-		return FLinearColor(0.75F, 0.75f, 0.75f, 1.f);
-	case EUserColor::LightBlue:
-		return FLinearColor(0.f, 0.f, 1.f, 1.f);
-	case EUserColor::LightGreen:
-		return FLinearColor(0.f, 1.f, 0.f, 1.f);
-	case EUserColor::LightRed:
-		return FLinearColor(1.f, 0.f, 0.f, 1.f);
-	case EUserColor::LightAqua:
-		return FLinearColor(0.f, 1.f, 1.f, 1.f);
-	case EUserColor::LightPurple:
-		return FLinearColor(1.f, 0.f, 1.f, 1.f);
-	case EUserColor::LightYellow:
-		return FLinearColor(1.f, 1.f, 0.f, 1.f);
-	case EUserColor::BrightWhite:
-		return FLinearColor(1.f, 1.f, 1.f, 1.f);
+		case EUserColor::Peaceful:
+			Result = FColor(0x1B, 0xAA, 0xF7, 0xFF);
+			break;
+		case EUserColor::Blood:
+			Result = FColor(0xF7, 0x1B, 0x1B, 0xFF);
+			break;
+		case EUserColor::Noir:
+			Result = FColor(0x15, 0x15, 0x15, 0xFF);
+			break;
+		case EUserColor::Fire:
+			Result = FColor(0xF7, 0x94, 0x1B, 0xFF);
+			break;
+		case EUserColor::Slate:
+			Result = FColor(0x94, 0x44, 0xFF, 0xFF);
+			break;
+		case EUserColor::Serenity:
+			Result = FColor(0x2C, 0xD3, 0x1D, 0xFF);
+			break;
+		
 	}
+
+	return FLinearColor(Result);
 }
 
 void UCommonUtils::MeasureChar(const TCHAR InChar, const FSlateFontInfo & InSlateFont, float & OutWidth, float & OutHeight)

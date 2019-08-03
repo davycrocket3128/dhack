@@ -373,7 +373,7 @@ EUserColor UUserContext::GetUserColor()
 			return User.UserColor;
 		}
 	}
-	return EUserColor::Aqua;
+	return EUserColor::Peaceful;
 }
 
 FString UUserContext::GetEmailAddress()

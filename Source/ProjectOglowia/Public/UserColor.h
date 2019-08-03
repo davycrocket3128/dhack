@@ -40,20 +40,10 @@
 UENUM(BlueprintType)
 enum class EUserColor : uint8
 {
-	Black,
-	Blue,
-	Green,
-	Aqua,
-	Red,
-	Purple,
-	Yellow,
-	White,
-	Gray,
-	LightBlue,
-	LightGreen,
-	LightAqua,
-	LightRed,
-	LightPurple,
-	LightYellow,
-	BrightWhite
+	Noir = 0,
+	Serenity = 2,
+	Peaceful = 3,
+	Blood = 4,
+	Slate = 5,
+	Fire = 12
 };

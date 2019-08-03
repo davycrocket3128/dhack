@@ -97,7 +97,7 @@ public:
 	FString Password;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	EUserColor UserColor = EUserColor::Aqua;
+	EUserColor UserColor = EUserColor::Peaceful;
 };
 
 /**
