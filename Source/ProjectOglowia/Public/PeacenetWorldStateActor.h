@@ -83,6 +83,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMissionFailureEvent, AMissionActor
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FGameEventSent, FString, InEventName, FGameEventData, InEventData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMissionCompleteEvent, UMissionAsset*, InMission);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FQuitRequestEvent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FUpdateKnownHostsEvent);
 
 UCLASS()
 class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
@@ -96,6 +97,9 @@ class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
 public: // Constructors
 	// Sets default values for this actor's properties
 	APeacenetWorldStateActor();
+
+	UPROPERTY(BlueprintAssignable)
+	FUpdateKnownHostsEvent UpdateKnownHosts;
 
 	// All of the system upgrades that are available in the upgrade shop (formerly shiftorium in shiftos.)
 	UPROPERTY()

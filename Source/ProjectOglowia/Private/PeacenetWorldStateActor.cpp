@@ -353,6 +353,8 @@ TArray<FString> APeacenetWorldStateActor::GetLinkedHosts(USystemContext* InSyste
 		Ret.Add(this->ReverseDns(System));
 	}
 
+	this->UpdateKnownHosts.Broadcast();
+
 	return Ret;
 }
 
