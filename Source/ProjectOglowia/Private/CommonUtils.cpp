@@ -38,6 +38,11 @@
 #include "PlatformApplicationMisc.h"
 #include "SystemContext.h"
 #include "Regex.h"
+#include "GameFramework/PlayerController.h"
+#include "UserContext.h"
+#include "GameFramework/Actor.h"
+#include "PeacenetWorldStateActor.h"
+#include "Engine/Public/Engine.h"
 
 void UCommonUtils::ReorderCanvasPanel(UCanvasPanel* InCanvasPanel, UWindow* InFocusWindow)
 {
@@ -88,6 +93,74 @@ void UCommonUtils::ReorderCanvasPanel(UCanvasPanel* InCanvasPanel, UWindow* InFo
 
 		FocusSlot->SetZOrder(SortedSlots.Num() - 1);
 	}
+}
+
+bool UCommonUtils::GetPlayerUserContext(APlayerController* InPlayerController, UUserContext*& OutUserContext)
+{
+	// The reason we need a player controller is that we need a way to get context as to where the player is.
+	// By that I mean, in 3D space.  What level are they in?  What actors are in tere?
+	//
+	// This context will allow us to find the Peacenet World State Actor even when this function is called outside
+	// of Peacegate or in a place where a User Context/System Context is inaccessible.  That's the whole point
+	// of this function in 0.3.0, so that you can get a user context anywhere.
+	//
+	// Really, any object that properly implements UObject::GetWorld() - any actor, UMG widget, etc. will work
+	// but taking a Player Controller ABSOLUTELY ensures that function will get us what we need.
+
+	// We're gonna need the world context object right now.
+	UWorld* WorldContext = InPlayerController->GetWorld();
+
+	// If that's nullptr, something has SEVERELY FUCKED UP in Unreal Engine.
+	check(WorldContext);
+
+	if(!WorldContext) // graceful, silent failure in release builds.
+		return false;
+
+	// Allows us to iterate through the current world for any Peacenet world state actors.
+	TActorIterator<APeacenetWorldStateActor> ActorItr(WorldContext, APeacenetWorldStateActor::StaticClass(), EActorIteratorFlags::SkipPendingKill);
+
+	// Keep on goin' til we run outta gas.
+	while(ActorItr)
+	{
+		// Try to get a pointer to a Peacenet world state actor.
+		APeacenetWorldStateActor* Peacenet = *ActorItr;
+
+		// If it's valid...
+		if(Peacenet)
+		{
+			// WE HAVE A PEACENET CONTEXT!
+			//
+			// So now we can get the player user.
+			//
+			// Essentially this is a matter of getting the player system context and, from there,
+			// getting the desktop user session.
+			USystemContext* PlayerSystem = Peacenet->GetSystemContext(Peacenet->GetPlayerComputer().ID);
+
+			// Make sure it's valid.
+			if(!PlayerSystem)
+				return false;
+
+			// Now we can get the desktop session:
+			UDesktopWidget* PlayerDesktop = PlayerSystem->GetDesktop();
+
+			// Make sure that's valid too.
+			if(!PlayerDesktop)
+				return false;
+
+			// If the player desktop doesn't have an active session then we return false.
+			if(!PlayerDesktop->IsSessionActive())
+				return false;
+
+			// Get the player user from the desktop and return true!
+			OutUserContext = PlayerDesktop->GetUserContext();
+			return true;
+		}
+
+		// Go to the next possible actor.
+		++ActorItr;
+	}
+
+	 return false;
 }
 
 FText UCommonUtils::GetConnectionError(EConnectionError InConnectionError)

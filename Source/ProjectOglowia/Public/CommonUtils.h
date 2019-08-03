@@ -45,6 +45,8 @@
 
 class UPeacenetSaveGame;
 class USystemContext;
+class UUserContext;
+class APlayerController;
 class UTerminalEmulator;
 class UWindow;
 
@@ -123,6 +125,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Clipboard")
 	static void PutClipboardText(FString InText);
+
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Common Utils")
+	static bool GetPlayerUserContext(APlayerController* InPlayerController, UUserContext*& OutUserContext);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Parsing")
 	static void ParseHost(FString InHost, FString& OutAddress, bool& HasPort, int& OutPort);

@@ -112,9 +112,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mission")
 	void StartMissionIfAvailable(UMissionAsset* InMissionAsset);
 
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	bool IsSessionActive();
-
 	UFUNCTION(BlueprintCallable)
 	void ActivateSession(UUserContext* UserContext);
 
@@ -155,6 +152,12 @@ protected:
 	bool IsTutorialActive();
 
 public:
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UUserContext* GetUserContext();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool IsSessionActive();
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Desktop")
 	bool IsInTextMode();
 
@@ -198,9 +201,6 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateMap();
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	UUserContext* GetUserContext();
 
 	UPROPERTY(BlueprintReadOnly, Category = "Desktop")
 	FPeacenetIdentity MyCharacter;
