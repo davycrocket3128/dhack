@@ -35,7 +35,6 @@
 #include "CoreMinimal.h"
 #include "PeacenetWorldStateActor.h"
 #include "PeacegateFileSystem.h"
-#include "TerminalColor.h"
 #include "PtyStream.h"
 #include "LineNoiseUE4.h"
 #include "ConsoleColor.h"

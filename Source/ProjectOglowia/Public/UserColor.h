@@ -33,12 +33,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "TerminalColor.generated.h"
+#include "UserColor.generated.h"
 /**
  * Represents a Terminal color.
  */
 UENUM(BlueprintType)
-enum class ETerminalColor : uint8
+enum class EUserColor : uint8
 {
 	Black,
 	Blue,

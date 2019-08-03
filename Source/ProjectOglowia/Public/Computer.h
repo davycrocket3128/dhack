@@ -39,7 +39,7 @@
 #include "ComputerType.h"
 #include "FirewallRule.h"
 #include "TextFile.h"
-#include "TerminalColor.h"
+#include "UserColor.h"
 #include "Exploit.h"
 #include "PayloadAsset.h"
 #include "Computer.generated.h"
@@ -97,7 +97,7 @@ public:
 	FString Password;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	ETerminalColor UserColor = ETerminalColor::Blue;
+	EUserColor UserColor = EUserColor::Aqua;
 };
 
 /**

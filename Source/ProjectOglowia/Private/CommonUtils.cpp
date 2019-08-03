@@ -661,104 +661,44 @@ UPeacegateFileSystem * UCommonUtils::CreateFilesystem(USystemContext* InSystemCo
 	return FS;
 }
 
-FLinearColor UCommonUtils::GetTerminalColor(ETerminalColor InColor)
+FLinearColor UCommonUtils::GetUserColor(EUserColor InColor)
 {
 	switch (InColor)
 	{
-	case ETerminalColor::Black:
+	case EUserColor::Black:
 	default:
 		return FLinearColor::Black;
-	case ETerminalColor::Blue:
+	case EUserColor::Blue:
 		return FLinearColor(0.f, 0.f, 0.5f, 1.f);
-	case ETerminalColor::Red:
+	case EUserColor::Red:
 		return FLinearColor(0.5f, 0.f, 0.f, 1.f);
-	case ETerminalColor::Green:
+	case EUserColor::Green:
 		return FLinearColor(0.f, 0.5f, 0.f, 1.f);
-	case ETerminalColor::Aqua:
+	case EUserColor::Aqua:
 		return FLinearColor(0.f, 0.5f, 0.5f, 1.f);
-	case ETerminalColor::Purple:
+	case EUserColor::Purple:
 		return FLinearColor(0.5f, 0.f, 0.5f, 1.f);
-	case ETerminalColor::Yellow:
+	case EUserColor::Yellow:
 		return FLinearColor(0.5f, 0.5f, 0.f, 1.f);
-	case ETerminalColor::Gray:
+	case EUserColor::Gray:
 		return FLinearColor(0.5f, 0.5f, 0.5f, 1.f);
-	case ETerminalColor::White:
+	case EUserColor::White:
 		return FLinearColor(0.75F, 0.75f, 0.75f, 1.f);
-	case ETerminalColor::LightBlue:
+	case EUserColor::LightBlue:
 		return FLinearColor(0.f, 0.f, 1.f, 1.f);
-	case ETerminalColor::LightGreen:
+	case EUserColor::LightGreen:
 		return FLinearColor(0.f, 1.f, 0.f, 1.f);
-	case ETerminalColor::LightRed:
+	case EUserColor::LightRed:
 		return FLinearColor(1.f, 0.f, 0.f, 1.f);
-	case ETerminalColor::LightAqua:
+	case EUserColor::LightAqua:
 		return FLinearColor(0.f, 1.f, 1.f, 1.f);
-	case ETerminalColor::LightPurple:
+	case EUserColor::LightPurple:
 		return FLinearColor(1.f, 0.f, 1.f, 1.f);
-	case ETerminalColor::LightYellow:
+	case EUserColor::LightYellow:
 		return FLinearColor(1.f, 1.f, 0.f, 1.f);
-	case ETerminalColor::BrightWhite:
+	case EUserColor::BrightWhite:
 		return FLinearColor(1.f, 1.f, 1.f, 1.f);
 	}
-}
-
-FString UCommonUtils::GetTerminalColorCode(ETerminalColor InColor)
-{
-	switch (InColor)
-	{
-	case ETerminalColor::Black:
-	default:
-		return "&0";
-	case ETerminalColor::Blue:
-		return "&1";
-	case ETerminalColor::Red:
-		return "&4";
-	case ETerminalColor::Green:
-		return "&2";
-	case ETerminalColor::Aqua:
-		return "&3";
-	case ETerminalColor::Purple:
-		return "&5";
-	case ETerminalColor::Yellow:
-		return "&6";
-	case ETerminalColor::Gray:
-		return "&8";
-	case ETerminalColor::White:
-		return "&7";
-	case ETerminalColor::LightBlue:
-		return "&9";
-	case ETerminalColor::LightGreen:
-		return "&A";
-	case ETerminalColor::LightRed:
-		return "&C";
-	case ETerminalColor::LightAqua:
-		return "&B";
-	case ETerminalColor::LightPurple:
-		return "&D";
-	case ETerminalColor::LightYellow:
-		return "&E";
-	case ETerminalColor::BrightWhite:
-		return "&F";
-	}
-}
-
-bool UCommonUtils::IsColorCode(FString InControlCode, ETerminalColor& OutColor)
-{
-	if (!InControlCode.StartsWith("&"))
-		return false;
-
-	if (InControlCode.Len() != 2)
-		return false;
-
-	// Get rid of the "&" at the start so we can parse as hex
-	InControlCode.RemoveAt(0, 1);
-
-	int Code = FParse::HexNumber(InControlCode.GetCharArray().GetData());
-	if (Code == 0 && InControlCode != "0")
-		return false; //HexNumber returns 0 if the code is invalid.
-
-	// Enums are awesome because we can do this.
-	OutColor = (ETerminalColor)Code;
-	return true;
 }
 
 void UCommonUtils::MeasureChar(const TCHAR InChar, const FSlateFontInfo & InSlateFont, float & OutWidth, float & OutHeight)

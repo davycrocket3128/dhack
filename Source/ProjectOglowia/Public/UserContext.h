@@ -38,7 +38,7 @@
 #include "UserInfo.h"
 #include "MailProvider.h"
 #include "PeacegateProcess.h"
-#include "TerminalColor.h"
+#include "UserColor.h"
 #include "UserContext.generated.h"
 
 class UExploit;
@@ -213,10 +213,10 @@ public:
     bool IsAdministrator();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
-    ETerminalColor GetUserColor();
+    EUserColor GetUserColor();
 
     UFUNCTION(BlueprintCallable, Category = "User Context")
-    void SetUserColor(ETerminalColor InColor);
+    void SetUserColor(EUserColor InColor);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Process List")
     FString GetProcessUsername(FPeacegateProcess InProcess);

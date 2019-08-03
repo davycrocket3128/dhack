@@ -364,7 +364,7 @@ bool UUserContext::OpenFile(const FString& InPath, EFileOpenResult& OutResult)
 	return true;
 }
 
-ETerminalColor UUserContext::GetUserColor()
+EUserColor UUserContext::GetUserColor()
 {
 	for(auto& User : this->GetOwningSystem()->GetComputer().Users)
 	{
@@ -373,7 +373,7 @@ ETerminalColor UUserContext::GetUserColor()
 			return User.UserColor;
 		}
 	}
-	return ETerminalColor::Green;
+	return EUserColor::Aqua;
 }
 
 FString UUserContext::GetEmailAddress()
@@ -386,7 +386,7 @@ UMailProvider* UUserContext::GetMailProvider()
 	return this->GetOwningSystem()->GetMailProvider();
 }
 
-void UUserContext::SetUserColor(ETerminalColor InColor)
+void UUserContext::SetUserColor(EUserColor InColor)
 {
 	for(auto& User : this->GetOwningSystem()->GetComputer().Users)
 	{

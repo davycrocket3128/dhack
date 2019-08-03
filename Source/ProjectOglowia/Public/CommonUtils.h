@@ -35,7 +35,7 @@
 #include "CoreMinimal.h"
 #include "PeacegateFileSystem.h"
 #include "SlateFontInfo.h"
-#include "TerminalColor.h"
+#include "UserColor.h"
 #include "FileOpenResult.h"
 #include "Camera/CameraComponent.h"
 #include "ConsoleColor.h"
@@ -98,14 +98,8 @@ public:
 	static UPeacegateFileSystem* CreateFilesystem(USystemContext* InSystemContext, int InUserID);
 
 	UFUNCTION(BlueprintCallable, Category = "Terminal")
-	static FLinearColor GetTerminalColor(ETerminalColor InColor);
+	static FLinearColor GetUserColor(EUserColor InColor);
 	
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Terminal")
-	static FString GetTerminalColorCode(ETerminalColor InColor);
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Terminal")
-	static bool IsColorCode(FString InControlCode, ETerminalColor& OutColor);
-
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Trigonometry Bullshit")
 	static float GetRotation(FVector2D InA, FVector2D InB);
 
