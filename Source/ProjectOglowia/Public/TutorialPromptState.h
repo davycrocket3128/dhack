@@ -36,9 +36,15 @@
 #include "TextProperty.h"
 #include "TutorialPromptState.generated.h"
 
+class APeacenetWorldStateActor;
+
+#define THIS_CLASS_IS_CLINGY friend APeacenetWorldStateActor;
+
 UCLASS(BlueprintType)
 class PROJECTOGLOWIA_API UTutorialPromptState : public UObject 
 {
+    THIS_CLASS_IS_CLINGY
+
     GENERATED_BODY()
 
     DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FTutorialActivatedEvent, const FText&, InTitle, const FText&, InText, UTutorialPromptState*, InTutorialState);
@@ -52,13 +58,16 @@ private:
     
     UPROPERTY()
     bool PromptActive = false;
+    
+    UPROPERTY()
+    APeacenetWorldStateActor* MyPeacenet = nullptr;
 
 public:
     UPROPERTY(BlueprintAssignable)
     FTutorialActivatedEvent TutorialActivated;
 
     UFUNCTION(BlueprintCallable)
-    void ActivatePrompt(const FText& InTitle, const FText& InText);
+    void ActivatePrompt(const FText& InTitle, const FText& InText, bool IgnorePlayerPreference = false);
     
     UFUNCTION(BlueprintCallable)
     void DismissPrompt();

@@ -30,6 +30,7 @@
  ********************************************************************************/
 
 #include "TutorialPromptState.h"
+#include "PeacenetWorldStateActor.h"
 
 FText UTutorialPromptState::GetTutorialTitle()
 {
@@ -41,8 +42,16 @@ FText UTutorialPromptState::GetTutorialText()
     return this->PromptText;
 }
 
-void UTutorialPromptState::ActivatePrompt(const FText& InTitle, const FText& InText)
+void UTutorialPromptState::ActivatePrompt(const FText& InTitle, const FText& InText, bool IgnorePlayerPreference)
 {
+    if(!MyPeacenet) IgnorePlayerPreference = true;
+
+    if(!IgnorePlayerPreference)
+    {
+        if(!this->MyPeacenet->IsTrue("EnableTutorials"))
+            return;
+    }
+
     this->PromptTitle = InTitle;
     this->PromptText = InText;
     this->PromptActive = true;

@@ -52,6 +52,11 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere)
     bool WaitForDismiss = true;
 
+    // The player can choose to disable in-game tutorials and hints (as of 0.3.0.)  If this setting is checked,
+    // this tutorial will ignore the player's preference and show anyway.
+    UPROPERTY(BlueprintReadWrite, EditAnywhere)
+    bool IgnorePlayerPreference = false;
+
 protected:
     virtual void NativeMissionEnded() override;
     virtual void NativeStart() override;

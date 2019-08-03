@@ -761,6 +761,7 @@ void APeacenetWorldStateActor::BeginPlay()
 
 	// Initialize tutorial state.
 	this->TutorialState = NewObject<UTutorialPromptState>(this);
+	this->TutorialState->MyPeacenet = this;
 
 	// Load all the manual pages.
 	TArray<UManualPageAssetBase*> ManualAssets;
