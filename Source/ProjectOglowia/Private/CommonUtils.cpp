@@ -674,7 +674,7 @@ FLinearColor UCommonUtils::GetUserColor(EUserColor InColor)
 			Result = FColor(0xF7, 0x1B, 0x1B, 0xFF);
 			break;
 		case EUserColor::Noir:
-			Result = FColor(0x15, 0x15, 0x15, 0xFF);
+			Result = FColor(0x75, 0x75, 0x75, 0xFF);
 			break;
 		case EUserColor::Fire:
 			Result = FColor(0xF7, 0x94, 0x1B, 0xFF);
