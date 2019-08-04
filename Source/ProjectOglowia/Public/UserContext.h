@@ -217,6 +217,9 @@ public:
     bool IsAdministrator();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
+    bool GetProcess(int ProcessID, UProcess*& OutProcess, EProcessResult& OutProcessResult);
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
     EUserColor GetUserColor();
 
     UFUNCTION(BlueprintCallable, Category = "User Context")

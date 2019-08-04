@@ -48,6 +48,11 @@ bool UUserContext::KillProcess(int ProcessID, EProcessResult& OutKillResult)
 	return this->GetOwningSystem()->KillProcess(ProcessID, this, OutKillResult);
 }
 
+bool UUserContext::GetProcess(int ProcessID, UProcess*& OutProcess, EProcessResult& OutProcessResult)
+{
+	return this->GetOwningSystem()->GetProcess(ProcessID, this, OutProcess, OutProcessResult);
+}
+
 TArray<FString> UUserContext::GetNearbyHosts()
 {
 	return this->GetOwningSystem()->GetNearbyHosts();

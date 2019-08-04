@@ -921,6 +921,28 @@ void USystemContext::AppendLog(FString InLogText)
 	FS->WriteText("/var/log/system.log", ExistingLog);
 }
 
+bool USystemContext::GetProcess(int ProcessID, UUserContext* InUserContext, UProcess*& OutProcess, EProcessResult& OutProcessResult)
+{
+	// Check to make sure the user context belongs to us.
+	check(InUserContext->GetOwningSystem() == this);
+
+	// Release builds: Have the owning system kill the process if the owning system isn't us.
+	if(InUserContext->GetOwningSystem() != this)
+	{
+		// A properly-functioning Peacenet build should, under NO CIRCUMSTANCES, execute this line of code.
+		// This is a protection from attempts to kill processes with user contexts that do not
+		// belong to the system which owns the process.
+		return InUserContext->GetOwningSystem()->GetProcess(ProcessID, InUserContext, OutProcess, OutProcessResult);
+	}
+
+	// Get the user ID of the user context.
+	int UserID = InUserContext->GetUserID();
+
+	// Kill the process at a low-level!
+	return this->ProcessManager->GetProcess(ProcessID, UserID, OutProcess, OutProcessResult);
+
+}
+
 bool USystemContext::KillProcess(int ProcessID, UUserContext* UserContext, EProcessResult& OutKillResult)
 {
 	// Check to make sure the user context belongs to us.
