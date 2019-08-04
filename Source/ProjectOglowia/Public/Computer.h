@@ -154,6 +154,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Unlocks")
 	TArray<FName> UnlockedWallpapers;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Game State")
+	bool Crashed = false;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Firewall")
 	TArray<FFirewallRule> FirewallRules;
 

@@ -40,6 +40,7 @@
 #include "MailProvider.h"
 #include "PeacegateProcess.h"
 #include "ConnectionError.h"
+#include "ProcessManager.h"
 #include "SystemContext.generated.h"
 
 class UHackable;
@@ -63,6 +64,9 @@ class PROJECTOGLOWIA_API USystemContext : public UObject
 	GENERATED_BODY()
 
 private:
+	UPROPERTY()
+	UProcessManager* ProcessManager;
+
 	UPROPERTY()
 	FPeacenetIdentity InternalIdentity;
 
@@ -103,6 +107,9 @@ protected:
 protected:
 	UFUNCTION()
 	void HandleFileSystemEvent(EFilesystemEventType InType, FString InPath);
+
+	UFUNCTION()
+	void Crash();
 
 public: // Property getters
 	UPROPERTY(BlueprintAssignable)

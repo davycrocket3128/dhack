@@ -32,93 +32,33 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "MissionAsset.h"
-#include "MissionActor.generated.h"
+#include "ProcessManager.generated.h"
 
-class APeacenetWorldStateActor;
+class USystemContext;
+class UProcess;
 
 UCLASS()
-class PROJECTOGLOWIA_API AMissionActor : public AActor
+class PROJECTOGLOWIA_API UProcessManager : public UObject
 {
-    GENERATED_BODY()
+    friend USystemContext;
 
-public:
-    AMissionActor();
+    GENERATED_BODY()
 
 private:
     UPROPERTY()
-    bool IsFailed = false;
+    int NextProcessID = 0;
 
     UPROPERTY()
-    TArray<FMissionTaskInfo> LoadedTasks;
+    UProcess* RootProcess;
 
     UPROPERTY()
-    int CurrentTask = -1;
+    USystemContext* OwningSystem;
 
-    UPROPERTY()
-    int CheckpointTask = -1;
-
-    UPROPERTY()
-    APeacenetWorldStateActor* Peacenet;
-
-    UPROPERTY()
-    UMissionAsset* Mission;
+private:
+    UFUNCTION()
+    void Initialize(USystemContext* InSystemContext);
 
 public:
     UFUNCTION()
-    void Setup(APeacenetWorldStateActor* InPeacenet, UMissionAsset* InMission);
-
-    UFUNCTION()
-    void SilentFail();
-
-    UFUNCTION()
-    APeacenetWorldStateActor* GetPeacenet();
-
-    UFUNCTION()
-    void Abort();
-
-    UFUNCTION()
-    void SendGameEvent(FString EventName, TMap<FString, FString> InEventData);
-
-public:
-    virtual void Tick(float InDeltaSeconds) override;
-
-protected:
-    UFUNCTION()
-    void FireCompletionEvents();
-
-    UFUNCTION()
-    void Advance();
-
-    UFUNCTION()
-    void Complete();
-
-    UFUNCTION()
-    void SetCheckpoint();
-
-    UFUNCTION()
-    void DeleteSaveStates();
-
-public:
-    UFUNCTION()
-    UMissionAsset* GetMissionAsset();
-
-    UFUNCTION()
-    void FailCurrentTask(const FText& InFailReason);
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
-    bool HasCheckpoint();
-
-    UFUNCTION(BlueprintCallable, Category = "Mission")
-    void RestoreCheckpoint();
-
-    UFUNCTION(BlueprintCallable, Category = "Mission")
-    void RestartMission();
-
-    UFUNCTION(BlueprintCallable, Category = "Mission")
-    void AbandonMission();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
-    FText GetMissionName();
+    int GetNextProcessID();
 };

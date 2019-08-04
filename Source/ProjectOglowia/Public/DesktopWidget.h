@@ -152,6 +152,9 @@ protected:
 	bool IsTutorialActive();
 
 public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void KernelPanic();
+
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UUserContext* GetUserContext();
 

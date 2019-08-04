@@ -823,6 +823,13 @@ void APeacenetWorldStateActor::BeginPlay()
 	}
 }
 
+void APeacenetWorldStateActor::SilentlyFailMission()
+{
+	check(this->IsInMission());
+
+	this->CurrentMission->SilentFail();
+}
+
 void APeacenetWorldStateActor::EndPlay(const EEndPlayReason::Type InReason)
 {
 	// If we're in a mission, we're going to abandon ship.

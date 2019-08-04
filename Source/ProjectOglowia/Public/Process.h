@@ -32,93 +32,50 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "MissionAsset.h"
-#include "MissionActor.generated.h"
+#include "Process.generated.h"
 
-class APeacenetWorldStateActor;
+class UProcessManager;
 
 UCLASS()
-class PROJECTOGLOWIA_API AMissionActor : public AActor
+class PROJECTOGLOWIA_API UProcess : public UObject
 {
-    GENERATED_BODY()
+    friend UProcessManager;
 
-public:
-    AMissionActor();
+    DECLARE_DYNAMIC_MULTICAST_DELEGATE(FProcessKillEvent);
+
+    GENERATED_BODY()
 
 private:
     UPROPERTY()
-    bool IsFailed = false;
+    TArray<UProcess*> ChildProcesses;
 
     UPROPERTY()
-    TArray<FMissionTaskInfo> LoadedTasks;
+    FString Path;
 
     UPROPERTY()
-    int CurrentTask = -1;
+    FString Name;
 
     UPROPERTY()
-    int CheckpointTask = -1;
+    int ProcessID = 0;
 
     UPROPERTY()
-    APeacenetWorldStateActor* Peacenet;
+    int UserID = 0;
 
     UPROPERTY()
-    UMissionAsset* Mission;
+    UProcessManager* ProcessManager;
+
+private:
+    UFUNCTION()
+    void Initialize(UProcessManager* OwningProcessManager, int InUserID, FString InPath, FString InName);
+
+public:
+    UPROPERTY()
+    FProcessKillEvent OnKilled;
 
 public:
     UFUNCTION()
-    void Setup(APeacenetWorldStateActor* InPeacenet, UMissionAsset* InMission);
+    void Kill();
 
     UFUNCTION()
-    void SilentFail();
-
-    UFUNCTION()
-    APeacenetWorldStateActor* GetPeacenet();
-
-    UFUNCTION()
-    void Abort();
-
-    UFUNCTION()
-    void SendGameEvent(FString EventName, TMap<FString, FString> InEventData);
-
-public:
-    virtual void Tick(float InDeltaSeconds) override;
-
-protected:
-    UFUNCTION()
-    void FireCompletionEvents();
-
-    UFUNCTION()
-    void Advance();
-
-    UFUNCTION()
-    void Complete();
-
-    UFUNCTION()
-    void SetCheckpoint();
-
-    UFUNCTION()
-    void DeleteSaveStates();
-
-public:
-    UFUNCTION()
-    UMissionAsset* GetMissionAsset();
-
-    UFUNCTION()
-    void FailCurrentTask(const FText& InFailReason);
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
-    bool HasCheckpoint();
-
-    UFUNCTION(BlueprintCallable, Category = "Mission")
-    void RestoreCheckpoint();
-
-    UFUNCTION(BlueprintCallable, Category = "Mission")
-    void RestartMission();
-
-    UFUNCTION(BlueprintCallable, Category = "Mission")
-    void AbandonMission();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
-    FText GetMissionName();
+    bool Fork(FString FilePath, TArray<FString> Arguments);
 };

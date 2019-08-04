@@ -731,6 +731,38 @@ UMailProvider* USystemContext::GetMailProvider()
 	return this->MailProvider;
 }
 
+void USystemContext::Crash()
+{
+	// This behaves differently if we have a desktop than if we don't.
+	//
+	// If we don't have a desktop then we basically kick all hacker users off the
+	// system and mark our computer as "crashed."  Essentially making it offline
+	// and un-hackable.
+	// 
+	// If we have a desktop than this is the player version which presents a kernel
+	// panic UI, essentially the "game over" screen, and restarts the game.
+	if(this->GetDesktop())
+	{
+		// If we're in a mission, silently fail it.  This ensures that the game
+		// isn't in a fucked mission state because the mission is abandoned and the
+		// player is in free roam.
+		if(this->GetPeacenet()->IsInMission())
+		{
+			this->GetPeacenet()->SilentlyFailMission();
+		}
+
+		// Show the crash.
+		this->GetDesktop()->KernelPanic();
+	}
+	else
+	{
+		// Mark ourselves as crashed.
+		this->GetComputer().Crashed = true;
+
+		// TODO: Kick everyone off, though this should be done automatically, if payloads are written correctly, when the root process kills its children.
+	}
+}
+
 void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldStateActor* InPeacenet)
 {
 	check(InPeacenet);
@@ -739,6 +771,10 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	this->ComputerID = InComputerID;
 	this->CharacterID = InCharacterID;
 	this->Peacenet = InPeacenet;
+
+	// create and initialize the process manager.
+	this->ProcessManager = NewObject<UProcessManager>();
+	this->ProcessManager->Initialize(this);
 
 	this->MailProvider = NewObject<UMailProvider>(this);
 	this->MailProvider->Setup(this);

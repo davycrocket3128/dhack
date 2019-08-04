@@ -183,6 +183,9 @@ public: //Properties
 	void UpdateMaps();
 
 	UFUNCTION()
+	void SilentlyFailMission();
+
+	UFUNCTION()
 	FPeacenetIdentity& GetNewIdentity();
 
 	UFUNCTION()
