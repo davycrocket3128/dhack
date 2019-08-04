@@ -45,6 +45,9 @@
 #include "ConsoleContext.h"
 #include "SystemUpgrade.h"
 #include "MissionAsset.h"
+#include "Process.h"
+#include "CommandInfo.h"
+#include "TerminalCommand.h"
 
 void UDesktopWidget::StartMissionIfAvailable(UMissionAsset* InMission)
 {
@@ -108,6 +111,13 @@ void UDesktopWidget::CloseActiveProgram()
 USystemContext* UDesktopWidget::GetSystemContext()
 {
 	return this->SystemContext;
+}
+
+ATerminalCommand* UDesktopWidget::ForkCommand(UCommandInfo* InCommandInfo, UConsoleContext* InConsoleContext)
+{
+	UProcess* Child = InConsoleContext->GetUserContext()->Fork(InCommandInfo->ID.ToString());
+
+	return ATerminalCommand::CreateCommandFromAsset(InConsoleContext->GetUserContext(), InCommandInfo, Child);
 }
 
 UProgram * UDesktopWidget::SpawnProgramFromClass(TSubclassOf<UProgram> InClass, const FText& InTitle, UTexture2D* InIcon, bool InEnableMinimizeMaximize)

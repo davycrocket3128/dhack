@@ -50,6 +50,9 @@ class UUserContext;
 class USystemUpgrade;
 class UTutorialPromptState;
 class UMissionAsset;
+class UCommandInfo;
+class ATerminalCommand;
+class UProcess;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FActiveProgramCloseEvent);
 
@@ -154,6 +157,9 @@ protected:
 public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void KernelPanic();
+
+	UFUNCTION(BlueprintCallable, Category = "Desktop")
+	ATerminalCommand* ForkCommand(UCommandInfo* InCommandInfo, UConsoleContext* InConsoleContext);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UUserContext* GetUserContext();
