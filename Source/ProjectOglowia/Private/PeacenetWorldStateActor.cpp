@@ -167,6 +167,13 @@ bool APeacenetWorldStateActor::DnsResolve(FString InHost, FComputer& OutComputer
 		return false;
 	}
 
+	// Detect crashed systems and refuse connection.
+	if(pc.Crashed)
+	{
+		OutError = EConnectionError::ConnectionTimedOut;
+		return false;
+	}
+
 	// Now we force the game to generate firewall rules for the system.
 	this->Procgen->GenerateFirewallRules(this->GetComputerByID(Entity));
 
