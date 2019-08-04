@@ -139,6 +139,9 @@ public: // Property getters
 	void SetSaveBoolean(FString InSaveBoolean, bool InValue);
 
 	UFUNCTION()
+	bool KillProcess(int ProcessID, UUserContext* UserContext, EProcessResult& OutKillResult);
+
+	UFUNCTION()
 	void UnsetEnvironmentVariable(FString InVariable);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Context")

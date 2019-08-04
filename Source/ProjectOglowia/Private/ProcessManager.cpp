@@ -106,44 +106,53 @@ TArray<UProcess*> UProcessManager::GetProcessesForUser(int UserID)
     return OurProcesses;
 }
 
-bool UProcessManager::KillProcess(int ProcessID, int UserID, EKillResult& OutKillResult)
+bool UProcessManager::KillProcess(int ProcessID, int UserID, EProcessResult& OutKillResult)
 {
-    // Default to success so we don't have to manually set it later.
-    OutKillResult = EKillResult::Success;
+    // The process to kill...
+    UProcess* Process = nullptr;
 
-    // Did we kill a process?
-    bool DidWeCommitMurder = false;
-
-    // Go through all of the processes that are running to find the one with the matching ID.
-    // We can't use the GetProcessesForUser() method in this case, as we need to see non-owned
-    // processes so we can signal "permission denied" on attempts to kill them.
-    for(auto Process : this->GetAllProcesses())
+    // Try to get the process by ID.  If we can't then we'll return false with an error.
+    if(this->GetProcess(ProcessID, UserID, Process, OutKillResult))
     {
+        // Kill the process.
+        Process->Kill();
+        return true;
+    }
+    
+    return false;
+}
+
+bool UProcessManager::GetProcess(int ProcessID, int UserID, UProcess*& OutProcess, EProcessResult& OutProcessResult)
+{
+    // Default everything to zero.
+    OutProcessResult = EProcessResult::Success;
+    OutProcess = nullptr;
+
+    // Look through all of the processes to find the right one.
+    for(auto Process: this->GetAllProcesses())
+    {
+        // Check the ID.
         if(Process->ProcessID == ProcessID)
         {
-            // We've found the process we want to kill.  Now check the user ID.
-            // If we're not root, only kill if the IDs match.
+            // If we're root or the user id matches then we can say we found one.
             if(UserID == 0 || Process->UserID == UserID)
             {
-                // Commit actual murder!
-                Process->Kill();
+                OutProcess = Process;
             }
-            else 
+            else
             {
-                // Permission denied.
-                OutKillResult = EKillResult::PermissionDenied;
+                OutProcessResult = EProcessResult::PermissionDenied;
             }
 
-            // Mark that we've tried to kill, and break the loop.
-            DidWeCommitMurder = true;
+            // Break the loop.
             break;
         }
     }
 
-    // Process wasn't found if we didn't commit murder.
-    if(!DidWeCommitMurder)
-        OutKillResult = EKillResult::ProcessNotRunning;
+    // If the process is still nullptr, we have not found a process yet.
+    if(!OutProcess && OutProcessResult == EProcessResult::Success)
+        OutProcessResult = EProcessResult::ProcessNotRunning;
 
-    // Return whether or not we succeeded.
-    return OutKillResult == EKillResult::Success;
+    // Return whether we succeeded.
+    return OutProcessResult == EProcessResult::Success;
 }

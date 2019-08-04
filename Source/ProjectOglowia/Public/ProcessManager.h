@@ -38,7 +38,7 @@ class USystemContext;
 class UProcess;
 
 UENUM(BlueprintType)
-enum class EKillResult : uint8
+enum class EProcessResult : uint8
 {
     Success,
     ProcessNotRunning,
@@ -83,7 +83,10 @@ private:
     TArray<UProcess*> GetProcessesForUser(int UserID);
 
     UFUNCTION()
-    bool KillProcess(int ProcessID, int UserID, EKillResult& OutKillResult);
+    bool KillProcess(int ProcessID, int UserID, EProcessResult& OutKillResult);
+
+    UFUNCTION()
+    bool GetProcess(int ProcessID, int UserID, UProcess*& OutProcess, EProcessResult& OutProcessResult);
 
 public:
     UFUNCTION()

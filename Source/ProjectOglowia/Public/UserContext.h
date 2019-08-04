@@ -33,13 +33,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SystemContext.h"
 #include "FileOpenResult.h"
 #include "UserInfo.h"
 #include "MailProvider.h"
 #include "UserColor.h"
+#include "Computer.h"
+#include "PeacenetIdentity.h"
 #include "UserContext.generated.h"
 
+class USystemContext;
 class UExploit;
 class UPeacegateFileSystem;
 class APeacenetWorldStateActor;
@@ -60,6 +62,8 @@ class UProcess;
 UCLASS(BlueprintType)
 class PROJECTOGLOWIA_API UUserContext : public UObject
 {
+    friend USystemContext;
+
     GENERATED_BODY()
 
 private:
@@ -82,6 +86,9 @@ protected:
     USystemContext* GetOwningSystem();
 
 public:
+
+    UFUNCTION(BlueprintCallable, Category = "User Context")
+    bool KillProcess(int ProcessID, EProcessResult& OutKillResult);
 
     UFUNCTION()
     UProcess* Fork(FString InName);

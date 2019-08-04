@@ -37,10 +37,16 @@
 #include "ConsoleContext.h"
 #include "CommonUtils.h"
 #include "Program.h"
+#include "SystemContext.h"
 #include "PeacegateFileSystem.h"
 #include "PayloadAsset.h"
 #include "Process.h"
 #include "SystemUpgrade.h"
+
+bool UUserContext::KillProcess(int ProcessID, EProcessResult& OutKillResult)
+{
+	return this->GetOwningSystem()->KillProcess(ProcessID, this, OutKillResult);
+}
 
 TArray<FString> UUserContext::GetNearbyHosts()
 {
