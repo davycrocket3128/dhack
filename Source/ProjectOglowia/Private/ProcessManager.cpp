@@ -55,3 +55,15 @@ int UProcessManager::GetNextProcessID()
     this->NextProcessID++;
     return id;
 }
+
+void UProcessManager::ProcessKilled()
+{
+    this->RootProcess->CullDeadChildren();
+}
+
+UProcess* UProcessManager::CreateProcess(FString Name)
+{
+    UProcess* Process = NewObject<UProcess>();
+    Process->Initialize(this, this->RootProcess->UserID, "", Name);
+    return Process;
+}

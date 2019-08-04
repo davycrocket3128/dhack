@@ -64,19 +64,28 @@ private:
     int UserID = 0;
 
     UPROPERTY()
+    bool Dead = false;
+
+    UPROPERTY()
     UProcessManager* ProcessManager;
 
 private:
     UFUNCTION()
     void Initialize(UProcessManager* OwningProcessManager, int InUserID, FString InPath, FString InName);
 
-    
 public:
     UPROPERTY()
     FProcessKillEvent OnKilled;
 
     UPROPERTY()
     FProcessKillEvent OnTimeToEnd;
+
+private:
+    UFUNCTION()
+    void KillInternal(bool NotifyProcessManager = true);
+
+    UFUNCTION()
+    void CullDeadChildren();
 
 public:
     UFUNCTION()

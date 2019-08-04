@@ -32,17 +32,48 @@
 #include "Process.h"
 #include "ProcessManager.h"
 
-void UProcess::Kill()
+void UProcess::KillInternal(bool NotifyProcessManager)
 {
+    // Commit suicide.
+    this->Dead = true;
+
+    // Fire an event that we're dead.
     this->OnKilled.Broadcast();
 
     // Kill and destroy all child processes.
     while(this->ChildProcesses.Num())
     {
-        this->ChildProcesses[0]->Kill();
+        this->ChildProcesses[0]->KillInternal(false);
     }
 
     this->OnTimeToEnd.Broadcast();
+
+    if(NotifyProcessManager)
+        this->ProcessManager->ProcessKilled();
+}
+
+void UProcess::Kill()
+{
+    this->KillInternal(true);
+}
+
+void UProcess::CullDeadChildren()
+{
+    TArray<int> IndexesToRemove;
+
+    for(int i = 0; i < this->ChildProcesses.Num(); i++)
+    {
+        UProcess* Child = this->ChildProcesses[i];
+        if(Child->Dead)
+            IndexesToRemove.Push(i);
+        Child->CullDeadChildren();
+    }
+
+    while(IndexesToRemove.Num())
+    {
+        int Last = IndexesToRemove.Pop();
+        this->ChildProcesses.RemoveAt(Last);
+    }
 }
 
 bool UProcess::Fork(FString FilePath, TArray<FString> InArguments)

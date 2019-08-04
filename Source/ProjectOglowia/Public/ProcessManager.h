@@ -41,7 +41,8 @@ UCLASS()
 class PROJECTOGLOWIA_API UProcessManager : public UObject
 {
     friend USystemContext;
-
+    friend UProcess;
+    
     GENERATED_BODY()
 
 private:
@@ -57,6 +58,12 @@ private:
 private:
     UFUNCTION()
     void Initialize(USystemContext* InSystemContext);
+
+    UFUNCTION()
+    UProcess* CreateProcess(FString Name);\
+
+    UFUNCTION()
+    void ProcessKilled();
 
 public:
     UFUNCTION()
