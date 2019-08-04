@@ -57,6 +57,14 @@ void UProcess::Kill()
     this->KillInternal(true);
 }
 
+void UProcess::Parent(UProcess* InParent)
+{
+    check(InParent);
+    check(!InParent->ChildProcesses.Contains(this));
+
+    InParent->ChildProcesses.Add(this);
+}
+
 void UProcess::CullDeadChildren()
 {
     TArray<int> IndexesToRemove;

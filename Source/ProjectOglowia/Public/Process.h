@@ -87,6 +87,9 @@ private:
     UFUNCTION()
     void CullDeadChildren();
 
+    UFUNCTION()
+    void Parent(UProcess* InProcess);
+
 public:
     UFUNCTION()
     void Kill();

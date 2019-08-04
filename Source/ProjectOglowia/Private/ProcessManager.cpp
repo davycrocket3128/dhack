@@ -65,5 +65,6 @@ UProcess* UProcessManager::CreateProcess(FString Name)
 {
     UProcess* Process = NewObject<UProcess>();
     Process->Initialize(this, this->RootProcess->UserID, "", Name);
+    Process->Parent(this->RootProcess);
     return Process;
 }
