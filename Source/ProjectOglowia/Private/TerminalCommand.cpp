@@ -239,6 +239,9 @@ void ATerminalCommand::CompleteInternal(bool KillProcess)
 
 	this->Completed.Broadcast();
 	
+	// Cancel any read-line session active in the console.
+	this->GetConsole()->CancelAdvancedReadLine();
+
 	// Despawn the actor and clean up memory used by the
 	// terminal command. If we were a UObject we wouldn't
 	// have to manually destroy ourselves, but then we

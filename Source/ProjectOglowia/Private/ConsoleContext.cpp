@@ -378,6 +378,16 @@ void UConsoleContext::Beep()
 	this->WriteToPty("\x7");
 }
 
+void UConsoleContext::CancelAdvancedReadLine()
+{
+	if(this->LineNoise)
+	{
+		this->LineNoise = nullptr;
+		this->GetPty()->RawMode(false);
+		this->WriteToPty("\r\n");
+	}
+}
+
 void UConsoleContext::InitAdvancedGetLine(FString Prompt)
 {
 	check(!this->LineNoise);
@@ -389,7 +399,12 @@ void UConsoleContext::InitAdvancedGetLine(FString Prompt)
 
 bool UConsoleContext::UpdateAdvancedGetLine(FString& Line)
 {
-	check(this->LineNoise);
+	if(!this->LineNoise)
+	{
+		Line = "";
+		return true;
+	}
+
 	bool result = this->LineNoise->GetLine(Line);
 	if(result) {
 		this->LineNoise = nullptr;
