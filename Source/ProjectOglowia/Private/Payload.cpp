@@ -34,11 +34,30 @@
 
 void UPayload::Disconnect()
 {
-    return this->Disconnected.Broadcast();
+    // Kill the gsfconsole monitor process when we disconnect if it isn't dead already.
+    if(LocalProcess && !LocalProcess->IsDead())
+    {
+        LocalProcess->Kill();
+    }
+    
+    // Only disconnect if we still have access to the local process.
+    if(LocalProcess)
+    {
+        LocalProcess = nullptr;
+        return this->Disconnected.Broadcast();    
+    }
 }
 
-void UPayload::DeployPayload(UConsoleContext* OriginConsole, UUserContext* OriginUser, UUserContext* TargetUser)
+void UPayload::DeployPayload(UConsoleContext* OriginConsole, UUserContext* OriginUser, UUserContext* TargetUser, UProcess* OwningLocalProcess)
 {
+    // Create a local process so that, when the owning process is killed, we disconnect.
+    this->LocalProcess = OwningLocalProcess->Fork("gsfconsole-payload-monitor");
+
+    // Make sure that, if the local process gets killed before we do, we disconnect.
+    TScriptDelegate<> LocalProcessEnded;
+    LocalProcessEnded.BindUFunction(this, "Disconnect");
+    LocalProcess->OnKilled.Add(LocalProcessEnded);
+
     // Create a networked console context that outputs to the origin but uses the hacked user as a means of
     // gaining a Peacegate context.
     UNetworkedConsoleContext* HackerContext = NewObject<UNetworkedConsoleContext>();
@@ -47,4 +66,9 @@ void UPayload::DeployPayload(UConsoleContext* OriginConsole, UUserContext* Origi
     // This console is passed to the deriving payload methods - the payload is thus run in the context of the hacked system.
     this->NativePayloadDeployed(HackerContext, OriginUser, TargetUser);
     this->OnPayloadDeployed(HackerContext, OriginUser, TargetUser);
+}
+
+UProcess* UPayload::GetLocalProcess()
+{
+    return this->LocalProcess;
 }

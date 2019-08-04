@@ -34,6 +34,7 @@
 #include "CoreMinimal.h"
 #include "UserContext.h"
 #include "ConsoleContext.h"
+#include "Process.h"
 #include "Payload.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDisconnectedEvent);
@@ -42,6 +43,10 @@ UCLASS(Blueprintable, BlueprintType, Abstract, EditInlineNew)
 class PROJECTOGLOWIA_API UPayload : public UObject
 {
     GENERATED_BODY()
+
+private:
+    UPROPERTY()
+    UProcess* LocalProcess;
 
 protected:
     UFUNCTION(BlueprintImplementableEvent)
@@ -52,10 +57,13 @@ protected:
     UFUNCTION(BlueprintCallable, Category = "Payload")
     void Disconnect();
 
+    UFUNCTION()
+    UProcess* GetLocalProcess();
+
 public:
     UPROPERTY()
     FDisconnectedEvent Disconnected;
 
     UFUNCTION()
-    void DeployPayload(UConsoleContext* OriginConsole, UUserContext* OriginUser, UUserContext* TargetUser);
+    void DeployPayload(UConsoleContext* OriginConsole, UUserContext* OriginUser, UUserContext* TargetUser, UProcess* OwningLocalProcess);
 };

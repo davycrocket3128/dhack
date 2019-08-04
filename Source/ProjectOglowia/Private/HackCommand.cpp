@@ -580,7 +580,7 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
 
                     this->IsPayloadActive = true;
 
-                    this->CurrentPayload->Payload->DeployPayload(this->GetConsole(), InConsole->GetUserContext(), PayloadUser);
+                    this->CurrentPayload->Payload->DeployPayload(this->GetConsole(), InConsole->GetUserContext(), PayloadUser, this->GetProcess());
 
                     this->SendGameEvent("PayloadDeploy", {
                         { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID)},

@@ -37,18 +37,21 @@ void UCommandPayload::NativePayloadDeployed(UConsoleContext* Console, UUserConte
 {
     check(this->Command);
 
+    // Create a remote process to run the payload under.
+    UProcess* RemoteProcess = TargetUser->Fork(this->Command->ID.ToString());
+
     // Spawn the terminal command actor - similar to how USystemContext does it.
-    FVector Location(0.0f, 0.0f, 0.0f);
-	FRotator Rotation(0.0f, 0.0f, 0.0f);
- 	FActorSpawnParameters SpawnInfo;
+    ATerminalCommand* CommandInstance = ATerminalCommand::CreateCommandFromAsset(TargetUser, this->Command, RemoteProcess);
 
-	ATerminalCommand* CommandInstance = OriginUser->GetPeacenet()->GetWorld()->SpawnActor<ATerminalCommand>(this->Command->CommandClass, Location, Rotation, SpawnInfo);
-	CommandInstance->CommandInfo = this->Command;
+    // Disconnect when the remote process is killed.
+    TScriptDelegate<> DisconnectDelegate;
+    DisconnectDelegate.BindUFunction(this, "Disconnect");
+    RemoteProcess->OnKilled.Add(DisconnectDelegate);
 
-    // Disconnect when the command finishes.
-    TScriptDelegate<> DisconnectedEvent;
-    DisconnectedEvent.BindUFunction(this, "Disconnect");
-    CommandInstance->Completed.Add(DisconnectedEvent);
+    // Kill the remote process when ours dies.
+    TScriptDelegate<> KillDelegate;
+    KillDelegate.BindUFunction(RemoteProcess, "Kill");
+    this->GetLocalProcess()->OnKilled.Add(KillDelegate);
 
     // Run the command in the context of the hacked user.
     CommandInstance->RunCommand(Console, { this->Command->ID.ToString() });
