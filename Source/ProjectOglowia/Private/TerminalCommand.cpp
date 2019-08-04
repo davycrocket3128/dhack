@@ -192,6 +192,7 @@ void ATerminalCommand::Complete()
 
 void ATerminalCommand::ProcessEnded()
 {
+	if(this->IsCompleting) return;
 	this->CompleteInternal(false);
 }
 
