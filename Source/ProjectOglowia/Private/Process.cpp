@@ -40,6 +40,9 @@ APeacenetWorldStateActor* UProcess::GetPeacenet()
 
 void UProcess::KillInternal(bool NotifyProcessManager)
 {
+    // Prevent killing of dead processes.
+    if(this->Dead) return;
+
     // Commit suicide.
     this->Dead = true;
 
@@ -47,9 +50,10 @@ void UProcess::KillInternal(bool NotifyProcessManager)
     this->OnKilled.Broadcast();
 
     // Kill and destroy all child processes.
-    while(this->ChildProcesses.Num())
+    TArray<UProcess*> Copy = this->ChildProcesses;
+    for(auto Process : Copy)
     {
-        this->ChildProcesses[0]->KillInternal(false);
+        Process->KillInternal(false);
     }
 
     this->OnTimeToEnd.Broadcast();
