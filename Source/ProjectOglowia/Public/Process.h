@@ -95,10 +95,10 @@ private:
     void CollectProcesses(TArray<UProcess*>& InArray);
 
 public:
-    UFUNCTION()
+    UFUNCTION(BlueprintCallable)
     void Kill();
 
-    UFUNCTION()
+    UFUNCTION(BlueprintCallable, BlueprintPure)
     bool IsDead() { return Dead; }
 
     UFUNCTION()
@@ -107,6 +107,15 @@ public:
     UFUNCTION()
     UProcess* Fork(FString InName);
 
-    UFUNCTION()
+    UFUNCTION(BlueprintCallable, BlueprintPure)
     int GetProcessID();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    FString GetProcessName();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    FString GetUsername();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    int GetUserID();
 };

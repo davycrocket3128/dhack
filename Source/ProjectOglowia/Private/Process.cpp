@@ -130,3 +130,18 @@ void UProcess::CollectProcesses(TArray<UProcess*>& InArray)
 
     // And that, my lovely friends, is how you do recursion!
 }
+
+int UProcess::GetUserID()
+{
+    return this->UserID;
+}
+
+FString UProcess::GetProcessName()
+{
+    return this->Name;
+}
+
+FString UProcess::GetUsername()
+{
+    return this->ProcessManager->OwningSystem->GetUsername(this->UserID);
+}
