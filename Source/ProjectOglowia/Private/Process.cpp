@@ -34,15 +34,15 @@
 
 void UProcess::Kill()
 {
+    this->OnKilled.Broadcast();
+
     // Kill and destroy all child processes.
     while(this->ChildProcesses.Num())
     {
         this->ChildProcesses[0]->Kill();
-        this->ChildProcesses.RemoveAt(0);
     }
 
-    // Broadcast that we have been killed.
-    this->OnKilled.Broadcast();
+    this->OnTimeToEnd.Broadcast();
 }
 
 bool UProcess::Fork(FString FilePath, TArray<FString> InArguments)
@@ -60,4 +60,9 @@ void UProcess::Initialize(UProcessManager* OwningProcessManager, int InUserID, F
 
     // Acquire a process ID.
     this->ProcessID = this->ProcessManager->GetNextProcessID();
+}
+
+int UProcess::GetProcessID()
+{
+    return this->ProcessID;
 }

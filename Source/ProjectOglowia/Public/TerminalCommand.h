@@ -42,6 +42,7 @@
 class UUserContext;
 class UAddressBookContext;
 class UCommandInfo;
+class UProcess;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCommandCompletedEvent);
 
@@ -64,14 +65,14 @@ private:
 	TArray<FString> ArgumentList;
 
 	UPROPERTY()
-	int ProcessID = 0;
+	UProcess* MyProcess;
 
 protected:
 	UFUNCTION()
-	void SendGameEvent(FString InEventName, TMap<FString, FString> InEventData);
+	void ProcessEnded();
 
 	UFUNCTION()
-	void HandleProcessEnded(const FPeacegateProcess& InProcess);
+	void SendGameEvent(FString InEventName, TMap<FString, FString> InEventData);
 
 	UFUNCTION()
 	void CompleteInternal(bool KillProcess = true);
@@ -84,7 +85,7 @@ public:
 	FCommandCompletedEvent Completed;
 
 	UFUNCTION(BlueprintCallable, Category = "Terminal Command")
-	void RunCommand(UPARAM(Ref) UConsoleContext* InConsole, TArray<FString> Argv);
+	void RunCommand(UConsoleContext* InConsole, TArray<FString> Argv);
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Terminal Command")

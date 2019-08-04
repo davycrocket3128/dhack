@@ -34,6 +34,7 @@
 #include "CommandInfo.h"
 #include "PeacenetWorldStateActor.h"
 #include "UserContext.h"
+#include "Process.h"
 
 void ATerminalCommand::SendGameEvent(FString InEventName, TMap<FString, FString> InEventData)
 {
@@ -61,15 +62,7 @@ void ATerminalCommand::ShowTutorialIfNotSet(FString InSaveBoolean, const FText& 
 
 int ATerminalCommand::GetProcessID()
 {
-	return this->ProcessID;
-}
-
-void ATerminalCommand::HandleProcessEnded(const FPeacegateProcess& InProcess)
-{
-	if(InProcess.PID == this->ProcessID && !this->IsCompleting)
-	{
-		this->CompleteInternal(false);
-	}
+	return this->MyProcess->GetProcessID();
 }
 
 UUserContext* ATerminalCommand::GetUserContext()
@@ -85,22 +78,16 @@ UConsoleContext* ATerminalCommand::GetConsole()
 
 void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Argv)
 {
-	// Bind our "process ended" handler to Peacegate's "process ended"
-	// event so that we can see when we get killed by the player.
-	TScriptDelegate<> ProcessEndedDelegate;
-	ProcessEndedDelegate.BindUFunction(this, "HandleProcessEnded");
-	InConsole->GetUserContext()->OnProcessEnded(ProcessEndedDelegate);
+	// Make sure Peacegate has given us a process before we can run.
+	check(this->MyProcess);
+
+	// When the process says it's time to end, we've gotta complete.
+	TScriptDelegate<> TimeToEnd;
+	TimeToEnd.BindUFunction(this, "ProcessEnded");
+	this->MyProcess->OnTimeToEnd.Add(TimeToEnd);
 
 	this->CommandName = Argv[0];
 	this->Console = InConsole;	
-	this->ProcessID = this->Console->GetUserContext()->StartProcess(this->CommandInfo->ID.ToString(), this->CommandInfo->FullName.ToString());
-
-	if(this->ProcessID == -1)
-	{
-		this->Console->WriteLine(NSLOCTEXT("Peacegate", "OutOfMemory", "Out of memory"));
-		this->CompleteInternal(false);
-		return;
-	}
 
 	Argv.RemoveAt(0);
 
@@ -192,6 +179,11 @@ void ATerminalCommand::Complete()
 	this->CompleteInternal(true);
 }
 
+void ATerminalCommand::ProcessEnded()
+{
+	this->CompleteInternal(false);
+}
+
 void ATerminalCommand::CompleteInternal(bool KillProcess)
 {
 	// If we end up killing our process, this stops this function
@@ -230,7 +222,7 @@ void ATerminalCommand::CompleteInternal(bool KillProcess)
 		this->Console->GetUserContext()->GetPeacenet()->SendGameEvent("CommandComplete", MissionEventData);
 
 		// Tell Peacegate OS that the process has ended.
-		this->Console->GetUserContext()->FinishProcess(this->GetUserContext()->GetProcessByID(this->ProcessID));
+		this->MyProcess->Kill();
 	}
 
 	this->Completed.Broadcast();

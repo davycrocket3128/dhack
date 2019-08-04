@@ -35,6 +35,8 @@
 #include "Process.generated.h"
 
 class UProcessManager;
+class ATerminalCommand;
+class UProgram;
 
 UCLASS()
 class PROJECTOGLOWIA_API UProcess : public UObject
@@ -68,9 +70,13 @@ private:
     UFUNCTION()
     void Initialize(UProcessManager* OwningProcessManager, int InUserID, FString InPath, FString InName);
 
+    
 public:
     UPROPERTY()
     FProcessKillEvent OnKilled;
+
+    UPROPERTY()
+    FProcessKillEvent OnTimeToEnd;
 
 public:
     UFUNCTION()
@@ -78,4 +84,7 @@ public:
 
     UFUNCTION()
     bool Fork(FString FilePath, TArray<FString> Arguments);
+
+    UFUNCTION()
+    int GetProcessID();
 };
