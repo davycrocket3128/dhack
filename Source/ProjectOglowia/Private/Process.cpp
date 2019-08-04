@@ -114,3 +114,15 @@ int UProcess::GetProcessID()
 {
     return this->ProcessID;
 }
+
+void UProcess::CollectProcesses(TArray<UProcess*>& InArray)
+{
+    // Add ourselves to the array...
+    InArray.Add(this);
+
+    // And tell our children to collect.
+    for(auto Child : this->ChildProcesses)
+        Child->CollectProcesses(InArray);
+
+    // And that, my lovely friends, is how you do recursion!
+}

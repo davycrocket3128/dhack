@@ -91,6 +91,9 @@ private:
     UFUNCTION()
     void Parent(UProcess* InProcess);
 
+    UFUNCTION()
+    void CollectProcesses(TArray<UProcess*>& InArray);
+
 public:
     UFUNCTION()
     void Kill();

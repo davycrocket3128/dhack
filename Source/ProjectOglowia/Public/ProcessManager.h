@@ -37,6 +37,14 @@
 class USystemContext;
 class UProcess;
 
+UENUM(BlueprintType)
+enum class EKillResult : uint8
+{
+    Success,
+    ProcessNotRunning,
+    PermissionDenied
+};
+
 UCLASS()
 class PROJECTOGLOWIA_API UProcessManager : public UObject
 {
@@ -67,6 +75,15 @@ private:
 
     UFUNCTION()
     void ProcessKilled();
+
+    UFUNCTION()
+    TArray<UProcess*> GetAllProcesses();
+
+    UFUNCTION()
+    TArray<UProcess*> GetProcessesForUser(int UserID);
+
+    UFUNCTION()
+    bool KillProcess(int ProcessID, int UserID, EKillResult& OutKillResult);
 
 public:
     UFUNCTION()

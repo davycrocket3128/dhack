@@ -73,3 +73,77 @@ UProcess* UProcessManager::CreateProcessAs(FString Name, int UserID)
     Process->Parent(this->RootProcess);
     return Process;
 }
+
+TArray<UProcess*> UProcessManager::GetAllProcesses()
+{
+    TArray<UProcess*> Ret;
+
+    // Tell the root process to collect itself into the array.
+    this->RootProcess->CollectProcesses(Ret);
+
+    return Ret;
+}
+
+TArray<UProcess*> UProcessManager::GetProcessesForUser(int UserID)
+{
+    // Get all of the processes that are currently running...
+    TArray<UProcess*> AllProcesses = this->GetAllProcesses();
+
+    // If we're root then we own all processes because we're root and root
+    // can do everything.
+    if(UserID == 0)
+        return AllProcesses;
+
+    // Otherwise, we only get to see processes that have our user ID.
+    TArray<UProcess*> OurProcesses;
+    for(auto Process : AllProcesses)
+    {
+        if(Process->UserID == UserID)
+        {
+            OurProcesses.Add(Process);
+        }
+    }
+    return OurProcesses;
+}
+
+bool UProcessManager::KillProcess(int ProcessID, int UserID, EKillResult& OutKillResult)
+{
+    // Default to success so we don't have to manually set it later.
+    OutKillResult = EKillResult::Success;
+
+    // Did we kill a process?
+    bool DidWeCommitMurder = false;
+
+    // Go through all of the processes that are running to find the one with the matching ID.
+    // We can't use the GetProcessesForUser() method in this case, as we need to see non-owned
+    // processes so we can signal "permission denied" on attempts to kill them.
+    for(auto Process : this->GetAllProcesses())
+    {
+        if(Process->ProcessID == ProcessID)
+        {
+            // We've found the process we want to kill.  Now check the user ID.
+            // If we're not root, only kill if the IDs match.
+            if(UserID == 0 || Process->UserID == UserID)
+            {
+                // Commit actual murder!
+                Process->Kill();
+            }
+            else 
+            {
+                // Permission denied.
+                OutKillResult = EKillResult::PermissionDenied;
+            }
+
+            // Mark that we've tried to kill, and break the loop.
+            DidWeCommitMurder = true;
+            break;
+        }
+    }
+
+    // Process wasn't found if we didn't commit murder.
+    if(!DidWeCommitMurder)
+        OutKillResult = EKillResult::ProcessNotRunning;
+
+    // Return whether or not we succeeded.
+    return OutKillResult == EKillResult::Success;
+}
