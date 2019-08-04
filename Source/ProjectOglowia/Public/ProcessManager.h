@@ -65,6 +65,9 @@ private:
 
 private:
     UFUNCTION()
+    void RootProcessKilled();
+
+    UFUNCTION()
     void Initialize(USystemContext* InSystemContext);
 
     UFUNCTION()

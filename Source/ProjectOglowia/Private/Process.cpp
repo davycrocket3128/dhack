@@ -96,6 +96,9 @@ void UProcess::CullDeadChildren()
 
 UProcess* UProcess::Fork(FString InName)
 {
+    // Make sure we are not dead.
+    check(!this->IsDead());
+
     UProcess* Process = NewObject<UProcess>();
     Process->Initialize(this->ProcessManager, this->UserID, "", InName);
     Process->Parent(this);

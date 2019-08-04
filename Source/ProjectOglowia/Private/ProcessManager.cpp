@@ -45,8 +45,26 @@ void UProcessManager::Initialize(USystemContext* InSystem)
 
     // Make the system crash when the process exits.
     TScriptDelegate<> CrashDelegate;
-    CrashDelegate.BindUFunction(this->OwningSystem, "Crash");
+    CrashDelegate.BindUFunction(this->OwningSystem, "RootProcessKilled");
     this->RootProcess->OnKilled.Add(CrashDelegate);
+}
+
+void UProcessManager::RootProcessKilled()
+{
+    // Restart the root process:
+    this->Initialize(this->OwningSystem);
+
+    // Proper handling of the root process being killed should involve any
+    // user-session processes being killed too, which puts Peacegate in a fucked
+    // state since everything essentially dies and nothing can fork.
+    //
+    // Therefore, the system context should destroy all user contexts in order to
+    // prevent accessing the dead user-session processes.
+    //
+    // This should be handled by the Crash() method.
+    //
+    // Cause our owning system to kernel panic (for visual effect.)
+    this->OwningSystem->Crash();
 }
 
 int UProcessManager::GetNextProcessID()

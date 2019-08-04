@@ -753,9 +753,22 @@ void USystemContext::Crash()
 	{
 		// Mark ourselves as crashed.
 		this->GetComputer().Crashed = true;
-
-		// TODO: Kick everyone off, though this should be done automatically, if payloads are written correctly, when the root process kills its children.
 	}
+
+	// DANGER! The game is in a VERY broken state right now and it's up to us to fix it.
+	// The "peacegate" process being killed, in fact, doesn't just cause fake problems, as
+	// all user session processes (and thus all commands, programs, etc) either directly
+	// or indirectly fork from it - and thus get killed.
+	//
+	// To fix the game state, we need to essentially nuke all User Contexts resulting in Unreal
+	// doing a ton of garbage collection of the old game state, and all User Contexts resetting.
+	this->Users.Empty();
+
+	// That may put the desktop as well as any active console contexts in a broken state, however
+	// they will regain proper state either at next simulation tick or next access.
+	//
+	// We also need to get rid of all filesystem contexts because they're assigned to user contexts.
+	this->RegisteredFilesystems.Empty();
 }
 
 void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldStateActor* InPeacenet)

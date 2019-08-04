@@ -223,6 +223,12 @@ public:
     TArray<int> GetRunningProcesses();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
+    bool IsUserContextValid();
+
+    UFUNCTION()
+    UUserContext* RequestValidUser();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
     EUserColor GetUserColor();
 
     UFUNCTION(BlueprintCallable, Category = "User Context")

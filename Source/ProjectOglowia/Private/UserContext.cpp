@@ -53,6 +53,18 @@ bool UUserContext::GetProcess(int ProcessID, UProcess*& OutProcess, EProcessResu
 	return this->GetOwningSystem()->GetProcess(ProcessID, this, OutProcess, OutProcessResult);
 }
 
+bool UUserContext::IsUserContextValid()
+{
+	return this && this->UserSession && !this->UserSession->IsDead();
+}
+
+UUserContext* UUserContext::RequestValidUser()
+{
+	if(this->IsUserContextValid()) return this;
+
+	return this->OwningSystem->GetUserContext(this->UserID);
+}
+
 TArray<int> UUserContext::GetRunningProcesses()
 {
 	return this->GetOwningSystem()->GetRunningProcesses();

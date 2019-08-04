@@ -227,6 +227,21 @@ void UDesktopWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	check(this->SystemContext);
 	check(this->SystemContext->GetPeacenet());
 
+	// If a session is active, and we can get a user context from it...
+	if(this->IsSessionActive())
+	{
+		UUserContext* User = this->GetUserContext();
+		if(User)
+		{
+			// If the user context is invalid, kernel panic for now.
+			// TODO: Graceful user log-out.
+			if(!User->IsUserContextValid())
+			{
+				this->KernelPanic();
+			}
+		}
+	}
+
 	this->MyCharacter = this->SystemContext->GetCharacter();
 	this->MyComputer = this->SystemContext->GetComputer();
 
@@ -378,6 +393,19 @@ void UDesktopWidget::ActivateSession(UUserContext* user)
 int UDesktopWidget::GetOpenConnectionCount()
 {
 	return this->SystemContext->GetOpenConnectionCount();
+}
+
+void UDesktopWidget::KernelPanic()
+{
+	// Call the visual aspect of the kernel panic:
+	this->OnKernelPanic();
+
+	// If a session is active, deactivate it.
+	if(this->IsSessionActive())
+	{
+		this->UserID = -1;
+		this->SessionActive = false;
+	}
 }
 
 FString UDesktopWidget::GetIPAddress()

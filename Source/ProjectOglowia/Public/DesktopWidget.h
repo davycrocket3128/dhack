@@ -148,8 +148,12 @@ protected:
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsTutorialActive();
 
-public:
+protected:
 	UFUNCTION(BlueprintImplementableEvent)
+	void OnKernelPanic();
+
+public:
+	UFUNCTION()
 	void KernelPanic();
 
 	UFUNCTION(BlueprintCallable, Category = "Desktop")

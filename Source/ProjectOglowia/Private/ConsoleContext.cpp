@@ -61,6 +61,18 @@ FString UConsoleContext::GetWorkingDirectory()
 
 UUserContext* UConsoleContext::GetUserContext()
 {
+	if(!this->UserContext) return nullptr;
+
+	// If our user context is invalid, we need to request a new one from its owning system.
+	//
+	// In Peacenet 0.3.0, it is now possible to kill user-session processes as well as the
+	// root "peacegate" process, which invalidates User Contexts.
+	if(!this->UserContext->IsUserContextValid())
+	{
+		// Request a valid User Context.
+		this->UserContext = this->UserContext->RequestValidUser();
+	}
+
 	return this->UserContext;
 }
 

@@ -57,6 +57,8 @@ class UPeacegateProgramAsset;
 UCLASS(BlueprintType)
 class PROJECTOGLOWIA_API USystemContext : public UObject
 {
+	friend UProcessManager;
+
 	GENERATED_BODY()
 
 private:
