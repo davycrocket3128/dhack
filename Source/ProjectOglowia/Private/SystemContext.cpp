@@ -108,9 +108,9 @@ void USystemContext::Destroy()
 
 	// Destroy all remaining data in the system context.
 	this->MailProvider = nullptr;
+	this->ProcessManager = nullptr;
 	this->ComputerID = -1;
 	this->CharacterID = -1;
-	this->Processes.Empty();
 
 }
 
@@ -176,11 +176,6 @@ TArray<UExploit*> USystemContext::GetExploits()
 			Ret.Add(Exploit);
 	}
 	return Ret;
-}
-
-FString USystemContext::GetProcessUsername(FPeacegateProcess InProcess)
-{
-	return this->GetUserInfo(InProcess.UID).Username;
 }
 
 int USystemContext::GetUserIDFromUsername(FString InUsername)
@@ -926,48 +921,6 @@ void USystemContext::AppendLog(FString InLogText)
 	FS->WriteText("/var/log/system.log", ExistingLog);
 }
 
-TArray<FPeacegateProcess> USystemContext::GetRunningProcesses()
-{
-	return this->Processes;
-}
-
-int USystemContext::StartProcess(FString Name, FString FilePath, int UserID)
-{
-	int NewPID = 0;
-	for(auto Process : this->GetRunningProcesses())
-	{
-		if(NewPID <= Process.PID)
-			NewPID = Process.PID + 1;
-	}
-
-	FPeacegateProcess NewProcess;
-	NewProcess.PID = NewPID;
-	NewProcess.UID = UserID;
-	NewProcess.ProcessName = Name;
-	NewProcess.FilePath = FilePath;
-	this->Processes.Add(NewProcess);
-
-	this->AppendLog("Process started - pid " + FString::FromInt(NewPID) + " - uid " + FString::FromInt(UserID) + " - name " + Name);
-
-	this->ProcessStarted.Broadcast(NewProcess);
-
-	return NewProcess.PID;
-}
-
-void USystemContext::FinishProcess(int ProcessID)
-{
-	for(int i = 0; i < Processes.Num(); i++)
-	{
-		FPeacegateProcess p = Processes[i];
-		if(p.PID == ProcessID)
-		{
-			this->Processes.RemoveAt(i);
-			this->AppendLog("Process " + FString::FromInt(ProcessID) + " killed.");
-			this->ProcessEnded.Broadcast(p);
-			return;
-		}
-	}
-}
 
 bool USystemContext::IsEnvironmentVariableSet(FString InVariable)
 {

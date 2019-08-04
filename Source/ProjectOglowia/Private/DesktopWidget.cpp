@@ -135,14 +135,6 @@ UProgram * UDesktopWidget::SpawnProgramFromClass(TSubclassOf<UProgram> InClass, 
 
 void UDesktopWidget::NativeConstruct()
 {
-	// Bind events for Peacegate processes.
-	TScriptDelegate<> ProcessStartedDelegate;
-	TScriptDelegate<> ProcessEndedDelegate;
-	ProcessStartedDelegate.BindUFunction(this, "ProcessStarted");
-	ProcessEndedDelegate.BindUFunction(this, "ProcessEnded");
-	this->SystemContext->ProcessStarted.Add(ProcessStartedDelegate);
-	this->SystemContext->ProcessEnded.Add(ProcessEndedDelegate);
-
 	// Notify Blueprint when a mission is completed.
 	TScriptDelegate<> MissionCompleteDelegate;
 	MissionCompleteDelegate.BindUFunction(this, "OnMissionComplete");

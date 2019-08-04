@@ -36,16 +36,7 @@ void AKillProcessCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FS
     // Get the process id/name specified by the player.
     FString ProcessIDArg = this->ArgumentMap["<pid>"]->AsString();
 
-    // Loop through all the processes active in the system.
-    for(auto Process : InConsole->GetUserContext()->GetRunningProcesses())
-    {
-        // If the name or ID matches, kill the process.
-        if(Process.PID != this->GetProcessID() && FString::FromInt(Process.PID) == ProcessIDArg || Process.ProcessName == ProcessIDArg)
-        {
-            InConsole->WriteLine(FText::Format(NSLOCTEXT("Kill", "Success", "&*SUCCESS:&r Killed process &8{0}&7 (pid {1})"), FText::FromString(Process.ProcessName), FText::FromString(FString::FromInt(Process.PID))));
-            InConsole->GetUserContext()->FinishProcess(Process);
-        }
-    }
+    // TODO: Use new process system.
 
     // Kill ourselves.
     this->Complete();

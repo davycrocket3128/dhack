@@ -141,10 +141,7 @@ UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSu
 		ProgramInstance->GetUserContext()->ShowProgramOnWorkspace(ProgramInstance);
 	}
 
-	// Let the program handle itself being killed...
-	TScriptDelegate<> ProcessEndedDelegate;
-	ProcessEndedDelegate.BindUFunction(ProgramInstance, "HandleProcessEnded");
-	InUserContext->OnProcessEnded(ProcessEndedDelegate);
+	// TODO: Hook into the process kill event for our owning Peacegate process.
 
 	// Return the window and program.
 	OutWindow = Window;

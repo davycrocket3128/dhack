@@ -38,7 +38,6 @@
 #include "UserInfo.h"
 #include "PeacenetIdentity.h"
 #include "MailProvider.h"
-#include "PeacegateProcess.h"
 #include "ConnectionError.h"
 #include "ProcessManager.h"
 #include "SystemContext.generated.h"
@@ -51,9 +50,6 @@ class UProgram;
 class UExploit;
 class APeacenetWorldStateActor;
 class UPeacegateProgramAsset;
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FProcessEvent, const FPeacegateProcess&, InProcess);
-
 
 /**
  * Represents the state and allows access/modification of an NPC or player computer in Peacenet.
@@ -84,9 +80,6 @@ protected:
 	TMap<int, UPeacegateFileSystem*> RegisteredFilesystems;
 
 	UPROPERTY()
-	TArray<FPeacegateProcess> Processes;
-
-	UPROPERTY()
 	APeacenetWorldStateActor * Peacenet;
 
 	UPROPERTY()
@@ -112,12 +105,6 @@ protected:
 	void Crash();
 
 public: // Property getters
-	UPROPERTY(BlueprintAssignable)
-	FProcessEvent ProcessStarted;
-
-	UPROPERTY(BlueprintAssignable)
-	FProcessEvent ProcessEnded;
-
 	UFUNCTION()
 	UUserContext* GetHackerContext(int InUserID, UUserContext* HackingUser);
 
@@ -154,17 +141,8 @@ public: // Property getters
 	UFUNCTION()
 	void UnsetEnvironmentVariable(FString InVariable);
 
-	UFUNCTION()
-	int StartProcess(FString Name, FString FilePath, int UserID);
-	
-	UFUNCTION()
-	void FinishProcess(int ProcessID);
-
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Context")
 	APeacenetWorldStateActor* GetPeacenet();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Process List")
-    FString GetProcessUsername(FPeacegateProcess InProcess);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Context")
 	TArray<UWallpaperAsset*> GetAvailableWallpapers();
@@ -216,9 +194,6 @@ public:
 	TArray<FString> GetNearbyHosts();
 
 public:
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Process List")
-	TArray<FPeacegateProcess> GetRunningProcesses();
-
 	UFUNCTION()
 	int GetOpenConnectionCount();
 

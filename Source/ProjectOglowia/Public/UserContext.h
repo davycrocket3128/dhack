@@ -37,7 +37,6 @@
 #include "FileOpenResult.h"
 #include "UserInfo.h"
 #include "MailProvider.h"
-#include "PeacegateProcess.h"
 #include "UserColor.h"
 #include "UserContext.generated.h"
 
@@ -83,19 +82,12 @@ protected:
     USystemContext* GetOwningSystem();
 
 public:
-    void OnProcessEnded(TScriptDelegate<> InDelegate);
 
     UFUNCTION()
     UProcess* Fork(FString InName);
 
     UFUNCTION()
     TArray<FString> GetNearbyHosts();
-
-    UFUNCTION()
-    FPeacegateProcess GetProcessByID(int ProcessID);
-
-    UFUNCTION()
-    void FinishProcess(FPeacegateProcess Process);
 
     UFUNCTION()
     FComputer& GetComputer();
@@ -163,9 +155,6 @@ public:
     UFUNCTION(BlueprintCallable, Category = "User Context")
     void DisableWallpaper();
 
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Process List")
-    TArray<FPeacegateProcess> GetRunningProcesses();
-
     UFUNCTION()
     FUserInfo GetUserInfo();
 
@@ -206,9 +195,6 @@ public:
     bool OpenProgram(FName InExecutableName, UProgram*& OutProgram, bool InCheckForExistingWindow = true);
 
     UFUNCTION()
-    int StartProcess(FString Name, FString FilePath);
-
-    UFUNCTION()
     void ShowProgramOnWorkspace(UProgram* InProgram);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
@@ -228,7 +214,4 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "User Context")
     void SetUserColor(EUserColor InColor);
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Process List")
-    FString GetProcessUsername(FPeacegateProcess InProcess);
 };

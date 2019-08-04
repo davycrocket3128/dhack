@@ -133,12 +133,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mission")
 	void AbandonMission();
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void ProcessStarted(const FPeacegateProcess& InProcess);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void ProcessEnded(const FPeacegateProcess& InProcess);
-
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System")
 	USystemContext* GetSystemContext();
 
