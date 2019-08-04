@@ -46,6 +46,8 @@
 #include "CommandInfo.h"
 #include "PayloadAsset.h"
 #include "SystemUpgrade.h"
+#include "TerminalCommand.h"
+#include "Process.h"
 
 TArray<FString> USystemContext::GetNearbyHosts()
 {
@@ -325,7 +327,7 @@ UPeacegateFileSystem * USystemContext::GetFilesystem(const int UserID)
 	return this->RegisteredFilesystems[UserID];
 }
 
-bool USystemContext::TryGetTerminalCommand(FName CommandName, ATerminalCommand *& OutCommand, FString& InternalUsage, FString& FriendlyUsage)
+bool USystemContext::TryGetTerminalCommand(FName CommandName, UProcess* OwningProcess, ATerminalCommand *& OutCommand, FString& InternalUsage, FString& FriendlyUsage)
 {
 	check(Peacenet);
 
@@ -337,11 +339,7 @@ bool USystemContext::TryGetTerminalCommand(FName CommandName, ATerminalCommand *
 			return false;
 		}
 
- 		FVector Location(0.0f, 0.0f, 0.0f);
-		 FRotator Rotation(0.0f, 0.0f, 0.0f);
- 		FActorSpawnParameters SpawnInfo;
-
-		AGraphicalTerminalCommand* GraphicalCommand = this->GetPeacenet()->GetWorld()->SpawnActor<AGraphicalTerminalCommand>(Location, Rotation, SpawnInfo);
+		AGraphicalTerminalCommand* GraphicalCommand = Cast<AGraphicalTerminalCommand>(ATerminalCommand::SpawnCommand<AGraphicalTerminalCommand>(OwningProcess->Fork(Program->ID.ToString())));
 		GraphicalCommand->ProgramAsset = Program;
 		GraphicalCommand->CommandInfo = Peacenet->CommandInfo[CommandName];
 		OutCommand = GraphicalCommand;
@@ -367,6 +365,8 @@ bool USystemContext::TryGetTerminalCommand(FName CommandName, ATerminalCommand *
 	OutCommand = this->GetPeacenet()->GetWorld()->SpawnActor<ATerminalCommand>(Info->CommandClass, Location, Rotation, SpawnInfo);
 
 	if(!OutCommand) return false;
+
+	OutCommand->MyProcess = OwningProcess->Fork(Info->ID.ToString());
 
 	OutCommand->CommandInfo = Info;
 

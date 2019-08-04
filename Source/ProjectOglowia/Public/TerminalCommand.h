@@ -37,12 +37,13 @@
 #include "ConsoleContext.h"
 #include "GameFramework/Actor.h"
 #include "SystemContext.h"
+#include "Process.h"
 #include "TerminalCommand.generated.h"
 
 class UUserContext;
+class USystemContext;
 class UAddressBookContext;
 class UCommandInfo;
-class UProcess;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCommandCompletedEvent);
 
@@ -52,6 +53,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCommandCompletedEvent);
 UCLASS(Blueprintable)
 class PROJECTOGLOWIA_API ATerminalCommand : public AActor
 {
+	friend USystemContext;
+
 	GENERATED_BODY()
 
 private:
@@ -101,9 +104,6 @@ public:
 	bool IsSet(FString InSaveBoolean);
 
 protected:
-	template<typename T>
-	inline ATerminalCommand* SpawnCommand(UProcess* OwningProcess);
-
 	UFUNCTION()
 	int GetProcessID();
 
@@ -121,11 +121,21 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Terminal Command")
 	void OnRunCommand(const UConsoleContext* InConsole, const TArray<FString>& InArguments);
 
+protected:
+	UFUNCTION()
+	UProcess* ForkProcess(FString InName);
+
+	UFUNCTION()
+	UProcess* GetProcess();
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Terminal Command")
 	void Complete();
 
 public:
+	template<typename T>
+	static inline ATerminalCommand* SpawnCommand(UProcess* OwningProcess);
+	
 	UFUNCTION()
 	static ATerminalCommand* CreateCommandFromAsset(UUserContext* InUserContext, UCommandInfo* InCommandInfo, UProcess* InOwningProcess);
 };
@@ -137,7 +147,7 @@ inline ATerminalCommand* ATerminalCommand::SpawnCommand(UProcess* OwningProcess)
 	FRotator Rotation(0.0f, 0.0f, 0.0f);
  	FActorSpawnParameters SpawnInfo;
 
-	ATerminalCommand* Command = Cast<ATerminalCommand>(this->GetWorld()->SpawnActor<T>(Location, Rotation, SpawnInfo));
+	ATerminalCommand* Command = Cast<ATerminalCommand>(OwningProcess->GetPeacenet()->GetWorld()->SpawnActor<T>(Location, Rotation, SpawnInfo));
 	Command->MyProcess = OwningProcess;
 	return Command;
 }

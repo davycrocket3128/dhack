@@ -230,9 +230,10 @@ FPeacenetIdentity& UUserContext::GetPeacenetIdentity()
 	return this->GetOwningSystem()->GetCharacter();
 }
 
-bool UUserContext::TryGetTerminalCommand(FName CommandName, ATerminalCommand*& Command, FString& InternalUsage, FString& FriendlyUsage)
+bool UUserContext::TryGetTerminalCommand(FName CommandName, UProcess* OwningProcess, ATerminalCommand*& Command, FString& InternalUsage, FString& FriendlyUsage)
 {
-	return this->GetOwningSystem()->TryGetTerminalCommand(CommandName, Command, InternalUsage, FriendlyUsage);
+	if(!OwningProcess) OwningProcess = this->UserSession;
+	return this->GetOwningSystem()->TryGetTerminalCommand(CommandName, OwningProcess, Command, InternalUsage, FriendlyUsage);
 }
 
 APeacenetWorldStateActor* UUserContext::GetPeacenet()

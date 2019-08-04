@@ -256,7 +256,7 @@ public:
 	UPeacegateFileSystem* GetFilesystem(const int UserID);
 
 	UFUNCTION()
-	bool TryGetTerminalCommand(FName CommandName, ATerminalCommand*& OutCommand, FString& InternalUsage, FString& FriendlyUsage);
+	bool TryGetTerminalCommand(FName CommandName, UProcess* OwningProcess, ATerminalCommand*& OutCommand, FString& InternalUsage, FString& FriendlyUsage);
 
 	UFUNCTION()
 	FString GetIPAddress();

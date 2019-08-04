@@ -31,6 +31,12 @@
 
 #include "Process.h"
 #include "ProcessManager.h"
+#include "PeacenetWorldStateActor.h"
+
+APeacenetWorldStateActor* UProcess::GetPeacenet()
+{
+    return this->ProcessManager->OwningSystem->GetPeacenet();
+}
 
 void UProcess::KillInternal(bool NotifyProcessManager)
 {

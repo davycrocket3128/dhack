@@ -51,13 +51,7 @@ ATerminalCommand* ABashShell::GetCommand(FString Command)
 			if(Record.ContentID < CommandKeys.Num())
 			{
 				UCommandInfo* Info = this->GetUserContext()->GetPeacenet()->CommandInfo[CommandKeys[Record.ContentID]];
- 				FVector Location(0.0f, 0.0f, 0.0f);
-				FRotator Rotation(0.0f, 0.0f, 0.0f);
- 				FActorSpawnParameters SpawnInfo;
-
-				ATerminalCommand* CommandImpl = this->GetUserContext()->GetPeacenet()->GetWorld()->SpawnActor<ATerminalCommand>(Info->CommandClass, Location, Rotation, SpawnInfo);
-
-				CommandImpl->CommandInfo = Info;
+				ATerminalCommand* CommandImpl = ATerminalCommand::CreateCommandFromAsset(this->GetUserContext(), Info, this->ForkProcess(Info->ID.ToString()));
 
                 return CommandImpl;
 			}
@@ -71,14 +65,14 @@ ATerminalCommand* ABashShell::GetCommand(FString Command)
 	 			FRotator Rotation(0.0f, 0.0f, 0.0f);
 					FActorSpawnParameters SpawnInfo;
 
-				AGraphicalTerminalCommand* GraphicalCommand = this->GetUserContext()->GetPeacenet()->GetWorld()->SpawnActor<AGraphicalTerminalCommand>(Location, Rotation, SpawnInfo);
+				AGraphicalTerminalCommand* GraphicalCommand = Cast<AGraphicalTerminalCommand>(ATerminalCommand::SpawnCommand<AGraphicalTerminalCommand>(this->ForkProcess(ProgramAsset->ID.ToString())));
 				GraphicalCommand->ProgramAsset = ProgramAsset;
 				GraphicalCommand->CommandInfo = this->GetUserContext()->GetPeacenet()->CommandInfo[ProgramAsset->ID];
 				return GraphicalCommand;
 			}
 		}
 	}
-	else if (this->GetUserContext()->TryGetTerminalCommand(FName(*Command), CommandObject, InternalUsage, FriendlyUsage))
+	else if (this->GetUserContext()->TryGetTerminalCommand(FName(*Command), this->GetProcess(), CommandObject, InternalUsage, FriendlyUsage))
 	{
 		return CommandObject;
 	}

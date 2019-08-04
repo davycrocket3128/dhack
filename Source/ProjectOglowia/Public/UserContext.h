@@ -107,7 +107,7 @@ public:
     FPeacenetIdentity& GetPeacenetIdentity();
 
     UFUNCTION()
-    bool TryGetTerminalCommand(FName CommandName, ATerminalCommand*& Command, FString& InternalUsage, FString& FriendlyUsage);
+    bool TryGetTerminalCommand(FName CommandName, UProcess* OwningProcess, ATerminalCommand*& Command, FString& InternalUsage, FString& FriendlyUsage);
 
     UFUNCTION()
     UUserContext* GetHacker();

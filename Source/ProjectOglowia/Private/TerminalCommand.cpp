@@ -34,7 +34,18 @@
 #include "CommandInfo.h"
 #include "PeacenetWorldStateActor.h"
 #include "UserContext.h"
+#include "SystemContext.h"
 #include "Process.h"
+
+UProcess* ATerminalCommand::ForkProcess(FString InName)
+{
+	return this->MyProcess->Fork(InName);
+}
+
+UProcess* ATerminalCommand::GetProcess()
+{
+	return this->MyProcess;
+}
 
 void ATerminalCommand::SendGameEvent(FString InEventName, TMap<FString, FString> InEventData)
 {

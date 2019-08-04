@@ -37,6 +37,7 @@
 class UProcessManager;
 class ATerminalCommand;
 class UProgram;
+class APeacenetWorldStateActor;
 
 UCLASS()
 class PROJECTOGLOWIA_API UProcess : public UObject
@@ -96,6 +97,9 @@ public:
 
     UFUNCTION()
     bool IsDead() { return Dead; }
+
+    UFUNCTION()
+    APeacenetWorldStateActor* GetPeacenet();
 
     UFUNCTION()
     UProcess* Fork(FString InName);
