@@ -139,6 +139,9 @@ public: // Property getters
 	void SetSaveBoolean(FString InSaveBoolean, bool InValue);
 
 	UFUNCTION()
+	TArray<int> GetRunningProcesses();
+
+	UFUNCTION()
 	bool GetProcess(int ProcessID, UUserContext* InUserContext, UProcess*& OutProcess, EProcessResult& OutProcessResult);
 
 	UFUNCTION()

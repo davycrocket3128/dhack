@@ -53,6 +53,11 @@ bool UUserContext::GetProcess(int ProcessID, UProcess*& OutProcess, EProcessResu
 	return this->GetOwningSystem()->GetProcess(ProcessID, this, OutProcess, OutProcessResult);
 }
 
+TArray<int> UUserContext::GetRunningProcesses()
+{
+	return this->GetOwningSystem()->GetRunningProcesses();
+}
+
 TArray<FString> UUserContext::GetNearbyHosts()
 {
 	return this->GetOwningSystem()->GetNearbyHosts();

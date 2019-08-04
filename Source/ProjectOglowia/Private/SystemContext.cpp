@@ -921,6 +921,16 @@ void USystemContext::AppendLog(FString InLogText)
 	FS->WriteText("/var/log/system.log", ExistingLog);
 }
 
+TArray<int> USystemContext::GetRunningProcesses()
+{
+	TArray<int> ret;
+	for(UProcess* Process : this->ProcessManager->GetAllProcesses())
+	{
+		ret.Add(Process->GetProcessID());
+	}
+	return ret;
+}
+
 bool USystemContext::GetProcess(int ProcessID, UUserContext* InUserContext, UProcess*& OutProcess, EProcessResult& OutProcessResult)
 {
 	// Check to make sure the user context belongs to us.
