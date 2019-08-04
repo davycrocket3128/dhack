@@ -84,9 +84,12 @@ void UProcess::CullDeadChildren()
     }
 }
 
-bool UProcess::Fork(FString FilePath, TArray<FString> InArguments)
+UProcess* UProcess::Fork(FString InName)
 {
-    return false;
+    UProcess* Process = NewObject<UProcess>();
+    Process->Initialize(this->ProcessManager, this->UserID, "", InName);
+    Process->Parent(this);
+    return Process;
 }
 
 void UProcess::Initialize(UProcessManager* OwningProcessManager, int InUserID, FString InPath, FString InName)

@@ -63,8 +63,13 @@ void UProcessManager::ProcessKilled()
 
 UProcess* UProcessManager::CreateProcess(FString Name)
 {
+    return this->CreateProcessAs(Name, this->RootProcess->UserID);
+}
+
+UProcess* UProcessManager::CreateProcessAs(FString Name, int UserID)
+{
     UProcess* Process = NewObject<UProcess>();
-    Process->Initialize(this, this->RootProcess->UserID, "", Name);
+    Process->Initialize(this, UserID, "", Name);
     Process->Parent(this->RootProcess);
     return Process;
 }

@@ -95,7 +95,10 @@ public:
     void Kill();
 
     UFUNCTION()
-    bool Fork(FString FilePath, TArray<FString> Arguments);
+    bool IsDead() { return Dead; }
+
+    UFUNCTION()
+    UProcess* Fork(FString InName);
 
     UFUNCTION()
     int GetProcessID();

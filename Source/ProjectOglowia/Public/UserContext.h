@@ -52,6 +52,8 @@ class UVulnerability;
 class UProgram;
 class UConsoleContext;
 class UPayloadAsset;
+class UProcess;
+
 
 /**
  * A System Context that acts as a specific user.
@@ -73,12 +75,18 @@ private:
     UPROPERTY()
     int UserID = 0;
 
+    UPROPERTY()
+    UProcess* UserSession;
+
 protected:
     UFUNCTION()
     USystemContext* GetOwningSystem();
 
 public:
     void OnProcessEnded(TScriptDelegate<> InDelegate);
+
+    UFUNCTION()
+    UProcess* Fork(FString InName);
 
     UFUNCTION()
     TArray<FString> GetNearbyHosts();
@@ -171,7 +179,7 @@ public:
     void SetStealthiness(float InValue);
 
     UFUNCTION()
-    void Setup(USystemContext* InOwningSystem, int InUserID);
+    void Setup(USystemContext* InOwningSystem, int InUserID, UProcess* InUserSessionProcess);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
     FString GetUsername();

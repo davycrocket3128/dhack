@@ -46,6 +46,9 @@ class USystemContext;
 class UAddressBookContext;
 class UConsoleContext;
 class UWindow;
+class UCommandInfo;
+class ATerminalCommand;
+class UProcess;
 
 UCLASS(Blueprintable, BlueprintType)
 class PROJECTOGLOWIA_API UProgram : public UUserWidget
@@ -57,7 +60,7 @@ private:
 	bool JustOpened = true;
 
 	UPROPERTY()
-	int ProcessID = 0;
+	UProcess* MyProcess;
 
 	UPROPERTY()
 	bool IsClosing = false;
@@ -67,9 +70,6 @@ public:
 	void ActiveProgramCloseEvent();
 
 protected:
-	UFUNCTION()
-	void HandleProcessEnded(const FPeacegateProcess& InProcess);
-
 	UFUNCTION(BlueprintCallable, Category = "Desktop")
 	void PushNotification(const FText& InNotificationMessage);
 
@@ -84,7 +84,10 @@ public:
 	FPlayerAttentionNeededEvent PlayerAttentionNeeded;
 
 	UFUNCTION(BlueprintCallable, Category = "Peacegate")
-	static UProgram* CreateProgram(const TSubclassOf<UWindow> InWindowClass, const TSubclassOf<UProgram> InProgramClass, UUserContext* InUserContext, UWindow*& OutWindow, FString InProcessName, bool DoContextSetup = true);
+	ATerminalCommand* ForkCommand(UCommandInfo* InCommandInfo, UConsoleContext* InConsole);
+
+	UFUNCTION()
+	static UProgram* CreateProgram(const TSubclassOf<UWindow> InWindowClass, const TSubclassOf<UProgram> InProgramClass, UUserContext* InUserContext, UWindow*& OutWindow, FString InProcessName, UProcess* OwnerProcess, bool DoContextSetup = true);
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = "true"))
 	UWindow* Window;

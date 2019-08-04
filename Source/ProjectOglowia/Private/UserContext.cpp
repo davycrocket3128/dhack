@@ -39,6 +39,7 @@
 #include "Program.h"
 #include "PeacegateFileSystem.h"
 #include "PayloadAsset.h"
+#include "Process.h"
 #include "SystemUpgrade.h"
 
 TArray<FString> UUserContext::GetNearbyHosts()
@@ -138,13 +139,15 @@ FUserInfo UUserContext::GetUserInfo()
     return this->GetOwningSystem()->GetUserInfo(this->UserID);
 }
 
-void UUserContext::Setup(USystemContext* InOwningSystem, int InUserID)
+void UUserContext::Setup(USystemContext* InOwningSystem, int InUserID, UProcess* InUserSessionProcess)
 {
     // Make sure the owning system is valid.
     check(InOwningSystem);
+	check(InUserSessionProcess);
 
     this->OwningSystem = InOwningSystem;
     this->UserID = InUserID;
+	this->UserSession = InUserSessionProcess;
 }
 
 FString UUserContext::GetHostname()
@@ -324,7 +327,7 @@ bool UUserContext::OpenFile(const FString& InPath, EFileOpenResult& OutResult)
 			TSubclassOf<UWindow> WindowClass = this->GetPeacenet()->WindowClass;
 
 			UWindow* NewWindow;
-			UProgram* NewProgram = UProgram::CreateProgram(WindowClass, ProgramAsset->ProgramClass, this, NewWindow, ProgramAsset->ID.ToString());
+			UProgram* NewProgram = UProgram::CreateProgram(WindowClass, ProgramAsset->ProgramClass, this, NewWindow, ProgramAsset->ID.ToString(), this->UserSession);
 
 			NewWindow->WindowTitle = ProgramAsset->FullName;
 			NewWindow->Icon = ProgramAsset->AppLauncherItem.Icon;
@@ -353,7 +356,7 @@ bool UUserContext::OpenFile(const FString& InPath, EFileOpenResult& OutResult)
 	TSubclassOf<UWindow> WindowClass = this->GetPeacenet()->WindowClass;
 
 	UWindow* NewWindow;
-	UProgram* NewProgram = UProgram::CreateProgram(WindowClass, ProgramAsset->ProgramClass, this, NewWindow, ProgramAsset->ID.ToString());
+	UProgram* NewProgram = UProgram::CreateProgram(WindowClass, ProgramAsset->ProgramClass, this, NewWindow, ProgramAsset->ID.ToString(), this->UserSession);
 
 	NewWindow->WindowTitle = ProgramAsset->FullName;
 	NewWindow->Icon = ProgramAsset->AppLauncherItem.Icon;
@@ -362,6 +365,11 @@ bool UUserContext::OpenFile(const FString& InPath, EFileOpenResult& OutResult)
 	NewProgram->FileOpened(InPath);
 
 	return true;
+}
+
+UProcess* UUserContext::Fork(FString InName)
+{
+	return this->UserSession->Fork(InName);
 }
 
 TArray<FString> UUserContext::GetKnownHosts()

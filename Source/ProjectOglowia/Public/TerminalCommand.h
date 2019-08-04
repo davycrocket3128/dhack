@@ -102,7 +102,7 @@ public:
 
 protected:
 	template<typename T>
-	inline ATerminalCommand* SpawnCommand();
+	inline ATerminalCommand* SpawnCommand(UProcess* OwningProcess);
 
 	UFUNCTION()
 	int GetProcessID();
@@ -126,16 +126,18 @@ public:
 	void Complete();
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Terminal")
-	static ATerminalCommand* CreateCommandFromAsset(UUserContext* InUserContext, UCommandInfo* InCommandInfo);
+	UFUNCTION()
+	static ATerminalCommand* CreateCommandFromAsset(UUserContext* InUserContext, UCommandInfo* InCommandInfo, UProcess* InOwningProcess);
 };
 
 template<typename T>
-inline ATerminalCommand* ATerminalCommand::SpawnCommand()
+inline ATerminalCommand* ATerminalCommand::SpawnCommand(UProcess* OwningProcess)
 {
 	FVector Location(0.0f, 0.0f, 0.0f);
 	FRotator Rotation(0.0f, 0.0f, 0.0f);
  	FActorSpawnParameters SpawnInfo;
 
-	return Cast<ATerminalCommand>(this->GetWorld()->SpawnActor<T>(Location, Rotation, SpawnInfo));
+	ATerminalCommand* Command = Cast<ATerminalCommand>(this->GetWorld()->SpawnActor<T>(Location, Rotation, SpawnInfo));
+	Command->MyProcess = OwningProcess;
+	return Command;
 }

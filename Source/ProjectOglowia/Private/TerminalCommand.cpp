@@ -234,7 +234,7 @@ void ATerminalCommand::CompleteInternal(bool KillProcess)
 	this->Destroy();
 }
 
-ATerminalCommand* ATerminalCommand::CreateCommandFromAsset(UUserContext* InUserContext, UCommandInfo* InCommandInfo)
+ATerminalCommand* ATerminalCommand::CreateCommandFromAsset(UUserContext* InUserContext, UCommandInfo* InCommandInfo, UProcess* OwningProcess)
 {
 	// Return nullptr if the command asset or user context are invalid.
 	if(!InUserContext) return nullptr;
@@ -247,6 +247,7 @@ ATerminalCommand* ATerminalCommand::CreateCommandFromAsset(UUserContext* InUserC
 	ATerminalCommand* Command = InUserContext->GetPeacenet()->GetWorld()->SpawnActor<ATerminalCommand>(InCommandInfo->CommandClass, Location, Rotation, SpawnInfo);
 
 	Command->CommandInfo = InCommandInfo;
+	Command->MyProcess = OwningProcess;
 
 	return Command;
 

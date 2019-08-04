@@ -520,7 +520,7 @@ UUserContext* USystemContext::GetHackerContext(int InUserID, UUserContext* Hacki
 	}
 
 	UUserContext* NewHacker = NewObject<UUserContext>(this);
-	NewHacker->Setup(this, InUserID);
+	NewHacker->Setup(this, InUserID, this->ProcessManager->CreateProcessAs("user-session", InUserID));
 	NewHacker->SetHacker(HackingUser);
 	Hackers.Add(NewHacker);
 	return NewHacker;
@@ -535,7 +535,7 @@ UUserContext* USystemContext::GetUserContext(int InUserID)
 	else
 	{
 		UUserContext* User = NewObject<UUserContext>(this);
-		User->Setup(this, InUserID);
+		User->Setup(this, InUserID, this->ProcessManager->CreateProcessAs("user-session", InUserID));
 		Users.Add(InUserID, User);
 		return User;
 	}
