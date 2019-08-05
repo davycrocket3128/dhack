@@ -33,6 +33,16 @@
 #include "DaemonManager.h"
 #include "PeacenetWorldStateActor.h"
 
+APeacenetWorldStateActor* UPeacegateDaemon::GetPeacenet()
+{
+    return this->DaemonManager->GetPeacenet();
+}
+
+USystemContext* UPeacegateDaemon::GetSystemContext()
+{
+    return this->DaemonManager->GetSystemContext();
+}
+
 void UPeacegateDaemon::Start()
 {
     if(!this->IsActive())
@@ -79,7 +89,7 @@ void UPeacegateDaemon::StopInternal()
     // and gracefully despawn.
     //
     // Otherwise we will restart.
-    if(this->IsGracefulStop)
+    if(this->IsGracefulStop || !this->DaemonManager->IsActive())
     {
         // Stop any world simulation ticks of this daemon.
         TScriptDelegate<> WorldUpdate;

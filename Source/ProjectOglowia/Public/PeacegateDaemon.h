@@ -38,6 +38,7 @@
 #include "PeacegateDaemon.generated.h"
 
 class UDaemonManager;
+class APeacenetWorldStateActor;
 
 UCLASS(Blueprintable, BlueprintType, Abstract)
 class PROJECTOGLOWIA_API UPeacegateDaemon : public UObject
@@ -64,6 +65,12 @@ private:
     UProcess* DaemonProcess;
 
 protected:
+    UFUNCTION()
+    APeacenetWorldStateActor* GetPeacenet();
+
+    UFUNCTION()
+    USystemContext* GetSystemContext();
+
     UFUNCTION()
     void StopInternal();
 

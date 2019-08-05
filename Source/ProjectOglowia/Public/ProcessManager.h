@@ -91,6 +91,10 @@ private:
     UFUNCTION()
     bool GetProcess(int ProcessID, int UserID, UProcess*& OutProcess, EProcessResult& OutProcessResult);
 
+private:
+    UFUNCTION()
+    bool IsActive();
+
 public:
     UFUNCTION()
     int GetNextProcessID();

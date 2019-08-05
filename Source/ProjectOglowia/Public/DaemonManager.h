@@ -86,5 +86,11 @@ public:
     APeacenetWorldStateActor* GetPeacenet();
 
     UFUNCTION()
+    USystemContext* GetSystemContext();
+
+    UFUNCTION()
+    bool IsActive();
+
+    UFUNCTION()
     UProcess* Fork(FString InProcessName);
 };

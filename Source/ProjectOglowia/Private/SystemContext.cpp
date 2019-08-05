@@ -769,6 +769,9 @@ void USystemContext::Crash()
 	//
 	// We also need to get rid of all filesystem contexts because they're assigned to user contexts.
 	this->RegisteredFilesystems.Empty();
+
+	// Restart the daemon manager.
+	this->RestartDaemonManager();
 }
 
 void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldStateActor* InPeacenet)
@@ -926,6 +929,20 @@ void USystemContext::InitDaemonManager()
 
 	// Initialize the daemon manager.
 	this->DaemonManager->Initialize(this, DaemonManagerProcess);
+
+	// When the daemon manager ends, we'll restart the daemon manager.
+	TScriptDelegate<> DaemonManagerEnded;
+	DaemonManagerEnded.BindUFunction(this, "RestartDaemonManager");
+	DaemonManagerProcess->OnKilled.Add(DaemonManagerEnded);
+}
+
+void USystemContext::RestartDaemonManager()
+{
+	if(this->ProcessManager->IsActive())
+	{
+		this->DaemonManager = nullptr;
+		this->InitDaemonManager();
+	}
 }
 
 FString USystemContext::GetEmailAddress()

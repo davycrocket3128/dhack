@@ -123,3 +123,13 @@ APeacenetWorldStateActor* UDaemonManager::GetPeacenet()
 {
     return this->SystemContext->GetPeacenet();
 }
+
+USystemContext* UDaemonManager::GetSystemContext()
+{
+    return this->SystemContext;
+}
+
+bool UDaemonManager::IsActive()
+{
+    return this->SystemProcess && !this->SystemProcess->IsDead();
+}

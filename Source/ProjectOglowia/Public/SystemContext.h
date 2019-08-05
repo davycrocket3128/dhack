@@ -82,6 +82,9 @@ protected:
 	UFUNCTION()
 	void InitDaemonManager();
 
+	UFUNCTION()
+	void RestartDaemonManager();
+
 	UPROPERTY()
 	FString CurrentHostname;
 

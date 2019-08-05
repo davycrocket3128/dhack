@@ -35,12 +35,24 @@
 #include "PeacegateDaemon.h"
 #include "TutorialDaemon.generated.h"
 
+class UTutorialPromptState;
+
 UCLASS()
 class PROJECTOGLOWIA_API UTutorialDaemon : public UPeacegateDaemon
 {
     GENERATED_BODY()
 
+private:
+    UPROPERTY()
+    bool NewTutorialReady = false;
+
 protected:
+    UFUNCTION()
+    UTutorialPromptState* GetTutorialPrompt();
+
+	UFUNCTION()
+	void UpdateTutorial(const FText& InTitle, const FText& InNewText, UTutorialPromptState* InTutorialPromptState);
+
     virtual void NativeStart() override;
     virtual void NativeStop() override;
     virtual void NativeTick(float DeltaSeconds) override;

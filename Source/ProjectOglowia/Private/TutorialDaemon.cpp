@@ -30,23 +30,73 @@
  ********************************************************************************/
 
 #include "TutorialDaemon.h"
+#include "SystemContext.h"
+#include "DesktopWidget.h"
+#include "TutorialPromptState.h"
+#include "PeacenetWorldStateActor.h"
 
 void UTutorialDaemon::NativeStart()
 {
-    // TODO:
-    //  - Bind to peacegate 'show tutorial' event
-    //  - Make sure the desktop gets the event when we do.
+    // Bind to the tutorial prompt's activate event.
+	TScriptDelegate<> TutorialEvent;
+	TutorialEvent.BindUFunction(this, "UpdateTutorial");
+
+	if(!this->GetTutorialPrompt()->TutorialActivated.Contains(TutorialEvent))
+		this->GetTutorialPrompt()->TutorialActivated.Add(TutorialEvent);
 }
 
 void UTutorialDaemon::NativeStop()
 {
-    // TODO:
-    //  - Dismiss any active tutorials.
-    //  - Stop responding to tutorial events
-    //  - And thus stop forwarding them to the desktop.
+    // Dismiss any active tutorial prompts.
+    if(this->GetTutorialPrompt()->IsPromptActive())
+    {
+        this->GetTutorialPrompt()->DismissPrompt();
+    }
+
+    // Stop responding to tutorial events.
+	TScriptDelegate<> TutorialEvent;
+	TutorialEvent.BindUFunction(this, "UpdateTutorial");
+
+	if(this->GetTutorialPrompt()->TutorialActivated.Contains(TutorialEvent))
+		this->GetTutorialPrompt()->TutorialActivated.Remove(TutorialEvent);
 }
 
 void UTutorialDaemon::NativeTick(float DeltaSeconds)
 {
-    // TODO
+    // Is there a tutorial ready?
+    if(this->NewTutorialReady)
+    {
+        // Is the desktop in a state where tutorials can be activated?
+        if(this->GetSystemContext()->GetDesktop() && this->GetSystemContext()->GetDesktop()->IsSessionActive())
+        {
+            // Broadcast the event!
+            FText Title = this->GetTutorialPrompt()->GetTutorialTitle();
+            FText Message = this->GetTutorialPrompt()->GetTutorialText();
+            this->GetSystemContext()->GetDesktop()->UpdateTutorial(Title, Message, this->GetTutorialPrompt());
+            
+            // Tutorial is no longer ready.
+            this->NewTutorialReady = false;
+        }
+    }
+}
+
+UTutorialPromptState* UTutorialDaemon::GetTutorialPrompt()
+{
+    return this->GetPeacenet()->GetTutorialState();
+}
+
+void UTutorialDaemon::UpdateTutorial(const FText& InTitle, const FText& InNewText, UTutorialPromptState* InTutorialPromptState)
+{
+    // If the desktop is there, and the desktop has a session, we'll forward the tutorial right away.
+    //
+    // If not then we'll simply mark that we have a new tutorial to show, and try to forward it every tick
+    // until we succeed.
+    if(this->GetSystemContext()->GetDesktop() && this->GetSystemContext()->GetDesktop()->IsSessionActive())
+    {
+        this->GetSystemContext()->GetDesktop()->UpdateTutorial(InTitle, InNewText, InTutorialPromptState);
+    }
+    else
+    {
+        this->NewTutorialReady =true;
+    }
 }
