@@ -144,3 +144,8 @@ bool UPeacegateDaemon::IsActive()
 {
     return this->DaemonProcess && !this->DaemonProcess->IsDead();
 }
+
+FName UPeacegateDaemon::GetName()
+{
+    return this->Name;
+}

@@ -918,6 +918,17 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	this->InitDaemonManager();
 }
 
+bool USystemContext::GetDaemonManager(UUserContext* InUserContext, UDaemonManager*& OutDaemonManager)
+{
+	if(InUserContext->IsAdministrator())
+	{
+		OutDaemonManager = this->DaemonManager;
+		return true;
+	}
+	OutDaemonManager = nullptr;
+	return false;
+}
+
 void USystemContext::InitDaemonManager()
 {
 	// Create the daemon manager if it is nullptr.

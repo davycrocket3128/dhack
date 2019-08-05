@@ -41,7 +41,13 @@
 #include "PeacegateFileSystem.h"
 #include "PayloadAsset.h"
 #include "Process.h"
+#include "DaemonManager.h"
 #include "SystemUpgrade.h"
+
+bool UUserContext::GetDaemonManager(UDaemonManager*& OutDaemonManager)
+{
+	return this->GetOwningSystem()->GetDaemonManager(this, OutDaemonManager);
+}
 
 bool UUserContext::KillProcess(int ProcessID, EProcessResult& OutKillResult)
 {

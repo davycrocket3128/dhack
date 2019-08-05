@@ -93,4 +93,13 @@ public:
 
     UFUNCTION()
     UProcess* Fork(FString InProcessName);
+
+    UFUNCTION()
+    void StartDaemonByName(FName InName);
+
+    UFUNCTION()
+    void StopDaemonByName(FName InName);
+
+    UFUNCTION()
+    void RestartDaemonByName(FName InName);
 };

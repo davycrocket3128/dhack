@@ -133,3 +133,42 @@ bool UDaemonManager::IsActive()
 {
     return this->SystemProcess && !this->SystemProcess->IsDead();
 }
+
+void UDaemonManager::StartDaemonByName(FName InName)
+{
+    for(auto Daemon : this->ActiveDaemons)
+    {
+        if(Daemon->GetName() == InName)
+            return;
+    }
+
+    for(auto DaemonInfo : this->AvailableDaemons)
+    {
+        if(DaemonInfo.Name == InName)
+        {
+            UPeacegateDaemon* Daemon = this->CreateDaemon(InName);
+            ActiveDaemons.Add(Daemon);
+            this->StartDaemon(Daemon);
+            return;
+        }
+    }
+}
+
+void UDaemonManager::StopDaemonByName(FName InName)
+{
+    for(int i = 0; i < ActiveDaemons.Num(); i++)
+    {
+        UPeacegateDaemon* Daemon = ActiveDaemons[i];
+        if(Daemon->GetName() == InName)
+        {
+            Daemon->Stop();
+            return;
+        }
+    }
+}
+
+void UDaemonManager::RestartDaemonByName(FName InName)
+{
+    this->StopDaemonByName(InName);
+    this->StartDaemonByName(InName);
+}

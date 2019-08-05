@@ -109,4 +109,7 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Daemon")
     bool IsActive();
+
+    UFUNCTION()
+    FName GetName();
 };

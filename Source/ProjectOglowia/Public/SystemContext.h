@@ -118,6 +118,9 @@ protected:
 
 public: // Property getters
 	UFUNCTION()
+	bool GetDaemonManager(UUserContext* InUserContext, UDaemonManager*& OutDaemonManager);
+
+	UFUNCTION()
 	UUserContext* GetHackerContext(int InUserID, UUserContext* HackingUser);
 
 	UFUNCTION()
