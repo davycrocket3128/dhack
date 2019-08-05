@@ -910,6 +910,22 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 		}
 
 	}
+
+	// Create and initialize the daemon manager.
+	this->InitDaemonManager();
+}
+
+void USystemContext::InitDaemonManager()
+{
+	// Create the daemon manager if it is nullptr.
+	if(!this->DaemonManager)
+		this->DaemonManager = NewObject<UDaemonManager>();
+
+	// Spawn a system process for the daemon manager.  All daemons will fork from it.
+	UProcess* DaemonManagerProcess = this->ProcessManager->CreateProcess("system-daemon-manager");
+
+	// Initialize the daemon manager.
+	this->DaemonManager->Initialize(this, DaemonManagerProcess);
 }
 
 FString USystemContext::GetEmailAddress()

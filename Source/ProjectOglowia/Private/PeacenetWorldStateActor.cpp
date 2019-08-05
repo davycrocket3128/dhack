@@ -882,6 +882,9 @@ void APeacenetWorldStateActor::Tick(float DeltaTime)
 
 		// Save it
 		SaveGame->EpochTime = TimeOfDay;
+
+		// Tick the world simulation.
+		this->OnSimulationTick.Broadcast(DeltaTime);
 	}
 }
 

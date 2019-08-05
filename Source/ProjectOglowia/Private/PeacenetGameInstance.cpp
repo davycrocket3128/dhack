@@ -302,3 +302,35 @@ void UPeacenetGameInstance::Shutdown()
 	// KILLLLLLLL EVERYTHINGGGGGGGGG
 	Super::Shutdown();
 }
+
+TArray<FDaemonInfo> UPeacenetGameInstance::GetDaemonsForSystem(USystemContext* InSystemContext)
+{
+	TArray<FDaemonInfo> Ret;
+
+	for(auto RegisteredDaemon : this->RegisteredDaemons)
+	{
+		if(RegisteredDaemon.Value.DaemonType == EDaemonType::AllSystems)
+			Ret.Add(RegisteredDaemon.Value);
+		else
+		{
+			if(RegisteredDaemon.Value.DaemonType == EDaemonType::Player)
+			{
+				if(InSystemContext->GetComputer().OwnerType == EComputerOwnerType::Player)
+				{
+					Ret.Add(RegisteredDaemon.Value);
+				}
+				continue;
+			}
+			else
+			{
+				if(InSystemContext->GetComputer().OwnerType != EComputerOwnerType::Player)
+				{
+					Ret.Add(RegisteredDaemon.Value);
+				}
+				continue;
+			}
+		}
+	}
+
+	return Ret;
+}

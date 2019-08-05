@@ -168,4 +168,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Computer")
 	int SystemIdentity = -1;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Computer")
+	TArray<FName> DisabledDaemons;
 };

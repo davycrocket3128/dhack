@@ -88,6 +88,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FUpdateKnownHostsEvent);
 UCLASS()
 class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
 {
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWorldSimulationTickEvent, float, InDeltaTime);
+
 	mystalkeris AMissionActor; // AMissionActor's more clingy to the fucking save file than I was to Nick Ensor.  That's...annoying....
 	myotherstalkeris UMissionTask; // For the love of Kaylin...
 	myotherstalkeris UProceduralGenerationEngine;
@@ -97,6 +99,9 @@ class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
 public: // Constructors
 	// Sets default values for this actor's properties
 	APeacenetWorldStateActor();
+
+	UPROPERTY()
+	FWorldSimulationTickEvent OnSimulationTick;
 
 	UPROPERTY(BlueprintAssignable)
 	FUpdateKnownHostsEvent UpdateKnownHosts;

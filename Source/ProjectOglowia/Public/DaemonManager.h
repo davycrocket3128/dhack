@@ -32,74 +32,59 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Text.h"
-#include "TextProperty.h"
+#include "PeacegateDaemon.h"
+#include "DaemonInfoAsset.h"
+#include "PeacenetGameInstance.h"
 #include "Process.h"
-#include "PeacegateDaemon.generated.h"
+#include "DaemonManager.generated.h"
 
-class UDaemonManager;
+class USystemContext;
+class APeacenetWorldStateActor;
 
-UCLASS(Blueprintable, BlueprintType, Abstract)
-class PROJECTOGLOWIA_API UPeacegateDaemon : public UObject
+UCLASS()
+class PROJECTOGLOWIA_API UDaemonManager : public UObject
 {
     GENERATED_BODY()
 
 private:
     UPROPERTY()
-    bool IsGracefulStop = false;
+    TArray<FDaemonInfo> AvailableDaemons;
 
     UPROPERTY()
-    FName Name;
+    USystemContext* SystemContext;
 
     UPROPERTY()
-    FText FriendlyName;
+    UProcess* SystemProcess;
 
     UPROPERTY()
-    FText Description;
+    UPeacenetGameInstance* GameInstance;
 
     UPROPERTY()
-    UDaemonManager* DaemonManager;
-
-    UPROPERTY()
-    UProcess* DaemonProcess;
+    TArray<UPeacegateDaemon*> ActiveDaemons;
 
 protected:
     UFUNCTION()
-    void StopInternal();
+    bool IsDaemonEnabled(FName InName);
 
-    // C++ events.
-    virtual void NativeStart() {}
-    virtual void NativeStop() {}
-    virtual void NativeTick(float InDeltaTime) {}
+    UFUNCTION()
+    void StartEnabledDaemons();
 
-    // Blueprint events:
-    UFUNCTION(BlueprintImplementableEvent, Category = "System Daemon")
-    void OnStart();
+    UFUNCTION()
+    UPeacegateDaemon* CreateDaemon(FName InName);
 
-    UFUNCTION(BlueprintImplementableEvent, Category = "System Daemon")
-    void OnStop();
-
-    UFUNCTION(BlueprintImplementableEvent, Category = "System Daemon")
-    void OnTick(float InDeltaTime);
+    UFUNCTION()
+    void StartDaemon(UPeacegateDaemon* InDaemon);
 
 public:
-    // Event dispatchers.
     UFUNCTION()
-    void Start();
+    void Initialize(USystemContext* InSystem, UProcess* InSystemProcess);
 
     UFUNCTION()
-    void Stop();
+    void DaemonStoppedGracefully(UPeacegateDaemon* InDaemon);
 
     UFUNCTION()
-    void Restart();
+    APeacenetWorldStateActor* GetPeacenet();
 
     UFUNCTION()
-    void Tick(float InDeltaTime);
-
-    // Links the daemon to a daemon manager and sets the daemon metadata.  Should only be called once, by the daemon manager.
-    UFUNCTION()
-    void SetMetadata(UDaemonManager* InDaemonManager, FName InName, FText InFriendlyName, FText InDescription);
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Daemon")
-    bool IsActive();
+    UProcess* Fork(FString InProcessName);
 };

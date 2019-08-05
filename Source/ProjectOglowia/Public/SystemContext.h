@@ -40,6 +40,7 @@
 #include "MailProvider.h"
 #include "ConnectionError.h"
 #include "ProcessManager.h"
+#include "DaemonManager.h"
 #include "SystemContext.generated.h"
 
 class UHackable;
@@ -63,6 +64,9 @@ class PROJECTOGLOWIA_API USystemContext : public UObject
 
 private:
 	UPROPERTY()
+	UDaemonManager* DaemonManager;
+
+	UPROPERTY()
 	UProcessManager* ProcessManager;
 
 	UPROPERTY()
@@ -75,6 +79,9 @@ private:
 	void UpdateInternalIdentity();
 
 protected:
+	UFUNCTION()
+	void InitDaemonManager();
+
 	UPROPERTY()
 	FString CurrentHostname;
 

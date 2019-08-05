@@ -41,6 +41,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSettingsAppliedEvent, UPeacenetSettings*, InSettings);
 
+class USystemContext;
 class UPeacenetGameTypeAsset;
 
 USTRUCT()
@@ -109,6 +110,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Peacenet")
 	void CreateWorld(FString InCharacterName, UPeacenetGameTypeAsset* InGameType);
+
+	UFUNCTION()
+	TArray<FDaemonInfo> GetDaemonsForSystem(USystemContext* InSystem);
 
 public: // UGameInstance overrides.
 	virtual void Init() override;
