@@ -670,6 +670,9 @@ FLinearColor UCommonUtils::GetUserColor(EUserColor InColor)
 		case EUserColor::Peaceful:
 			Result = FColor(0x1B, 0xAA, 0xF7, 0xFF);
 			break;
+		case EUserColor::Sky:
+			Result = FColor(0x01, 0xDF, 0xD7, 0xFF);
+			break;
 		case EUserColor::Blood:
 			Result = FColor(0xF7, 0x1B, 0x1B, 0xFF);
 			break;

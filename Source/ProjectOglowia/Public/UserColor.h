@@ -41,6 +41,7 @@ UENUM(BlueprintType)
 enum class EUserColor : uint8
 {
 	Noir = 0,
+	Sky = 1,
 	Serenity = 2,
 	Peaceful = 3,
 	Blood = 4,
