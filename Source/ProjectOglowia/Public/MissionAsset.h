@@ -94,6 +94,12 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "When The Fucking Mission Is Completed")
     bool UpdateFreeRoamMusicState = false;
 
+    // If set to true, the game will not show the "Mission Complete" UI when the mission is completed.
+    // Use this for missions that seamlessly transition to other gameplay sequences or when you don't want the
+    // player to know that they were in a mission the whole time.  Example: The prologue tutorial.
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "When The Fucking Mission Is Completed")
+    bool CompleteSilently = false;
+
     // A list of actions to perform when the mission's been completed.
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "When The Fucking Mission Is Completed")
     TArray<FMissionAction> OnCompletion;
