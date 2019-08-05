@@ -42,7 +42,13 @@
 #include "PeacenetIdentity.h"
 #include "AssetRegistry/Public/IAssetRegistry.h"
 #include "AssetRegistry/Public/AssetRegistryModule.h"
+#include "DaemonInfoAsset.h"
 #include "Kismet/GameplayStatics.h"
+
+void UPeacenetGameInstance::RegisterDaemons()
+{
+	// TODO: Register any C++ daemons without needing to create a Daemon Info Asset in the Unreal Editor.
+}
 
 void UPeacenetGameInstance::RegisterPeacegateDaemon(TSubclassOf<UPeacegateDaemon> InDaemonClass, FName Name, FText FriendlyName, FText Description, EDaemonType DaemonType)
 {
@@ -263,6 +269,22 @@ void UPeacenetGameInstance::Init()
 	for (auto& Asset : Assets)
 	{
 		this->GameTypes.Add(Cast<UPeacenetGameTypeAsset>(Asset.GetAsset()));
+	}
+
+	// Register our own daemons.
+	this->RegisterDaemons();
+
+	// Get all daemon assets for blueprint daemons.
+	TArray<FAssetData> DaemonAssets;
+	AssetRegistryModule.Get().GetAssetsByClass("DaemonInfoAsset", DaemonAssets, true);
+
+	// Loop through them and register them.
+	for(auto& Asset : DaemonAssets)
+	{
+		UDaemonInfoAsset* InfoAsset = Cast<UDaemonInfoAsset>(Asset.GetAsset());
+
+		// Register the daemon!
+		this->RegisterPeacegateDaemon(InfoAsset->DaemonClass, InfoAsset->Name, InfoAsset->FriendlyName, InfoAsset->Description, InfoAsset->DaemonType);
 	}
 
 	Super::Init();

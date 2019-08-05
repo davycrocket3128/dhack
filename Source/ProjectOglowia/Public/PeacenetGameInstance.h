@@ -81,6 +81,9 @@ protected:
 	UFUNCTION()
 	void RegisterPeacegateDaemon(TSubclassOf<UPeacegateDaemon> InDaemonClass, FName Name, FText FriendlyName, FText Description, EDaemonType DaemonType = EDaemonType::AllSystems);
 
+	UFUNCTION()
+	void RegisterDaemons();
+
 public:
 	UPROPERTY()
 	TArray<UPeacenetGameTypeAsset*> GameTypes;
