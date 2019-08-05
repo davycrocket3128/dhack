@@ -42,11 +42,5 @@ void UOpenProgramTask::NativeStart()
 
 void UOpenProgramTask::NativeTick(float InDeltaSeconds)
 {
-    for(auto& Process : this->GetPlayerUser()->GetRunningProcesses())
-    {
-        if(Process.ProcessName == this->Program->ID.ToString() || Process.ProcessName == this->Program->FullName.ToString())
-        {
-            this->Complete();
-        }
-    }
+    // TODO: Hook into the game's new process system instead of checking each tick for a missing process.
 }

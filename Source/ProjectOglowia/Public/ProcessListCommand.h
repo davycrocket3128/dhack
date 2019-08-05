@@ -32,23 +32,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PeacegateProcess.generated.h"
+#include "Process.h"
+#include "TerminalCommand.h"
+#include "ProcessListCommand.generated.h"
 
-USTRUCT(BlueprintType)
-struct PROJECTOGLOWIA_API FPeacegateProcess
+UCLASS()
+class PROJECTOGLOWIA_API AProcessListCommand : public ATerminalCommand
 {
     GENERATED_BODY()
 
-public:
-    UPROPERTY(BlueprintReadOnly)
-    int PID = 0;
-
-    UPROPERTY(BlueprintReadOnly)
-    int UID = 0;
-
-    UPROPERTY(BlueprintReadOnly)
-    FString ProcessName;
-
-    UPROPERTY(BlueprintReadOnly)
-    FString FilePath;
+protected:
+    virtual void NativeRunCommand(UConsoleContext* InConsoleContext, TArray<FString> InArguments) override;
 };

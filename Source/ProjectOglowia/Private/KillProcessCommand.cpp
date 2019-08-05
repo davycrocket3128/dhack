@@ -31,21 +31,53 @@
 
 #include "KillProcessCommand.h"
 
+// kill - Kills the specified Peacegate process by ID.
+//
+// Usage:
+//  kill <pid>
 void AKillProcessCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
 {
-    // Get the process id/name specified by the player.
-    FString ProcessIDArg = this->ArgumentMap["<pid>"]->AsString();
-
-    // Loop through all the processes active in the system.
-    for(auto Process : InConsole->GetUserContext()->GetRunningProcesses())
+    // Check if the specified <pid> is a number and throw an error if it isn't.
+    if(!this->ArgumentMap["<pid>"]->IsNumber())
     {
-        // If the name or ID matches, kill the process.
-        if(Process.PID != this->GetProcessID() && FString::FromInt(Process.PID) == ProcessIDArg || Process.ProcessName == ProcessIDArg)
-        {
-            InConsole->WriteLine(FText::Format(NSLOCTEXT("Kill", "Success", "&*SUCCESS:&r Killed process &8{0}&7 (pid {1})"), FText::FromString(Process.ProcessName), FText::FromString(FString::FromInt(Process.PID))));
-            InConsole->GetUserContext()->FinishProcess(Process);
-        }
+        InConsole->SetForegroundColor(EConsoleColor::Magenta);
+        InConsole->WriteLine(NSLOCTEXT("Kill", "InvalidProcessID", "error: pid is not valid."));
+        InConsole->ResetFormatting();
+        this->Complete();
+        return;
     }
+
+    // Get the process ID number.
+    int pid = this->ArgumentMap["<pid>"]->AsNumber();
+
+    // Try to kill the process.
+    EProcessResult KillResult;
+    if(this->GetUserContext()->KillProcess(pid, KillResult))
+    {
+        // Success!
+        InConsole->SetForegroundColor(EConsoleColor::Green);
+        InConsole->WriteLine(FText::Format(NSLOCTEXT("Kill", "Killed", "[{0}] Killed."), FText::AsNumber(pid)));
+        InConsole->ResetFormatting();
+        this->Complete();
+        return;
+    }
+
+    // If we get this far, there was an error.
+    InConsole->SetForegroundColor(EConsoleColor::Red);
+    InConsole->Write(FText::Format(NSLOCTEXT("Kill", "KillErrorStart", "kill: {0}: error: "), FText::AsNumber(pid)));
+
+    switch(KillResult)
+    {
+        case EProcessResult::PermissionDenied:
+            InConsole->WriteLine(NSLOCTEXT("Kill", "PermissionDenied", "permission denied."));
+            break;
+        case EProcessResult::ProcessNotRunning:
+            InConsole->WriteLine(NSLOCTEXT("Kill", "ProcessNotRunning", "process not running."));
+            break;
+    }
+
+    // All done.
+    InConsole->ResetFormatting();
 
     // Kill ourselves.
     this->Complete();

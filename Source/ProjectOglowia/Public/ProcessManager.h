@@ -32,38 +32,66 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UserContext.h"
-#include "ConsoleContext.h"
-#include "Process.h"
-#include "Payload.generated.h"
+#include "ProcessManager.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDisconnectedEvent);
+class USystemContext;
+class UProcess;
 
-UCLASS(Blueprintable, BlueprintType, Abstract, EditInlineNew)
-class PROJECTOGLOWIA_API UPayload : public UObject
+UENUM(BlueprintType)
+enum class EProcessResult : uint8
 {
+    Success,
+    ProcessNotRunning,
+    PermissionDenied
+};
+
+UCLASS()
+class PROJECTOGLOWIA_API UProcessManager : public UObject
+{
+    friend USystemContext;
+    friend UProcess;
+
     GENERATED_BODY()
 
 private:
     UPROPERTY()
-    UProcess* LocalProcess;
+    int NextProcessID = 0;
 
-protected:
-    UFUNCTION(BlueprintImplementableEvent)
-    void OnPayloadDeployed(UConsoleContext* Console, UUserContext* OriginUser, UUserContext* TargetUser);
+    UPROPERTY()
+    UProcess* RootProcess;
 
-    virtual void NativePayloadDeployed(UConsoleContext* Console, UUserContext* OriginUser, UUserContext* TargetUser) {}
+    UPROPERTY()
+    USystemContext* OwningSystem;
 
-    UFUNCTION(BlueprintCallable, Category = "Payload")
-    void Disconnect();
+private:
+    UFUNCTION()
+    void RootProcessKilled();
 
     UFUNCTION()
-    UProcess* GetLocalProcess();
+    void Initialize(USystemContext* InSystemContext);
+
+    UFUNCTION()
+    UProcess* CreateProcess(FString Name);\
+
+    UFUNCTION()
+    UProcess* CreateProcessAs(FString Name, int UserID);
+
+    UFUNCTION()
+    void ProcessKilled();
+
+    UFUNCTION()
+    TArray<UProcess*> GetAllProcesses();
+
+    UFUNCTION()
+    TArray<UProcess*> GetProcessesForUser(int UserID);
+
+    UFUNCTION()
+    bool KillProcess(int ProcessID, int UserID, EProcessResult& OutKillResult);
+
+    UFUNCTION()
+    bool GetProcess(int ProcessID, int UserID, UProcess*& OutProcess, EProcessResult& OutProcessResult);
 
 public:
-    UPROPERTY()
-    FDisconnectedEvent Disconnected;
-
     UFUNCTION()
-    void DeployPayload(UConsoleContext* OriginConsole, UUserContext* OriginUser, UUserContext* TargetUser, UProcess* OwningLocalProcess);
+    int GetNextProcessID();
 };

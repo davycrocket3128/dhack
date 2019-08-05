@@ -72,7 +72,16 @@ bool UDocoptValue::IsBoolean()
 
 bool UDocoptValue::IsNumber()
 {
-	return UnderlyingValue.isLong();
+	// Check if we are a string...
+	if(this->UnderlyingValue.isString())
+	{
+		// We need to get this fucker as a string.
+		FString Str = FString(UnderlyingValue.asString().c_str());
+
+		// Return whether the string is numberic.
+		return Str.IsNumeric();
+	}
+	return false;
 }
 
 bool UDocoptValue::IsString()
@@ -97,7 +106,7 @@ bool UDocoptValue::AsBoolean()
 
 	if (UnderlyingValue.isString())
 	{
-		FString str = AsString().ToLower();
+		FString str = FString(UnderlyingValue.asString().c_str()).ToLower();
 		if (str.IsNumeric())
 		{
 			return str != TEXT("0");
@@ -117,9 +126,10 @@ int UDocoptValue::AsNumber()
 		return (AsBoolean() ? 1 : 0);
 	}
 
+	
 	if (IsString())
 	{
-		FString str = AsString();
+		FString str = FString(UnderlyingValue.asString().c_str());
 		if (str.IsNumeric())
 		{
 			return FCString::Atoi(*str);
@@ -136,11 +146,6 @@ FString UDocoptValue::AsString()
 	if (IsBoolean())
 	{
 		return (AsBoolean() ? TEXT("true") : TEXT("false"));
-	}
-
-	if (IsNumber())
-	{
-		return FString::FromInt(AsNumber());
 	}
 
 	if (IsList())

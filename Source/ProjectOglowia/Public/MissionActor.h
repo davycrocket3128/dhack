@@ -70,6 +70,9 @@ public:
     void Setup(APeacenetWorldStateActor* InPeacenet, UMissionAsset* InMission);
 
     UFUNCTION()
+    void SilentFail();
+
+    UFUNCTION()
     APeacenetWorldStateActor* GetPeacenet();
 
     UFUNCTION()

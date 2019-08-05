@@ -37,9 +37,38 @@
 #include "ConsoleContext.h"
 #include "CommonUtils.h"
 #include "Program.h"
+#include "SystemContext.h"
 #include "PeacegateFileSystem.h"
 #include "PayloadAsset.h"
+#include "Process.h"
 #include "SystemUpgrade.h"
+
+bool UUserContext::KillProcess(int ProcessID, EProcessResult& OutKillResult)
+{
+	return this->GetOwningSystem()->KillProcess(ProcessID, this, OutKillResult);
+}
+
+bool UUserContext::GetProcess(int ProcessID, UProcess*& OutProcess, EProcessResult& OutProcessResult)
+{
+	return this->GetOwningSystem()->GetProcess(ProcessID, this, OutProcess, OutProcessResult);
+}
+
+bool UUserContext::IsUserContextValid()
+{
+	return this && this->UserSession && !this->UserSession->IsDead();
+}
+
+UUserContext* UUserContext::RequestValidUser()
+{
+	if(this->IsUserContextValid()) return this;
+
+	return this->OwningSystem->GetUserContext(this->UserID);
+}
+
+TArray<int> UUserContext::GetRunningProcesses()
+{
+	return this->GetOwningSystem()->GetRunningProcesses();
+}
 
 TArray<FString> UUserContext::GetNearbyHosts()
 {
@@ -99,21 +128,6 @@ TArray<UExploit*> UUserContext::GetExploits()
 	return this->GetOwningSystem()->GetExploits();
 }
 
-int UUserContext::StartProcess(FString Name, FString FilePath)
-{
-	return this->GetOwningSystem()->StartProcess(Name, FilePath, this->UserID);
-}
-
-FString UUserContext::GetProcessUsername(FPeacegateProcess InProcess)
-{
-	return this->GetOwningSystem()->GetProcessUsername(InProcess);
-}
-
-TArray<FPeacegateProcess> UUserContext::GetRunningProcesses()
-{
-	return this->GetOwningSystem()->GetRunningProcesses();
-}
-
 void UUserContext::ParseURL(FString InURL, int InDefaultPort, FString& OutUsername, FString& OutHost, int& OutPort, FString& OutPath)
 {
 	bool HasPort = false;
@@ -138,13 +152,15 @@ FUserInfo UUserContext::GetUserInfo()
     return this->GetOwningSystem()->GetUserInfo(this->UserID);
 }
 
-void UUserContext::Setup(USystemContext* InOwningSystem, int InUserID)
+void UUserContext::Setup(USystemContext* InOwningSystem, int InUserID, UProcess* InUserSessionProcess)
 {
     // Make sure the owning system is valid.
     check(InOwningSystem);
+	check(InUserSessionProcess);
 
     this->OwningSystem = InOwningSystem;
     this->UserID = InUserID;
+	this->UserSession = InUserSessionProcess;
 }
 
 FString UUserContext::GetHostname()
@@ -172,34 +188,9 @@ UPeacegateFileSystem* UUserContext::GetFilesystem()
     return this->OwningSystem->GetFilesystem(this->UserID);
 }
 
-FPeacegateProcess UUserContext::GetProcessByID(int ProcessID)
-{
-	for(auto Process : this->GetOwningSystem()->GetRunningProcesses())
-	{
-		if(Process.PID == ProcessID)
-			return Process;
-	}
-
-	return FPeacegateProcess();
-}
-
 bool UUserContext::DnsResolve(FString InHost, FComputer& OutComputer, EConnectionError& OutError)
 {
 	return this->GetOwningSystem()->DnsResolve(InHost, OutComputer, OutError);
-}
-
-void UUserContext::FinishProcess(FPeacegateProcess InProcess)
-{
-	// Can only kill processes if we're root or we own them.
-	if(this->IsAdministrator() || InProcess.UID == this->UserID)
-	{
-		this->GetOwningSystem()->FinishProcess(InProcess.PID);
-	}
-}
-
-void UUserContext::OnProcessEnded(TScriptDelegate<> InDelegate)
-{
-	this->GetOwningSystem()->ProcessEnded.Add(InDelegate);
 }
 
 TArray<UPeacegateProgramAsset*> UUserContext::GetInstalledPrograms()
@@ -227,9 +218,10 @@ FPeacenetIdentity& UUserContext::GetPeacenetIdentity()
 	return this->GetOwningSystem()->GetCharacter();
 }
 
-bool UUserContext::TryGetTerminalCommand(FName CommandName, ATerminalCommand*& Command, FString& InternalUsage, FString& FriendlyUsage)
+bool UUserContext::TryGetTerminalCommand(FName CommandName, UProcess* OwningProcess, ATerminalCommand*& Command, FString& InternalUsage, FString& FriendlyUsage)
 {
-	return this->GetOwningSystem()->TryGetTerminalCommand(CommandName, Command, InternalUsage, FriendlyUsage);
+	if(!OwningProcess) OwningProcess = this->UserSession;
+	return this->GetOwningSystem()->TryGetTerminalCommand(CommandName, OwningProcess, Command, InternalUsage, FriendlyUsage);
 }
 
 APeacenetWorldStateActor* UUserContext::GetPeacenet()
@@ -324,7 +316,7 @@ bool UUserContext::OpenFile(const FString& InPath, EFileOpenResult& OutResult)
 			TSubclassOf<UWindow> WindowClass = this->GetPeacenet()->WindowClass;
 
 			UWindow* NewWindow;
-			UProgram* NewProgram = UProgram::CreateProgram(WindowClass, ProgramAsset->ProgramClass, this, NewWindow, ProgramAsset->ID.ToString());
+			UProgram* NewProgram = UProgram::CreateProgram(WindowClass, ProgramAsset->ProgramClass, this, NewWindow, ProgramAsset->ID.ToString(), this->UserSession);
 
 			NewWindow->WindowTitle = ProgramAsset->FullName;
 			NewWindow->Icon = ProgramAsset->AppLauncherItem.Icon;
@@ -353,7 +345,7 @@ bool UUserContext::OpenFile(const FString& InPath, EFileOpenResult& OutResult)
 	TSubclassOf<UWindow> WindowClass = this->GetPeacenet()->WindowClass;
 
 	UWindow* NewWindow;
-	UProgram* NewProgram = UProgram::CreateProgram(WindowClass, ProgramAsset->ProgramClass, this, NewWindow, ProgramAsset->ID.ToString());
+	UProgram* NewProgram = UProgram::CreateProgram(WindowClass, ProgramAsset->ProgramClass, this, NewWindow, ProgramAsset->ID.ToString(), this->UserSession);
 
 	NewWindow->WindowTitle = ProgramAsset->FullName;
 	NewWindow->Icon = ProgramAsset->AppLauncherItem.Icon;
@@ -362,6 +354,11 @@ bool UUserContext::OpenFile(const FString& InPath, EFileOpenResult& OutResult)
 	NewProgram->FileOpened(InPath);
 
 	return true;
+}
+
+UProcess* UUserContext::Fork(FString InName)
+{
+	return this->UserSession->Fork(InName);
 }
 
 TArray<FString> UUserContext::GetKnownHosts()

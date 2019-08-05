@@ -34,6 +34,15 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/SaveGame.h"
 
+void AMissionActor::SilentFail()
+{
+    // Fail the mission directly without alerting the world state.
+    this->IsFailed = true;
+
+    // No UI is shown so we'll manually abandon the mission.
+    this->AbandonMission();
+}
+
 void AMissionActor::FireCompletionEvents()
 {
     if(this->Mission && this->Mission->OnCompletion.Num())

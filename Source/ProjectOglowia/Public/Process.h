@@ -32,38 +32,90 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UserContext.h"
-#include "ConsoleContext.h"
-#include "Process.h"
-#include "Payload.generated.h"
+#include "Process.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDisconnectedEvent);
+class UProcessManager;
+class ATerminalCommand;
+class UProgram;
+class APeacenetWorldStateActor;
 
-UCLASS(Blueprintable, BlueprintType, Abstract, EditInlineNew)
-class PROJECTOGLOWIA_API UPayload : public UObject
+UCLASS()
+class PROJECTOGLOWIA_API UProcess : public UObject
 {
+    friend UProcessManager;
+
+    DECLARE_DYNAMIC_MULTICAST_DELEGATE(FProcessKillEvent);
+
     GENERATED_BODY()
 
 private:
     UPROPERTY()
-    UProcess* LocalProcess;
+    TArray<UProcess*> ChildProcesses;
 
-protected:
-    UFUNCTION(BlueprintImplementableEvent)
-    void OnPayloadDeployed(UConsoleContext* Console, UUserContext* OriginUser, UUserContext* TargetUser);
+    UPROPERTY()
+    FString Path;
 
-    virtual void NativePayloadDeployed(UConsoleContext* Console, UUserContext* OriginUser, UUserContext* TargetUser) {}
+    UPROPERTY()
+    FString Name;
 
-    UFUNCTION(BlueprintCallable, Category = "Payload")
-    void Disconnect();
+    UPROPERTY()
+    int ProcessID = 0;
 
+    UPROPERTY()
+    int UserID = 0;
+
+    UPROPERTY()
+    bool Dead = false;
+
+    UPROPERTY()
+    UProcessManager* ProcessManager;
+
+private:
     UFUNCTION()
-    UProcess* GetLocalProcess();
+    void Initialize(UProcessManager* OwningProcessManager, int InUserID, FString InPath, FString InName);
 
 public:
     UPROPERTY()
-    FDisconnectedEvent Disconnected;
+    FProcessKillEvent OnKilled;
+
+    UPROPERTY()
+    FProcessKillEvent OnTimeToEnd;
+
+private:
+    UFUNCTION()
+    void KillInternal(bool NotifyProcessManager = true);
 
     UFUNCTION()
-    void DeployPayload(UConsoleContext* OriginConsole, UUserContext* OriginUser, UUserContext* TargetUser, UProcess* OwningLocalProcess);
+    void CullDeadChildren();
+
+    UFUNCTION()
+    void Parent(UProcess* InProcess);
+
+    UFUNCTION()
+    void CollectProcesses(TArray<UProcess*>& InArray);
+
+public:
+    UFUNCTION(BlueprintCallable)
+    void Kill();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    bool IsDead() { return Dead; }
+
+    UFUNCTION()
+    APeacenetWorldStateActor* GetPeacenet();
+
+    UFUNCTION()
+    UProcess* Fork(FString InName);
+
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    int GetProcessID();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    FString GetProcessName();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    FString GetUsername();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    int GetUserID();
 };

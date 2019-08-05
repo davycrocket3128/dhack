@@ -50,6 +50,9 @@ class UUserContext;
 class USystemUpgrade;
 class UTutorialPromptState;
 class UMissionAsset;
+class UCommandInfo;
+class ATerminalCommand;
+class UProcess;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FActiveProgramCloseEvent);
 
@@ -130,12 +133,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mission")
 	void AbandonMission();
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void ProcessStarted(const FPeacegateProcess& InProcess);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void ProcessEnded(const FPeacegateProcess& InProcess);
-
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System")
 	USystemContext* GetSystemContext();
 
@@ -151,7 +148,17 @@ protected:
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsTutorialActive();
 
+protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnKernelPanic();
+
 public:
+	UFUNCTION()
+	void KernelPanic();
+
+	UFUNCTION(BlueprintCallable, Category = "Desktop")
+	ATerminalCommand* ForkCommand(UCommandInfo* InCommandInfo, UConsoleContext* InConsoleContext);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UUserContext* GetUserContext();
 

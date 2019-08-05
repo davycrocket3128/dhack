@@ -38,8 +38,8 @@
 #include "UserInfo.h"
 #include "PeacenetIdentity.h"
 #include "MailProvider.h"
-#include "PeacegateProcess.h"
 #include "ConnectionError.h"
+#include "ProcessManager.h"
 #include "SystemContext.generated.h"
 
 class UHackable;
@@ -51,18 +51,20 @@ class UExploit;
 class APeacenetWorldStateActor;
 class UPeacegateProgramAsset;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FProcessEvent, const FPeacegateProcess&, InProcess);
-
-
 /**
  * Represents the state and allows access/modification of an NPC or player computer in Peacenet.
  */
 UCLASS(BlueprintType)
 class PROJECTOGLOWIA_API USystemContext : public UObject
 {
+	friend UProcessManager;
+
 	GENERATED_BODY()
 
 private:
+	UPROPERTY()
+	UProcessManager* ProcessManager;
+
 	UPROPERTY()
 	FPeacenetIdentity InternalIdentity;
 
@@ -78,9 +80,6 @@ protected:
 
 	UPROPERTY()
 	TMap<int, UPeacegateFileSystem*> RegisteredFilesystems;
-
-	UPROPERTY()
-	TArray<FPeacegateProcess> Processes;
 
 	UPROPERTY()
 	APeacenetWorldStateActor * Peacenet;
@@ -104,13 +103,10 @@ protected:
 	UFUNCTION()
 	void HandleFileSystemEvent(EFilesystemEventType InType, FString InPath);
 
+	UFUNCTION()
+	void Crash();
+
 public: // Property getters
-	UPROPERTY(BlueprintAssignable)
-	FProcessEvent ProcessStarted;
-
-	UPROPERTY(BlueprintAssignable)
-	FProcessEvent ProcessEnded;
-
 	UFUNCTION()
 	UUserContext* GetHackerContext(int InUserID, UUserContext* HackingUser);
 
@@ -145,19 +141,19 @@ public: // Property getters
 	void SetSaveBoolean(FString InSaveBoolean, bool InValue);
 
 	UFUNCTION()
-	void UnsetEnvironmentVariable(FString InVariable);
+	TArray<int> GetRunningProcesses();
 
 	UFUNCTION()
-	int StartProcess(FString Name, FString FilePath, int UserID);
-	
+	bool GetProcess(int ProcessID, UUserContext* InUserContext, UProcess*& OutProcess, EProcessResult& OutProcessResult);
+
 	UFUNCTION()
-	void FinishProcess(int ProcessID);
+	bool KillProcess(int ProcessID, UUserContext* UserContext, EProcessResult& OutKillResult);
+
+	UFUNCTION()
+	void UnsetEnvironmentVariable(FString InVariable);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Context")
 	APeacenetWorldStateActor* GetPeacenet();
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Process List")
-    FString GetProcessUsername(FPeacegateProcess InProcess);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Context")
 	TArray<UWallpaperAsset*> GetAvailableWallpapers();
@@ -209,9 +205,6 @@ public:
 	TArray<FString> GetNearbyHosts();
 
 public:
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Process List")
-	TArray<FPeacegateProcess> GetRunningProcesses();
-
 	UFUNCTION()
 	int GetOpenConnectionCount();
 
@@ -249,7 +242,7 @@ public:
 	UPeacegateFileSystem* GetFilesystem(const int UserID);
 
 	UFUNCTION()
-	bool TryGetTerminalCommand(FName CommandName, ATerminalCommand*& OutCommand, FString& InternalUsage, FString& FriendlyUsage);
+	bool TryGetTerminalCommand(FName CommandName, UProcess* OwningProcess, ATerminalCommand*& OutCommand, FString& InternalUsage, FString& FriendlyUsage);
 
 	UFUNCTION()
 	FString GetIPAddress();

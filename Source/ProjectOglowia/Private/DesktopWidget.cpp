@@ -45,6 +45,9 @@
 #include "ConsoleContext.h"
 #include "SystemUpgrade.h"
 #include "MissionAsset.h"
+#include "Process.h"
+#include "CommandInfo.h"
+#include "TerminalCommand.h"
 
 void UDesktopWidget::StartMissionIfAvailable(UMissionAsset* InMission)
 {
@@ -110,11 +113,18 @@ USystemContext* UDesktopWidget::GetSystemContext()
 	return this->SystemContext;
 }
 
+ATerminalCommand* UDesktopWidget::ForkCommand(UCommandInfo* InCommandInfo, UConsoleContext* InConsoleContext)
+{
+	UProcess* Child = InConsoleContext->GetUserContext()->Fork(InCommandInfo->ID.ToString());
+
+	return ATerminalCommand::CreateCommandFromAsset(InConsoleContext->GetUserContext(), InCommandInfo, Child);
+}
+
 UProgram * UDesktopWidget::SpawnProgramFromClass(TSubclassOf<UProgram> InClass, const FText& InTitle, UTexture2D* InIcon, bool InEnableMinimizeMaximize)
 {
 	UWindow* OutputWindow = nullptr;
 
-	UProgram* Program = UProgram::CreateProgram(this->SystemContext->GetPeacenet()->WindowClass, InClass, this->SystemContext->GetUserContext(this->UserID), OutputWindow, InTitle.ToString());
+	UProgram* Program = UProgram::CreateProgram(this->SystemContext->GetPeacenet()->WindowClass, InClass, this->SystemContext->GetUserContext(this->UserID), OutputWindow, InTitle.ToString(), nullptr);
 
 	OutputWindow->WindowTitle = InTitle;
 	OutputWindow->Icon = InIcon;
@@ -125,14 +135,6 @@ UProgram * UDesktopWidget::SpawnProgramFromClass(TSubclassOf<UProgram> InClass, 
 
 void UDesktopWidget::NativeConstruct()
 {
-	// Bind events for Peacegate processes.
-	TScriptDelegate<> ProcessStartedDelegate;
-	TScriptDelegate<> ProcessEndedDelegate;
-	ProcessStartedDelegate.BindUFunction(this, "ProcessStarted");
-	ProcessEndedDelegate.BindUFunction(this, "ProcessEnded");
-	this->SystemContext->ProcessStarted.Add(ProcessStartedDelegate);
-	this->SystemContext->ProcessEnded.Add(ProcessEndedDelegate);
-
 	// Notify Blueprint when a mission is completed.
 	TScriptDelegate<> MissionCompleteDelegate;
 	MissionCompleteDelegate.BindUFunction(this, "OnMissionComplete");
@@ -224,6 +226,21 @@ void UDesktopWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	check(this->SystemContext);
 	check(this->SystemContext->GetPeacenet());
+
+	// If a session is active, and we can get a user context from it...
+	if(this->IsSessionActive())
+	{
+		UUserContext* User = this->GetUserContext();
+		if(User)
+		{
+			// If the user context is invalid, kernel panic for now.
+			// TODO: Graceful user log-out.
+			if(!User->IsUserContextValid())
+			{
+				this->KernelPanic();
+			}
+		}
+	}
 
 	this->MyCharacter = this->SystemContext->GetCharacter();
 	this->MyComputer = this->SystemContext->GetComputer();
@@ -376,6 +393,19 @@ void UDesktopWidget::ActivateSession(UUserContext* user)
 int UDesktopWidget::GetOpenConnectionCount()
 {
 	return this->SystemContext->GetOpenConnectionCount();
+}
+
+void UDesktopWidget::KernelPanic()
+{
+	// Call the visual aspect of the kernel panic:
+	this->OnKernelPanic();
+
+	// If a session is active, deactivate it.
+	if(this->IsSessionActive())
+	{
+		this->UserID = -1;
+		this->SessionActive = false;
+	}
 }
 
 FString UDesktopWidget::GetIPAddress()

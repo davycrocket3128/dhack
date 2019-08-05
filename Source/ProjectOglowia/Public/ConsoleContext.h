@@ -228,6 +228,9 @@ public:
 	UFUNCTION()
 	bool UpdateAdvancedGetLine(FString& Line);
 
+	UFUNCTION()
+	void CancelAdvancedReadLine();
+
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Console|Special Characters")
 	static FString Tab();

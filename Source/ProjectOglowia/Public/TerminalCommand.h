@@ -37,9 +37,11 @@
 #include "ConsoleContext.h"
 #include "GameFramework/Actor.h"
 #include "SystemContext.h"
+#include "Process.h"
 #include "TerminalCommand.generated.h"
 
 class UUserContext;
+class USystemContext;
 class UAddressBookContext;
 class UCommandInfo;
 
@@ -51,6 +53,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCommandCompletedEvent);
 UCLASS(Blueprintable)
 class PROJECTOGLOWIA_API ATerminalCommand : public AActor
 {
+	friend USystemContext;
+
 	GENERATED_BODY()
 
 private:
@@ -64,14 +68,14 @@ private:
 	TArray<FString> ArgumentList;
 
 	UPROPERTY()
-	int ProcessID = 0;
+	UProcess* MyProcess;
 
 protected:
 	UFUNCTION()
-	void SendGameEvent(FString InEventName, TMap<FString, FString> InEventData);
+	void ProcessEnded();
 
 	UFUNCTION()
-	void HandleProcessEnded(const FPeacegateProcess& InProcess);
+	void SendGameEvent(FString InEventName, TMap<FString, FString> InEventData);
 
 	UFUNCTION()
 	void CompleteInternal(bool KillProcess = true);
@@ -84,7 +88,7 @@ public:
 	FCommandCompletedEvent Completed;
 
 	UFUNCTION(BlueprintCallable, Category = "Terminal Command")
-	void RunCommand(UPARAM(Ref) UConsoleContext* InConsole, TArray<FString> Argv);
+	void RunCommand(UConsoleContext* InConsole, TArray<FString> Argv);
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Terminal Command")
@@ -100,9 +104,6 @@ public:
 	bool IsSet(FString InSaveBoolean);
 
 protected:
-	template<typename T>
-	inline ATerminalCommand* SpawnCommand();
-
 	UFUNCTION()
 	int GetProcessID();
 
@@ -120,21 +121,33 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Terminal Command")
 	void OnRunCommand(const UConsoleContext* InConsole, const TArray<FString>& InArguments);
 
+protected:
+	UFUNCTION()
+	UProcess* ForkProcess(FString InName);
+
+	UFUNCTION()
+	UProcess* GetProcess();
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Terminal Command")
 	void Complete();
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Terminal")
-	static ATerminalCommand* CreateCommandFromAsset(UUserContext* InUserContext, UCommandInfo* InCommandInfo);
+	template<typename T>
+	static inline ATerminalCommand* SpawnCommand(UProcess* OwningProcess);
+	
+	UFUNCTION()
+	static ATerminalCommand* CreateCommandFromAsset(UUserContext* InUserContext, UCommandInfo* InCommandInfo, UProcess* InOwningProcess);
 };
 
 template<typename T>
-inline ATerminalCommand* ATerminalCommand::SpawnCommand()
+inline ATerminalCommand* ATerminalCommand::SpawnCommand(UProcess* OwningProcess)
 {
 	FVector Location(0.0f, 0.0f, 0.0f);
 	FRotator Rotation(0.0f, 0.0f, 0.0f);
  	FActorSpawnParameters SpawnInfo;
 
-	return Cast<ATerminalCommand>(this->GetWorld()->SpawnActor<T>(Location, Rotation, SpawnInfo));
+	ATerminalCommand* Command = Cast<ATerminalCommand>(OwningProcess->GetPeacenet()->GetWorld()->SpawnActor<T>(Location, Rotation, SpawnInfo));
+	Command->MyProcess = OwningProcess;
+	return Command;
 }

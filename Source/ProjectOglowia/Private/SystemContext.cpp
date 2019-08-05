@@ -46,6 +46,8 @@
 #include "CommandInfo.h"
 #include "PayloadAsset.h"
 #include "SystemUpgrade.h"
+#include "TerminalCommand.h"
+#include "Process.h"
 
 TArray<FString> USystemContext::GetNearbyHosts()
 {
@@ -106,9 +108,9 @@ void USystemContext::Destroy()
 
 	// Destroy all remaining data in the system context.
 	this->MailProvider = nullptr;
+	this->ProcessManager = nullptr;
 	this->ComputerID = -1;
 	this->CharacterID = -1;
-	this->Processes.Empty();
 
 }
 
@@ -174,11 +176,6 @@ TArray<UExploit*> USystemContext::GetExploits()
 			Ret.Add(Exploit);
 	}
 	return Ret;
-}
-
-FString USystemContext::GetProcessUsername(FPeacegateProcess InProcess)
-{
-	return this->GetUserInfo(InProcess.UID).Username;
 }
 
 int USystemContext::GetUserIDFromUsername(FString InUsername)
@@ -325,7 +322,7 @@ UPeacegateFileSystem * USystemContext::GetFilesystem(const int UserID)
 	return this->RegisteredFilesystems[UserID];
 }
 
-bool USystemContext::TryGetTerminalCommand(FName CommandName, ATerminalCommand *& OutCommand, FString& InternalUsage, FString& FriendlyUsage)
+bool USystemContext::TryGetTerminalCommand(FName CommandName, UProcess* OwningProcess, ATerminalCommand *& OutCommand, FString& InternalUsage, FString& FriendlyUsage)
 {
 	check(Peacenet);
 
@@ -337,11 +334,7 @@ bool USystemContext::TryGetTerminalCommand(FName CommandName, ATerminalCommand *
 			return false;
 		}
 
- 		FVector Location(0.0f, 0.0f, 0.0f);
-		 FRotator Rotation(0.0f, 0.0f, 0.0f);
- 		FActorSpawnParameters SpawnInfo;
-
-		AGraphicalTerminalCommand* GraphicalCommand = this->GetPeacenet()->GetWorld()->SpawnActor<AGraphicalTerminalCommand>(Location, Rotation, SpawnInfo);
+		AGraphicalTerminalCommand* GraphicalCommand = Cast<AGraphicalTerminalCommand>(ATerminalCommand::SpawnCommand<AGraphicalTerminalCommand>(OwningProcess->Fork(Program->ID.ToString())));
 		GraphicalCommand->ProgramAsset = Program;
 		GraphicalCommand->CommandInfo = Peacenet->CommandInfo[CommandName];
 		OutCommand = GraphicalCommand;
@@ -367,6 +360,8 @@ bool USystemContext::TryGetTerminalCommand(FName CommandName, ATerminalCommand *
 	OutCommand = this->GetPeacenet()->GetWorld()->SpawnActor<ATerminalCommand>(Info->CommandClass, Location, Rotation, SpawnInfo);
 
 	if(!OutCommand) return false;
+
+	OutCommand->MyProcess = OwningProcess->Fork(Info->ID.ToString());
 
 	OutCommand->CommandInfo = Info;
 
@@ -520,7 +515,7 @@ UUserContext* USystemContext::GetHackerContext(int InUserID, UUserContext* Hacki
 	}
 
 	UUserContext* NewHacker = NewObject<UUserContext>(this);
-	NewHacker->Setup(this, InUserID);
+	NewHacker->Setup(this, InUserID, this->ProcessManager->CreateProcessAs("user-session", InUserID));
 	NewHacker->SetHacker(HackingUser);
 	Hackers.Add(NewHacker);
 	return NewHacker;
@@ -535,7 +530,7 @@ UUserContext* USystemContext::GetUserContext(int InUserID)
 	else
 	{
 		UUserContext* User = NewObject<UUserContext>(this);
-		User->Setup(this, InUserID);
+		User->Setup(this, InUserID, this->ProcessManager->CreateProcessAs("user-session", InUserID));
 		Users.Add(InUserID, User);
 		return User;
 	}
@@ -731,6 +726,51 @@ UMailProvider* USystemContext::GetMailProvider()
 	return this->MailProvider;
 }
 
+void USystemContext::Crash()
+{
+	// This behaves differently if we have a desktop than if we don't.
+	//
+	// If we don't have a desktop then we basically kick all hacker users off the
+	// system and mark our computer as "crashed."  Essentially making it offline
+	// and un-hackable.
+	// 
+	// If we have a desktop than this is the player version which presents a kernel
+	// panic UI, essentially the "game over" screen, and restarts the game.
+	if(this->GetDesktop())
+	{
+		// If we're in a mission, silently fail it.  This ensures that the game
+		// isn't in a fucked mission state because the mission is abandoned and the
+		// player is in free roam.
+		if(this->GetPeacenet()->IsInMission())
+		{
+			this->GetPeacenet()->SilentlyFailMission();
+		}
+
+		// Show the crash.
+		this->GetDesktop()->KernelPanic();
+	}
+	else
+	{
+		// Mark ourselves as crashed.
+		this->GetComputer().Crashed = true;
+	}
+
+	// DANGER! The game is in a VERY broken state right now and it's up to us to fix it.
+	// The "peacegate" process being killed, in fact, doesn't just cause fake problems, as
+	// all user session processes (and thus all commands, programs, etc) either directly
+	// or indirectly fork from it - and thus get killed.
+	//
+	// To fix the game state, we need to essentially nuke all User Contexts resulting in Unreal
+	// doing a ton of garbage collection of the old game state, and all User Contexts resetting.
+	this->Users.Empty();
+
+	// That may put the desktop as well as any active console contexts in a broken state, however
+	// they will regain proper state either at next simulation tick or next access.
+	//
+	// We also need to get rid of all filesystem contexts because they're assigned to user contexts.
+	this->RegisteredFilesystems.Empty();
+}
+
 void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldStateActor* InPeacenet)
 {
 	check(InPeacenet);
@@ -739,6 +779,10 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	this->ComputerID = InComputerID;
 	this->CharacterID = InCharacterID;
 	this->Peacenet = InPeacenet;
+
+	// create and initialize the process manager.
+	this->ProcessManager = NewObject<UProcessManager>();
+	this->ProcessManager->Initialize(this);
 
 	this->MailProvider = NewObject<UMailProvider>(this);
 	this->MailProvider->Setup(this);
@@ -890,47 +934,57 @@ void USystemContext::AppendLog(FString InLogText)
 	FS->WriteText("/var/log/system.log", ExistingLog);
 }
 
-TArray<FPeacegateProcess> USystemContext::GetRunningProcesses()
+TArray<int> USystemContext::GetRunningProcesses()
 {
-	return this->Processes;
+	TArray<int> ret;
+	for(UProcess* Process : this->ProcessManager->GetAllProcesses())
+	{
+		ret.Add(Process->GetProcessID());
+	}
+	return ret;
 }
 
-int USystemContext::StartProcess(FString Name, FString FilePath, int UserID)
+bool USystemContext::GetProcess(int ProcessID, UUserContext* InUserContext, UProcess*& OutProcess, EProcessResult& OutProcessResult)
 {
-	int NewPID = 0;
-	for(auto Process : this->GetRunningProcesses())
+	// Check to make sure the user context belongs to us.
+	check(InUserContext->GetOwningSystem() == this);
+
+	// Release builds: Have the owning system kill the process if the owning system isn't us.
+	if(InUserContext->GetOwningSystem() != this)
 	{
-		if(NewPID <= Process.PID)
-			NewPID = Process.PID + 1;
+		// A properly-functioning Peacenet build should, under NO CIRCUMSTANCES, execute this line of code.
+		// This is a protection from attempts to kill processes with user contexts that do not
+		// belong to the system which owns the process.
+		return InUserContext->GetOwningSystem()->GetProcess(ProcessID, InUserContext, OutProcess, OutProcessResult);
 	}
 
-	FPeacegateProcess NewProcess;
-	NewProcess.PID = NewPID;
-	NewProcess.UID = UserID;
-	NewProcess.ProcessName = Name;
-	NewProcess.FilePath = FilePath;
-	this->Processes.Add(NewProcess);
+	// Get the user ID of the user context.
+	int UserID = InUserContext->GetUserID();
 
-	this->AppendLog("Process started - pid " + FString::FromInt(NewPID) + " - uid " + FString::FromInt(UserID) + " - name " + Name);
+	// Kill the process at a low-level!
+	return this->ProcessManager->GetProcess(ProcessID, UserID, OutProcess, OutProcessResult);
 
-	this->ProcessStarted.Broadcast(NewProcess);
-
-	return NewProcess.PID;
 }
 
-void USystemContext::FinishProcess(int ProcessID)
+bool USystemContext::KillProcess(int ProcessID, UUserContext* UserContext, EProcessResult& OutKillResult)
 {
-	for(int i = 0; i < Processes.Num(); i++)
+	// Check to make sure the user context belongs to us.
+	check(UserContext->GetOwningSystem() == this);
+
+	// Release builds: Have the owning system kill the process if the owning system isn't us.
+	if(UserContext->GetOwningSystem() != this)
 	{
-		FPeacegateProcess p = Processes[i];
-		if(p.PID == ProcessID)
-		{
-			this->Processes.RemoveAt(i);
-			this->AppendLog("Process " + FString::FromInt(ProcessID) + " killed.");
-			this->ProcessEnded.Broadcast(p);
-			return;
-		}
+		// A properly-functioning Peacenet build should, under NO CIRCUMSTANCES, execute this line of code.
+		// This is a protection from attempts to kill processes with user contexts that do not
+		// belong to the system which owns the process.
+		return UserContext->GetOwningSystem()->KillProcess(ProcessID, UserContext, OutKillResult);
 	}
+
+	// Get the user ID of the user context.
+	int UserID = UserContext->GetUserID();
+
+	// Kill the process at a low-level!
+	return this->ProcessManager->KillProcess(ProcessID, UserID, OutKillResult);
 }
 
 bool USystemContext::IsEnvironmentVariableSet(FString InVariable)

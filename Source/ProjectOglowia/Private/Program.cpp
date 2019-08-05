@@ -41,13 +41,20 @@
 #include "PeacenetWorldStateActor.h"
 #include "PeacenetSiteAsset.h"
 #include "PeacegateFileSystem.h"
+#include "Process.h"
+#include "CommandInfo.h"
+#include "TerminalCommand.h"
 
-void UProgram::HandleProcessEnded(const FPeacegateProcess& InProcess)
+ATerminalCommand* UProgram::ForkCommand(UCommandInfo* InCommandInfo, UConsoleContext* InConsole)
 {
-	if(InProcess.PID == this->ProcessID && !this->IsClosing)
-	{
-		this->Window->Close();
-	}
+	// Fork a Peacegate process for this command.
+	UProcess* Child = MyProcess->Fork(InCommandInfo->ID.ToString());
+	
+	// Spawn the command actor that the process owns.
+	ATerminalCommand* Command = ATerminalCommand::CreateCommandFromAsset(InConsole->GetUserContext(), InCommandInfo, Child);
+
+	// And give it back to the caller.
+	return Command;
 }
 
 bool UProgram::LoadPeacenetSite(FString InURL, UPeacenetSiteWidget*& OutWidget, EConnectionError& OutConnectionError)
@@ -88,7 +95,7 @@ void UProgram::RequestPlayerAttention(bool PlaySound)
 	this->PlayerAttentionNeeded.Broadcast(PlaySound);
 }
 
-UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSubclassOf<UProgram> InProgramClass, UUserContext* InUserContext, UWindow*& OutWindow, FString InProcessName, bool DoContextSetup)
+UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSubclassOf<UProgram> InProgramClass, UUserContext* InUserContext, UWindow*& OutWindow, FString InProcessName, UProcess* OwnerProcess, bool DoContextSetup)
 {
 	// Preventative: make sure the system context isn't null.
 	check(InUserContext);
@@ -109,7 +116,15 @@ UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSu
 	Window->SetUserContext(InUserContext);
 
 	// Start the process for the program.
-	ProgramInstance->ProcessID = InUserContext->StartProcess(InProcessName, InProcessName);
+	if(OwnerProcess)
+	{
+		ProgramInstance->MyProcess = OwnerProcess->Fork(InProcessName);
+	}
+	else
+	{
+		ProgramInstance->MyProcess = InUserContext->Fork(InProcessName);
+	}
+	
 
 	// That above value will be -1 if the player doesn't have enough RAM for the program to run.
 
@@ -126,10 +141,7 @@ UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSu
 		ProgramInstance->GetUserContext()->ShowProgramOnWorkspace(ProgramInstance);
 	}
 
-	// Let the program handle itself being killed...
-	TScriptDelegate<> ProcessEndedDelegate;
-	ProcessEndedDelegate.BindUFunction(ProgramInstance, "HandleProcessEnded");
-	InUserContext->OnProcessEnded(ProcessEndedDelegate);
+	// TODO: Hook into the process kill event for our owning Peacegate process.
 
 	// Return the window and program.
 	OutWindow = Window;
@@ -145,7 +157,7 @@ void UProgram::OwningWindowClosed()
 		this->IsClosing = true;
 
 	    // Finish up our process.
-    	this->GetUserContext()->FinishProcess(this->GetUserContext()->GetProcessByID(this->ProcessID));
+    	this->MyProcess->Kill();
 	}
 }
 
@@ -178,21 +190,12 @@ void UProgram::SetupContexts()
 	// Add ourself to the window's client slot.
 	this->Window->AddWindowToClientSlot(this);
 
-	// If our process ID is -1, we don't have enough RAM so we won't
-	// launch.
-	if(this->ProcessID == -1)
-	{
-		this->ShowInfo(NSLOCTEXT("Peacegate", "OutOfMemory", "Out of memory"), NSLOCTEXT("Peacegate", "OutOfMemoryDesc", "There is not enough available memory to start the process."), EInfoboxIcon::Error);
-		this->Window->Close();
-		return;
-	}
-
 	this->NativeProgramLaunched();
 }
 
 void UProgram::NativeTick(const FGeometry& MyGeometry, float InDeltaSeconds)
 {
-	if(this->ProcessID == -1)
+	if(this->MyProcess->IsDead())
 	{
 		this->Window->Close();
 		return;

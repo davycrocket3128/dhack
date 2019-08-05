@@ -33,14 +33,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SystemContext.h"
 #include "FileOpenResult.h"
 #include "UserInfo.h"
 #include "MailProvider.h"
-#include "PeacegateProcess.h"
 #include "UserColor.h"
+#include "Computer.h"
+#include "PeacenetIdentity.h"
 #include "UserContext.generated.h"
 
+class USystemContext;
 class UExploit;
 class UPeacegateFileSystem;
 class APeacenetWorldStateActor;
@@ -52,6 +53,8 @@ class UVulnerability;
 class UProgram;
 class UConsoleContext;
 class UPayloadAsset;
+class UProcess;
+
 
 /**
  * A System Context that acts as a specific user.
@@ -59,6 +62,8 @@ class UPayloadAsset;
 UCLASS(BlueprintType)
 class PROJECTOGLOWIA_API UUserContext : public UObject
 {
+    friend USystemContext;
+
     GENERATED_BODY()
 
 private:
@@ -73,21 +78,23 @@ private:
     UPROPERTY()
     int UserID = 0;
 
+    UPROPERTY()
+    UProcess* UserSession;
+
 protected:
     UFUNCTION()
     USystemContext* GetOwningSystem();
 
 public:
-    void OnProcessEnded(TScriptDelegate<> InDelegate);
+
+    UFUNCTION(BlueprintCallable, Category = "User Context")
+    bool KillProcess(int ProcessID, EProcessResult& OutKillResult);
+
+    UFUNCTION()
+    UProcess* Fork(FString InName);
 
     UFUNCTION()
     TArray<FString> GetNearbyHosts();
-
-    UFUNCTION()
-    FPeacegateProcess GetProcessByID(int ProcessID);
-
-    UFUNCTION()
-    void FinishProcess(FPeacegateProcess Process);
 
     UFUNCTION()
     FComputer& GetComputer();
@@ -99,7 +106,7 @@ public:
     FPeacenetIdentity& GetPeacenetIdentity();
 
     UFUNCTION()
-    bool TryGetTerminalCommand(FName CommandName, ATerminalCommand*& Command, FString& InternalUsage, FString& FriendlyUsage);
+    bool TryGetTerminalCommand(FName CommandName, UProcess* OwningProcess, ATerminalCommand*& Command, FString& InternalUsage, FString& FriendlyUsage);
 
     UFUNCTION()
     UUserContext* GetHacker();
@@ -155,9 +162,6 @@ public:
     UFUNCTION(BlueprintCallable, Category = "User Context")
     void DisableWallpaper();
 
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Process List")
-    TArray<FPeacegateProcess> GetRunningProcesses();
-
     UFUNCTION()
     FUserInfo GetUserInfo();
 
@@ -171,7 +175,7 @@ public:
     void SetStealthiness(float InValue);
 
     UFUNCTION()
-    void Setup(USystemContext* InOwningSystem, int InUserID);
+    void Setup(USystemContext* InOwningSystem, int InUserID, UProcess* InUserSessionProcess);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
     FString GetUsername();
@@ -198,9 +202,6 @@ public:
     bool OpenProgram(FName InExecutableName, UProgram*& OutProgram, bool InCheckForExistingWindow = true);
 
     UFUNCTION()
-    int StartProcess(FString Name, FString FilePath);
-
-    UFUNCTION()
     void ShowProgramOnWorkspace(UProgram* InProgram);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
@@ -216,11 +217,20 @@ public:
     bool IsAdministrator();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
+    bool GetProcess(int ProcessID, UProcess*& OutProcess, EProcessResult& OutProcessResult);
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
+    TArray<int> GetRunningProcesses();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
+    bool IsUserContextValid();
+
+    UFUNCTION()
+    UUserContext* RequestValidUser();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "User Context")
     EUserColor GetUserColor();
 
     UFUNCTION(BlueprintCallable, Category = "User Context")
     void SetUserColor(EUserColor InColor);
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Process List")
-    FString GetProcessUsername(FPeacegateProcess InProcess);
 };
