@@ -44,6 +44,25 @@
 #include "AssetRegistry/Public/AssetRegistryModule.h"
 #include "Kismet/GameplayStatics.h"
 
+void UPeacenetGameInstance::RegisterPeacegateDaemon(TSubclassOf<UPeacegateDaemon> InDaemonClass, FName Name, FText FriendlyName, FText Description, EDaemonType DaemonType)
+{
+	// Check that a daemon with this name isn't already registered.
+	check(!this->RegisteredDaemons.Contains(Name));
+
+	// Create a new daemon info structure to hold the registered daemon.
+	FDaemonInfo Info;
+
+	// Store the information in said structure.
+	Info.DaemonClass = InDaemonClass;
+	Info.Name = Name;
+	Info.FriendlyName = FriendlyName;
+	Info.Description = Description;
+	Info.DaemonType = DaemonType;
+
+	// Register the daemon!
+	this->RegisteredDaemons.Add(Name, Info);
+}
+
 void UPeacenetGameInstance::CreateWorld(FString InCharacterName, UPeacenetGameTypeAsset* InGameType)
 {
 	check(InGameType);
