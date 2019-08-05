@@ -29,38 +29,18 @@
  *
  ********************************************************************************/
 
-#include "SystemControlCommand.h"
-#include "PlatformMisc.h"
-#include "UserContext.h"
-#include "PeacenetWorldStateActor.h"
-#include "SystemUpgrade.h"
-#include "CommonUtils.h"
+#pragma once
 
-// Command name: systemctl
-// Description: Allows the player to poweroff or reboot the system, as well as manage system daemons.
-//
-// Usage:
-//  systemctl poweroff - shut down the system.
-//  systemctl reboot - reboot the system.
-//  systemctl enable <service> - enable the specified system daemon.
-//  systemctl disable <service> - disable the specified system daemon.
-//  systemctl list-units - lists all registered system daemons.
-//  systemctl start <service>  - starts the specified system daemon.
-//  systemctl restart <service>  - restarts the specified system daemon.
-//  systemctl stop <service>  - stops the specified system daemon.
-void ASystemControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
+#include "CoreMinimal.h"
+#include "TerminalCommand.h"
+#include "SystemUpgrade.h"
+#include "UpgradeControlCommand.generated.h"
+
+UCLASS()
+class PROJECTOGLOWIA_API AUpgradeControlCommand : public ATerminalCommand
 {
-    if(this->ArgumentMap["poweroff"]->AsBoolean())
-    {
-        InConsole->WriteLine(NSLOCTEXT("System", "Goodbye", "Goodbye."));
-        FPlatformMisc::RequestExit(false);
-        this->Complete();
-        return;
-    }
-    else if(this->ArgumentMap["reboot"]->AsBoolean())
-    {
-        this->GetUserContext()->GetPeacenet()->QuitGame();
-        return;
-    }
-    this->Complete();
-}
+    GENERATED_BODY()
+
+protected:
+    virtual void NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments);
+};
