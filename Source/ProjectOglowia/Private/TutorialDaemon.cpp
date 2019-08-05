@@ -29,19 +29,24 @@
  *
  ********************************************************************************/
 
-#pragma once
+#include "TutorialDaemon.h"
 
-#include "CoreMinimal.h"
-#include "PeacegateDaemon.h"
-#include "TutorialDaemon.generated.h"
-
-UCLASS()
-class PROJECTOGLOWIA_API UTutorialDaemon : public UPeacegateDaemon
+void UTutorialDaemon::NativeStart()
 {
-    GENERATED_BODY()
+    // TODO:
+    //  - Bind to peacegate 'show tutorial' event
+    //  - Make sure the desktop gets the event when we do.
+}
 
-protected:
-    virtual void NativeStart() override;
-    virtual void NativeStop() override;
-    virtual void NativeTick(float DeltaSeconds) override;
-};
+void UTutorialDaemon::NativeStop()
+{
+    // TODO:
+    //  - Dismiss any active tutorials.
+    //  - Stop responding to tutorial events
+    //  - And thus stop forwarding them to the desktop.
+}
+
+void UTutorialDaemon::NativeTick(float DeltaSeconds)
+{
+    // TODO
+}

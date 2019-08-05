@@ -43,11 +43,19 @@
 #include "AssetRegistry/Public/IAssetRegistry.h"
 #include "AssetRegistry/Public/AssetRegistryModule.h"
 #include "DaemonInfoAsset.h"
+#include "TutorialDaemon.h"
 #include "Kismet/GameplayStatics.h"
 
 void UPeacenetGameInstance::RegisterDaemons()
 {
-	// TODO: Register any C++ daemons without needing to create a Daemon Info Asset in the Unreal Editor.
+	// Register the tutorial daemon for player computers so Peacegate can show hints and tutorials.
+	this->RegisterPeacegateDaemon(
+		UTutorialDaemon::StaticClass(),
+		"tutorials",
+		NSLOCTEXT("DaemonNames", "TutorialDaemon", "Hints & Tutorials"),
+		NSLOCTEXT("DaemonDescriptions", "TutorialDaemon", "Allows processes to show hints and tutorials on your desktop."),
+		EDaemonType::Player
+	);
 }
 
 void UPeacenetGameInstance::RegisterPeacegateDaemon(TSubclassOf<UPeacegateDaemon> InDaemonClass, FName Name, FText FriendlyName, FText Description, EDaemonType DaemonType)
