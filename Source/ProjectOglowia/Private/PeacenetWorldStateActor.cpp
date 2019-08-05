@@ -885,6 +885,9 @@ void APeacenetWorldStateActor::Tick(float DeltaTime)
 
 		// Tick the world simulation.
 		this->OnSimulationTick.Broadcast(DeltaTime);
+
+		// Tick the tutorial prompt state.
+		this->TutorialState->Tick(DeltaTime);
 	}
 }
 

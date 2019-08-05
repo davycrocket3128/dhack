@@ -53,19 +53,5 @@ void UTutorialPromptTask::NativeMissionEnded()
 void UTutorialPromptTask::NativeStart()
 {
     this->GetPeacenet()->GetTutorialState()->ActivatePrompt(this->TutorialTitle, this->TutorialText);
-}
-
-void UTutorialPromptTask::NativeTick(float InDeltaTime)
-{
-    if(this->WaitForDismiss)
-    {
-        if(!this->GetPeacenet()->IsTutorialActive())
-        {
-            this->Complete();
-        }
-    }
-    else
-    {
-        this->Complete();
-    }
+    this->Complete();
 }

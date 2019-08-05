@@ -44,6 +44,15 @@ FText UTutorialPromptState::GetTutorialText()
 
 void UTutorialPromptState::ActivatePrompt(const FText& InTitle, const FText& InText)
 {
+    if(this->IsPromptActive())
+    {
+        FTutorialPromptFuture Future;
+        Future.Title = InTitle;
+        Future.Text = InText;
+        this->FuturePrompts.Push(Future);
+        return;
+    }
+
     this->PromptTitle = InTitle;
     this->PromptText = InText;
     this->PromptActive = true;
@@ -61,4 +70,21 @@ void UTutorialPromptState::DismissPrompt()
 bool UTutorialPromptState::IsPromptActive()
 {
     return this->PromptActive;
+}
+
+void UTutorialPromptState::Tick(float DeltaSeconds)
+{
+    if(!this->IsPromptActive())
+    {
+        if(this->FuturePrompts.Num())
+        {
+            FTutorialPromptFuture Future = this->FuturePrompts.Pop();
+            this->ActivatePrompt(Future.Title, Future.Text);
+        }
+    }
+}
+
+void UTutorialPromptState::ClearFuture()
+{
+    this->FuturePrompts.Empty();
 }

@@ -49,11 +49,7 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere)
     FText TutorialText;
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)
-    bool WaitForDismiss = true;
-
 protected:
     virtual void NativeMissionEnded() override;
     virtual void NativeStart() override;
-    virtual void NativeTick(float InDeltaSeconds) override;
 };

@@ -40,6 +40,19 @@ class APeacenetWorldStateActor;
 
 #define THIS_CLASS_IS_CLINGY friend APeacenetWorldStateActor;
 
+USTRUCT()
+struct FTutorialPromptFuture
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY()
+    FText Title;
+
+    UPROPERTY()
+    FText Text;
+};
+
 UCLASS(BlueprintType)
 class PROJECTOGLOWIA_API UTutorialPromptState : public UObject 
 {
@@ -50,6 +63,9 @@ class PROJECTOGLOWIA_API UTutorialPromptState : public UObject
     DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FTutorialActivatedEvent, const FText&, InTitle, const FText&, InText, UTutorialPromptState*, InTutorialState);
 
 private:
+    UPROPERTY()
+    TArray<FTutorialPromptFuture> FuturePrompts;
+
     UPROPERTY()
     FText PromptTitle;
     
@@ -73,7 +89,13 @@ public:
     void DismissPrompt();
 
     UFUNCTION()
+    void ClearFuture();
+
+    UFUNCTION()
     bool IsPromptActive();
+
+    UFUNCTION()
+    void Tick(float DeltaSeconds);
 
 public:
     UFUNCTION(BlueprintCallable, BlueprintPure)

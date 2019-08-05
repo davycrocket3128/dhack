@@ -43,6 +43,14 @@ void UTutorialDaemon::NativeStart()
 
 	if(!this->GetTutorialPrompt()->TutorialActivated.Contains(TutorialEvent))
 		this->GetTutorialPrompt()->TutorialActivated.Add(TutorialEvent);
+
+    // Dismiss the current prompt so the tutorial backend isn't hung up from us being asleep and unable
+    // to dismiss prompts.
+    if(this->GetTutorialPrompt()->IsPromptActive())
+        this->GetTutorialPrompt()->DismissPrompt();
+
+    // Prevent any further prompts that were queued for us while we were asleep from showing.
+    this->GetTutorialPrompt()->ClearFuture();
 }
 
 void UTutorialDaemon::NativeStop()
