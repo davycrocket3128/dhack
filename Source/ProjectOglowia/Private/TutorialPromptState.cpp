@@ -42,16 +42,8 @@ FText UTutorialPromptState::GetTutorialText()
     return this->PromptText;
 }
 
-void UTutorialPromptState::ActivatePrompt(const FText& InTitle, const FText& InText, bool IgnorePlayerPreference)
+void UTutorialPromptState::ActivatePrompt(const FText& InTitle, const FText& InText)
 {
-    if(!MyPeacenet) IgnorePlayerPreference = true;
-
-    if(!IgnorePlayerPreference)
-    {
-        if(!this->MyPeacenet->IsTrue("EnableTutorials"))
-            return;
-    }
-
     this->PromptTitle = InTitle;
     this->PromptText = InText;
     this->PromptActive = true;

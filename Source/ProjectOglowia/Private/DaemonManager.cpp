@@ -172,3 +172,15 @@ void UDaemonManager::RestartDaemonByName(FName InName)
     this->StopDaemonByName(InName);
     this->StartDaemonByName(InName);
 }
+
+void UDaemonManager::EnableDaemon(FName InDaemon)
+{
+    if(this->SystemContext->GetComputer().DisabledDaemons.Contains(InDaemon))
+        this->SystemContext->GetComputer().DisabledDaemons.Remove(InDaemon);
+}
+
+void UDaemonManager::DisableDaemon(FName InDaemon)
+{
+    if(!this->SystemContext->GetComputer().DisabledDaemons.Contains(InDaemon))
+        this->SystemContext->GetComputer().DisabledDaemons.Add(InDaemon);
+}

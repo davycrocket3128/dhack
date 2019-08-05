@@ -94,12 +94,18 @@ public:
     UFUNCTION()
     UProcess* Fork(FString InProcessName);
 
-    UFUNCTION()
+    UFUNCTION(BlueprintCallable)
+    void DisableDaemon(FName InName);
+
+    UFUNCTION(BlueprintCallable)
+    void EnableDaemon(FName InName);
+
+    UFUNCTION(BlueprintCallable)
     void StartDaemonByName(FName InName);
 
-    UFUNCTION()
+    UFUNCTION(BlueprintCallable)
     void StopDaemonByName(FName InName);
 
-    UFUNCTION()
+    UFUNCTION(BlueprintCallable)
     void RestartDaemonByName(FName InName);
 };

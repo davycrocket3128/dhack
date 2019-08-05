@@ -52,7 +52,7 @@ void UTutorialPromptTask::NativeMissionEnded()
 
 void UTutorialPromptTask::NativeStart()
 {
-    this->GetPeacenet()->GetTutorialState()->ActivatePrompt(this->TutorialTitle, this->TutorialText, this->IgnorePlayerPreference);
+    this->GetPeacenet()->GetTutorialState()->ActivatePrompt(this->TutorialTitle, this->TutorialText);
 }
 
 void UTutorialPromptTask::NativeTick(float InDeltaTime)

@@ -67,7 +67,7 @@ public:
     FTutorialActivatedEvent TutorialActivated;
 
     UFUNCTION(BlueprintCallable)
-    void ActivatePrompt(const FText& InTitle, const FText& InText, bool IgnorePlayerPreference = false);
+    void ActivatePrompt(const FText& InTitle, const FText& InText);
     
     UFUNCTION(BlueprintCallable)
     void DismissPrompt();
