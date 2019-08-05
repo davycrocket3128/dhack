@@ -32,70 +32,84 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ProcessManager.generated.h"
+#include "Text.h"
+#include "TextProperty.h"
+#include "Process.h"
+#include "PeacegateDaemon.generated.h"
 
-class USystemContext;
-class UProcess;
+class UDaemonManager;
+class APeacenetWorldStateActor;
 
-UENUM(BlueprintType)
-enum class EProcessResult : uint8
+UCLASS(Blueprintable, BlueprintType, Abstract)
+class PROJECTOGLOWIA_API UPeacegateDaemon : public UObject
 {
-    Success,
-    ProcessNotRunning,
-    PermissionDenied
-};
-
-UCLASS()
-class PROJECTOGLOWIA_API UProcessManager : public UObject
-{
-    friend USystemContext;
-    friend UProcess;
-
     GENERATED_BODY()
 
 private:
     UPROPERTY()
-    int NextProcessID = 0;
+    bool IsGracefulStop = false;
 
     UPROPERTY()
-    UProcess* RootProcess;
+    FName Name;
 
     UPROPERTY()
-    USystemContext* OwningSystem;
+    FText FriendlyName;
 
-private:
-    UFUNCTION()
-    void RootProcessKilled();
+    UPROPERTY()
+    FText Description;
 
-    UFUNCTION()
-    void Initialize(USystemContext* InSystemContext);
+    UPROPERTY()
+    UDaemonManager* DaemonManager;
 
-    UFUNCTION()
-    UProcess* CreateProcess(FString Name);\
+    UPROPERTY()
+    UProcess* DaemonProcess;
 
+protected:
     UFUNCTION()
-    UProcess* CreateProcessAs(FString Name, int UserID);
-
-    UFUNCTION()
-    void ProcessKilled();
+    APeacenetWorldStateActor* GetPeacenet();
 
     UFUNCTION()
-    TArray<UProcess*> GetAllProcesses();
+    USystemContext* GetSystemContext();
 
     UFUNCTION()
-    TArray<UProcess*> GetProcessesForUser(int UserID);
+    void StopInternal();
 
-    UFUNCTION()
-    bool KillProcess(int ProcessID, int UserID, EProcessResult& OutKillResult);
+    // C++ events.
+    virtual void NativeStart() {}
+    virtual void NativeStop() {}
+    virtual void NativeTick(float InDeltaTime) {}
 
-    UFUNCTION()
-    bool GetProcess(int ProcessID, int UserID, UProcess*& OutProcess, EProcessResult& OutProcessResult);
+    // Blueprint events:
+    UFUNCTION(BlueprintImplementableEvent, Category = "System Daemon")
+    void OnStart();
 
-private:
-    UFUNCTION()
-    bool IsActive();
+    UFUNCTION(BlueprintImplementableEvent, Category = "System Daemon")
+    void OnStop();
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "System Daemon")
+    void OnTick(float InDeltaTime);
 
 public:
+    // Event dispatchers.
     UFUNCTION()
-    int GetNextProcessID();
+    void Start();
+
+    UFUNCTION()
+    void Stop();
+
+    UFUNCTION()
+    void Restart();
+
+    UFUNCTION()
+    void Tick(float InDeltaTime);
+
+    // Links the daemon to a daemon manager and sets the daemon metadata.  Should only be called once, by the daemon manager.
+    UFUNCTION()
+    void SetMetadata(UDaemonManager* InDaemonManager, FName InName, FText InFriendlyName, FText InDescription);
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Daemon")
+    bool IsActive();
+
+    UFUNCTION()
+    FName GetName();
 };

@@ -42,14 +42,15 @@ FText UTutorialPromptState::GetTutorialText()
     return this->PromptText;
 }
 
-void UTutorialPromptState::ActivatePrompt(const FText& InTitle, const FText& InText, bool IgnorePlayerPreference)
+void UTutorialPromptState::ActivatePrompt(const FText& InTitle, const FText& InText)
 {
-    if(!MyPeacenet) IgnorePlayerPreference = true;
-
-    if(!IgnorePlayerPreference)
+    if(this->IsPromptActive())
     {
-        if(!this->MyPeacenet->IsTrue("EnableTutorials"))
-            return;
+        FTutorialPromptFuture Future;
+        Future.Title = InTitle;
+        Future.Text = InText;
+        this->FuturePrompts.Push(Future);
+        return;
     }
 
     this->PromptTitle = InTitle;
@@ -69,4 +70,21 @@ void UTutorialPromptState::DismissPrompt()
 bool UTutorialPromptState::IsPromptActive()
 {
     return this->PromptActive;
+}
+
+void UTutorialPromptState::Tick(float DeltaSeconds)
+{
+    if(!this->IsPromptActive())
+    {
+        if(this->FuturePrompts.Num())
+        {
+            FTutorialPromptFuture Future = this->FuturePrompts.Pop();
+            this->ActivatePrompt(Future.Title, Future.Text);
+        }
+    }
+}
+
+void UTutorialPromptState::ClearFuture()
+{
+    this->FuturePrompts.Empty();
 }

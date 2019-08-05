@@ -42,7 +42,40 @@
 #include "PeacenetIdentity.h"
 #include "AssetRegistry/Public/IAssetRegistry.h"
 #include "AssetRegistry/Public/AssetRegistryModule.h"
+#include "DaemonInfoAsset.h"
+#include "TutorialDaemon.h"
 #include "Kismet/GameplayStatics.h"
+
+void UPeacenetGameInstance::RegisterDaemons()
+{
+	// Register the tutorial daemon for player computers so Peacegate can show hints and tutorials.
+	this->RegisterPeacegateDaemon(
+		UTutorialDaemon::StaticClass(),
+		"tutorials",
+		NSLOCTEXT("DaemonNames", "TutorialDaemon", "Hints & Tutorials"),
+		NSLOCTEXT("DaemonDescriptions", "TutorialDaemon", "Allows processes to show hints and tutorials on your desktop."),
+		EDaemonType::Player
+	);
+}
+
+void UPeacenetGameInstance::RegisterPeacegateDaemon(TSubclassOf<UPeacegateDaemon> InDaemonClass, FName Name, FText FriendlyName, FText Description, EDaemonType DaemonType)
+{
+	// Check that a daemon with this name isn't already registered.
+	check(!this->RegisteredDaemons.Contains(Name));
+
+	// Create a new daemon info structure to hold the registered daemon.
+	FDaemonInfo Info;
+
+	// Store the information in said structure.
+	Info.DaemonClass = InDaemonClass;
+	Info.Name = Name;
+	Info.FriendlyName = FriendlyName;
+	Info.Description = Description;
+	Info.DaemonType = DaemonType;
+
+	// Register the daemon!
+	this->RegisteredDaemons.Add(Name, Info);
+}
 
 void UPeacenetGameInstance::CreateWorld(FString InCharacterName, UPeacenetGameTypeAsset* InGameType)
 {
@@ -246,6 +279,22 @@ void UPeacenetGameInstance::Init()
 		this->GameTypes.Add(Cast<UPeacenetGameTypeAsset>(Asset.GetAsset()));
 	}
 
+	// Register our own daemons.
+	this->RegisterDaemons();
+
+	// Get all daemon assets for blueprint daemons.
+	TArray<FAssetData> DaemonAssets;
+	AssetRegistryModule.Get().GetAssetsByClass("DaemonInfoAsset", DaemonAssets, true);
+
+	// Loop through them and register them.
+	for(auto& Asset : DaemonAssets)
+	{
+		UDaemonInfoAsset* InfoAsset = Cast<UDaemonInfoAsset>(Asset.GetAsset());
+
+		// Register the daemon!
+		this->RegisterPeacegateDaemon(InfoAsset->DaemonClass, InfoAsset->Name, InfoAsset->FriendlyName, InfoAsset->Description, InfoAsset->DaemonType);
+	}
+
 	Super::Init();
 }
 
@@ -260,4 +309,36 @@ void UPeacenetGameInstance::Shutdown()
 
 	// KILLLLLLLL EVERYTHINGGGGGGGGG
 	Super::Shutdown();
+}
+
+TArray<FDaemonInfo> UPeacenetGameInstance::GetDaemonsForSystem(USystemContext* InSystemContext)
+{
+	TArray<FDaemonInfo> Ret;
+
+	for(auto RegisteredDaemon : this->RegisteredDaemons)
+	{
+		if(RegisteredDaemon.Value.DaemonType == EDaemonType::AllSystems)
+			Ret.Add(RegisteredDaemon.Value);
+		else
+		{
+			if(RegisteredDaemon.Value.DaemonType == EDaemonType::Player)
+			{
+				if(InSystemContext->GetComputer().OwnerType == EComputerOwnerType::Player)
+				{
+					Ret.Add(RegisteredDaemon.Value);
+				}
+				continue;
+			}
+			else
+			{
+				if(InSystemContext->GetComputer().OwnerType != EComputerOwnerType::Player)
+				{
+					Ret.Add(RegisteredDaemon.Value);
+				}
+				continue;
+			}
+		}
+	}
+
+	return Ret;
 }

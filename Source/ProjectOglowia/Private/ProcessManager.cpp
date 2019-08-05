@@ -174,3 +174,8 @@ bool UProcessManager::GetProcess(int ProcessID, int UserID, UProcess*& OutProces
     // Return whether we succeeded.
     return OutProcessResult == EProcessResult::Success;
 }
+
+bool UProcessManager::IsActive()
+{
+    return this->RootProcess && !this->RootProcess->IsDead();
+}

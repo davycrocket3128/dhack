@@ -83,16 +83,6 @@ void UDesktopWidget::ShowProgramOnWorkspace(UProgram* InProgram)
 	this->GetWorkspace()->AddWindow(InProgram->Window);
 }
 
-UTutorialPromptState* UDesktopWidget::GetTutorialPrompt()
-{
-	return this->GetUserContext()->GetPeacenet()->GetTutorialState();
-}
-
-bool UDesktopWidget::IsTutorialActive()
-{
-	return this->GetTutorialPrompt()->IsPromptActive();
-}
-
 APeacenetWorldStateActor* UDesktopWidget::GetPeacenet()
 {
 	return this->GetUserContext()->GetPeacenet();
@@ -381,13 +371,6 @@ void UDesktopWidget::ActivateSession(UUserContext* user)
 
 	if(!this->Filesystem->FilesystemOperation.Contains(FSOperation))
 		this->Filesystem->FilesystemOperation.Add(FSOperation);
-
-	// Bind to the tutorial prompt's activate event.
-	TScriptDelegate<> TutorialEvent;
-	TutorialEvent.BindUFunction(this, "UpdateTutorial");
-
-	if(!this->GetTutorialPrompt()->TutorialActivated.Contains(TutorialEvent))
-		this->GetTutorialPrompt()->TutorialActivated.Add(TutorialEvent);
 }
 
 int UDesktopWidget::GetOpenConnectionCount()

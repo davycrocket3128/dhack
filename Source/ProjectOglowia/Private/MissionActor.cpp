@@ -129,9 +129,12 @@ void AMissionActor::Complete()
         this->Peacenet->IncreaseGameStat("StoryMusicState");        
     }
 
-    // Allow the game to show a "mission completed" UI.
-    this->Peacenet->BroadcastMissionComplete(this->Mission);
-
+    // Broadcast that the mission has completed, unless the mission is silent.
+    if(!this->Mission->CompleteSilently)
+    {
+        this->Peacenet->BroadcastMissionComplete(this->Mission);
+    }
+    
     // Tell the rest of the game "HEY MOTHERFUCKERS, THE PLAYER JUST COMPLETED A BLOODY MISSION WOOOOOOOOOOO!"
     this->Peacenet->SendGameEvent("MissionComplete", {
         { "MissionID", this->Mission->GetFName().ToString()}

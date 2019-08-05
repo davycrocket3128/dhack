@@ -32,70 +32,28 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ProcessManager.generated.h"
+#include "PeacegateDaemon.h"
+#include "TutorialDaemon.generated.h"
 
-class USystemContext;
-class UProcess;
-
-UENUM(BlueprintType)
-enum class EProcessResult : uint8
-{
-    Success,
-    ProcessNotRunning,
-    PermissionDenied
-};
+class UTutorialPromptState;
 
 UCLASS()
-class PROJECTOGLOWIA_API UProcessManager : public UObject
+class PROJECTOGLOWIA_API UTutorialDaemon : public UPeacegateDaemon
 {
-    friend USystemContext;
-    friend UProcess;
-
     GENERATED_BODY()
 
 private:
     UPROPERTY()
-    int NextProcessID = 0;
+    bool NewTutorialReady = false;
 
-    UPROPERTY()
-    UProcess* RootProcess;
-
-    UPROPERTY()
-    USystemContext* OwningSystem;
-
-private:
+protected:
     UFUNCTION()
-    void RootProcessKilled();
+    UTutorialPromptState* GetTutorialPrompt();
 
-    UFUNCTION()
-    void Initialize(USystemContext* InSystemContext);
+	UFUNCTION()
+	void UpdateTutorial(const FText& InTitle, const FText& InNewText, UTutorialPromptState* InTutorialPromptState);
 
-    UFUNCTION()
-    UProcess* CreateProcess(FString Name);\
-
-    UFUNCTION()
-    UProcess* CreateProcessAs(FString Name, int UserID);
-
-    UFUNCTION()
-    void ProcessKilled();
-
-    UFUNCTION()
-    TArray<UProcess*> GetAllProcesses();
-
-    UFUNCTION()
-    TArray<UProcess*> GetProcessesForUser(int UserID);
-
-    UFUNCTION()
-    bool KillProcess(int ProcessID, int UserID, EProcessResult& OutKillResult);
-
-    UFUNCTION()
-    bool GetProcess(int ProcessID, int UserID, UProcess*& OutProcess, EProcessResult& OutProcessResult);
-
-private:
-    UFUNCTION()
-    bool IsActive();
-
-public:
-    UFUNCTION()
-    int GetNextProcessID();
+    virtual void NativeStart() override;
+    virtual void NativeStop() override;
+    virtual void NativeTick(float DeltaSeconds) override;
 };

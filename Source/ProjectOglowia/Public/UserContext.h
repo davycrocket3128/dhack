@@ -51,6 +51,7 @@ class USystemUpgrade;
 class UDesktopWidget;
 class UVulnerability;
 class UProgram;
+class UDaemonManager;
 class UConsoleContext;
 class UPayloadAsset;
 class UProcess;
@@ -86,6 +87,8 @@ protected:
     USystemContext* GetOwningSystem();
 
 public:
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Peacegate")
+    bool GetDaemonManager(UDaemonManager*& OutDaemonManager);
 
     UFUNCTION(BlueprintCallable, Category = "User Context")
     bool KillProcess(int ProcessID, EProcessResult& OutKillResult);

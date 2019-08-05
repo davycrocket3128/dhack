@@ -32,70 +32,80 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ProcessManager.generated.h"
+#include "PeacegateDaemon.h"
+#include "DaemonInfoAsset.h"
+#include "PeacenetGameInstance.h"
+#include "Process.h"
+#include "DaemonManager.generated.h"
 
 class USystemContext;
-class UProcess;
-
-UENUM(BlueprintType)
-enum class EProcessResult : uint8
-{
-    Success,
-    ProcessNotRunning,
-    PermissionDenied
-};
+class APeacenetWorldStateActor;
 
 UCLASS()
-class PROJECTOGLOWIA_API UProcessManager : public UObject
+class PROJECTOGLOWIA_API UDaemonManager : public UObject
 {
-    friend USystemContext;
-    friend UProcess;
-
     GENERATED_BODY()
 
 private:
     UPROPERTY()
-    int NextProcessID = 0;
+    TArray<FDaemonInfo> AvailableDaemons;
 
     UPROPERTY()
-    UProcess* RootProcess;
+    USystemContext* SystemContext;
 
     UPROPERTY()
-    USystemContext* OwningSystem;
+    UProcess* SystemProcess;
 
-private:
-    UFUNCTION()
-    void RootProcessKilled();
+    UPROPERTY()
+    UPeacenetGameInstance* GameInstance;
 
-    UFUNCTION()
-    void Initialize(USystemContext* InSystemContext);
+    UPROPERTY()
+    TArray<UPeacegateDaemon*> ActiveDaemons;
 
+protected:
     UFUNCTION()
-    UProcess* CreateProcess(FString Name);\
-
-    UFUNCTION()
-    UProcess* CreateProcessAs(FString Name, int UserID);
+    bool IsDaemonEnabled(FName InName);
 
     UFUNCTION()
-    void ProcessKilled();
+    void StartEnabledDaemons();
 
     UFUNCTION()
-    TArray<UProcess*> GetAllProcesses();
+    UPeacegateDaemon* CreateDaemon(FName InName);
 
     UFUNCTION()
-    TArray<UProcess*> GetProcessesForUser(int UserID);
-
-    UFUNCTION()
-    bool KillProcess(int ProcessID, int UserID, EProcessResult& OutKillResult);
-
-    UFUNCTION()
-    bool GetProcess(int ProcessID, int UserID, UProcess*& OutProcess, EProcessResult& OutProcessResult);
-
-private:
-    UFUNCTION()
-    bool IsActive();
+    void StartDaemon(UPeacegateDaemon* InDaemon);
 
 public:
     UFUNCTION()
-    int GetNextProcessID();
+    void Initialize(USystemContext* InSystem, UProcess* InSystemProcess);
+
+    UFUNCTION()
+    void DaemonStoppedGracefully(UPeacegateDaemon* InDaemon);
+
+    UFUNCTION()
+    APeacenetWorldStateActor* GetPeacenet();
+
+    UFUNCTION()
+    USystemContext* GetSystemContext();
+
+    UFUNCTION()
+    bool IsActive();
+
+    UFUNCTION()
+    UProcess* Fork(FString InProcessName);
+
+    UFUNCTION(BlueprintCallable)
+    void DisableDaemon(FName InName);
+
+    UFUNCTION(BlueprintCallable)
+    void EnableDaemon(FName InName);
+
+    UFUNCTION(BlueprintCallable)
+    void StartDaemonByName(FName InName);
+
+    UFUNCTION(BlueprintCallable)
+    void StopDaemonByName(FName InName);
+
+    UFUNCTION(BlueprintCallable)
+    void RestartDaemonByName(FName InName);
 };

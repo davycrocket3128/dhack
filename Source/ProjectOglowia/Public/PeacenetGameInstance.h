@@ -35,11 +35,36 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "PeacenetSettings.h"
+#include "PeacegateDaemon.h"
+#include "DaemonType.h"
 #include "PeacenetGameInstance.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSettingsAppliedEvent, UPeacenetSettings*, InSettings);
 
+class USystemContext;
 class UPeacenetGameTypeAsset;
+
+USTRUCT()
+struct FDaemonInfo
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	TSubclassOf<UPeacegateDaemon> DaemonClass;
+
+	UPROPERTY()
+	FName Name;
+
+	UPROPERTY()
+	FText FriendlyName;
+
+	UPROPERTY()
+	FText Description;
+
+	UPROPERTY()
+	EDaemonType DaemonType;
+};
 
 /**
  * A game instance specifically for Peacenet.
@@ -48,6 +73,17 @@ UCLASS(BlueprintType)
 class PROJECTOGLOWIA_API UPeacenetGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
+
+private:
+	UPROPERTY()
+	TMap<FName, FDaemonInfo> RegisteredDaemons;
+
+protected:
+	UFUNCTION()
+	void RegisterPeacegateDaemon(TSubclassOf<UPeacegateDaemon> InDaemonClass, FName Name, FText FriendlyName, FText Description, EDaemonType DaemonType = EDaemonType::AllSystems);
+
+	UFUNCTION()
+	void RegisterDaemons();
 
 public:
 	UPROPERTY()
@@ -74,6 +110,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Peacenet")
 	void CreateWorld(FString InCharacterName, UPeacenetGameTypeAsset* InGameType);
+
+	UFUNCTION()
+	TArray<FDaemonInfo> GetDaemonsForSystem(USystemContext* InSystem);
 
 public: // UGameInstance overrides.
 	virtual void Init() override;

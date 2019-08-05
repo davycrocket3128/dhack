@@ -32,70 +32,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ProcessManager.generated.h"
-
-class USystemContext;
-class UProcess;
-
-UENUM(BlueprintType)
-enum class EProcessResult : uint8
-{
-    Success,
-    ProcessNotRunning,
-    PermissionDenied
-};
+#include "TerminalCommand.h"
+#include "SystemUpgrade.h"
+#include "UpgradeControlCommand.generated.h"
 
 UCLASS()
-class PROJECTOGLOWIA_API UProcessManager : public UObject
+class PROJECTOGLOWIA_API AUpgradeControlCommand : public ATerminalCommand
 {
-    friend USystemContext;
-    friend UProcess;
-
     GENERATED_BODY()
 
-private:
-    UPROPERTY()
-    int NextProcessID = 0;
-
-    UPROPERTY()
-    UProcess* RootProcess;
-
-    UPROPERTY()
-    USystemContext* OwningSystem;
-
-private:
-    UFUNCTION()
-    void RootProcessKilled();
-
-    UFUNCTION()
-    void Initialize(USystemContext* InSystemContext);
-
-    UFUNCTION()
-    UProcess* CreateProcess(FString Name);\
-
-    UFUNCTION()
-    UProcess* CreateProcessAs(FString Name, int UserID);
-
-    UFUNCTION()
-    void ProcessKilled();
-
-    UFUNCTION()
-    TArray<UProcess*> GetAllProcesses();
-
-    UFUNCTION()
-    TArray<UProcess*> GetProcessesForUser(int UserID);
-
-    UFUNCTION()
-    bool KillProcess(int ProcessID, int UserID, EProcessResult& OutKillResult);
-
-    UFUNCTION()
-    bool GetProcess(int ProcessID, int UserID, UProcess*& OutProcess, EProcessResult& OutProcessResult);
-
-private:
-    UFUNCTION()
-    bool IsActive();
-
-public:
-    UFUNCTION()
-    int GetNextProcessID();
+protected:
+    virtual void NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments);
 };

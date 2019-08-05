@@ -32,70 +32,38 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ProcessManager.generated.h"
+#include "Engine/DataAsset.h"
+#include "TextProperty.h"
+#include "DaemonType.h"
+#include "PeacegateDaemon.h"
+#include "DaemonInfoAsset.generated.h"
 
-class USystemContext;
-class UProcess;
-
-UENUM(BlueprintType)
-enum class EProcessResult : uint8
+UCLASS(BlueprintType, Blueprintable, Abstract)
+class PROJECTOGLOWIA_API UDaemonInfoAsset : public UDataAsset
 {
-    Success,
-    ProcessNotRunning,
-    PermissionDenied
-};
-
-UCLASS()
-class PROJECTOGLOWIA_API UProcessManager : public UObject
-{
-    friend USystemContext;
-    friend UProcess;
-
     GENERATED_BODY()
 
-private:
-    UPROPERTY()
-    int NextProcessID = 0;
-
-    UPROPERTY()
-    UProcess* RootProcess;
-
-    UPROPERTY()
-    USystemContext* OwningSystem;
-
-private:
-    UFUNCTION()
-    void RootProcessKilled();
-
-    UFUNCTION()
-    void Initialize(USystemContext* InSystemContext);
-
-    UFUNCTION()
-    UProcess* CreateProcess(FString Name);\
-
-    UFUNCTION()
-    UProcess* CreateProcessAs(FString Name, int UserID);
-
-    UFUNCTION()
-    void ProcessKilled();
-
-    UFUNCTION()
-    TArray<UProcess*> GetAllProcesses();
-
-    UFUNCTION()
-    TArray<UProcess*> GetProcessesForUser(int UserID);
-
-    UFUNCTION()
-    bool KillProcess(int ProcessID, int UserID, EProcessResult& OutKillResult);
-
-    UFUNCTION()
-    bool GetProcess(int ProcessID, int UserID, UProcess*& OutProcess, EProcessResult& OutProcessResult);
-
-private:
-    UFUNCTION()
-    bool IsActive();
-
 public:
-    UFUNCTION()
-    int GetNextProcessID();
+    // A unique name for the daemon, used for its Peacegate process name as well as
+    // the <service> argument in the systemctl command.  MUST BE UNIQUE FROM OTHER DAEMONS!
+    // If two daemons have the same Name, the game will debug-assert and refuse to launch.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Daemon Info")
+    FName Name;
+
+    // A "friendly" title for the daemon.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Daemon Info")
+    FText FriendlyName;
+
+    // A description to the player of what this daemon is for.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Daemon Info")
+    FText Description;
+
+    // What types of computers should this daemon ever spawn on?
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Daemon Info")
+    EDaemonType DaemonType = EDaemonType::AllSystems;
+
+    // The C++ or Blueprint Peacegate Daemon class that represents the daemon that will be spawned in on
+    // all systems where this daemon is enabled.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Daemon Class")
+    TSubclassOf<UPeacegateDaemon> DaemonClass;
 };

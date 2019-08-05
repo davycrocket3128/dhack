@@ -32,70 +32,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ProcessManager.generated.h"
-
-class USystemContext;
-class UProcess;
+#include "DaemonType.generated.h"
 
 UENUM(BlueprintType)
-enum class EProcessResult : uint8
+enum class EDaemonType : uint8
 {
-    Success,
-    ProcessNotRunning,
-    PermissionDenied
-};
-
-UCLASS()
-class PROJECTOGLOWIA_API UProcessManager : public UObject
-{
-    friend USystemContext;
-    friend UProcess;
-
-    GENERATED_BODY()
-
-private:
-    UPROPERTY()
-    int NextProcessID = 0;
-
-    UPROPERTY()
-    UProcess* RootProcess;
-
-    UPROPERTY()
-    USystemContext* OwningSystem;
-
-private:
-    UFUNCTION()
-    void RootProcessKilled();
-
-    UFUNCTION()
-    void Initialize(USystemContext* InSystemContext);
-
-    UFUNCTION()
-    UProcess* CreateProcess(FString Name);\
-
-    UFUNCTION()
-    UProcess* CreateProcessAs(FString Name, int UserID);
-
-    UFUNCTION()
-    void ProcessKilled();
-
-    UFUNCTION()
-    TArray<UProcess*> GetAllProcesses();
-
-    UFUNCTION()
-    TArray<UProcess*> GetProcessesForUser(int UserID);
-
-    UFUNCTION()
-    bool KillProcess(int ProcessID, int UserID, EProcessResult& OutKillResult);
-
-    UFUNCTION()
-    bool GetProcess(int ProcessID, int UserID, UProcess*& OutProcess, EProcessResult& OutProcessResult);
-
-private:
-    UFUNCTION()
-    bool IsActive();
-
-public:
-    UFUNCTION()
-    int GetNextProcessID();
+    AllSystems,
+    Player,
+    NPC
 };

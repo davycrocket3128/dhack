@@ -106,9 +106,6 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Upgrades")
 	bool IsUpgradeInstalled(USystemUpgrade* InUpgrade);
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void UpdateTutorial(const FText& InTitle, const FText& InNewText, UTutorialPromptState* InTutorialPromptState);
-
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mission")
 	bool IsMissionActive();
 
@@ -136,23 +133,20 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System")
 	USystemContext* GetSystemContext();
 
-	UFUNCTION(BlueprintPure, BlueprintCallable)
-	UTutorialPromptState* GetTutorialPrompt();
-
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnMissionComplete(UMissionAsset* InMission);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnMissionFailed(AMissionActor* InMissionActor, const FText& InFailReason);
 
-	UFUNCTION(BlueprintPure, BlueprintCallable)
-	bool IsTutorialActive();
-
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnKernelPanic();
 
 public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateTutorial(const FText& InTitle, const FText& InNewText, UTutorialPromptState* InTutorialPromptState);
+
 	UFUNCTION()
 	void KernelPanic();
 

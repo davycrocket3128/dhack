@@ -35,30 +35,32 @@
 #include "PeacenetWorldStateActor.h"
 #include "SystemUpgrade.h"
 #include "CommonUtils.h"
+#include "DaemonManager.h"
 
 // Command name: systemctl
-// Description: Allows the player to enable/disable System Upgrades, as well as poweroff or reboot the system.
+// Description: Allows the player to poweroff or reboot the system, as well as manage system daemons.
 //
 // Usage:
 //  systemctl poweroff - shut down the system.
 //  systemctl reboot - reboot the system.
-//  systemctl enable <upgrade> - enable the specified <upgrade> if it is enable-able.
-//  systemctl disable <upgrade> - disable the specified upgrade if it is enabled and does not have any currently-enabled dependent upgrades.
-//  systemctl list-upgrades - lists all installed, available and future upgrades.
-//
-// Example:
-// [user@system ~]$ systemctl enable test
-//
-// {
-//   "poweroff": false
-//   "reboot": "false",
-//    "enable": true,
-//    "disable": false,
-//   "<upgrade>": "test",
-//   "list-upgrades": false   
-// }
+//  systemctl enable <service> - enable the specified system daemon.
+//  systemctl disable <service> - disable the specified system daemon.
+//  systemctl list-units - lists all registered system daemons.
+//  systemctl start <service>  - starts the specified system daemon.
+//  systemctl restart <service>  - restarts the specified system daemon.
+//  systemctl stop <service>  - stops the specified system daemon.
 void ASystemControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
 {
+    UDaemonManager* DaemonManager = nullptr;
+
+    if(!this->GetUserContext()->GetDaemonManager(DaemonManager))
+    {
+        InConsole->SetForegroundColor(EConsoleColor::Red);
+        InConsole->WriteLine(NSLOCTEXT("SystemCtl", "NeedsRoot", "systemctl: need to be root."));
+        InConsole->ResetFormatting();
+        this->Complete();
+        return;
+    }
     if(this->ArgumentMap["poweroff"]->AsBoolean())
     {
         InConsole->WriteLine(NSLOCTEXT("System", "Goodbye", "Goodbye."));
@@ -71,223 +73,45 @@ void ASystemControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<
         this->GetUserContext()->GetPeacenet()->QuitGame();
         return;
     }
+    else if(this->ArgumentMap["list-units"]->AsBoolean())
+    {
+
+    }
     else if(this->ArgumentMap["enable"]->AsBoolean())
     {
-        if(!this->GetUserContext()->HasIdentity())
+        FName DaemonName = FName(*this->ArgumentMap["<service>"]->AsString());
+
+        if(this->GetUserContext()->GetComputer().DisabledDaemons.Contains(DaemonName))
         {
-            InConsole->SetBold(true);
-            InConsole->SetForegroundColor(EConsoleColor::Red);
-            InConsole->WriteLine(NSLOCTEXT("SystemCtl", "IdentityNeeded", "Error: This operation requires a Peacenet Identity.  Have you tried running 'identity -c' to create one?"));
-            InConsole->ResetFormatting();
-
-            this->Complete();
-            return;
+            this->GetUserContext()->GetComputer().DisabledDaemons.Remove(DaemonName);
         }
-
-        FString upgradeId = this->ArgumentMap["<upgrade>"]->AsString();
-
-        for(auto Upgrade : this->GetUserContext()->GetPeacenet()->GetAllSystemUpgrades())
-        {
-            if(Upgrade->ID.ToString() == upgradeId)
-            {
-                if(Upgrade->IsUnlocked(this->GetUserContext()))
-                {
-                    InConsole->SetBold(true);
-                    InConsole->SetForegroundColor(EConsoleColor::Red);
-                    InConsole->WriteLine(NSLOCTEXT("SystemCtl", "UpgradeInstalledAlready", "Error: The specified upgrade is already enabled."));
-                    InConsole->ResetFormatting();
-                    this->Complete();
-                    return;
-                }
-
-                if(Upgrade->UpgradeIsUnlockable(this->GetUserContext()))
-                {
-                    Upgrade->TriggerUnlock(this->GetUserContext());
-                }
-                else 
-                {
-                    InConsole->SetBold(true);
-                    InConsole->SetForegroundColor(EConsoleColor::Red);
-                    InConsole->WriteLine(NSLOCTEXT("SystemCtl", "UpgradeUnavailable", "Error: This upgrade is not currently available."));
-                    InConsole->ResetFormatting();
-                }
-
-                this->Complete();
-                return;
-            }
-        }
-
-        InConsole->SetBold(true);
-        InConsole->SetForegroundColor(EConsoleColor::Red);
-        InConsole->WriteLine(NSLOCTEXT("SystemCtl", "UpgradeNotFound", "Error: The upgrade you specified does not exist."));
-        InConsole->ResetFormatting();
-        this->Complete();
-        return;
     }
     else if(this->ArgumentMap["disable"]->AsBoolean())
     {
-        if(!this->GetUserContext()->HasIdentity())
+        FName DaemonName = FName(*this->ArgumentMap["<service>"]->AsString());
+
+        if(!this->GetUserContext()->GetComputer().DisabledDaemons.Contains(DaemonName))
         {
-            InConsole->SetBold(true);
-            InConsole->SetForegroundColor(EConsoleColor::Red);
-            InConsole->WriteLine(NSLOCTEXT("SystemCtl", "IdentityNeeded", "Error: This operation requires a Peacenet Identity.  Have you tried running 'identity -c' to create one?"));
-            InConsole->ResetFormatting();
-
-            this->Complete();
-            return;
+            this->GetUserContext()->GetComputer().DisabledDaemons.Add(DaemonName);
         }
-
-        FString upgradeId = this->ArgumentMap["<upgrade>"]->AsString();
-
-        for(auto Upgrade : this->GetUserContext()->GetPeacenet()->GetAllSystemUpgrades())
-        {
-            if(Upgrade->ID.ToString() == upgradeId)
-            {
-                if(Upgrade->IsUnlocked(this->GetUserContext()))
-                {
-                    if(!Upgrade->CanUserUnlock)
-                    {
-                        InConsole->SetBold(true);
-                        InConsole->SetForegroundColor(EConsoleColor::Red);
-                        InConsole->WriteLine(NSLOCTEXT("SystemCtl", "StoryUpgrade", "Error: You cannot disable upgrades that were given to you during a mission."));
-                        InConsole->ResetFormatting();
-                        this->Complete();
-                        return;
-                    }
-
-                    // This for loop effectively makes the disable command OwO(n^2).
-                    for(auto Dep : this->GetUserContext()->GetPeacenet()->GetAllSystemUpgrades())
-                    {
-                        if(Dep == Upgrade) continue;
-
-                        if(UCommonUtils::UpgradeDependsOn(this->GetUserContext(), Dep, Upgrade))
-                        {
-                            if(Dep->IsUnlocked(this->GetUserContext()))
-                            {
-                                InConsole->SetBold(true);
-                                InConsole->SetForegroundColor(EConsoleColor::Red);
-                                InConsole->WriteLine(NSLOCTEXT("SystemCtl", "UpgradeNeeded", "Error: This upgrade is required by another upgrade that is currently enabled.  You cannot therefore disable this upgrade."));
-                                InConsole->ResetFormatting();
-                                this->Complete();
-                                return;
-                            }
-                        }
-                    }
-
-                    this->GetUserContext()->GetPeacenetIdentity().UnlockedUpgrades.Remove(Upgrade);
-
-                    InConsole->SetForegroundColor(EConsoleColor::Green);
-                    InConsole->WriteLine(NSLOCTEXT("SystemCtl", "UpgradeDisabled", "Success! Upgrade has been disabled."));
-                    InConsole->ResetFormatting();
-                    this->Complete();
-                    return;
-                }
-
-                InConsole->SetBold(true);
-                InConsole->SetForegroundColor(EConsoleColor::Red);
-                InConsole->WriteLine(NSLOCTEXT("SystemCtl", "UpgradeNotActive", "Error: That upgrade is not currently active."));
-                InConsole->ResetFormatting();
-                this->Complete();
-                break;
-            }
-        }
-
-        InConsole->SetBold(true);
-        InConsole->SetForegroundColor(EConsoleColor::Red);
-        InConsole->WriteLine(NSLOCTEXT("SystemCtl", "UpgradeNotFound", "Error: The upgrade you specified does not exist."));
-        InConsole->ResetFormatting();
-        this->Complete();
-        return;
     }
-    else if(this->ArgumentMap["list-upgrades"]->AsBoolean())
+    else if(this->ArgumentMap["start"]->AsBoolean())
     {
-        TArray<USystemUpgrade*> Installed;
-        TArray<USystemUpgrade*> Available;
-        
-        for(auto Upgrade : this->GetUserContext()->GetPeacenet()->GetAllSystemUpgrades())
-        {
-            if(Upgrade->IsUnlocked(this->GetUserContext()))
-            {
-                Installed.Add(Upgrade);
-            }
-            else
-            {
-                Available.Add(Upgrade);
-            }
-        }
+        FName DaemonName = FName(*this->ArgumentMap["<service>"]->AsString());
 
-        InConsole->SetBold(true);
-        InConsole->SetUnderline(true);
-        InConsole->SetForegroundColor(EConsoleColor::Yellow);
-        InConsole->WriteLine(NSLOCTEXT("SystemCtl", "InstalledUpgrades", "INSTALLED UPGRADES"));
-        InConsole->ResetFormatting();
-        InConsole->WriteLine(FText::GetEmpty());
+        DaemonManager->StartDaemonByName(DaemonName);
+    }
+    else if(this->ArgumentMap["stop"]->AsBoolean())
+    {
+        FName DaemonName = FName(*this->ArgumentMap["<service>"]->AsString());
 
-        for(auto Upgrade : Installed)
-        {
-            InConsole->Write(FText::FromString(" - "));
-            InConsole->SetForegroundColor(EConsoleColor::Green);
-            InConsole->WriteLine(FText::FromName(Upgrade->ID));
-            InConsole->ResetFormatting();
-            
-        }
+        DaemonManager->StopDaemonByName(DaemonName);
+    }
+    else if(this->ArgumentMap["restart"]->AsBoolean())
+    {
+        FName DaemonName = FName(*this->ArgumentMap["<service>"]->AsString());
 
-        if(Available.Num() == 0)
-        {
-            InConsole->SetForegroundColor(EConsoleColor::Magenta);
-            InConsole->SetItalic(true);
-            InConsole->WriteLine(NSLOCTEXT("SystemCtl", "NoAvailableUpgrades", "There are no upgrades to display in this list."));
-            InConsole->ResetFormatting();
-            InConsole->WriteEmptyLine();
-        }
-
-        InConsole->WriteLine(NSLOCTEXT("SystemCtl", "DisableTip", "Use systemctl disable <upgrade> to disable an upgrade above."));
-
-        InConsole->WriteLine(FText::GetEmpty());
-
-        InConsole->SetBold(true);
-        InConsole->SetUnderline(true);
-        InConsole->SetForegroundColor(EConsoleColor::Yellow);
-        InConsole->WriteLine(NSLOCTEXT("SystemCtl", "AvailableUpgrades", "AVAILABLE UPGRADES"));
-        InConsole->ResetFormatting();
-        InConsole->WriteLine(FText::GetEmpty());
-
-        for(auto Upgrade : Available)
-        {
-            InConsole->Write(FText::FromString(" - "));
-            if(Upgrade->UpgradeIsUnlockable(this->GetUserContext()))
-            {
-                InConsole->SetForegroundColor(EConsoleColor::Green);
-            }
-            else 
-            {
-                InConsole->SetForegroundColor(EConsoleColor::Red);
-            }
-            InConsole->Write(FText::FromName(Upgrade->ID));
-            InConsole->ResetFormatting();
-            InConsole->Write(FText::FromString(": "));
-            InConsole->WriteLine(FText::Format(NSLOCTEXT("SystemCtl", "UpgradeSkill", "{0} XP"), FText::AsNumber(Upgrade->RequiredSkillPoints)));
-        }
-
-        if(Available.Num() == 0)
-        {
-            InConsole->SetForegroundColor(EConsoleColor::Magenta);
-            InConsole->SetItalic(true);
-            InConsole->WriteLine(NSLOCTEXT("SystemCtl", "NoAvailableUpgrades", "There are no upgrades to display in this list."));
-            InConsole->ResetFormatting();
-            InConsole->WriteEmptyLine();
-        }
-        else 
-        {
-            InConsole->WriteEmptyLine();
-            InConsole->WriteLine(NSLOCTEXT("SystemCtl", "UpgradeListLegend", "Legend:\r\n  Red: Not unlocked yet.\r\n  Green: Available."));
-            InConsole->WriteEmptyLine();
-        }
-
-        InConsole->WriteLine(NSLOCTEXT("SystemCtl", "EnableTip", "Use systemctl enable <upgrade> to enable an upgrade above."));
-
-
-        InConsole->WriteEmptyLine();
+        DaemonManager->RestartDaemonByName(DaemonName);
     }
     this->Complete();
 }
