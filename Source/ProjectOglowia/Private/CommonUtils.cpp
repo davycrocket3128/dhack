@@ -44,6 +44,56 @@
 #include "PeacenetWorldStateActor.h"
 #include "Engine/Public/Engine.h"
 
+FString UCommonUtils::Aliasify(FString InString)
+{
+	// FIXME: Possibly more efficient algorithm? - Michael
+
+	// Convert the string to lowercase and trim whitespace from the start and end.
+	InString = InString.ToLower().Trim();
+
+	// The transformed string:
+	FString RetVal;
+
+	// Go through all characters in the source string.
+	for(int i = 0; i < InString.Len(); i++)
+	{
+		// Pull the current character:
+		TCHAR c = InString[i];
+
+		// Handle hyphens and periods:
+		if(c == '-' || c == '.')
+		{
+			// Skip if the ret string is empty.
+			if(!RetVal.Len()) continue;
+
+			// Skip if the ret string ends with the character.
+			if(RetVal.EndsWith(FString::Chr(c))) continue;
+
+			// Add it!
+			RetVal += c;
+			continue;
+		}
+
+		// Handle non-alphanumeric characters as they can't appear in aliases.
+		if(!FChar::IsAlnum(c))
+		{
+			// If the return string is empty or ends with an underscore, then we'll skip.
+			// This prevents the string from beginning with an underscore and having duplicate underscores in it.
+			if(RetVal.EndsWith("_") || !RetVal.Len())
+				continue;
+
+			// Otherwise, append an underscore to the string.
+			RetVal += "_";
+			continue;
+		}
+
+		// The character is alphanumeric if we get this far.
+		RetVal += c;
+	}
+
+	return RetVal;
+}
+
 void UCommonUtils::ReorderCanvasPanel(UCanvasPanel* InCanvasPanel, UWindow* InFocusWindow)
 {
 	// First we need to collect a list of all widget slots in ascending Z order.

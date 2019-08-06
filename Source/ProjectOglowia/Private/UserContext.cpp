@@ -42,7 +42,37 @@
 #include "PayloadAsset.h"
 #include "Process.h"
 #include "DaemonManager.h"
+#include "ProceduralGenerationEngine.h"
 #include "SystemUpgrade.h"
+
+void UUserContext::CreateFirstIdentity(const FText& IdentityName, const FText& AliasName, bool UseAliasAsEmail)
+{
+	// Only do this if we don't have an identity.
+	if(!this->HasIdentity())
+	{
+		// Get a new Peacenet identity to store our shit in:
+		FPeacenetIdentity& OurNewIdentity = this->GetPeacenet()->GetNewIdentity();
+
+		// Initialize gameplay-related data:
+		OurNewIdentity.Skill = 0;
+		OurNewIdentity.Reputation = 0.f; //unused - possible removal in 0.4.0.
+		OurNewIdentity.CharacterType = EIdentityType::Player;
+		OurNewIdentity.ComputerID = this->GetComputer().ID;
+
+		// Store the character name and preferred alias.
+		OurNewIdentity.CharacterName = IdentityName.ToString();
+		OurNewIdentity.PreferredAlias = UCommonUtils::Aliasify((UseAliasAsEmail) ? AliasName.ToString() : IdentityName.ToString());
+
+		// Generate an email address for the character:
+		OurNewIdentity.EmailAddress = OurNewIdentity.PreferredAlias + "@" + this->GetPeacenet()->GetProcgen()->ChooseEmailDomain();
+
+		// Assign the identity to our system:
+		this->GetComputer().SystemIdentity = OurNewIdentity.ID;
+
+		// Debug assert if, after all of this, we don't have an identity.
+		check(this->HasIdentity());
+	}
+}
 
 bool UUserContext::GetDaemonManager(UDaemonManager*& OutDaemonManager)
 {

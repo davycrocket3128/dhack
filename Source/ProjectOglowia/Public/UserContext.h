@@ -87,6 +87,9 @@ protected:
     USystemContext* GetOwningSystem();
 
 public:
+    UFUNCTION(BlueprintCallable, Category = "Story Utils")
+    void CreateFirstIdentity(const FText& IdentityName, const FText& AliasName, bool UseAliasAsEmail = true);
+
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Peacegate")
     bool GetDaemonManager(UDaemonManager*& OutDaemonManager);
 

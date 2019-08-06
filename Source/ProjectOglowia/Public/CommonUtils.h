@@ -59,6 +59,11 @@ class PROJECTOGLOWIA_API UCommonUtils : public UObject
 	GENERATED_BODY()
 
 public:
+	// Converts the specified string into a value suitable for use as a Peacegate username, preferred alias or
+	// email username.
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	static FString Aliasify(FString InString);
+
 	UFUNCTION(BlueprintCallable, Category = "Common Utils")
 	static void ReorderCanvasPanel(UCanvasPanel* InCanvasPanel, UWindow* InFocusWindow);
 
