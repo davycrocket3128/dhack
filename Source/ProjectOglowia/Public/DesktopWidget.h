@@ -144,6 +144,9 @@ protected:
 	void OnKernelPanic();
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "Desktop Hacks")
+	UUserWidget* CreateWidgetOwnedByDesktop(TSubclassOf<UUserWidget> InWidgetClass);
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateTutorial(const FText& InTitle, const FText& InNewText, UTutorialPromptState* InTutorialPromptState);
 

@@ -49,6 +49,11 @@
 #include "CommandInfo.h"
 #include "TerminalCommand.h"
 
+UUserWidget* UDesktopWidget::CreateWidgetOwnedByDesktop(TSubclassOf<UUserWidget> InWidgetClass)
+{
+	return CreateWidget<UUserWidget, APlayerController>(this->GetOwningPlayer(), InWidgetClass);
+}
+
 void UDesktopWidget::StartMissionIfAvailable(UMissionAsset* InMission)
 {
 	if(this->IsMissionActive()) return;
