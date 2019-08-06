@@ -31,6 +31,7 @@
 
 #include "TutorialPromptTask.h"
 #include "PeacenetWorldStateActor.h"
+#include "UserContext.h"
 #include "TutorialPromptState.h"
 
 void UTutorialPromptTask::NativeMissionEnded()
@@ -48,10 +49,62 @@ void UTutorialPromptTask::NativeMissionEnded()
             this->GetPeacenet()->GetTutorialState()->DismissPrompt();
         }
     }
+
+    // If we have a subtask, let it know that the mission has ended.
+    this->SubTask->MissionEnded();
 }
 
 void UTutorialPromptTask::NativeStart()
 {
+    // If the tutorial daemon is inactive on the player system then we'll just complete right away.
+    if(!this->GetPlayerUser()->IsDaemonRunning("tutorials"))
+    {
+        this->Complete();
+        return;
+    }
+
+    // Show the tutorial on-screen.
     this->GetPeacenet()->GetTutorialState()->ActivatePrompt(this->TutorialTitle, this->TutorialText);
-    this->Complete();
+    
+    // If there is no sub-task, then we'll complete right now.
+    if(!this->SubTask)
+    {
+        this->Complete();
+        return;
+    }
+
+    // Let the subtask know we've started.
+    this->SubTask->Start(this->GetMissionActor());
+}
+
+void UTutorialPromptTask::NativeTick(float InDeltaSeconds)
+{
+    // If we have a subtask, tick it and check if it is completed.
+    if(this->SubTask)
+    {
+        this->SubTask->Tick(InDeltaSeconds);
+
+        if(this->SubTask->GetIsFinished())
+        {
+            // Complete ourselves.
+            this->Complete();
+            return;
+        }
+
+        // If the subtask has failed, forward the fail to the mission.
+        if(this->SubTask->GetIsFailed())
+        {
+            this->Fail(this->SubTask->GetFailMessage());
+            return;
+        }
+    }
+}
+
+void UTutorialPromptTask::NativeEvent(FString EventName, TMap<FString, FString> EventArgs)
+{
+    // Forward events to the subtask if we have one.
+    if(this->SubTask)
+    {
+        this->SubTask->HandleEvent(EventName, EventArgs);
+    }
 }

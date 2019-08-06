@@ -35,6 +35,16 @@
 #include "SystemContext.h"
 #include "PeacenetWorldStateActor.h"
 
+bool UDaemonManager::IsDaemonRunning(FName InDaemonName)
+{
+    for(auto Daemon : this->ActiveDaemons)
+    {
+        if(Daemon->GetName() == InDaemonName)
+            return true;
+    }
+    return false;
+}
+
 void UDaemonManager::Initialize(USystemContext* InSystem, UProcess* InSystemProcess)
 {
     // Check system and process validity.

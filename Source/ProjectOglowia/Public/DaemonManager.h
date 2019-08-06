@@ -108,4 +108,7 @@ public:
 
     UFUNCTION(BlueprintCallable)
     void RestartDaemonByName(FName InName);
+
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    bool IsDaemonRunning(FName InDaemonName);
 };

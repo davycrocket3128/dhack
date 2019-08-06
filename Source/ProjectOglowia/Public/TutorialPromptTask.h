@@ -49,7 +49,16 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere)
     FText TutorialText;
 
+    // If set, this is the Mission Task that this tutorial will use to determine whether the player has
+    // successfully completed this tutorial.  Leave as 'None'/nullptr if you'd like the tutorial to only
+    // act as a glorified dialog box.
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Instanced)
+    UMissionTask* SubTask;
+
 protected:
-    virtual void NativeMissionEnded() override;
     virtual void NativeStart() override;
+    virtual void NativeTick(float InDeltaSeconds) override;
+    virtual void NativeEvent(FString EventName, TMap<FString, FString> InEventArgs) override;
+    virtual void NativeMissionEnded() override;
+    
 };

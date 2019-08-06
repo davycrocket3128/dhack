@@ -49,6 +49,11 @@
 #include "TerminalCommand.h"
 #include "Process.h"
 
+bool USystemContext::IsDaemonRunning(FName InDaemonName)
+{
+	return this->DaemonManager && this->DaemonManager->IsDaemonRunning(InDaemonName);
+}
+
 TArray<FString> USystemContext::GetNearbyHosts()
 {
 	return this->GetPeacenet()->GetLinkedHosts(this);

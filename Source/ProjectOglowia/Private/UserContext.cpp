@@ -45,6 +45,11 @@
 #include "ProceduralGenerationEngine.h"
 #include "SystemUpgrade.h"
 
+bool UUserContext::IsDaemonRunning(FName InDaemonName)
+{
+	return this->GetOwningSystem()->IsDaemonRunning(InDaemonName);
+}
+
 void UUserContext::CreateFirstIdentity(const FText& IdentityName, const FText& AliasName, bool UseAliasAsEmail)
 {
 	// Only do this if we don't have an identity.

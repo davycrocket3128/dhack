@@ -118,6 +118,9 @@ protected:
 
 public: // Property getters
 	UFUNCTION()
+	bool IsDaemonRunning(FName InDaemonName);
+
+	UFUNCTION()
 	bool GetDaemonManager(UUserContext* InUserContext, UDaemonManager*& OutDaemonManager);
 
 	UFUNCTION()
