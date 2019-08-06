@@ -1,10 +1,10 @@
 {
 	"files.exclude": {
-		"O:/Peacenet/the-peacenet/.git": true,
-		"O:/Peacenet/the-peacenet/.vscode": true,
-		"O:/Peacenet/the-peacenet/Content": true,
-		"O:/Peacenet/the-peacenet/Intermediate": true,
-		"O:/Peacenet/the-peacenet/Readme": true,
-		"O:/Peacenet/the-peacenet/Saved": true
+		"C:/Users/Michael/Documents/Projects/the-peacenet/.git": true,
+		"C:/Users/Michael/Documents/Projects/the-peacenet/.vscode": true,
+		"C:/Users/Michael/Documents/Projects/the-peacenet/Content": true,
+		"C:/Users/Michael/Documents/Projects/the-peacenet/Intermediate": true,
+		"C:/Users/Michael/Documents/Projects/the-peacenet/Readme": true,
+		"C:/Users/Michael/Documents/Projects/the-peacenet/Saved": true
 	}
 }

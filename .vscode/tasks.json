@@ -9,13 +9,13 @@
 				"ProjectOglowia",
 				"Win32",
 				"Debug",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -26,7 +26,7 @@
 				"ProjectOglowia",
 				"Win32",
 				"Debug",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -35,7 +35,7 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -46,13 +46,13 @@
 				"ProjectOglowia",
 				"Win32",
 				"Debug",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -63,13 +63,13 @@
 				"ProjectOglowia",
 				"Win32",
 				"DebugGame",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -80,7 +80,7 @@
 				"ProjectOglowia",
 				"Win32",
 				"DebugGame",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -89,7 +89,7 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -100,13 +100,13 @@
 				"ProjectOglowia",
 				"Win32",
 				"DebugGame",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -117,13 +117,13 @@
 				"ProjectOglowia",
 				"Win32",
 				"Development",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -134,7 +134,7 @@
 				"ProjectOglowia",
 				"Win32",
 				"Development",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -143,7 +143,7 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -154,13 +154,13 @@
 				"ProjectOglowia",
 				"Win32",
 				"Development",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -171,13 +171,13 @@
 				"ProjectOglowia",
 				"Win32",
 				"Shipping",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -188,7 +188,7 @@
 				"ProjectOglowia",
 				"Win32",
 				"Shipping",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -197,7 +197,7 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -208,13 +208,13 @@
 				"ProjectOglowia",
 				"Win32",
 				"Shipping",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -225,13 +225,13 @@
 				"ProjectOglowia",
 				"Win32",
 				"Test",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -242,7 +242,7 @@
 				"ProjectOglowia",
 				"Win32",
 				"Test",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -251,7 +251,7 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -262,13 +262,13 @@
 				"ProjectOglowia",
 				"Win32",
 				"Test",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -279,13 +279,13 @@
 				"ProjectOglowia",
 				"Win64",
 				"Debug",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -296,7 +296,7 @@
 				"ProjectOglowia",
 				"Win64",
 				"Debug",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -305,7 +305,7 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -316,13 +316,13 @@
 				"ProjectOglowia",
 				"Win64",
 				"Debug",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -333,13 +333,13 @@
 				"ProjectOglowia",
 				"Win64",
 				"DebugGame",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -350,7 +350,7 @@
 				"ProjectOglowia",
 				"Win64",
 				"DebugGame",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -359,7 +359,7 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -370,13 +370,13 @@
 				"ProjectOglowia",
 				"Win64",
 				"DebugGame",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -387,13 +387,13 @@
 				"ProjectOglowia",
 				"Win64",
 				"Development",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -404,7 +404,7 @@
 				"ProjectOglowia",
 				"Win64",
 				"Development",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -413,7 +413,7 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -424,13 +424,13 @@
 				"ProjectOglowia",
 				"Win64",
 				"Development",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -441,13 +441,13 @@
 				"ProjectOglowia",
 				"Win64",
 				"Shipping",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -458,7 +458,7 @@
 				"ProjectOglowia",
 				"Win64",
 				"Shipping",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -467,7 +467,7 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -478,13 +478,13 @@
 				"ProjectOglowia",
 				"Win64",
 				"Shipping",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -495,13 +495,13 @@
 				"ProjectOglowia",
 				"Win64",
 				"Test",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -512,7 +512,7 @@
 				"ProjectOglowia",
 				"Win64",
 				"Test",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -521,7 +521,7 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -532,13 +532,13 @@
 				"ProjectOglowia",
 				"Win64",
 				"Test",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -549,13 +549,13 @@
 				"ProjectOglowia",
 				"HTML5",
 				"Debug",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -566,7 +566,7 @@
 				"ProjectOglowia",
 				"HTML5",
 				"Debug",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -575,7 +575,7 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -586,13 +586,13 @@
 				"ProjectOglowia",
 				"HTML5",
 				"Debug",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -603,13 +603,13 @@
 				"ProjectOglowia",
 				"HTML5",
 				"DebugGame",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -620,7 +620,7 @@
 				"ProjectOglowia",
 				"HTML5",
 				"DebugGame",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -629,7 +629,7 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -640,13 +640,13 @@
 				"ProjectOglowia",
 				"HTML5",
 				"DebugGame",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -657,13 +657,13 @@
 				"ProjectOglowia",
 				"HTML5",
 				"Development",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -674,7 +674,7 @@
 				"ProjectOglowia",
 				"HTML5",
 				"Development",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -683,7 +683,7 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -694,13 +694,13 @@
 				"ProjectOglowia",
 				"HTML5",
 				"Development",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -711,13 +711,13 @@
 				"ProjectOglowia",
 				"HTML5",
 				"Shipping",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -728,7 +728,7 @@
 				"ProjectOglowia",
 				"HTML5",
 				"Shipping",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -737,7 +737,7 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -748,13 +748,13 @@
 				"ProjectOglowia",
 				"HTML5",
 				"Shipping",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -765,13 +765,13 @@
 				"ProjectOglowia",
 				"HTML5",
 				"Test",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -782,7 +782,7 @@
 				"ProjectOglowia",
 				"HTML5",
 				"Test",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -791,7 +791,7 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -802,13 +802,13 @@
 				"ProjectOglowia",
 				"HTML5",
 				"Test",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -819,13 +819,13 @@
 				"ProjectOglowiaEditor",
 				"Win64",
 				"Debug",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -836,7 +836,7 @@
 				"ProjectOglowiaEditor",
 				"Win64",
 				"Debug",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -845,7 +845,7 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -856,13 +856,13 @@
 				"ProjectOglowiaEditor",
 				"Win64",
 				"Debug",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -873,13 +873,13 @@
 				"ProjectOglowiaEditor",
 				"Win64",
 				"DebugGame",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -890,7 +890,7 @@
 				"ProjectOglowiaEditor",
 				"Win64",
 				"DebugGame",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -899,7 +899,7 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -910,13 +910,13 @@
 				"ProjectOglowiaEditor",
 				"Win64",
 				"DebugGame",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -927,13 +927,13 @@
 				"ProjectOglowiaEditor",
 				"Win64",
 				"Development",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -944,7 +944,7 @@
 				"ProjectOglowiaEditor",
 				"Win64",
 				"Development",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -953,7 +953,7 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		},
 		{
@@ -964,13 +964,13 @@
 				"ProjectOglowiaEditor",
 				"Win64",
 				"Development",
-				"O:\\Peacenet\\the-peacenet\\ProjectOglowia.uproject",
+				"C:\\Users\\Michael\\Documents\\Projects\\the-peacenet\\ProjectOglowia.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "O:\\Epic Games\\UE_4.22"
+				"cwd": "C:\\Program Files\\Epic Games\\UE_4.22"
 			}
 		}
 	]
