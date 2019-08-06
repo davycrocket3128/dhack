@@ -77,6 +77,12 @@ protected:
 	void RequestPlayerAttention(bool PlaySound);
 
 public:
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetProcessID();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FText GetWindowTitle();
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Program")
 	UUserContext* GetUserContext();
 

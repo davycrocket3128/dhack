@@ -40,7 +40,14 @@ void UOpenProgramTask::NativeStart()
     this->SetObjectiveText(FText::Format(NSLOCTEXT("Objectives", "OpenProgram", "Open {0}."), this->Program->FullName));
 }
 
-void UOpenProgramTask::NativeTick(float InDeltaSeconds)
+void UOpenProgramTask::NativeEvent(FString EventName, TMap<FString, FString> InEventArgs)
 {
-    // TODO: Hook into the game's new process system instead of checking each tick for a missing process.
+    if(EventName == "ProgramOpened")
+    {
+        if(InEventArgs["WindowTitle"] == this->Program->FullName.ToString())
+        {
+            this->Complete();
+            return;
+        }
+    }
 }

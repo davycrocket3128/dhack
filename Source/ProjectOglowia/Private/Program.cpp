@@ -162,6 +162,16 @@ void UProgram::OwningWindowClosed()
 }
 
 
+int UProgram::GetProcessID()
+{
+	return this->MyProcess->GetProcessID();
+}
+
+FText UProgram::GetWindowTitle()
+{
+	return this->Window->WindowTitle;
+}
+
 void UProgram::ActiveProgramCloseEvent()
 {
 	if (this->Window->HasAnyUserFocus() || this->Window->HasFocusedDescendants() || this->Window->HasKeyboardFocus())

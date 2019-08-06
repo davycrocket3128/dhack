@@ -51,7 +51,8 @@ void UTutorialPromptTask::NativeMissionEnded()
     }
 
     // If we have a subtask, let it know that the mission has ended.
-    this->SubTask->MissionEnded();
+    if(this->SubTask)
+        this->SubTask->MissionEnded();
 }
 
 void UTutorialPromptTask::NativeStart()

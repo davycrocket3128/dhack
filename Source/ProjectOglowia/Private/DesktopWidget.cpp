@@ -86,6 +86,12 @@ void UDesktopWidget::ShowProgramOnWorkspace(UProgram* InProgram)
 
 	// Add the program's window to our workspace.
 	this->GetWorkspace()->AddWindow(InProgram->Window);
+
+	// Let the mission system know that a program has been added to the desktop.
+	this->GetPeacenet()->SendGameEvent("ProgramOpened", {
+		{ "WindowTitle", InProgram->GetWindowTitle().ToString() },
+		{ "ProcessID", FString::FromInt(InProgram->GetProcessID())}
+	});
 }
 
 APeacenetWorldStateActor* UDesktopWidget::GetPeacenet()
