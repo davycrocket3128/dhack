@@ -54,6 +54,9 @@ private:
 
 public:
     UFUNCTION()
+    FEmail& GetMessageData(int ID);
+
+    UFUNCTION()
     int GetIdentityID();
 
     UFUNCTION()

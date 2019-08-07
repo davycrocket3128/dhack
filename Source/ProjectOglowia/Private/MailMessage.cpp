@@ -149,14 +149,9 @@ void UMailMessage::Setup(UMailProvider* InProvider, int InMessageID)
     this->Provider = InProvider;
 }
 
-FEmail UMailMessage::GetMainMessage()
+FEmail& UMailMessage::GetMainMessage()
 {
-    for(auto& Message : this->Provider->GetMailMessages())
-    {
-        if(Message.ID == this->MessageID)
-            return Message;
-    }
-    return FEmail();
+    return this->Provider->GetMessageData(this->MessageID);
 }
 
 TArray<FEmail> UMailMessage::GetReplies()
@@ -188,6 +183,9 @@ bool UMailMessage::HasMission()
 
 FText UMailMessage::GetMessageText()
 {
+    // Mark the message as read.
+    this->GetMainMessage().IsUnread = false;
+
     if(this->HasMission())
     {
         FString Text = this->GetMainMessage().Mission->MailMessageText.ToString();

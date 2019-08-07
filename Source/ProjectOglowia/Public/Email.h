@@ -61,4 +61,7 @@ public:
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere)
     UMissionAsset* Mission = nullptr;
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere)
+    bool IsUnread = true;
 };

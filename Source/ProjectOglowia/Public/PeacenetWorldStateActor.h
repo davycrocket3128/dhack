@@ -98,6 +98,10 @@ class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
 
 	GENERATED_BODY()
 	
+private:
+	UPROPERTY()
+	FEmail InvalidEmail;
+
 public: // Constructors
 	// Sets default values for this actor's properties
 	APeacenetWorldStateActor();
@@ -117,6 +121,9 @@ public: // Constructors
 
 	UFUNCTION()
 	void BroadcastMissionComplete(UMissionAsset* InMissionAsset);
+
+	UFUNCTION()
+	FEmail& GetMessageData(int ID);
 
 	UFUNCTION()
 	void SetGameStat(FName InStatName, int InValue);

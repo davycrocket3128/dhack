@@ -59,7 +59,7 @@ public:
     void Setup(UMailProvider* InProvider, int InMessageID);
 
     UFUNCTION()
-    FEmail GetMainMessage();
+    FEmail& GetMainMessage();
 
     UFUNCTION()
     TArray<FEmail> GetReplies();

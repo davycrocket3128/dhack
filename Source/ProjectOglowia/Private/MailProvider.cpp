@@ -34,6 +34,11 @@
 #include "PeacenetWorldStateActor.h"
 #include "PeacenetSaveGame.h"
 
+FEmail& UMailProvider::GetMessageData(int ID)
+{
+    return this->GetPeacenet()->GetMessageData(ID);
+}
+
 UMailMessage* UMailProvider::GetMessageByID(int InID)
 {
     for(FEmail Email : this->GetMailMessages())

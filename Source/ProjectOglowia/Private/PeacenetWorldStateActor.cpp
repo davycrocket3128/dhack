@@ -50,6 +50,16 @@
 #include "TutorialTask.h"
 #include "Window.h"
 
+FEmail& APeacenetWorldStateActor::GetMessageData(int ID)
+{
+	for(int i = 0; i < this->SaveGame->EmailMessages.Num(); i++)
+	{
+		if(this->SaveGame->EmailMessages[i].ID == ID)
+			return this->SaveGame->EmailMessages[i];
+	}
+	return this->InvalidEmail;
+}
+
 FPeacenetIdentity& APeacenetWorldStateActor::GetNewIdentity()
 {
 	// We must have a save file.
