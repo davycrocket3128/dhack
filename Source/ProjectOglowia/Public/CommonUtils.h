@@ -41,6 +41,7 @@
 #include "ConsoleColor.h"
 #include "UMG/Public/Components/CanvasPanel.h"
 #include "UMG/Public/Components/CanvasPanelSlot.h"
+#include "Blueprint/UserWidget.h"
 #include "CommonUtils.generated.h"
 
 class UPeacenetSaveGame;
@@ -59,6 +60,12 @@ class PROJECTOGLOWIA_API UCommonUtils : public UObject
 	GENERATED_BODY()
 
 public:
+	// Given the geometry data for two UMG widgets, this function returns a value indicating whether the widgets overlap.
+	// This function is used in the Peacegate Tutorial during the Window Management tutorial to see if the Terminal is
+	// within or overlapping with the highlighted area on the desktop.
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	static bool WidgetsOverlap(const FGeometry& InFirstWidgetGeometry, const FGeometry& InSecondWidgetGeometry);
+
 	// Converts the specified string into a value suitable for use as a Peacegate username, preferred alias or
 	// email username.
 	UFUNCTION(BlueprintCallable, BlueprintPure)

@@ -44,6 +44,37 @@
 #include "PeacenetWorldStateActor.h"
 #include "Engine/Public/Engine.h"
 
+bool UCommonUtils::WidgetsOverlap(const FGeometry& InFirstWidgetGeometry, const FGeometry& InSecondWidgetGeometry)
+{
+	// Essentially we need to treat the geometries as rectangles and use a simple collision detection algorithm I learned
+	// from the lovely, lovely St. Lawrence College dual credit program.
+	FVector2D FirstTopCorner = InFirstWidgetGeometry.AbsolutePosition;
+	FVector2D SecondTopCorner = InSecondWidgetGeometry.AbsolutePosition;
+	FVector2D FirstSize = InFirstWidgetGeometry.GetAbsoluteSize();
+	FVector2D SecondSize = InSecondWidgetGeometry.GetAbsoluteSize();
+	
+	float x1 = FirstTopCorner.X;
+	float y1 = FirstTopCorner.Y;
+	float w1 = x1 + FirstSize.X;
+	float h1 = y1 + FirstSize.Y;
+
+	float x2 = SecondTopCorner.X;
+	float y2 = SecondTopCorner.Y;
+	float w2 = x2 + SecondSize.X;
+	float h2 = y2 + SecondSize.Y;
+
+	// I believe...it goes something like this for the horizontal stuff?
+	if(x1 > w2) return false;
+	if(x2 > w1) return false;
+
+	// And I think... like this for vertical?
+	if(y1 > h2) return false;
+	if(y2 > h1) return false;
+
+	// And I THINK if we get this far, we're overlapping?
+	return true;
+}
+
 FString UCommonUtils::Aliasify(FString InString)
 {
 	// FIXME: Possibly more efficient algorithm? - Michael
