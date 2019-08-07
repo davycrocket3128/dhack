@@ -47,6 +47,7 @@
 #include "PeacenetGameInstance.h"
 #include "MissionActor.h"
 #include "SystemUpgrade.h"
+#include "TutorialTask.h"
 #include "Window.h"
 
 FPeacenetIdentity& APeacenetWorldStateActor::GetNewIdentity()

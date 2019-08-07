@@ -35,6 +35,7 @@
 #include "MissionTask.h"
 #include "Text.h"
 #include "TextProperty.h"
+#include "TutorialTask.h"
 #include "TutorialPromptTask.generated.h"
 
 UCLASS(BlueprintType)
@@ -53,7 +54,7 @@ public:
     // successfully completed this tutorial.  Leave as 'None'/nullptr if you'd like the tutorial to only
     // act as a glorified dialog box.
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Instanced)
-    UMissionTask* SubTask;
+    UTutorialTask* SubTask;
 
 protected:
     virtual void NativeStart() override;

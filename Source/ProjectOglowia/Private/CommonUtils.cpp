@@ -49,7 +49,7 @@ FString UCommonUtils::Aliasify(FString InString)
 	// FIXME: Possibly more efficient algorithm? - Michael
 
 	// Convert the string to lowercase and trim whitespace from the start and end.
-	InString = InString.ToLower().Trim();
+	InString = InString.ToLower().TrimStartAndEnd();
 
 	// The transformed string:
 	FString RetVal;

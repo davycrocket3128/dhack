@@ -44,6 +44,7 @@
 #include "AlertManager.h"
 #include "PeacenetWorldStateActor.generated.h"
 
+class UTutorialTask;
 class AMissionActor;
 class UChatManager;
 class USystemContext;
@@ -93,6 +94,7 @@ class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
 	mystalkeris AMissionActor; // AMissionActor's more clingy to the fucking save file than I was to Nick Ensor.  That's...annoying....
 	myotherstalkeris UMissionTask; // For the love of Kaylin...
 	myotherstalkeris UProceduralGenerationEngine;
+	myotherstalkeris UTutorialTask;
 
 	GENERATED_BODY()
 	
