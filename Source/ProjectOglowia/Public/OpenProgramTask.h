@@ -32,12 +32,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MissionTask.h"
+#include "TutorialTask.h"
 #include "PeacegateProgramAsset.h"
 #include "OpenProgramTask.generated.h"
 
 UCLASS(BlueprintType)
-class PROJECTOGLOWIA_API UOpenProgramTask : public UMissionTask
+class PROJECTOGLOWIA_API UOpenProgramTask : public UTutorialTask
 {
     GENERATED_BODY()
 

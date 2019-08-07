@@ -33,12 +33,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MissionTask.h"
+#include "TutorialTask.h"
 #include "CommandInfo.h"
 #include "RunCommandTask.generated.h"
 
 UCLASS(BlueprintType)
-class PROJECTOGLOWIA_API URunCommandTask : public UMissionTask
+class PROJECTOGLOWIA_API URunCommandTask : public UTutorialTask
 {
     GENERATED_BODY()
 
