@@ -105,6 +105,9 @@ bool UCommonUtils::GetWidgetIntersection(const FGeometry& InFirstWidgetGeometry,
 	// Store the intersection size!
 	OutIntersectionSize = FVector2D(right_side - left_side, bottom_side - top_side);
 
+	#undef Min
+	#undef Max
+
 	// We already know they intersect.
 	return true;
 }
