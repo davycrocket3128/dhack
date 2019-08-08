@@ -75,6 +75,40 @@ bool UCommonUtils::WidgetsOverlap(const FGeometry& InFirstWidgetGeometry, const 
 	return true;
 }
 
+bool UCommonUtils::GetWidgetIntersection(const FGeometry& InFirstWidgetGeometry, const FGeometry& InSecondWidgetGeometry, FVector2D& OutIntersectionSize)
+{
+	// If the widgets don't intersect then return false.
+	if(!UCommonUtils::WidgetsOverlap(InFirstWidgetGeometry, InSecondWidgetGeometry))
+		return false;
+
+	// The returned intersection size goes here:
+	float ix = 0.f, iy = 0.f;
+
+	// Get the locations and sizes of each geometry.
+	FVector2D loc1 = InFirstWidgetGeometry.AbsolutePosition;
+	FVector2D loc2 = InSecondWidgetGeometry.AbsolutePosition;
+	FVector2D size1 = InFirstWidgetGeometry.GetAbsoluteSize();
+	FVector2D size2 = InSecondWidgetGeometry.GetAbsoluteSize();
+	
+	// Quick compiler macros because optimization.
+	#define Min(a, b) ((a > b) ? (b) : (a))
+	#define Max(a, b) ((a > b) ? (a) : (b))
+
+	// "Borrowed" from MonoGame's Rectangle Intersect function.  Hopefully I don't get eaten alive by a lawyer lol.
+	// https://github.com/MonoGame/MonoGame/blob/develop/MonoGame.Framework/Rectangle.cs
+	// Can you even copyright math?
+	float right_side = Min(loc1.X + size1.X, loc2.X + size2.X);
+    float left_side = Max(loc1.X, loc2.X);
+    float top_side = Max(loc1.Y, loc2.Y);
+    float bottom_side = Min(loc1.Y + size1.Y, loc2.Y + size2.Y);
+
+	// Store the intersection size!
+	OutIntersectionSize = FVector2D(right_side - left_side, bottom_side - top_side);
+
+	// We already know they intersect.
+	return true;
+}
+
 FString UCommonUtils::Aliasify(FString InString)
 {
 	// FIXME: Possibly more efficient algorithm? - Michael
