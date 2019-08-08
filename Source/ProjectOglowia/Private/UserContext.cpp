@@ -76,6 +76,22 @@ void UUserContext::CreateFirstIdentity(const FText& IdentityName, const FText& A
 
 		// Debug assert if, after all of this, we don't have an identity.
 		check(this->HasIdentity());
+
+		// Since we're root, we might as well set the hostname for the computer.
+		// This is done by writing text to /etc/hostname in the filesystem.
+		UPeacegateFileSystem* Filesystem = this->GetFilesystem();
+		EFilesystemStatusCode StatusCode = EFilesystemStatusCode::OK;
+
+		// Ensure the /etc folder exists.
+		if(!Filesystem->DirectoryExists("/etc"))
+		{
+			// Create the directory and assert on error
+			Filesystem->CreateDirectory("/etc", StatusCode);
+			check(StatusCode == EFilesystemStatusCode::OK);
+		}
+
+		// Write the hostname file to disk
+		Filesystem->WriteText("/etc/hostname", UCommonUtils::Aliasify(OurNewIdentity.PreferredAlias) + "-pc");
 	}
 }
 
