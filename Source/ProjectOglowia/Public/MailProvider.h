@@ -56,6 +56,9 @@ public:
     UFUNCTION()
     FEmail& GetMessageData(int ID);
 
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    bool HasAnyUnreadEmails();
+
     UFUNCTION()
     int GetIdentityID();
 

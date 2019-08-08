@@ -46,5 +46,6 @@ enum class EUserColor : uint8
 	Peaceful = 3,
 	Blood = 4,
 	Slate = 5,
+	Caramel = 6,
 	Fire = 12
 };

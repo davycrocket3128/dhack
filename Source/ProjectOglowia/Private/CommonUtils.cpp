@@ -766,6 +766,9 @@ FLinearColor UCommonUtils::GetUserColor(EUserColor InColor)
 		case EUserColor::Slate:
 			Result = FColor(0x94, 0x44, 0xFF, 0xFF);
 			break;
+		case EUserColor::Caramel:
+			Result = FColor(0xC7, 0x62, 0x17, 0xFF);
+			break;
 		case EUserColor::Serenity:
 			Result = FColor(0x2C, 0xD3, 0x1D, 0xFF);
 			break;

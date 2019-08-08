@@ -39,6 +39,16 @@ FEmail& UMailProvider::GetMessageData(int ID)
     return this->GetPeacenet()->GetMessageData(ID);
 }
 
+bool UMailProvider::HasAnyUnreadEmails()
+{
+    for(auto Message : this->GetMailMessages())
+    {
+        if(Message.FromEntity == this->OwningSystem->GetCharacter().ID) continue;
+        if(Message.IsUnread) return true;
+    }
+    return false;
+}
+
 UMailMessage* UMailProvider::GetMessageByID(int InID)
 {
     for(FEmail Email : this->GetMailMessages())
