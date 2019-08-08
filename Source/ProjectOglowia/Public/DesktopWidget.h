@@ -144,6 +144,9 @@ protected:
 	void OnKernelPanic();
 
 public:
+	UFUNCTION()
+	void ResetSession(UUserContext* InNewSession);
+
 	UFUNCTION(BlueprintCallable, Category = "Desktop Hacks")
 	UUserWidget* CreateWidgetOwnedByDesktop(TSubclassOf<UUserWidget> InWidgetClass);
 

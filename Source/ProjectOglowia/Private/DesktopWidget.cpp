@@ -77,6 +77,12 @@ float UDesktopWidget::GetStealthiness()
 	return this->GetUserContext()->GetStealthiness();
 }
 
+void UDesktopWidget::ResetSession(UUserContext* InNewSession)
+{
+	this->SessionActive = false;
+	this->ActivateSession(InNewSession);
+}
+
 void UDesktopWidget::ShowProgramOnWorkspace(UProgram* InProgram)
 {
 	// Make sure nothing is invalid.

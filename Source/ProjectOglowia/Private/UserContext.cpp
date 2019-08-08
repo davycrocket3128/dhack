@@ -92,6 +92,23 @@ void UUserContext::CreateFirstIdentity(const FText& IdentityName, const FText& A
 
 		// Write the hostname file to disk
 		Filesystem->WriteText("/etc/hostname", UCommonUtils::Aliasify(OurNewIdentity.PreferredAlias) + "-pc");
+
+		// Create a user account for the player and we'll possess it as this user context.
+		FUser PlayerUser;
+		PlayerUser.Username = UCommonUtils::Aliasify(OurNewIdentity.PreferredAlias);
+		PlayerUser.Password = "";
+		PlayerUser.Domain = EUserDomain::PowerUser;
+		PlayerUser.UserColor = this->GetUserColor();
+		PlayerUser.ID = this->GetComputer().Users.Num();
+		
+		// Add the user to the computer
+		this->GetComputer().Users.Add(PlayerUser);
+
+		// Update our user ID.
+		this->UserID = PlayerUser.ID;
+
+		// Repossess the desktop.
+		this->GetDesktop()->ResetSession(this);
 	}
 }
 
