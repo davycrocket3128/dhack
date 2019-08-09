@@ -117,6 +117,18 @@ bool UUserContext::GetDaemonManager(UDaemonManager*& OutDaemonManager)
 	return this->GetOwningSystem()->GetDaemonManager(this, OutDaemonManager);
 }
 
+bool UUserContext::IsPowerUser()
+{
+	if(this->IsAdministrator())
+		return true;
+	
+	for(auto& User : this->GetComputer().Users)
+		if(User.ID == this->UserID && User.Domain == EUserDomain::PowerUser)
+			return true;
+	
+	return false;
+}
+
 bool UUserContext::KillProcess(int ProcessID, EProcessResult& OutKillResult)
 {
 	return this->GetOwningSystem()->KillProcess(ProcessID, this, OutKillResult);

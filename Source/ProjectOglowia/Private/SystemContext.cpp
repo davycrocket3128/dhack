@@ -925,7 +925,7 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 
 bool USystemContext::GetDaemonManager(UUserContext* InUserContext, UDaemonManager*& OutDaemonManager)
 {
-	if(InUserContext->IsAdministrator())
+	if(InUserContext->IsAdministrator() || InUserContext->IsPowerUser())
 	{
 		OutDaemonManager = this->DaemonManager;
 		return true;

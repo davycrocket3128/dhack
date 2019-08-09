@@ -127,6 +127,9 @@ public:
     void Destroy();
 
     UFUNCTION()
+    bool IsPowerUser();
+
+    UFUNCTION()
     TArray<UPeacegateProgramAsset*> GetInstalledPrograms();
 
     UFUNCTION()
