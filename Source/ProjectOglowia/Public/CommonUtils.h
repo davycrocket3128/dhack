@@ -67,6 +67,9 @@ public:
 	static bool WidgetsOverlap(const FGeometry& InFirstWidgetGeometry, const FGeometry& InSecondWidgetGeometry);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
+	static FText GetFirstName(const FText& InText);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	static bool GetWidgetIntersection(const FGeometry& InFirstWidgetGeometry, const FGeometry& InSecondWidgetGeometry, FVector2D& OutIntersectionSize);
 
 	// Converts the specified string into a value suitable for use as a Peacegate username, preferred alias or

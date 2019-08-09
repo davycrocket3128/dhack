@@ -45,6 +45,11 @@
 #include "ProceduralGenerationEngine.h"
 #include "SystemUpgrade.h"
 
+FText UUserContext::GetFirstName()
+{
+	return UCommonUtils::GetFirstName(FText::FromString(this->GetCharacterName()));
+}
+
 bool UUserContext::IsDaemonRunning(FName InDaemonName)
 {
 	return this->GetOwningSystem()->IsDaemonRunning(InDaemonName);

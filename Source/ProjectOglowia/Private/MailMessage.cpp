@@ -32,6 +32,7 @@
 #include "MailMessage.h"
 #include "MailProvider.h"
 #include "PeacenetSaveGame.h"
+#include "CommonUtils.h"
 #include "PeacenetWorldStateActor.h"
 
 FString UMailMessage::GetMessageId()
@@ -192,7 +193,8 @@ FText UMailMessage::GetMessageText()
         if(Text.Contains("%agent"))
         {
             FPeacenetIdentity Agent = this->Provider->GetPeacenet()->GetCharacterByID(this->Provider->GetIdentityID());
-            Text = Text.Replace(TEXT("%agent"), *Agent.CharacterName);
+            FText FirstName = UCommonUtils::GetFirstName(FText::FromString(Agent.CharacterName));
+            Text = Text.Replace(TEXT("%agent"), *FirstName.ToString());
         }
         return FText::FromString(Text);
     }

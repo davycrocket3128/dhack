@@ -112,6 +112,27 @@ bool UCommonUtils::GetWidgetIntersection(const FGeometry& InFirstWidgetGeometry,
 	return true;
 }
 
+FText UCommonUtils::GetFirstName(const FText& InText)
+{
+	// Convert the text to a string.
+	FString AsString = InText.ToString();
+
+	// The resulting first name:
+	FString FirstName;
+
+	// Go through every character and append until we hit whitespace.
+	for(int i = 0; i < AsString.Len(); i++)
+	{
+		TCHAR c = AsString[i];
+		if(FChar::IsWhitespace(c))
+			break;
+		FirstName += c;
+	}
+
+	// Return it.
+	return FText::FromString(FirstName);
+}
+
 FString UCommonUtils::Aliasify(FString InString)
 {
 	// FIXME: Possibly more efficient algorithm? - Michael
