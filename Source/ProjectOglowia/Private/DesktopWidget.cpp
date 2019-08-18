@@ -175,7 +175,17 @@ void UDesktopWidget::NativeConstruct()
 
 	if(this->SystemContext->GetComputer().Users.Num() > 1)
 	{
-		this->SessionActive = false;
+		// We have more than a root user.
+		// If we only have two users then we'll possess the first user that isn't root
+		if(this->SystemContext->GetComputer().Users.Num() == 2)
+		{
+			this->ActivateSession(this->SystemContext->GetUserContext(this->SystemContext->GetComputer().Users[1].ID));
+		}
+		else 
+		{
+			// We don't know what the fuck to do, it's up to the player
+			this->SessionActive = false;
+		}
 	}
 	else 
 	{
