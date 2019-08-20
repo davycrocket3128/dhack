@@ -130,6 +130,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool LoadGame(APlayerController* InPlayerController, FString Username, FString Password, APeacenetWorldStateActor*& WorldState);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	TArray<FProfileData> GetProfiles();
+
 public: // UGameInstance overrides.
 	virtual void Init() override;
 	virtual void Shutdown() override;

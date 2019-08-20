@@ -355,6 +355,10 @@ bool UPeacenetGameInstance::LoadGame(APlayerController* InPlayerController, FStr
 	return false;
 }
 
+TArray<FProfileData> UPeacenetGameInstance::GetProfiles() {
+	return this->Profile->ProfileData;
+}
+
 bool UPeacenetGameInstance::GetMostRecentCredentials(FString& Username, FString& Password)
 {
 	// Fuck it.  For this function I'm using Cassian-style curly braces and anyone who interjects can go
