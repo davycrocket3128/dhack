@@ -102,6 +102,9 @@ private:
 	UPROPERTY()
 	FEmail InvalidEmail;
 
+	UPROPERTY()
+	int MySlotId = -1;
+
 public: // Constructors
 	// Sets default values for this actor's properties
 	APeacenetWorldStateActor();
@@ -415,13 +418,13 @@ public:	// AActor Overrides
 public: // Static functions
 	// Used by the Ubiquity menu to see if the "Boot existing OS" screen should show.
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Peacegate")
-	static bool HasExistingOS();
+	static bool HasExistingOS(int SlotId = 0);
 
 	UFUNCTION(BlueprintCallable, Category = "Peacegate")
 	static APeacenetWorldStateActor* BootOS(const APlayerController* InPlayerController, bool InDeleteExistingSaveFile = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Peacegate")
-	static APeacenetWorldStateActor* LoadExistingOS(const APlayerController* InPlayerController);
+	static APeacenetWorldStateActor* LoadExistingOS(const APlayerController* InPlayerController, int SlotId = 0);
 };
 
 template<typename AssetType>

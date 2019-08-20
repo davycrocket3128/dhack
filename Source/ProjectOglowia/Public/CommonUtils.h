@@ -83,8 +83,8 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Upgrades")
 	static bool UpgradeDependsOn(UUserContext* UserContext, USystemUpgrade* Target, USystemUpgrade* Dependency);
 
-	UFUNCTION(BlueprintCallable, Category = "Bootup")
-	static float PrintKernelMessages(UTerminalEmulator* InConsole);
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Bootup")
+	static TArray<FText> GetKernelMessages();
 	
 	UFUNCTION(BlueprintCallable, Category = "Peacegate|Setup")
 	static void ParseCharacterName(const FString InCharacterName, FString& OutUsername, FString& OutHostname);

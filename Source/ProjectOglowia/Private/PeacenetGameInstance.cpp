@@ -295,11 +295,95 @@ void UPeacenetGameInstance::Init()
 		this->RegisterPeacegateDaemon(InfoAsset->DaemonClass, InfoAsset->Name, InfoAsset->FriendlyName, InfoAsset->Description, InfoAsset->DaemonType);
 	}
 
+	// Load or create the Profile.
+	if(UGameplayStatics::DoesSaveGameExist("Profile", 0)) 
+	{
+		this->Profile = Cast<UProfile>(UGameplayStatics::LoadGameFromSlot("Profile", 0));
+	}
+	else
+	{
+		this->Profile = NewObject<UProfile>();
+	}
+
 	Super::Init();
+}
+
+bool UPeacenetGameInstance::HasOldSaveFile() 
+{
+	// If there is no profile data yet there is still a Peacegate state file, then we have an old pre-0.3.x save file we can
+	// convert if the player chooses to.
+	return APeacenetWorldStateActor::HasExistingOS() && !this->Profile->ProfileData.Num();
+}
+
+void UPeacenetGameInstance::LoadAndConvertOldSave() 
+{
+	if(this->HasOldSaveFile()) 
+	{
+		// Old saves are on PeacegateOS (user 0).
+		UPeacenetSaveGame* OldSave = Cast<UPeacenetSaveGame>(UGameplayStatics::LoadGameFromSlot("PeacegateOS", 0));
+
+		// We can create a profile slot out of the player's computer data.  Password will just be "oldsave".
+		FComputer OldPC;
+		int OldIndex;
+		bool result = OldSave->GetComputerByID(OldSave->PlayerComputerID, OldPC, OldIndex);
+		check(result);
+
+		if(result)
+		{
+			// Create new profile data.
+			FProfileData NewProfile;
+			NewProfile.Username = OldPC.Users[OldPC.Users.Num() - 1].Username; // give it the actual username
+			NewProfile.Password = "oldsave"; // I wasn't fucking kidding about the password.
+			NewProfile.Created = FDateTime::Now();
+			NewProfile.LastPlayed = NewProfile.Created;
+
+			// Add it to the profile list.
+			this->Profile->ProfileData.Add(NewProfile);
+		}
+	}
+}
+
+bool UPeacenetGameInstance::LoadGame(APlayerController* InPlayerController, FString Username, FString Password, APeacenetWorldStateActor*& WorldState) {
+	for(int i = 0; i < this->Profile->ProfileData.Num(); i++) {
+		FProfileData& Data = this->Profile->ProfileData[i];
+		if(Data.Username == Username && Data.Password == Password) {
+			Data.LastPlayed = FDateTime::Now();
+			WorldState = APeacenetWorldStateActor::LoadExistingOS(InPlayerController, Data.SlotId);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool UPeacenetGameInstance::GetMostRecentCredentials(FString& Username, FString& Password)
+{
+	// Fuck it.  For this function I'm using Cassian-style curly braces and anyone who interjects can go
+	// fuck themselves.  - Michael
+	if(!this->Profile->ProfileData.Num()) {
+		return false;
+	}
+
+	int RecentIndex = -1;
+	FDateTime Min = FDateTime::MinValue();
+
+	for(int i = 0; i < this->Profile->ProfileData.Num(); i++) {
+		FDateTime LastPlayed = this->Profile->ProfileData[i].LastPlayed;
+		if(LastPlayed > Min) {
+			RecentIndex = i;
+			Min = LastPlayed;
+		}
+	}
+
+	Username = this->Profile->ProfileData[RecentIndex].Username;
+	Password = this->Profile->ProfileData[RecentIndex].Password;
+	return true;
 }
 
 void UPeacenetGameInstance::Shutdown()
 {
+	// Save the Profile.
+	UGameplayStatics::SaveGameToSlot(this->Profile, "Profile", 0);
+
 	// Unreal Engine's about to shut down.	
 	this->SaveSettings();
 

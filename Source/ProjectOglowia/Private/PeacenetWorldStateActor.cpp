@@ -809,13 +809,6 @@ void APeacenetWorldStateActor::BeginPlay()
 	// Load markov training data for world gen stuff.
 	this->LoadAssets<UMarkovTrainingDataAsset>("MarkovTrainingDataAsset", this->MarkovData);
 
-	// Do we have an existing OS?
-	if (!HasExistingOS())
-	{
-		// Create a new save game object.
-		this->SaveGame = NewObject<UPeacenetSaveGame>(this);
-	}
-
 	// Load all the game's programs
 	LoadAssets(TEXT("PeacegateProgramAsset"), this->Programs);
 
@@ -916,8 +909,13 @@ void APeacenetWorldStateActor::StartGame(TSubclassOf<UDesktopWidget> InDesktopCl
 {
 	check(HasExistingOS() || this->SaveGame);
 
-	if(!this->SaveGame)
-		this->SaveGame = Cast<UPeacenetSaveGame>(UGameplayStatics::LoadGameFromSlot("PeacegateOS", 0));
+	if(!this->SaveGame) {
+		if(this->HasExistingOS(this->MySlotId)) {
+			this->SaveGame = Cast<UPeacenetSaveGame>(UGameplayStatics::LoadGameFromSlot("PeacegateOS", this->MySlotId));
+		} else {
+			this->SaveGame = NewObject<UPeacenetSaveGame>();
+		}
+	}
 
 	this->DesktopClass = InDesktopClass;
 	this->WindowClass = InWindowClass;
@@ -1000,9 +998,9 @@ FText APeacenetWorldStateActor::GetTimeOfDay()
 	return FText::FromString(HoursString + TEXT(":") + MinutesString);
 }
 
-bool APeacenetWorldStateActor::HasExistingOS()
+bool APeacenetWorldStateActor::HasExistingOS(int SlotId)
 {
-	return UGameplayStatics::DoesSaveGameExist(TEXT("PeacegateOS"), 0);
+	return UGameplayStatics::DoesSaveGameExist(TEXT("PeacegateOS"), SlotId);
 }
 
 void APeacenetWorldStateActor::SaveWorld()
@@ -1011,16 +1009,17 @@ void APeacenetWorldStateActor::SaveWorld()
 	if(this->IsInMission()) return;
 
 	// Actually save the game.
-	UGameplayStatics::SaveGameToSlot(this->SaveGame, TEXT("PeacegateOS"), 0);
+	UGameplayStatics::SaveGameToSlot(this->SaveGame, TEXT("PeacegateOS"), this->MySlotId);
 }
 
-APeacenetWorldStateActor* APeacenetWorldStateActor::LoadExistingOS(const APlayerController* InPlayerController)
+APeacenetWorldStateActor* APeacenetWorldStateActor::LoadExistingOS(const APlayerController* InPlayerController, int SlotId)
 {
-	check(HasExistingOS());
+	check(HasExistingOS(SlotId));
 
 	UWorld* World = InPlayerController->GetWorld();
 
 	auto ExistingPeacenet = World->SpawnActor<APeacenetWorldStateActor>();
+	ExistingPeacenet->MySlotId = SlotId;
 
 	return ExistingPeacenet;
 }

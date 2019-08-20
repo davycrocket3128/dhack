@@ -36,6 +36,7 @@
 #include "Engine/GameInstance.h"
 #include "PeacenetSettings.h"
 #include "PeacegateDaemon.h"
+#include "Profile.h"
 #include "DaemonType.h"
 #include "PeacenetGameInstance.generated.h"
 
@@ -76,6 +77,9 @@ class PROJECTOGLOWIA_API UPeacenetGameInstance : public UGameInstance
 
 private:
 	UPROPERTY()
+	UProfile* Profile;
+
+	UPROPERTY()
 	TMap<FName, FDaemonInfo> RegisteredDaemons;
 
 protected:
@@ -113,6 +117,18 @@ public:
 
 	UFUNCTION()
 	TArray<FDaemonInfo> GetDaemonsForSystem(USystemContext* InSystem);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool HasOldSaveFile();
+
+	UFUNCTION(BlueprintCallable)
+	void LoadAndConvertOldSave();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool GetMostRecentCredentials(FString& Username, FString& Password);
+
+	UFUNCTION(BlueprintCallable)
+	bool LoadGame(APlayerController* InPlayerController, FString Username, FString Password, APeacenetWorldStateActor*& WorldState);
 
 public: // UGameInstance overrides.
 	virtual void Init() override;
