@@ -31,17 +31,14 @@
 
 #include "DownloadFileHackTask.h"
 
-void UDownloadFileHackTask::NativeStart()
-{
+void UDownloadFileHackTask::NativeStart() {
     check(this->FileRecordChecker);
     this->SetObjectiveText(this->ObjectiveText);
 }
 
-void UDownloadFileHackTask::NativeGameEvent(FString Event, TMap<FString, FString> Arguments)
-{
+void UDownloadFileHackTask::NativeGameEvent(FString Event, TMap<FString, FString> Arguments) {
     // Listen to FileUpload events only.
-    if(Event == "FileDownload")
-    {
+    if(Event == "FileDownload") {
         // Check that the source and destination identities are ours.
         FString SourceIdentity = Arguments["SourceIdentity"];
         FString DestinationIdentity = Arguments["DestinationIdentity"];
@@ -51,11 +48,9 @@ void UDownloadFileHackTask::NativeGameEvent(FString Event, TMap<FString, FString
 
         // If they match then we can start grabbing filesystem contexts and reading the destination file to make sure it is the file
         // we want the user to upload.
-        if(SourceIdentity == OurSource && DestinationIdentity == OurDestination)
-        {
+        if(SourceIdentity == OurSource && DestinationIdentity == OurDestination) {
             // Use our file record checker to check if the file matches what we want.
-            if(this->FileRecordChecker->FileRecordMatches(this->GetPlayerUser(), Arguments["DestinationPath"]))
-            {
+            if(this->FileRecordChecker->FileRecordMatches(this->GetPlayerUser(), Arguments["DestinationPath"])) {
                 // Complete the objective!
                 this->Finish();
             }

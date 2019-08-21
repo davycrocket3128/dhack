@@ -34,36 +34,29 @@
 #include "CommandInfo.h"
 #include "GraphicalTerminalCommand.h"
 
-ATerminalCommand* ABashShell::GetCommand(FString Command)
-{
+ATerminalCommand* ABashShell::GetCommand(FString Command) {
     ATerminalCommand* CommandObject = nullptr;
     FString InternalUsage;
     FString FriendlyUsage;
 
-    if(this->GetUserContext()->GetFilesystem()->FileExists(this->GetConsole()->CombineWithWorkingDirectory(Command)))
-	{
+    if(this->GetUserContext()->GetFilesystem()->FileExists(this->GetConsole()->CombineWithWorkingDirectory(Command))) {
 		FFileRecord Record = this->GetUserContext()->GetFilesystem()->GetFileRecord(this->GetConsole()->CombineWithWorkingDirectory(Command));
-		if(Record.RecordType == EFileRecordType::Command)
-		{
+		if(Record.RecordType == EFileRecordType::Command) {
 			TArray<FName> CommandKeys;
 			this->GetUserContext()->GetPeacenet()->CommandInfo.GetKeys(CommandKeys);
 
-			if(Record.ContentID < CommandKeys.Num())
-			{
+			if(Record.ContentID < CommandKeys.Num()) {
 				UCommandInfo* Info = this->GetUserContext()->GetPeacenet()->CommandInfo[CommandKeys[Record.ContentID]];
 				ATerminalCommand* CommandImpl = ATerminalCommand::CreateCommandFromAsset(this->GetUserContext(), Info, this->ForkProcess(Info->ID.ToString()));
 
                 return CommandImpl;
 			}
-		}
-		else if(Record.RecordType == EFileRecordType::Program)
-		{
-			if(Record.ContentID < this->GetUserContext()->GetPeacenet()->Programs.Num())
-			{
+		} else if(Record.RecordType == EFileRecordType::Program) {
+			if(Record.ContentID < this->GetUserContext()->GetPeacenet()->Programs.Num()) {
 				UPeacegateProgramAsset* ProgramAsset = this->GetUserContext()->GetPeacenet()->Programs[Record.ContentID];
 				FVector Location(0.0f, 0.0f, 0.0f);
 	 			FRotator Rotation(0.0f, 0.0f, 0.0f);
-					FActorSpawnParameters SpawnInfo;
+				FActorSpawnParameters SpawnInfo;
 
 				AGraphicalTerminalCommand* GraphicalCommand = Cast<AGraphicalTerminalCommand>(ATerminalCommand::SpawnCommand<AGraphicalTerminalCommand>(this->ForkProcess(ProgramAsset->ID.ToString())));
 				GraphicalCommand->ProgramAsset = ProgramAsset;
@@ -71,16 +64,13 @@ ATerminalCommand* ABashShell::GetCommand(FString Command)
 				return GraphicalCommand;
 			}
 		}
-	}
-	else if (this->GetUserContext()->TryGetTerminalCommand(FName(*Command), this->GetProcess(), CommandObject, InternalUsage, FriendlyUsage))
-	{
+	} else if (this->GetUserContext()->TryGetTerminalCommand(FName(*Command), this->GetProcess(), CommandObject, InternalUsage, FriendlyUsage)) {
 		return CommandObject;
 	}
     return nullptr;
 }
 
-FText ABashShell::GetShellPrompt()
-{
+FText ABashShell::GetShellPrompt() {
 	    // Get the username, hostname and current working directory.
     FString Username = this->GetUserContext()->GetUsername();
     FString Hostname = this->GetUserContext()->GetHostname();
@@ -90,8 +80,7 @@ FText ABashShell::GetShellPrompt()
 	FString UserStatus = "$";
 
     // Are we root?
-    if(this->GetUserContext()->IsAdministrator())
-    {
+    if(this->GetUserContext()->IsAdministrator()) {
         UserStatus = "#";
     }
 

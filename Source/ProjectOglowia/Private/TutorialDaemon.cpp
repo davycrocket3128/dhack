@@ -35,29 +35,28 @@
 #include "TutorialPromptState.h"
 #include "PeacenetWorldStateActor.h"
 
-void UTutorialDaemon::NativeStart()
-{
+void UTutorialDaemon::NativeStart() {
     // Bind to the tutorial prompt's activate event.
 	TScriptDelegate<> TutorialEvent;
 	TutorialEvent.BindUFunction(this, "UpdateTutorial");
 
-	if(!this->GetTutorialPrompt()->TutorialActivated.Contains(TutorialEvent))
+	if(!this->GetTutorialPrompt()->TutorialActivated.Contains(TutorialEvent)) {
 		this->GetTutorialPrompt()->TutorialActivated.Add(TutorialEvent);
+    }
 
     // Dismiss the current prompt so the tutorial backend isn't hung up from us being asleep and unable
     // to dismiss prompts.
-    if(this->GetTutorialPrompt()->IsPromptActive())
+    if(this->GetTutorialPrompt()->IsPromptActive()) {
         this->GetTutorialPrompt()->DismissPrompt();
+    }
 
     // Prevent any further prompts that were queued for us while we were asleep from showing.
     this->GetTutorialPrompt()->ClearFuture();
 }
 
-void UTutorialDaemon::NativeStop()
-{
+void UTutorialDaemon::NativeStop() {
     // Dismiss any active tutorial prompts.
-    if(this->GetTutorialPrompt()->IsPromptActive())
-    {
+    if(this->GetTutorialPrompt()->IsPromptActive()) {
         this->GetTutorialPrompt()->DismissPrompt();
     }
 
@@ -65,18 +64,16 @@ void UTutorialDaemon::NativeStop()
 	TScriptDelegate<> TutorialEvent;
 	TutorialEvent.BindUFunction(this, "UpdateTutorial");
 
-	if(this->GetTutorialPrompt()->TutorialActivated.Contains(TutorialEvent))
+	if(this->GetTutorialPrompt()->TutorialActivated.Contains(TutorialEvent)) {
 		this->GetTutorialPrompt()->TutorialActivated.Remove(TutorialEvent);
+    }
 }
 
-void UTutorialDaemon::NativeTick(float DeltaSeconds)
-{
+void UTutorialDaemon::NativeTick(float DeltaSeconds){
     // Is there a tutorial ready?
-    if(this->NewTutorialReady)
-    {
+    if(this->NewTutorialReady) {
         // Is the desktop in a state where tutorials can be activated?
-        if(this->GetSystemContext()->GetDesktop() && this->GetSystemContext()->GetDesktop()->IsSessionActive())
-        {
+        if(this->GetSystemContext()->GetDesktop() && this->GetSystemContext()->GetDesktop()->IsSessionActive()) {
             // Broadcast the event!
             FText Title = this->GetTutorialPrompt()->GetTutorialTitle();
             FText Message = this->GetTutorialPrompt()->GetTutorialText();
@@ -88,23 +85,18 @@ void UTutorialDaemon::NativeTick(float DeltaSeconds)
     }
 }
 
-UTutorialPromptState* UTutorialDaemon::GetTutorialPrompt()
-{
+UTutorialPromptState* UTutorialDaemon::GetTutorialPrompt() {
     return this->GetPeacenet()->GetTutorialState();
 }
 
-void UTutorialDaemon::UpdateTutorial(const FText& InTitle, const FText& InNewText, UTutorialPromptState* InTutorialPromptState)
-{
+void UTutorialDaemon::UpdateTutorial(const FText& InTitle, const FText& InNewText, UTutorialPromptState* InTutorialPromptState) {
     // If the desktop is there, and the desktop has a session, we'll forward the tutorial right away.
     //
     // If not then we'll simply mark that we have a new tutorial to show, and try to forward it every tick
     // until we succeed.
-    if(this->GetSystemContext()->GetDesktop() && this->GetSystemContext()->GetDesktop()->IsSessionActive())
-    {
+    if(this->GetSystemContext()->GetDesktop() && this->GetSystemContext()->GetDesktop()->IsSessionActive()) {
         this->GetSystemContext()->GetDesktop()->UpdateTutorial(InTitle, InNewText, InTutorialPromptState);
-    }
-    else
-    {
+    } else {
         this->NewTutorialReady =true;
     }
 }

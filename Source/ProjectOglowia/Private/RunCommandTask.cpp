@@ -33,83 +33,76 @@
 #include "CommandShell.h"
 #include "UserContext.h"
 
-void URunCommandTask::NativeStart()
-{
+void URunCommandTask::NativeStart() {
     FString CommandText = this->Command->ID.ToString();
 
-    if(ExpectedArguments.Len())
-    {
+    if(ExpectedArguments.Len()) {
         CommandText += " " + ExpectedArguments;
     }
 
     this->SetObjectiveText(FText::Format(NSLOCTEXT("Objectives", "RunCommand", "Run {0}."), FText::FromString(CommandText)));
 }
 
-void URunCommandTask::NativeEvent(FString EventName, TMap<FString, FString> InEventArgs)
-{
-    // Only handle "Command Complete" events.
-    if(EventName != "CommandComplete") return;
-
-    // Check if we've gotten arguments and a command name AT LEAST.
-    check(InEventArgs.Contains("Command"));
-    check(InEventArgs.Contains("Arguments"));
+void URunCommandTask::NativeEvent(FString EventName, TMap<FString, FString> InEventArgs) {
+    // Only respond to "CommandComplete" events.
+    if(EventName == "CommandComplete") {
+        // Check if we've gotten arguments and a command name AT LEAST.
+        check(InEventArgs.Contains("Command"));
+        check(InEventArgs.Contains("Arguments"));
     
-    // Check that our command isn't null.
-    check(this->Command);
+        // Check that our command isn't null.
+        check(this->Command);
 
-    // If the argument "Command" matches our command's name, we're finished.
-    if(InEventArgs["Command"] == this->Command->ID.ToString())
-    {
-        // If the expected args are empty we're complete.
-        if(!this->ExpectedArguments.Len())
-        {
-            this->Complete();
-            return;
-        }
-
-        // If not, then we need to check if the arguments match.
-        // First we need a temp arguments variable because we're going
-        // to need to check for "~" appearing in the expected args.
-        //
-        // This fixes an issue where we can't get the player to change
-        // to their home directory with "cd ~" and trigger an objective complete.
-        FString expected = this->ExpectedArguments;
-
-        // If the expected args contains "~" AT ALL, we need to use
-        // the bash lexer to replace it with the home directory of the
-        // mission's User Context.
-        if(expected.Contains("~"))
-        {
-            // Get the player home directory.
-            FString home = this->GetPlayerUser()->GetHomeDirectory();
-
-            // Use bash to tokenize the command into a list of arguments. Each token
-            // will have "~" replaced with the home directory if said token starts ith "~".
-            FText error;
-            TArray<FString> tokens = ACommandShell::Tokenize(expected, home, error);
-
-            // Check that there was no error.
-            check(error.IsEmpty());
-
-            // Now we combine the tokens back into an argument string.
-            FString newExpected = "";
-            for(auto arg : tokens)
-            {
-                newExpected += arg + " ";
+        // If the argument "Command" matches our command's name, we're finished.
+        if(InEventArgs["Command"] == this->Command->ID.ToString()) {
+            // If the expected args are empty we're complete.
+            if(!this->ExpectedArguments.Len()) {
+                this->Complete();
+                return;
             }
-            
-            // Trum excess space off of the new expected args.
-            newExpected = newExpected.TrimEnd();
-        
-            // Copy it over.
-            expected = newExpected;
-        }
 
-        // NOW we can check to see if the arguments match.
-        if(InEventArgs["Arguments"] == expected)
-        {
-            this->Complete();
-            return;
+            // If not, then we need to check if the arguments match.
+            // First we need a temp arguments variable because we're going
+            // to need to check for "~" appearing in the expected args.
+            //
+            // This fixes an issue where we can't get the player to change
+            // to their home directory with "cd ~" and trigger an objective complete.
+            FString expected = this->ExpectedArguments;
+
+            // If the expected args contains "~" AT ALL, we need to use
+            // the bash lexer to replace it with the home directory of the
+            // mission's User Context.
+            if(expected.Contains("~"))
+            {
+                // Get the player home directory.
+                FString home = this->GetPlayerUser()->GetHomeDirectory();
+
+                // Use bash to tokenize the command into a list of arguments. Each token
+                // will have "~" replaced with the home directory if said token starts ith "~".
+                FText error;
+                TArray<FString> tokens = ACommandShell::Tokenize(expected, home, error);
+
+                // Check that there was no error.
+                check(error.IsEmpty());
+
+                // Now we combine the tokens back into an argument string.
+                FString newExpected = "";
+                for(auto arg : tokens) {
+                    newExpected += arg + " ";
+                }
+            
+                // Trum excess space off of the new expected args.
+                newExpected = newExpected.TrimEnd();
+        
+                // Copy it over.
+                expected = newExpected;
+            }
+
+            // NOW we can check to see if the arguments match.
+            if(InEventArgs["Arguments"] == expected) {
+                this->Complete();
+                return;
+            }
         }
     }
 }

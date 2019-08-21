@@ -33,8 +33,7 @@
 #include "TerminalCommand.h"
 #include "PeacenetWorldStateActor.h"
 
-void UCommandPayload::NativePayloadDeployed(UConsoleContext* Console, UUserContext* OriginUser, UUserContext* TargetUser)
-{
+void UCommandPayload::NativePayloadDeployed(UConsoleContext* Console, UUserContext* OriginUser, UUserContext* TargetUser) {
     check(this->Command);
 
     // Create a remote process to run the payload under.

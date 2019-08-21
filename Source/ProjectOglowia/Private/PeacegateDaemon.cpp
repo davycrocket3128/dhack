@@ -33,25 +33,22 @@
 #include "DaemonManager.h"
 #include "PeacenetWorldStateActor.h"
 
-APeacenetWorldStateActor* UPeacegateDaemon::GetPeacenet()
-{
+APeacenetWorldStateActor* UPeacegateDaemon::GetPeacenet() {
     return this->DaemonManager->GetPeacenet();
 }
 
-USystemContext* UPeacegateDaemon::GetSystemContext()
-{
+USystemContext* UPeacegateDaemon::GetSystemContext() {
     return this->DaemonManager->GetSystemContext();
 }
 
-void UPeacegateDaemon::Start()
-{
-    if(!this->IsActive())
-    {
+void UPeacegateDaemon::Start() {
+    if(!this->IsActive()) {
         // Tie ourselves to the world simulation tick:
         TScriptDelegate<> WorldUpdate;
         WorldUpdate.BindUFunction(this, "Tick");
-        if(!this->DaemonManager->GetPeacenet()->OnSimulationTick.Contains(WorldUpdate))
+        if(!this->DaemonManager->GetPeacenet()->OnSimulationTick.Contains(WorldUpdate)) {
             this->DaemonManager->GetPeacenet()->OnSimulationTick.Add(WorldUpdate);
+        }
 
         // Create a process for ourselves.
         this->DaemonProcess = this->DaemonManager->Fork(this->Name.ToString());
@@ -67,10 +64,8 @@ void UPeacegateDaemon::Start()
     }
 }
 
-void UPeacegateDaemon::Stop()
-{
-    if(this->IsActive())
-    {
+void UPeacegateDaemon::Stop() {
+    if(this->IsActive()) {
         // Mark that the kill is graceful.
         this->IsGracefulStop = true;
 
@@ -79,8 +74,7 @@ void UPeacegateDaemon::Stop()
     }
 }
 
-void UPeacegateDaemon::StopInternal()
-{
+void UPeacegateDaemon::StopInternal() {
     // Allow derived classes to do things when we stop.
     this->NativeStop();
     this->OnStop();
@@ -89,8 +83,7 @@ void UPeacegateDaemon::StopInternal()
     // and gracefully despawn.
     //
     // Otherwise we will restart.
-    if(this->IsGracefulStop || !this->DaemonManager->IsActive())
-    {
+    if(this->IsGracefulStop || !this->DaemonManager->IsActive()) {
         // Stop any world simulation ticks of this daemon.
         TScriptDelegate<> WorldUpdate;
         WorldUpdate.BindUFunction(this, "Tick");
@@ -102,9 +95,7 @@ void UPeacegateDaemon::StopInternal()
 
         // Let Unreal GC take care of the process.
         this->DaemonProcess = nullptr;
-    }
-    else
-    {
+    } else {
         // Restart the daemon.
         this->Restart();
     }
@@ -113,8 +104,7 @@ void UPeacegateDaemon::StopInternal()
     this->IsGracefulStop = false;
 }
 
-void UPeacegateDaemon::Restart()
-{
+void UPeacegateDaemon::Restart() {
     // Stop the daemon if we're active...
     this->Stop();
 
@@ -122,30 +112,25 @@ void UPeacegateDaemon::Restart()
     this->Start();    
 }
 
-void UPeacegateDaemon::Tick(float InDeltaTime)
-{
+void UPeacegateDaemon::Tick(float InDeltaTime) {
     // Only tick if we are active.
-    if(this->IsActive())
-    {
+    if(this->IsActive()) {
         this->NativeTick(InDeltaTime);
         this->OnTick(InDeltaTime);
     }
 }
 
-void UPeacegateDaemon::SetMetadata(UDaemonManager* InDaemonManager, FName InName, FText InFriendlyName, FText InDescription)
-{
+void UPeacegateDaemon::SetMetadata(UDaemonManager* InDaemonManager, FName InName, FText InFriendlyName, FText InDescription) {
     this->DaemonManager = InDaemonManager;
     this->Name = InName;
     this->FriendlyName = InFriendlyName;
     this->Description = InDescription;
 }
 
-bool UPeacegateDaemon::IsActive()
-{
+bool UPeacegateDaemon::IsActive() {
     return this->DaemonProcess && !this->DaemonProcess->IsDead();
 }
 
-FName UPeacegateDaemon::GetName()
-{
+FName UPeacegateDaemon::GetName() {
     return this->Name;
 }

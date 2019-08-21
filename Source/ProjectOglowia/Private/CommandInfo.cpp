@@ -33,27 +33,23 @@
 #include "SystemContext.h"
 #include "SystemUpgrade.h"
 
-bool UCommandInfo::IsUnlocked(USystemContext* InSystemContext)
-{
-	if(!this->RequiredUpgrade)
+bool UCommandInfo::IsUnlocked(USystemContext* InSystemContext) {
+	if(!this->RequiredUpgrade) {
 		return true;
-
+	}
 	return InSystemContext && InSystemContext->IsUpgradeInstalled(this->RequiredUpgrade);
 }
 
-void UCommandInfo::BuildManualPage(UManualPageBuilder* InBuilder)
-{
+void UCommandInfo::BuildManualPage(UManualPageBuilder* InBuilder) {
 	// Override the full name with the ID.
 	InBuilder->SetFullName(FText::FromName(this->ID));
 
 	// Default usage string.
 	FString Usage = this->ID.ToString();
 
-	if(this->UsageStrings.Num())
-	{
+	if(this->UsageStrings.Num()) {
 		Usage = "";
-		for(auto& UsageString : this->UsageStrings)
-		{
+		for(auto& UsageString : this->UsageStrings) {
 			Usage += " - " + this->ID.ToString() + " " + UsageString + "\r\n";
 		}
 	}

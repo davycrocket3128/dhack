@@ -49,29 +49,25 @@
 #include "TerminalCommand.h"
 #include "Process.h"
 
-bool USystemContext::IsDaemonRunning(FName InDaemonName)
-{
+bool USystemContext::IsDaemonRunning(FName InDaemonName) {
 	return this->DaemonManager && this->DaemonManager->IsDaemonRunning(InDaemonName);
 }
 
-TArray<FString> USystemContext::GetNearbyHosts()
-{
+TArray<FString> USystemContext::GetNearbyHosts() {
 	return this->GetPeacenet()->GetLinkedHosts(this);
 }
 
-bool USystemContext::IsUpgradeInstalled(USystemUpgrade* InUpgrade)
-{
-	if(!InUpgrade)
+bool USystemContext::IsUpgradeInstalled(USystemUpgrade* InUpgrade) {
+	if(!InUpgrade) {
 		return false;
+	}
 
 	return InUpgrade->IsUnlocked(this->GetUserContext(0));
 }
 
-void USystemContext::Destroy()
-{
+void USystemContext::Destroy() {
 	// Remove the desktop from the screen, thus killing any UI related to this system context.
-	if(this->Desktop)
-	{
+	if(this->Desktop) {
 		this->Desktop->RemoveFromParent();
 	}
 
@@ -83,8 +79,7 @@ void USystemContext::Destroy()
 	TArray<int> FilesystemKeys;
 	this->RegisteredFilesystems.GetKeys(FilesystemKeys);
 
-	while(this->RegisteredFilesystems.Num())
-	{
+	while(this->RegisteredFilesystems.Num()) {
 		int key = FilesystemKeys[0];
 		FilesystemKeys.RemoveAt(0);
 
@@ -92,8 +87,7 @@ void USystemContext::Destroy()
 	}
 
 	// Kill all hacker contexts.
-	while(this->Hackers.Num())
-	{
+	while(this->Hackers.Num()) {
 		this->Hackers[0]->Destroy();
 		this->Hackers.RemoveAt(0);
 	}
@@ -102,8 +96,7 @@ void USystemContext::Destroy()
 	TArray<int> userKeys;
 	this->Users.GetKeys(userKeys);
 
-	while(this->Users.Num())
-	{
+	while(this->Users.Num()) {
 		int key = userKeys[0];
 		userKeys.RemoveAt(0);
 
@@ -119,38 +112,31 @@ void USystemContext::Destroy()
 
 }
 
-int USystemContext::GetGameStat(FName InStatName)
-{
+int USystemContext::GetGameStat(FName InStatName) {
 	return this->GetPeacenet()->GetGameStat(InStatName);
 }
 
-void USystemContext::SetGameStat(FName InStatName, int InValue)
-{
+void USystemContext::SetGameStat(FName InStatName, int InValue) {
 	this->GetPeacenet()->SetGameStat(InStatName, InValue);
 }
 
-void USystemContext::IncreaseGameStat(FName InStatName)
-{
+void USystemContext::IncreaseGameStat(FName InStatName) {
 	this->GetPeacenet()->IncreaseGameStat(InStatName);
 }
 
-bool USystemContext::IsSet(FString InSaveBoolean)
-{
+bool USystemContext::IsSet(FString InSaveBoolean) {
 	return this->GetPeacenet()->IsTrue(InSaveBoolean);
 }
 
-void USystemContext::SetSaveBoolean(FString InSaveBoolean, bool InValue)
-{
+void USystemContext::SetSaveBoolean(FString InSaveBoolean, bool InValue) {
 	this->GetPeacenet()->SetSaveValue(InSaveBoolean, InValue);
 }
 
-bool USystemContext::IsNewGame()
-{
+bool USystemContext::IsNewGame() {
 	return this->GetPeacenet()->IsNewGame();
 }
 
-void USystemContext::UpdateInternalIdentity()
-{
+void USystemContext::UpdateInternalIdentity() {
 	this->InternalIdentity.ID = -1;
 	this->InternalIdentity.CharacterName = this->GetHostname();
 	this->InternalIdentity.PreferredAlias = this->GetHostname();
@@ -161,82 +147,70 @@ void USystemContext::UpdateInternalIdentity()
 	this->InternalIdentity.ComputerID = this->GetComputer().ID;
 }
 
-TArray<UPayloadAsset*> USystemContext::GetPayloads()
-{
+TArray<UPayloadAsset*> USystemContext::GetPayloads() {
 	TArray<UPayloadAsset*> Ret;
-	for(auto Payload : this->GetPeacenet()->GetAllPayloads())
-	{
-		if(Payload->IsUnlocked(this))
+	for(auto Payload : this->GetPeacenet()->GetAllPayloads()) {
+		if(Payload->IsUnlocked(this)) {
 			Ret.Add(Payload);
+		}
 	}
 	return Ret;
 }
 
-TArray<UExploit*> USystemContext::GetExploits()
-{
+TArray<UExploit*> USystemContext::GetExploits() {
 	TArray<UExploit*> Ret;
-	for(auto Exploit : this->GetPeacenet()->GetExploits())
-	{
-		if(Exploit->IsUnlocked(this))
+	for(auto Exploit : this->GetPeacenet()->GetExploits()) {
+		if(Exploit->IsUnlocked(this)) {
 			Ret.Add(Exploit);
+		}
 	}
 	return Ret;
 }
 
-int USystemContext::GetUserIDFromUsername(FString InUsername)
-{
-	for(auto User : this->GetComputer().Users)
-	{
-		if(User.Username == InUsername)
+int USystemContext::GetUserIDFromUsername(FString InUsername) {
+	for(auto User : this->GetComputer().Users) {
+		if(User.Username == InUsername) {
 			return User.ID;
+		}
 	}
 
 	return -1;
 }
 
-int USystemContext::GetOpenConnectionCount()
-{
+int USystemContext::GetOpenConnectionCount() {
 	return 0;
 }
 
-bool USystemContext::UsernameExists(FString InUsername)
-{
+bool USystemContext::UsernameExists(FString InUsername) {
 	auto Computer = this->GetComputer();
 
-	for(auto& User : Computer.Users)
-	{
-		if(User.Username == InUsername)
+	for(auto& User : Computer.Users) {
+		if(User.Username == InUsername) {
 			return true;
+		}
 	}
 
 	return false;
 }
 
-FString ReadFirstLine(FString InText)
-{
-	if (InText.Contains("\n"))
-	{
+FString ReadFirstLine(FString InText) {
+	if (InText.Contains("\n")) {
 		int NewLineIndex;
 		InText.FindChar('\n', NewLineIndex);
 		return InText.Left(NewLineIndex).TrimStartAndEnd();
-	}
-	else
-	{
+	} else {
 		return InText.TrimStartAndEnd();
 	}
 }
 
-FString USystemContext::GetHostname()
-{
-	if (!CurrentHostname.IsEmpty())
-	{
+FString USystemContext::GetHostname() {
+	if (!CurrentHostname.IsEmpty()) {
 		// Speed increase: No need to consult the filesystem for this.
 		return CurrentHostname;
 	}
 	
 	UPeacegateFileSystem* RootFS = this->GetFilesystem(0);
-	if (RootFS->FileExists("/etc/hostname"))
-	{
+	if (RootFS->FileExists("/etc/hostname")) {
 		EFilesystemStatusCode StatusCode;
 		RootFS->ReadText("/etc/hostname", this->CurrentHostname, StatusCode);
 		CurrentHostname = ReadFirstLine(CurrentHostname);
@@ -247,23 +221,21 @@ FString USystemContext::GetHostname()
 	return CurrentHostname;
 }
 
-TArray<UPeacegateProgramAsset*> USystemContext::GetInstalledPrograms()
-{
+TArray<UPeacegateProgramAsset*> USystemContext::GetInstalledPrograms() {
 	check(Peacenet);
 
 	TArray<UPeacegateProgramAsset*> OutArray;
 
-	for(auto Program : this->GetPeacenet()->Programs)
-	{
-		if(Program->IsUnlocked(this))
+	for(auto Program : this->GetPeacenet()->Programs) {
+		if(Program->IsUnlocked(this)) {
 			OutArray.Add(Program);
+		}
 	}
 
 	return OutArray;
 }
 
-TArray<UCommandInfo*> USystemContext::GetInstalledCommands()
-{
+TArray<UCommandInfo*> USystemContext::GetInstalledCommands() {
 	check(this->GetPeacenet());
 
 	TArray<UCommandInfo*> Ret;
@@ -271,34 +243,32 @@ TArray<UCommandInfo*> USystemContext::GetInstalledCommands()
 	TArray<FName> CommandNames;
 	GetPeacenet()->CommandInfo.GetKeys(CommandNames);
 
-	for(auto Name : CommandNames)
-	{
+	for(auto Name : CommandNames) {
 		UCommandInfo* Info = GetPeacenet()->CommandInfo[Name];
 
-		if(Info->IsUnlocked(this))
+		if(Info->IsUnlocked(this)) {
 			Ret.Add(Info);
+		}
 	}
 
 	return Ret;
 }
 
-bool USystemContext::HasIdentity()
-{
+bool USystemContext::HasIdentity() {
 	return this->Peacenet->IdentityExists(this->GetComputer().SystemIdentity);
 }
 
-bool USystemContext::OpenProgram(FName InExecutableName, UProgram*& OutProgram, bool InCheckForExistingWindow)
-{
+bool USystemContext::OpenProgram(FName InExecutableName, UProgram*& OutProgram, bool InCheckForExistingWindow) {
 	check(this->GetPeacenet());
 	check(this->GetDesktop());
 
 	UPeacegateProgramAsset* PeacegateProgram = nullptr;
 
-	if(!this->GetPeacenet()->FindProgramByName(InExecutableName, PeacegateProgram))
+	if(!this->GetPeacenet()->FindProgramByName(InExecutableName, PeacegateProgram)) {
 		return false;
+	}
 
-	if(!PeacegateProgram->IsUnlocked(this))
-	{
+	if(!PeacegateProgram->IsUnlocked(this)) {
 		return false;
 	}
 	
@@ -312,10 +282,8 @@ bool USystemContext::OpenProgram(FName InExecutableName, UProgram*& OutProgram, 
 	return Program;
 }
 
-UPeacegateFileSystem * USystemContext::GetFilesystem(const int UserID)
-{
-	if (!RegisteredFilesystems.Contains(UserID))
-	{
+UPeacegateFileSystem * USystemContext::GetFilesystem(const int UserID) {
+	if (!RegisteredFilesystems.Contains(UserID)) {
 		UPeacegateFileSystem* NewFS = UCommonUtils::CreateFilesystem(this, UserID);
 		TScriptDelegate<> ModifiedDelegate;
 		ModifiedDelegate.BindUFunction(this, "HandleFileSystemEvent");
@@ -327,15 +295,12 @@ UPeacegateFileSystem * USystemContext::GetFilesystem(const int UserID)
 	return this->RegisteredFilesystems[UserID];
 }
 
-bool USystemContext::TryGetTerminalCommand(FName CommandName, UProcess* OwningProcess, ATerminalCommand *& OutCommand, FString& InternalUsage, FString& FriendlyUsage)
-{
+bool USystemContext::TryGetTerminalCommand(FName CommandName, UProcess* OwningProcess, ATerminalCommand *& OutCommand, FString& InternalUsage, FString& FriendlyUsage) {
 	check(Peacenet);
 
 	UPeacegateProgramAsset* Program = nullptr;
-	if (GetPeacenet()->FindProgramByName(CommandName, Program))
-	{
-		if(!Program->IsUnlocked(this))
-		{
+	if (GetPeacenet()->FindProgramByName(CommandName, Program)) {
+		if(!Program->IsUnlocked(this)) {
 			return false;
 		}
 
@@ -346,15 +311,13 @@ bool USystemContext::TryGetTerminalCommand(FName CommandName, UProcess* OwningPr
 		return true;
 	}
 
-	if (!GetPeacenet()->CommandInfo.Contains(CommandName))
-	{
+	if (!GetPeacenet()->CommandInfo.Contains(CommandName)) {
 		return false;
 	}
 
 	UCommandInfo* Info = GetPeacenet()->CommandInfo[CommandName];
 
-	if(!Info->IsUnlocked(this))
-	{
+	if(!Info->IsUnlocked(this)) {
 		return false;
 	}
 	
@@ -373,27 +336,22 @@ bool USystemContext::TryGetTerminalCommand(FName CommandName, UProcess* OwningPr
 	return true;
 }
 
-FString USystemContext::GetIPAddress()
-{
+FString USystemContext::GetIPAddress() {
 	check(this->GetPeacenet());
 
 	return this->GetPeacenet()->GetIPAddress(this->GetComputer());
 }
 
-FUserInfo USystemContext::GetUserInfo(const int InUserID)
-{
-	if (InUserID == -1)
-	{
+FUserInfo USystemContext::GetUserInfo(const int InUserID) {
+	if (InUserID == -1) {
 		FUserInfo AnonInfo;
 		AnonInfo.IsAdminUser = false;
 		AnonInfo.Username = "<anonymous>";
 		return AnonInfo;
 	}
 
-	for (FUser User : GetComputer().Users)
-	{
-		if (User.ID == InUserID)
-		{
+	for (FUser User : GetComputer().Users) {
+		if (User.ID == InUserID) {
 			FUserInfo Info;
 			Info.Username = User.Username;
 			Info.IsAdminUser = (User.Domain == EUserDomain::Administrator);
@@ -404,26 +362,20 @@ FUserInfo USystemContext::GetUserInfo(const int InUserID)
 	return FUserInfo();
 }
 
-void USystemContext::ShowWindowOnWorkspace(UProgram * InProgram)
-{
+void USystemContext::ShowWindowOnWorkspace(UProgram * InProgram) {
 	// DEPRECATED IN FAVOUR OF UUserContext::ShowProgramOnWorkspace().
-	if (Desktop && InProgram)
-	{
+	if (Desktop && InProgram) {
 		Desktop->ShowProgramOnWorkspace(InProgram);
 	}
 }
 
-EUserDomain USystemContext::GetUserDomain(int InUserID)
-{
-	if (InUserID == -1)
-	{
+EUserDomain USystemContext::GetUserDomain(int InUserID) {
+	if (InUserID == -1) {
 		return EUserDomain::Anonymous;
 	}
 
-	for (FUser User : GetComputer().Users)
-	{
-		if (User.ID == InUserID)
-		{
+	for (FUser User : GetComputer().Users) {
+		if (User.ID == InUserID) {
 			return User.Domain;
 		}
 	}
@@ -431,25 +383,21 @@ EUserDomain USystemContext::GetUserDomain(int InUserID)
 	return EUserDomain::User;
 }
 
-FString USystemContext::GetUsername(int InUserID)
-{
+FString USystemContext::GetUsername(int InUserID) {
 	FUserInfo UserInfo = this->GetUserInfo(InUserID);
 	return UserInfo.Username;
 }
 
-FString USystemContext::GetUserHomeDirectory(int UserID)
-{
-	if (this->GetUserDomain(UserID) == EUserDomain::Anonymous)
-	{
+FString USystemContext::GetUserHomeDirectory(int UserID) {
+	if (this->GetUserDomain(UserID) == EUserDomain::Anonymous) {
 		return "/";
 	}
 
-	for (FUser User : GetComputer().Users)
-	{
-		if (User.ID == UserID)
-		{
-			if (User.Domain == EUserDomain::Administrator)
+	for (FUser User : GetComputer().Users) {
+		if (User.ID == UserID) {
+			if (User.Domain == EUserDomain::Administrator) {
 				return TEXT("/root");
+			}
 			return TEXT("/home/") + User.Username;
 		}
 	}
@@ -457,12 +405,9 @@ FString USystemContext::GetUserHomeDirectory(int UserID)
 	return FString();
 }
 
-bool USystemContext::Authenticate(const FString & Username, const FString & Password, int & UserID)
-{
-	for (FUser User : GetComputer().Users)
-	{
-		if (User.Username == Username && User.Password == Password)
-		{
+bool USystemContext::Authenticate(const FString & Username, const FString & Password, int & UserID) {
+	for (FUser User : GetComputer().Users) {
+		if (User.Username == Username && User.Password == Password) {
 			UserID = User.ID;
 			return true;
 		}
@@ -471,12 +416,9 @@ bool USystemContext::Authenticate(const FString & Username, const FString & Pass
 	return false;
 }
 
-bool USystemContext::GetSuitableProgramForFileExtension(const FString & InExtension, UPeacegateProgramAsset *& OutProgram)
-{
-	for(auto Program : this->GetInstalledPrograms())
-	{
-		if (Program->SupportedFileExtensions.Contains(InExtension))
-		{
+bool USystemContext::GetSuitableProgramForFileExtension(const FString & InExtension, UPeacegateProgramAsset *& OutProgram) {
+	for(auto Program : this->GetInstalledPrograms()) {
+		if (Program->SupportedFileExtensions.Contains(InExtension)) {
 			OutProgram = Program;
 			return true;
 		}
@@ -484,24 +426,20 @@ bool USystemContext::GetSuitableProgramForFileExtension(const FString & InExtens
 	return false;
 }
 
-bool USystemContext::IsIPAddress(FString InIPAddress)
-{
+bool USystemContext::IsIPAddress(FString InIPAddress) {
 	return this->GetPeacenet()->IsIPAddress(InIPAddress);
 }
 
-UDesktopWidget* USystemContext::GetDesktop()
-{
+UDesktopWidget* USystemContext::GetDesktop() {
 	return this->Desktop;
 }
 
-FPeacenetIdentity& USystemContext::GetCharacter()
-{
+FPeacenetIdentity& USystemContext::GetCharacter() {
 	check(this->GetPeacenet());
 
 	auto MyPeacenet = this->GetPeacenet();
 
-	if(!this->HasIdentity()) 
-	{
+	if(!this->HasIdentity())  {
 		this->UpdateInternalIdentity();
 		return this->InternalIdentity;
 	}
@@ -509,12 +447,9 @@ FPeacenetIdentity& USystemContext::GetCharacter()
 	return MyPeacenet->GetCharacterByID(this->GetComputer().SystemIdentity);
 }
 
-UUserContext* USystemContext::GetHackerContext(int InUserID, UUserContext* HackingUser)
-{
-	for(auto Hacker : Hackers)
-	{
-		if(Hacker->GetUserID() == InUserID && Hacker->GetHacker() == HackingUser)
-		{
+UUserContext* USystemContext::GetHackerContext(int InUserID, UUserContext* HackingUser) {
+	for(auto Hacker : Hackers) {
+		if(Hacker->GetUserID() == InUserID && Hacker->GetHacker() == HackingUser) {
 			return Hacker;
 		}
 	}
@@ -526,14 +461,10 @@ UUserContext* USystemContext::GetHackerContext(int InUserID, UUserContext* Hacki
 	return NewHacker;
 }
 
-UUserContext* USystemContext::GetUserContext(int InUserID)
-{
-	if(this->Users.Contains(InUserID))
-	{
+UUserContext* USystemContext::GetUserContext(int InUserID) {
+	if(this->Users.Contains(InUserID)) {
 		return this->Users[InUserID];
-	}
-	else
-	{
+	} else {
 		UUserContext* User = NewObject<UUserContext>(this);
 		User->Setup(this, InUserID, this->ProcessManager->CreateProcessAs("user-session", InUserID));
 		Users.Add(InUserID, User);
@@ -541,8 +472,7 @@ UUserContext* USystemContext::GetUserContext(int InUserID)
 	}
 }
 
-FComputer& USystemContext::GetComputer()
-{
+FComputer& USystemContext::GetComputer() {
 	check(this->GetPeacenet());
 
 	auto MyPeacenet = this->GetPeacenet();
@@ -550,13 +480,11 @@ FComputer& USystemContext::GetComputer()
 	return MyPeacenet->GetComputerByID(this->ComputerID);
 }
 
-APeacenetWorldStateActor* USystemContext::GetPeacenet()
-{
+APeacenetWorldStateActor* USystemContext::GetPeacenet() {
 	return this->Peacenet;
 }
 
-void USystemContext::SetupDesktop(int InUserID)
-{
+void USystemContext::SetupDesktop(int InUserID) {
 	check(!this->GetDesktop());
 
 	this->AppendLog("Beginning desktop session - uid: " + FString::FromInt(InUserID));
@@ -571,57 +499,46 @@ void USystemContext::SetupDesktop(int InUserID)
 	this->Desktop->UserID = InUserID;
 }
 
-void USystemContext::GetFolderTree(TArray<FFolder>& OutFolderTree)
-{
+void USystemContext::GetFolderTree(TArray<FFolder>& OutFolderTree) {
 	OutFolderTree = GetComputer().Filesystem;
 }
 
-void USystemContext::PushFolderTree(const TArray<FFolder>& InFolderTree)
-{
+void USystemContext::PushFolderTree(const TArray<FFolder>& InFolderTree) {
 	GetComputer().Filesystem = InFolderTree;
 }
 
-FText USystemContext::GetTimeOfDay()
-{
+FText USystemContext::GetTimeOfDay() {
 	return GetPeacenet()->GetTimeOfDay();
 }
 
-void USystemContext::ExecuteCommand(FString InCommand)
-{
+void USystemContext::ExecuteCommand(FString InCommand) {
 	check(this->GetDesktop());
 
 	this->GetDesktop()->ExecuteCommand(InCommand);
 }
 
-void USystemContext::HandleFileSystemEvent(EFilesystemEventType InType, FString InPath)
-{
-	switch (InType)
-	{
-	case EFilesystemEventType::WriteFile:
-		if (InPath == "/etc/hostname")
-		{
-			auto fs = GetFilesystem(0);
-			EFilesystemStatusCode err;
-			fs->ReadText("/etc/hostname", this->CurrentHostname, err);
-			CurrentHostname = ReadFirstLine(CurrentHostname);
+void USystemContext::HandleFileSystemEvent(EFilesystemEventType InType, FString InPath) {
+	switch (InType) {
+		case EFilesystemEventType::WriteFile:
+			if (InPath == "/etc/hostname") {
+				auto fs = GetFilesystem(0);
+				EFilesystemStatusCode err;
+				fs->ReadText("/etc/hostname", this->CurrentHostname, err);
+				CurrentHostname = ReadFirstLine(CurrentHostname);
 
-			this->AppendLog("Hostname changed to " + CurrentHostname);
-		}
-		break;
+				this->AppendLog("Hostname changed to " + CurrentHostname);
+			}
+			break;
 	}
 
 	// If the path is within /var we might want to check to make sure the log still exists.
-	if (InPath.StartsWith("/var"))
-	{
+	if (InPath.StartsWith("/var")) {
 		auto RootFS = GetFilesystem(0);
-
 		EFilesystemStatusCode Anus;
 
 		// Does /var/log not exist?
-		if (!RootFS->DirectoryExists("/var/log"))
-		{
-			if (!RootFS->DirectoryExists("/var"))
-			{
+		if (!RootFS->DirectoryExists("/var/log")) {
+			if (!RootFS->DirectoryExists("/var")) {
 				RootFS->CreateDirectory("/var", Anus);
 			}
 			RootFS->CreateDirectory("/var/log", Anus);
@@ -639,37 +556,29 @@ void USystemContext::HandleFileSystemEvent(EFilesystemEventType InType, FString 
 	}
 }
 
-TArray<UWallpaperAsset*> USystemContext::GetAvailableWallpapers()
-{
+TArray<UWallpaperAsset*> USystemContext::GetAvailableWallpapers() {
 	TArray<UWallpaperAsset*> Ret;
-	for (auto Wallpaper : this->GetPeacenet()->Wallpapers)
-	{
-		if(Wallpaper->IsDefault || Wallpaper->UnlockedByDefault || this->GetComputer().UnlockedWallpapers.Contains(Wallpaper->InternalID))
-		{
+	for (auto Wallpaper : this->GetPeacenet()->Wallpapers) {
+		if(Wallpaper->IsDefault || Wallpaper->UnlockedByDefault || this->GetComputer().UnlockedWallpapers.Contains(Wallpaper->InternalID)) {
 			Ret.Add(Wallpaper);
 		}
 	}
 	return Ret;
 }
 
-void USystemContext::DisableWallpaper()
-{
+void USystemContext::DisableWallpaper() {
 	this->GetComputer().CurrentWallpaper = nullptr;
 }
 
-void USystemContext::SetCurrentWallpaper(UWallpaperAsset* InWallpaperAsset)
-{
+void USystemContext::SetCurrentWallpaper(UWallpaperAsset* InWallpaperAsset) {
 	// Make sure it's not null.
 	check(InWallpaperAsset);
 
 	// If it's unlocked by default or already unlocked, we just set it.
-	if(InWallpaperAsset->UnlockedByDefault || InWallpaperAsset->IsDefault || this->GetComputer().UnlockedWallpapers.Contains(InWallpaperAsset->InternalID))
-	{
+	if(InWallpaperAsset->UnlockedByDefault || InWallpaperAsset->IsDefault || this->GetComputer().UnlockedWallpapers.Contains(InWallpaperAsset->InternalID)) {
 		// Set the wallpaper.
 		this->GetComputer().CurrentWallpaper = InWallpaperAsset->WallpaperTexture;
-	}
-	else
-	{
+	} else {
 		// BETA TODO: Announce item unlock.
 		this->GetComputer().UnlockedWallpapers.Add(InWallpaperAsset->InternalID);
 
@@ -678,8 +587,7 @@ void USystemContext::SetCurrentWallpaper(UWallpaperAsset* InWallpaperAsset)
 	}
 }
 
-void USystemContext::UpdateSystemFiles()
-{
+void USystemContext::UpdateSystemFiles() {
 	// This function updates the system based on save data and in-game assets.
 	//
 	// A.K.A: This is the function that updates things like what wallpapers are installed.
@@ -690,33 +598,28 @@ void USystemContext::UpdateSystemFiles()
 	EFilesystemStatusCode Anus;
 
 	// Does /var/log not exist?
-	if (!RootFS->DirectoryExists("/var/log"))
-	{
-		if (!RootFS->DirectoryExists("/var"))
-		{
+	if (!RootFS->DirectoryExists("/var/log")) {
+		if (!RootFS->DirectoryExists("/var")) {
 			RootFS->CreateDirectory("/var", Anus);
 		}
 		RootFS->CreateDirectory("/var/log", Anus);
 	}
 
 	// Does peacegate.log not exist?
-	if (!RootFS->FileExists("/var/log/peacegate.log"))
-	{
+	if (!RootFS->FileExists("/var/log/peacegate.log")) {
 		// write blank log.
 		RootFS->WriteText("/var/log/peacegate.log", "");
 	}
 }
 
-bool USystemContext::DnsResolve(FString InHost, FComputer& OutComputer, EConnectionError& OutConnectionError)
-{
+bool USystemContext::DnsResolve(FString InHost, FComputer& OutComputer, EConnectionError& OutConnectionError) {
 	// Default the connection error to nothing.
 	OutConnectionError = EConnectionError::None;
 
 	// TODO: /etc/hosts support.
 
 	// If the host is "localhost" or "127.0.0.1" or our hostname we'll return our own computer.
-	if(InHost == "127.0.0.1" || InHost == "localhost" || InHost == this->GetHostname())
-	{
+	if(InHost == "127.0.0.1" || InHost == "localhost" || InHost == this->GetHostname()) {
 
 		OutComputer = this->GetComputer();
 		return true;
@@ -726,13 +629,11 @@ bool USystemContext::DnsResolve(FString InHost, FComputer& OutComputer, EConnect
 	return this->GetPeacenet()->DnsResolve(InHost, OutComputer, OutConnectionError);
 }
 
-UMailProvider* USystemContext::GetMailProvider()
-{
+UMailProvider* USystemContext::GetMailProvider() {
 	return this->MailProvider;
 }
 
-void USystemContext::Crash()
-{
+void USystemContext::Crash() {
 	// This behaves differently if we have a desktop than if we don't.
 	//
 	// If we don't have a desktop then we basically kick all hacker users off the
@@ -741,21 +642,17 @@ void USystemContext::Crash()
 	// 
 	// If we have a desktop than this is the player version which presents a kernel
 	// panic UI, essentially the "game over" screen, and restarts the game.
-	if(this->GetDesktop())
-	{
+	if(this->GetDesktop()) {
 		// If we're in a mission, silently fail it.  This ensures that the game
 		// isn't in a fucked mission state because the mission is abandoned and the
 		// player is in free roam.
-		if(this->GetPeacenet()->IsInMission())
-		{
+		if(this->GetPeacenet()->IsInMission()) {
 			this->GetPeacenet()->SilentlyFailMission();
 		}
 
 		// Show the crash.
 		this->GetDesktop()->KernelPanic();
-	}
-	else
-	{
+	} else {
 		// Mark ourselves as crashed.
 		this->GetComputer().Crashed = true;
 	}
@@ -779,8 +676,7 @@ void USystemContext::Crash()
 	this->RestartDaemonManager();
 }
 
-void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldStateActor* InPeacenet)
-{
+void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldStateActor* InPeacenet) {
 	check(InPeacenet);
 
 	// assign all our IDs and Peacenet.
@@ -796,14 +692,12 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	this->MailProvider->Setup(this);
 
 	// Do we not have a preferred alias?
-	if(!this->GetCharacter().PreferredAlias.Len())
-	{
+	if(!this->GetCharacter().PreferredAlias.Len()) {
 		this->GetCharacter().PreferredAlias = this->GetCharacter().CharacterName;
 	}
 
 	// Do we not have an email address?
-	if(!this->GetCharacter().EmailAddress.Len())
-	{
+	if(!this->GetCharacter().EmailAddress.Len()) {
 		this->GetCharacter().EmailAddress = this->GetCharacter().PreferredAlias.Replace(TEXT(" "), TEXT("_")) + "@" + this->GetPeacenet()->GetProcgen()->ChooseEmailDomain();
 	}
 
@@ -814,11 +708,13 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	EFilesystemStatusCode fsStatus = EFilesystemStatusCode::OK;
 
 	// Create the logfile directories.
-	if(!fs->DirectoryExists("/var"))
+	if(!fs->DirectoryExists("/var")) {
 		fs->CreateDirectory("/var", fsStatus);
+	}
 
-	if(!fs->DirectoryExists("/var/log"))
+	if(!fs->DirectoryExists("/var/log")) {
 		fs->CreateDirectory("/var/log", fsStatus);
+	}
 
 	this->AppendLog("System online.");
 	this->AppendLog("Welcome to Peacegate OS.");
@@ -826,17 +722,18 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	this->AppendLog("IP ADDRESS: " + this->GetIPAddress());
 
 	// Create /home if it doesn't exist.
-	if(!fs->DirectoryExists("/home"))
+	if(!fs->DirectoryExists("/home")) {
 		fs->CreateDirectory("/home", fsStatus);
+	}
 
 	// Create the bin directory - which actually means something now.
-	if(!fs->DirectoryExists("/bin"))
+	if(!fs->DirectoryExists("/bin")) {
 		fs->CreateDirectory("/bin", fsStatus);
+	}
 
 
 	// Go through every user on the system.
-	for(auto& user : this->GetComputer().Users)
-	{
+	for(auto& user : this->GetComputer().Users) {
 		// should we generate loots after this?
 		bool generateLoots = false;
 
@@ -844,8 +741,7 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 		FString home = this->GetUserHomeDirectory(user.ID);
 
 		// If the user's home directory doesn't exist, create it.
-		if(!fs->DirectoryExists(home))
-		{
+		if(!fs->DirectoryExists(home)) {
 			fs->CreateDirectory(home, fsStatus);
 			generateLoots = true;
 
@@ -862,17 +758,14 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 			"Videos"
 		};
 
-		for(auto subDir : homeDirs)
-		{
-			if(!fs->DirectoryExists(home + "/" + subDir))
-			{
+		for(auto subDir : homeDirs) {
+			if(!fs->DirectoryExists(home + "/" + subDir)) {
 				generateLoots = true;
 				fs->CreateDirectory(home + "/" + subDir, fsStatus);
 			}
 		}
 
-		if(generateLoots)
-		{
+		if(generateLoots) {
 			this->GetPeacenet()->GetProcgen()->PlaceLootableFiles(this->GetUserContext(user.ID));
 		}
 	}
@@ -882,11 +775,9 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	TArray<FName> CommandKeys;
 	this->GetPeacenet()->CommandInfo.GetKeys(CommandKeys);
 	
-	for(int i = 0; i < CommandKeys.Num(); i++)
-	{
+	for(int i = 0; i < CommandKeys.Num(); i++) {
 		UCommandInfo* CommandInfo = this->GetPeacenet()->CommandInfo[CommandKeys[i]];
-		if(InstalledCommands.Contains(CommandInfo))
-		{
+		if(InstalledCommands.Contains(CommandInfo)) {
 			fs->SetFileRecord("/bin/" + CommandInfo->ID.ToString(), EFileRecordType::Command, i);
 		}
 	}
@@ -895,25 +786,22 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	// Make all programs show in /bin.
 	TArray<UPeacegateProgramAsset*> InstalledPrograms = this->GetInstalledPrograms();
 
-	for(int i = 0; i < this->GetPeacenet()->Programs.Num(); i++)
-	{
+	for(int i = 0; i < this->GetPeacenet()->Programs.Num(); i++) {
 		UPeacegateProgramAsset* ProgramAsset = this->GetPeacenet()->Programs[i];
-		if(InstalledPrograms.Contains(ProgramAsset))
+		if(InstalledPrograms.Contains(ProgramAsset)) {
 			fs->SetFileRecord("/bin/" + ProgramAsset->ID.ToString(), EFileRecordType::Program, i);
+		}
 	}
 
 	// If the cryptowallets directory exists, delete it.
-	if(fs->DirectoryExists("/usr/share/wallets"))
-	{
+	if(fs->DirectoryExists("/usr/share/wallets")) {
 		fs->Delete("/usr/share/wallets", true, fsStatus);
 	}
 
-	if(!fs->DirectoryExists("/usr"))
-	{
+	if(!fs->DirectoryExists("/usr")) {
 		fs->CreateDirectory("/usr", fsStatus);
 
-		if(!fs->DirectoryExists("/usr/share"))
-		{
+		if(!fs->DirectoryExists("/usr/share")) {
 			fs->CreateDirectory("/usr/share", fsStatus);
 		}
 
@@ -923,10 +811,8 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	this->InitDaemonManager();
 }
 
-bool USystemContext::GetDaemonManager(UUserContext* InUserContext, UDaemonManager*& OutDaemonManager)
-{
-	if(InUserContext->IsAdministrator() || InUserContext->IsPowerUser())
-	{
+bool USystemContext::GetDaemonManager(UUserContext* InUserContext, UDaemonManager*& OutDaemonManager) {
+	if(InUserContext->IsAdministrator() || InUserContext->IsPowerUser()) {
 		OutDaemonManager = this->DaemonManager;
 		return true;
 	}
@@ -934,11 +820,11 @@ bool USystemContext::GetDaemonManager(UUserContext* InUserContext, UDaemonManage
 	return false;
 }
 
-void USystemContext::InitDaemonManager()
-{
+void USystemContext::InitDaemonManager() {
 	// Create the daemon manager if it is nullptr.
-	if(!this->DaemonManager)
+	if(!this->DaemonManager) {
 		this->DaemonManager = NewObject<UDaemonManager>();
+	}
 
 	// Spawn a system process for the daemon manager.  All daemons will fork from it.
 	UProcess* DaemonManagerProcess = this->ProcessManager->CreateProcess("system-daemon-manager");
@@ -952,27 +838,24 @@ void USystemContext::InitDaemonManager()
 	DaemonManagerProcess->OnKilled.Add(DaemonManagerEnded);
 }
 
-void USystemContext::RestartDaemonManager()
-{
-	if(this->ProcessManager->IsActive())
-	{
+void USystemContext::RestartDaemonManager() {
+	if(this->ProcessManager->IsActive()) {
 		this->DaemonManager = nullptr;
 		this->InitDaemonManager();
 	}
 }
 
-FString USystemContext::GetEmailAddress()
-{
+FString USystemContext::GetEmailAddress() {
 	return this->GetCharacter().EmailAddress;
 }
 
-void USystemContext::AppendLog(FString InLogText)
-{
+void USystemContext::AppendLog(FString InLogText) {
 	FString ExistingLog = "";
 	UPeacegateFileSystem* FS = this->GetFilesystem(0);
 	EFilesystemStatusCode EatMyFuckingBurger;
-	if(FS->FileExists("/var/log/system.log"))
+	if(FS->FileExists("/var/log/system.log")) {
 		FS->ReadText("/var/log/system.log", ExistingLog, EatMyFuckingBurger);
+	}
 
 	ExistingLog = ExistingLog.TrimStartAndEnd();
 
@@ -983,24 +866,20 @@ void USystemContext::AppendLog(FString InLogText)
 	FS->WriteText("/var/log/system.log", ExistingLog);
 }
 
-TArray<int> USystemContext::GetRunningProcesses()
-{
+TArray<int> USystemContext::GetRunningProcesses() {
 	TArray<int> ret;
-	for(UProcess* Process : this->ProcessManager->GetAllProcesses())
-	{
+	for(UProcess* Process : this->ProcessManager->GetAllProcesses()) {
 		ret.Add(Process->GetProcessID());
 	}
 	return ret;
 }
 
-bool USystemContext::GetProcess(int ProcessID, UUserContext* InUserContext, UProcess*& OutProcess, EProcessResult& OutProcessResult)
-{
+bool USystemContext::GetProcess(int ProcessID, UUserContext* InUserContext, UProcess*& OutProcess, EProcessResult& OutProcessResult) {
 	// Check to make sure the user context belongs to us.
 	check(InUserContext->GetOwningSystem() == this);
 
 	// Release builds: Have the owning system kill the process if the owning system isn't us.
-	if(InUserContext->GetOwningSystem() != this)
-	{
+	if(InUserContext->GetOwningSystem() != this) {
 		// A properly-functioning Peacenet build should, under NO CIRCUMSTANCES, execute this line of code.
 		// This is a protection from attempts to kill processes with user contexts that do not
 		// belong to the system which owns the process.
@@ -1015,14 +894,12 @@ bool USystemContext::GetProcess(int ProcessID, UUserContext* InUserContext, UPro
 
 }
 
-bool USystemContext::KillProcess(int ProcessID, UUserContext* UserContext, EProcessResult& OutKillResult)
-{
+bool USystemContext::KillProcess(int ProcessID, UUserContext* UserContext, EProcessResult& OutKillResult) {
 	// Check to make sure the user context belongs to us.
 	check(UserContext->GetOwningSystem() == this);
 
 	// Release builds: Have the owning system kill the process if the owning system isn't us.
-	if(UserContext->GetOwningSystem() != this)
-	{
+	if(UserContext->GetOwningSystem() != this) {
 		// A properly-functioning Peacenet build should, under NO CIRCUMSTANCES, execute this line of code.
 		// This is a protection from attempts to kill processes with user contexts that do not
 		// belong to the system which owns the process.
@@ -1036,17 +913,14 @@ bool USystemContext::KillProcess(int ProcessID, UUserContext* UserContext, EProc
 	return this->ProcessManager->KillProcess(ProcessID, UserID, OutKillResult);
 }
 
-bool USystemContext::IsEnvironmentVariableSet(FString InVariable)
-{
+bool USystemContext::IsEnvironmentVariableSet(FString InVariable) {
 	// Simply returns whether the computer has an environment variable set.
 	return this->GetComputer().EnvironmentVariables.Contains(InVariable);
 }
 
-bool USystemContext::GetEnvironmentVariable(FString InVariable, FString& OutValue)
-{
+bool USystemContext::GetEnvironmentVariable(FString InVariable, FString& OutValue) {
 	// Check if we have the variable:
-	if(this->IsEnvironmentVariableSet(InVariable))
-	{
+	if(this->IsEnvironmentVariableSet(InVariable)) {
 		// Retrieve the value.
 		OutValue = this->GetComputer().EnvironmentVariables[InVariable];
 		return true;
@@ -1054,24 +928,18 @@ bool USystemContext::GetEnvironmentVariable(FString InVariable, FString& OutValu
 	return false;
 }
 
-void USystemContext::SetEnvironmentVariable(FString InVariable, FString InValue)
-{
+void USystemContext::SetEnvironmentVariable(FString InVariable, FString InValue) {
 	// If we have a variable with the same name, we set it. Else, we add it.
-	if(this->IsEnvironmentVariableSet(InVariable))
-	{
+	if(this->IsEnvironmentVariableSet(InVariable)) {
 		this->GetComputer().EnvironmentVariables[InVariable] = InValue;
-	}
-	else
-	{
+	} else {
 		this->GetComputer().EnvironmentVariables.Add(InVariable, InValue);
 	}
 }
 
-void USystemContext::UnsetEnvironmentVariable(FString InVariable)
-{
+void USystemContext::UnsetEnvironmentVariable(FString InVariable) {
 	// If we have the variable set, remove it.
-	if(this->IsEnvironmentVariableSet(InVariable))
-	{
+	if(this->IsEnvironmentVariableSet(InVariable)) {
 		this->GetComputer().EnvironmentVariables.Remove(InVariable);
 	}
 }

@@ -45,8 +45,7 @@
 #include "CommandInfo.h"
 #include "TerminalCommand.h"
 
-ATerminalCommand* UProgram::ForkCommand(UCommandInfo* InCommandInfo, UConsoleContext* InConsole)
-{
+ATerminalCommand* UProgram::ForkCommand(UCommandInfo* InCommandInfo, UConsoleContext* InConsole) {
 	// Fork a Peacegate process for this command.
 	UProcess* Child = MyProcess->Fork(InCommandInfo->ID.ToString());
 	
@@ -57,18 +56,18 @@ ATerminalCommand* UProgram::ForkCommand(UCommandInfo* InCommandInfo, UConsoleCon
 	return Command;
 }
 
-bool UProgram::LoadPeacenetSite(FString InURL, UPeacenetSiteWidget*& OutWidget, EConnectionError& OutConnectionError)
-{
+bool UProgram::LoadPeacenetSite(FString InURL, UPeacenetSiteWidget*& OutWidget, EConnectionError& OutConnectionError) {
 	// The computer that holds the Peacenet Site we want.
 	FComputer Computer;
 	
 	// Try and resolve the host to a computer.
 	bool result = this->GetUserContext()->DnsResolve(InURL, Computer, OutConnectionError);
-	if(!result) return false;
+	if(!result) {
+		return false;
+	}
 	
 	// If the computer doesn't have a Peacenet Site assigned to it we'll refuse.
-	if(!Computer.PeacenetSite || !Computer.PeacenetSite->PeacenetSite)
-	{
+	if(!Computer.PeacenetSite || !Computer.PeacenetSite->PeacenetSite) {
 		OutConnectionError = EConnectionError::ConnectionRefused;
 		return false;
 	}
@@ -80,23 +79,19 @@ bool UProgram::LoadPeacenetSite(FString InURL, UPeacenetSiteWidget*& OutWidget, 
 	return true;
 }
 
-UUserContext* UProgram::GetUserContext()
-{
+UUserContext* UProgram::GetUserContext() {
 	return this->Window->GetUserContext();
 }
 
-void UProgram::PushNotification(const FText & InNotificationMessage)
-{
+void UProgram::PushNotification(const FText & InNotificationMessage) {
 	this->GetUserContext()->GetDesktop()->EnqueueNotification(this->Window->WindowTitle, InNotificationMessage, this->Window->Icon);
 }
 
-void UProgram::RequestPlayerAttention(bool PlaySound)
-{
+void UProgram::RequestPlayerAttention(bool PlaySound) {
 	this->PlayerAttentionNeeded.Broadcast(PlaySound);
 }
 
-UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSubclassOf<UProgram> InProgramClass, UUserContext* InUserContext, UWindow*& OutWindow, FString InProcessName, UProcess* OwnerProcess, bool DoContextSetup)
-{
+UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSubclassOf<UProgram> InProgramClass, UUserContext* InUserContext, UWindow*& OutWindow, FString InProcessName, UProcess* OwnerProcess, bool DoContextSetup) {
 	// Preventative: make sure the system context isn't null.
 	check(InUserContext);
 	check(InUserContext->GetPeacenet());
@@ -116,12 +111,9 @@ UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSu
 	Window->SetUserContext(InUserContext);
 
 	// Start the process for the program.
-	if(OwnerProcess)
-	{
+	if(OwnerProcess) {
 		ProgramInstance->MyProcess = OwnerProcess->Fork(InProcessName);
-	}
-	else
-	{
+	} else {
 		ProgramInstance->MyProcess = InUserContext->Fork(InProcessName);
 	}
 	
@@ -135,8 +127,7 @@ UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSu
 	Window->NativeWindowClosed.Add(CloseDelegate);
 
 	// Set up the program's contexts if we're told to.
-	if (DoContextSetup)
-	{
+	if (DoContextSetup) {
 		ProgramInstance->SetupContexts();
 		ProgramInstance->GetUserContext()->ShowProgramOnWorkspace(ProgramInstance);
 	}
@@ -149,11 +140,9 @@ UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSu
 	return ProgramInstance;
 }
 
-void UProgram::OwningWindowClosed()
-{
+void UProgram::OwningWindowClosed() {
 	// If we haven't closed already...
-	if(!this->IsClosing)
-	{
+	if(!this->IsClosing) {
 		this->IsClosing = true;
 
 	    // Finish up our process.
@@ -162,51 +151,41 @@ void UProgram::OwningWindowClosed()
 }
 
 
-int UProgram::GetProcessID()
-{
+int UProgram::GetProcessID() {
 	return this->MyProcess->GetProcessID();
 }
 
-FText UProgram::GetWindowTitle()
-{
+FText UProgram::GetWindowTitle() {
 	return this->Window->WindowTitle;
 }
 
-void UProgram::ActiveProgramCloseEvent()
-{
-	if (this->Window->HasAnyUserFocus() || this->Window->HasFocusedDescendants() || this->Window->HasKeyboardFocus())
-	{
+void UProgram::ActiveProgramCloseEvent() {
+	if (this->Window->HasAnyUserFocus() || this->Window->HasFocusedDescendants() || this->Window->HasKeyboardFocus()) {
 		this->Window->Close();
 	}
 }
 
-void UProgram::ShowInfoWithCallbacks(const FText & InTitle, const FText & InMessage, const EInfoboxIcon InIcon, const EInfoboxButtonLayout ButtonLayout, const bool ShowTextInput, const FInfoboxDismissedEvent & OnDismissed, const FInfoboxInputValidator & ValidatorFunction)
-{
+void UProgram::ShowInfoWithCallbacks(const FText & InTitle, const FText & InMessage, const EInfoboxIcon InIcon, const EInfoboxButtonLayout ButtonLayout, const bool ShowTextInput, const FInfoboxDismissedEvent & OnDismissed, const FInfoboxInputValidator & ValidatorFunction) {
 	Window->ShowInfoWithCallbacks(InTitle, InMessage, InIcon, ButtonLayout, ShowTextInput, OnDismissed, ValidatorFunction);
 }
 
-void UProgram::ShowInfo(const FText & InTitle, const FText & InMessage, const EInfoboxIcon InIcon)
-{
+void UProgram::ShowInfo(const FText & InTitle, const FText & InMessage, const EInfoboxIcon InIcon) {
 	Window->ShowInfo(InTitle, InMessage, InIcon);
 }
 
-void UProgram::AskForFile(const FString InBaseDirectory, const FString InFilter, const EFileDialogType InDialogType, const FFileDialogDismissedEvent & OnDismissed)
-{
+void UProgram::AskForFile(const FString InBaseDirectory, const FString InFilter, const EFileDialogType InDialogType, const FFileDialogDismissedEvent & OnDismissed) {
 	Window->AskForFile(InBaseDirectory, InFilter, InDialogType, OnDismissed);
 }
 
-void UProgram::SetupContexts()
-{
+void UProgram::SetupContexts() {
 	// Add ourself to the window's client slot.
 	this->Window->AddWindowToClientSlot(this);
 
 	this->NativeProgramLaunched();
 }
 
-void UProgram::NativeTick(const FGeometry& MyGeometry, float InDeltaSeconds)
-{
-	if(this->MyProcess->IsDead())
-	{
+void UProgram::NativeTick(const FGeometry& MyGeometry, float InDeltaSeconds) {
+	if(this->MyProcess->IsDead()) {
 		this->Window->Close();
 		return;
 	}
@@ -214,10 +193,8 @@ void UProgram::NativeTick(const FGeometry& MyGeometry, float InDeltaSeconds)
 	Super::NativeTick(MyGeometry, InDeltaSeconds);
 }
 
-void UProgram::SetWindowMinimumSize(FVector2D InSize)
-{
+void UProgram::SetWindowMinimumSize(FVector2D InSize) {
 	Window->SetClientMinimumSize(InSize);
 }
 
 void UProgram::NativeProgramLaunched() {}
-

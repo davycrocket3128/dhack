@@ -34,27 +34,23 @@
 #include "PeacenetWorldStateActor.h"
 #include "PeacenetSaveGame.h"
 
-FEmail& UMailProvider::GetMessageData(int ID)
-{
+FEmail& UMailProvider::GetMessageData(int ID) {
     return this->GetPeacenet()->GetMessageData(ID);
 }
 
-bool UMailProvider::HasAnyUnreadEmails()
-{
-    for(auto Message : this->GetMailMessages())
-    {
-        if(Message.FromEntity == this->OwningSystem->GetCharacter().ID) continue;
+bool UMailProvider::HasAnyUnreadEmails() {
+    for(auto Message : this->GetMailMessages()) {
+        if(Message.FromEntity == this->OwningSystem->GetCharacter().ID) {
+            continue;
+        }
         if(Message.IsUnread) return true;
     }
     return false;
 }
 
-UMailMessage* UMailProvider::GetMessageByID(int InID)
-{
-    for(FEmail Email : this->GetMailMessages())
-    {
-        if(Email.ID == InID)
-        {
+UMailMessage* UMailProvider::GetMessageByID(int InID) {
+    for(FEmail Email : this->GetMailMessages()) {
+        if(Email.ID == InID) {
             UMailMessage* Message = NewObject<UMailMessage>();
             Message->Setup(this, InID);
             return Message;
@@ -63,39 +59,31 @@ UMailMessage* UMailProvider::GetMessageByID(int InID)
     return nullptr;
 }
 
-TArray<UMailMessage*> UMailProvider::GetMessagesWithMissions()
-{
+TArray<UMailMessage*> UMailProvider::GetMessagesWithMissions() {
     TArray<UMailMessage*> ret;
-    for(auto message : this->GetMessagesInInbox())
-    {
-        if(message->HasMission() && !message->MissionIsCompleted())
-        {
+    for(auto message : this->GetMessagesInInbox()) {
+        if(message->HasMission() && !message->MissionIsCompleted()) {
             ret.Add(message);
         }
     }
     return ret;
 }
 
-APeacenetWorldStateActor* UMailProvider::GetPeacenet()
-{
+APeacenetWorldStateActor* UMailProvider::GetPeacenet() {
     return this->OwningSystem->GetPeacenet();
 }
 
-int UMailProvider::GetIdentityID()
-{
+int UMailProvider::GetIdentityID() {
     return this->OwningSystem->GetCharacter().ID;
 }
 
-int UMailProvider::GetInboxCount()
-{
+int UMailProvider::GetInboxCount() {
     return this->GetInbox().Num();
 }
 
-TArray<UMailMessage*> UMailProvider::GetMessagesInInbox()
-{
+TArray<UMailMessage*> UMailProvider::GetMessagesInInbox() {
     TArray<UMailMessage*> Ret;
-    for(auto Message : this->GetInbox())
-    {
+    for(auto Message : this->GetInbox()) {
         UMailMessage* NewMessage = NewObject<UMailMessage>(this);
         NewMessage->Setup(this, Message.ID);
         Ret.Add(NewMessage);
@@ -103,25 +91,19 @@ TArray<UMailMessage*> UMailProvider::GetMessagesInInbox()
     return Ret;
 }
 
-int UMailProvider::GetOutboxCount()
-{
+int UMailProvider::GetOutboxCount() {
     return this->GetOutbox().Num();
 }
 
-int UMailProvider::GetMissionsCount()
-{
+int UMailProvider::GetMissionsCount() {
     int count = 0;
 
     TArray<UMissionAsset*> missions;
 
-    for(auto& message : this->GetMailMessages())
-    {
-        if(message.ToEntities.Contains(this->GetIdentityID()) && message.Mission)
-        {
-            if(!missions.Contains(message.Mission))
-            {
-                if(!this->OwningSystem->GetPeacenet()->IsMissionCompleted(message.Mission))
-                {
+    for(auto& message : this->GetMailMessages()) {
+        if(message.ToEntities.Contains(this->GetIdentityID()) && message.Mission) {
+            if(!missions.Contains(message.Mission)) {
+                if(!this->OwningSystem->GetPeacenet()->IsMissionCompleted(message.Mission)) {
                     missions.Add(message.Mission);
                     count++;
                 }
@@ -132,8 +114,7 @@ int UMailProvider::GetMissionsCount()
     return count;
 }
 
-void UMailProvider::SendMailInternal(TArray<int> InRecipients, FString InSubject, FString InMessageText, int InReplyTo)
-{
+void UMailProvider::SendMailInternal(TArray<int> InRecipients, FString InSubject, FString InMessageText, int InReplyTo) {
     // This is what the message's from value will be.
     int MyEntityID = this->OwningSystem->GetCharacter().ID;
 
@@ -146,8 +127,7 @@ void UMailProvider::SendMailInternal(TArray<int> InRecipients, FString InSubject
     NewMail.MessageBody = InMessageText;
 
     // Check all entities in recipient list to make sure they exist in the save file.
-    for(auto EntityID : InRecipients)
-    {
+    for(auto EntityID : InRecipients) {
         check(this->GetPeacenet()->IdentityExists(EntityID));
     }
 
@@ -155,14 +135,11 @@ void UMailProvider::SendMailInternal(TArray<int> InRecipients, FString InSubject
     NewMail.ToEntities = InRecipients;
 
     // If "in reply to" is not -1, check to make sure it is a valid message ID.
-    if(InReplyTo != -1)
-    {
+    if(InReplyTo != -1) {
         bool FoundMail = false;
 
-        for(auto ExistingMessage : this->GetPeacenet()->GetEmailMessages())
-        {
-            if(ExistingMessage.ID == InReplyTo)
-            {
+        for(auto ExistingMessage : this->GetPeacenet()->GetEmailMessages()) {
+            if(ExistingMessage.ID == InReplyTo) {
                 NewMail.InReplyTo = InReplyTo;
                 FoundMail = true;
                 break;
@@ -173,13 +150,11 @@ void UMailProvider::SendMailInternal(TArray<int> InRecipients, FString InSubject
     }
 
     // Notify all recipients that they've received an email.
-    for(auto Recipient : InRecipients)
-    {
+    for(auto Recipient : InRecipients) {
         // Does the recipient have a loaded system context?
         // If it doesn't, we don't notify the recipient because we'd need to
         // create a new system context which means less precious RAM.
-        if(this->OwningSystem->GetPeacenet()->IdentityHasSystemContext(Recipient))
-        {
+        if(this->OwningSystem->GetPeacenet()->IdentityHasSystemContext(Recipient)) {
             // Get the existing recipient system context.
             USystemContext* RecSys = this->OwningSystem->GetPeacenet()->GetSystemContext(Recipient);
 
@@ -189,14 +164,11 @@ void UMailProvider::SendMailInternal(TArray<int> InRecipients, FString InSubject
     }
 }
 
-void UMailProvider::NotifyReceivedMessage(int InMessageID)
-{
+void UMailProvider::NotifyReceivedMessage(int InMessageID) {
     bool Exists = false;
 
-    for(auto& Message : this->GetMailMessages())
-    {
-        if(Message.ID == InMessageID)
-        {
+    for(auto& Message : this->GetMailMessages()) {
+        if(Message.ID == InMessageID) {
             Exists = true;
             break;
         }
@@ -209,42 +181,36 @@ void UMailProvider::NotifyReceivedMessage(int InMessageID)
     this->NewMessageReceived.Broadcast(BlueprintMessage);
 }
 
-void UMailProvider::Setup(USystemContext* InOwningSystem)
-{
+void UMailProvider::Setup(USystemContext* InOwningSystem) {
     this->OwningSystem = InOwningSystem;
 }
 
-TArray<FEmail> UMailProvider::GetMailMessages()
-{
+TArray<FEmail> UMailProvider::GetMailMessages() {
     TArray<FEmail> MyEmails;
-    for(auto Email : this->GetPeacenet()->GetEmailMessages())
-    {
-        if(Email.FromEntity == this->OwningSystem->GetCharacter().ID || Email.ToEntities.Contains(this->OwningSystem->GetCharacter().ID))
+    for(auto Email : this->GetPeacenet()->GetEmailMessages()) {
+        if(Email.FromEntity == this->OwningSystem->GetCharacter().ID || Email.ToEntities.Contains(this->OwningSystem->GetCharacter().ID)) {
             MyEmails.Add(Email);
+        }
     }
     return MyEmails;
 }
 
-TArray<FEmail> UMailProvider::GetInbox()
-{
+TArray<FEmail> UMailProvider::GetInbox() {
     TArray<FEmail> Ret;
-    for(auto Message : this->GetMailMessages())
-    {
-        if(Message.InReplyTo == -1 && Message.ToEntities.Contains(this->OwningSystem->GetCharacter().ID))
-        {
+    for(auto Message : this->GetMailMessages()) {
+        if(Message.InReplyTo == -1 && Message.ToEntities.Contains(this->OwningSystem->GetCharacter().ID)) {
             Ret.Add(Message);
         }
     }
     return Ret;
 }
 
-TArray<FEmail> UMailProvider::GetOutbox()
-{
+TArray<FEmail> UMailProvider::GetOutbox() {
     TArray<FEmail> Ret;
-    for(auto Message : this->GetMailMessages())
-    {
-        if(Message.FromEntity == this->OwningSystem->GetCharacter().ID)
+    for(auto Message : this->GetMailMessages()) {
+        if(Message.FromEntity == this->OwningSystem->GetCharacter().ID) {
             Ret.Add(Message);
+        }
     }
     return Ret;
 }

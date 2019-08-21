@@ -35,16 +35,13 @@
 #include "PeacegateFileSystem.h"
 #include "FileUtilities.h"
 
-bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InCommand, TArray<FString> Arguments) 
-{
+bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InCommand, TArray<FString> Arguments)  {
     // Commands should work no matter what the case is.
     InCommand = InCommand.ToLower();
 
-    if(InCommand == "upload")
-    {
+    if(InCommand == "upload") {
         // First argument is source. Second argument is destination.
-        if(Arguments.Num() < 3)
-        {
+        if(Arguments.Num() < 3) {
             InConsole->WriteLine(NSLOCTEXT("ReverseShell", "UploadUsage", "Usage: upload <source> <destination>"));
             this->FinishSpecialCommand();
             return true;
@@ -61,48 +58,41 @@ bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InComm
         UPeacegateFileSystem* DestinationFileSystem = this->GetUserContext()->GetFilesystem();
 
         // Check if the source file actually exists.
-        if(!SourceFileSystem->FileExists(Source))
-        {
+        if(!SourceFileSystem->FileExists(Source)) {
             InConsole->WriteLine(FText::Format(NSLOCTEXT("ReverseShell", "FileNotFound", "Error: File not found: {0}"), FText::FromString(Source)));
             this->FinishSpecialCommand();
             return true;
         }
 
         // If the destination path is a directory, then the destination becomes <destination>/<sourceFileName>.
-        if(DestinationFileSystem->DirectoryExists(Destination))
-        {
+        if(DestinationFileSystem->DirectoryExists(Destination)) {
             FString SourceName = UFileUtilities::GetNameFromPath(Source);
 
-            if(Destination.EndsWith("/"))
+            if(Destination.EndsWith("/")) {
                 Destination = Destination + SourceName;
-            else
+            } else {
                 Destination = Destination + "/" + SourceName;
+            }
         }
 
         // Read the file record info at the source.
         FFileRecord SourceRecord = SourceFileSystem->GetFileRecord(Source);
 
         // If it's a text file then we'll use the ReadText and WriteText methods.
-        if(SourceRecord.RecordType == EFileRecordType::Text)
-        {
+        if(SourceRecord.RecordType == EFileRecordType::Text) {
             EFilesystemStatusCode StatusCode;
             FString SourceText;
 
             // Read the text of the source.
-            if(SourceFileSystem->ReadText(Source, SourceText, StatusCode))
-            {
+            if(SourceFileSystem->ReadText(Source, SourceText, StatusCode)) {
                 // Write the source text to the destination file.
                 DestinationFileSystem->WriteText(Destination, SourceText);
-            }
-            else
-            {
+            } else {
                 InConsole->WriteLine(NSLOCTEXT("ReverseShell", "SourceFileError", "Error occured while reading source file text."));
                 this->FinishSpecialCommand();
                 return true;
             }
-        }
-        else
-        {
+        } else {
             // Write the low-level record directly to the destination filesystem.
             DestinationFileSystem->SetFileRecord(Destination, SourceRecord.RecordType, SourceRecord.ContentID);
         }
@@ -120,12 +110,10 @@ bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InComm
 
         return true;
     }
-    if(InCommand == "download")
-    {
+    if(InCommand == "download") {
 
         // First argument is source. Second argument is destination.
-        if(Arguments.Num() < 3)
-        {
+        if(Arguments.Num() < 3) {
             InConsole->WriteLine(NSLOCTEXT("ReverseShell", "DownloadUsage", "Usage: download <source> <destination>"));
             this->FinishSpecialCommand();
             return true;
@@ -142,48 +130,41 @@ bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InComm
         UPeacegateFileSystem* DestinationFileSystem = this->GetUserContext()->GetHacker()->GetFilesystem();
 
         // Check if the source file actually exists.
-        if(!SourceFileSystem->FileExists(Source))
-        {
+        if(!SourceFileSystem->FileExists(Source)) {
             InConsole->WriteLine(FText::Format(NSLOCTEXT("ReverseShell", "FileNotFound", "Error: File not found: {0}"), FText::FromString(Source)));
             this->FinishSpecialCommand();
             return true;
         }
 
         // If the destination path is a directory, then the destination becomes <destination>/<sourceFileName>.
-        if(DestinationFileSystem->DirectoryExists(Destination))
-        {
+        if(DestinationFileSystem->DirectoryExists(Destination)) {
             FString SourceName = UFileUtilities::GetNameFromPath(Source);
 
-            if(Destination.EndsWith("/"))
+            if(Destination.EndsWith("/")) {
                 Destination = Destination + SourceName;
-            else
+            } else {
                 Destination = Destination + "/" + SourceName;
+            }
         }
 
         // Read the file record info at the source.
         FFileRecord SourceRecord = SourceFileSystem->GetFileRecord(Source);
 
         // If it's a text file then we'll use the ReadText and WriteText methods.
-        if(SourceRecord.RecordType == EFileRecordType::Text)
-        {
+        if(SourceRecord.RecordType == EFileRecordType::Text) {
             EFilesystemStatusCode StatusCode;
             FString SourceText;
 
             // Read the text of the source.
-            if(SourceFileSystem->ReadText(Source, SourceText, StatusCode))
-            {
+            if(SourceFileSystem->ReadText(Source, SourceText, StatusCode)) {
                 // Write the source text to the destination file.
                 DestinationFileSystem->WriteText(Destination, SourceText);
-            }
-            else
-            {
+            } else {
                 InConsole->WriteLine(NSLOCTEXT("ReverseShell", "SourceFileError", "Error occured while reading source file text."));
                 this->FinishSpecialCommand();
                 return true;
             }
-        }
-        else
-        {
+        } else {
             // Write the low-level record directly to the destination filesystem.
             DestinationFileSystem->SetFileRecord(Destination, SourceRecord.RecordType, SourceRecord.ContentID);
         }

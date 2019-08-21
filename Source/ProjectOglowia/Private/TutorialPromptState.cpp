@@ -32,20 +32,16 @@
 #include "TutorialPromptState.h"
 #include "PeacenetWorldStateActor.h"
 
-FText UTutorialPromptState::GetTutorialTitle()
-{
+FText UTutorialPromptState::GetTutorialTitle() {
     return this->PromptTitle;
 }
 
-FText UTutorialPromptState::GetTutorialText()
-{
+FText UTutorialPromptState::GetTutorialText() {
     return this->PromptText;
 }
 
-void UTutorialPromptState::ActivatePrompt(const FText& InTitle, const FText& InText)
-{
-    if(this->IsPromptActive())
-    {
+void UTutorialPromptState::ActivatePrompt(const FText& InTitle, const FText& InText) {
+    if(this->IsPromptActive()) {
         FTutorialPromptFuture Future;
         Future.Title = InTitle;
         Future.Text = InText;
@@ -60,31 +56,25 @@ void UTutorialPromptState::ActivatePrompt(const FText& InTitle, const FText& InT
     this->TutorialActivated.Broadcast(InTitle, InText, this);
 }
 
-void UTutorialPromptState::DismissPrompt()
-{
+void UTutorialPromptState::DismissPrompt() {
     this->PromptText = FText::GetEmpty();
     this->PromptTitle = FText::GetEmpty();
     this->PromptActive = false;
 }
 
-bool UTutorialPromptState::IsPromptActive()
-{
+bool UTutorialPromptState::IsPromptActive() {
     return this->PromptActive;
 }
 
-void UTutorialPromptState::Tick(float DeltaSeconds)
-{
-    if(!this->IsPromptActive())
-    {
-        if(this->FuturePrompts.Num())
-        {
+void UTutorialPromptState::Tick(float DeltaSeconds) {
+    if(!this->IsPromptActive()) {
+        if(this->FuturePrompts.Num()) {
             FTutorialPromptFuture Future = this->FuturePrompts.Pop();
             this->ActivatePrompt(Future.Title, Future.Text);
         }
     }
 }
 
-void UTutorialPromptState::ClearFuture()
-{
+void UTutorialPromptState::ClearFuture() {
     this->FuturePrompts.Empty();
 }

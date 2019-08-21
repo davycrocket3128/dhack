@@ -58,8 +58,7 @@
 #define ISCONTROL(c)		(ISCONTROLC0(c) || ISCONTROLC1(c))
 #define ISDELIM(u)		(u && this->WordDelimiters.Contains(FString::Chr(u)))
 
-void UTerminalEmulator::NativePreConstruct()
-{
+void UTerminalEmulator::NativePreConstruct() {
     // Initialize the pty.
     this->InitializePty();
 
@@ -81,13 +80,13 @@ void UTerminalEmulator::NativePreConstruct()
 
 #define MIN(a, b)		((a) < (b) ? (a) : (b))
 
-void UTerminalEmulator::PutTab(int n)
-{
+void UTerminalEmulator::PutTab(int n) {
     int x = this->term.c.x;
     if (n > 0) {
-		while (x < term.col && n--)
+		while (x < term.col && n--) {
 			for (++x; x < term.col; ++x)
 			{ /* nothing */ }
+        }
 	} else if (n < 0) {
 		while (x > 0 && n++)
 			for (--x; x > 0; --x)
@@ -97,8 +96,7 @@ void UTerminalEmulator::PutTab(int n)
 
 }
 
-void UTerminalEmulator::Resize(int col, int row)
-{
+void UTerminalEmulator::Resize(int col, int row) {
     	int i;
 	int minrow = MIN(row, term.row);
 	int mincol = MIN(col, term.col);
@@ -116,8 +114,7 @@ void UTerminalEmulator::Resize(int col, int row)
 	}
 	/* ensure that both src and dst are not NULL */
 	if (i > 0) {
-		for(int j = i; j < i + row; j++)
-        {
+		for(int j = i; j < i + row; j++) {
             this->term.line[j - i] = this->term.line[j];
             this->term.line[j] = FLine();
         }
@@ -138,8 +135,7 @@ void UTerminalEmulator::Resize(int col, int row)
 	for (/* i = minrow */; i < row; i++) {
 		term.line[i] = FLine();
 		term.line[i].SetCount(col);
-        for(int j = 0; j < col; j++)
-        {
+        for(int j = 0; j < col; j++) {
             term.line[i][j] = this->term.c.attr;
             term.line[i][j].u = '\0';
         }
@@ -167,8 +163,7 @@ void UTerminalEmulator::Resize(int col, int row)
 
 }
 
-void UTerminalEmulator::InitializePty()
-{
+void UTerminalEmulator::InitializePty() {
     // Set up the terminal options
     FPtyOptions options;
     options.LFlag = ICANON | ECHO;
@@ -180,21 +175,21 @@ void UTerminalEmulator::InitializePty()
     UPtyStream::CreatePty(this->Master, this->Slave, options);
 }
 
-bool UTerminalEmulator::IsSelected(int x, int y) const
-{
+bool UTerminalEmulator::IsSelected(int x, int y) const {
     // TODO: Selection support.
     return false;
 }
 
 #define MAX(a, b) ((a) > (b)) ? (a) : (b)
 
-void UTerminalEmulator::DrawGlyph(FTerminalDrawContext* DrawContext, FGlyph glyph, int x, int y) const
-{
+void UTerminalEmulator::DrawGlyph(FTerminalDrawContext* DrawContext, FGlyph glyph, int x, int y) const {
     int index = y * this->term.col + x;
     int ss = MIN(this->selStart, this->selEnd);
     int se = MAX(this->selStart, this->selEnd);
 
-    if(glyph.mode & (uint16)EGlyphAttribute::ATTR_WDUMMY) return;
+    if(glyph.mode & (uint16)EGlyphAttribute::ATTR_WDUMMY) {
+        return;
+    }
 
     bool reversed = (glyph.mode & (uint16)EGlyphAttribute::ATTR_REVERSE) || (index >= ss && index <= se);
 
@@ -206,27 +201,24 @@ void UTerminalEmulator::DrawGlyph(FTerminalDrawContext* DrawContext, FGlyph glyp
     bool bold = glyph.mode & (uint16)EGlyphAttribute::ATTR_BOLD;
     bool italic = glyph.mode & (uint16)EGlyphAttribute::ATTR_ITALIC;
     
-    if(bold && italic)
+    if(bold && italic) {
         font = this->BoldItalicFont;
-    else if(bold)
+    } else if(bold) {
         font = this->BoldFont;
-    else if(italic)
+    } else if(italic) {
         font = this->ItalicFont;
+    }
 
     bool faint = glyph.mode & (uint16)EGlyphAttribute::ATTR_BOLD_FAINT;
-    if(faint)
-    {
+    if(faint) {
         bg.R *= 0.5f;
         bg.G *= 0.5f;
         bg.B *= 0.5f;
         fg.R *= 0.5f;
         fg.G *= 0.5f;
         fg.B *= 0.5f;
-    }
-    else
-    {
-        if(!bold)
-        {
+    } else {
+        if(!bold) {
             fg.R *= 0.75f;
             fg.G *= 0.75f;
             fg.B *= 0.75f;
@@ -240,37 +232,28 @@ void UTerminalEmulator::DrawGlyph(FTerminalDrawContext* DrawContext, FGlyph glyp
     float winy = y * ch;
 
     DrawContext->DrawRect(bg, winx, winy, cw, ch);
-    if((glyph.mode & (uint16)EGlyphAttribute::ATTR_INVISIBLE) == 0)
-    {
-        if((glyph.mode & (uint16)EGlyphAttribute::ATTR_BLINK) && !this->ShowBlinking)
+    if((glyph.mode & (uint16)EGlyphAttribute::ATTR_INVISIBLE) == 0) {
+        if((glyph.mode & (uint16)EGlyphAttribute::ATTR_BLINK) && !this->ShowBlinking) {
             return;
+        }
         DrawContext->DrawString(text, font, fg, winx, winy);
-        if(glyph.mode & (uint16)EGlyphAttribute::ATTR_UNDERLINE)
-        {
+        if(glyph.mode & (uint16)EGlyphAttribute::ATTR_UNDERLINE) {
             DrawContext->DrawRect(fg, winx, winy + (ch - 2), cw, 2);
         }
     }
-
-
-
 }
 
-void UTerminalEmulator::NativeOnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& InPointerEvent)
-{
+void UTerminalEmulator::NativeOnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& InPointerEvent) {
     this->isMouseInTerminal = true;
 }
 
-void UTerminalEmulator::NativeOnMouseLeave(const FPointerEvent& InPointerEvent)
-{
+void UTerminalEmulator::NativeOnMouseLeave(const FPointerEvent& InPointerEvent) {
     this->isMouseInTerminal = false;
 }
 
-FReply UTerminalEmulator::NativeOnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& InPointerEvent)
-{
-    if(InPointerEvent.GetEffectingButton().GetFName() == "LeftMouseButton")
-    {
-        if(this->selState == ETerminalSelectionState::Idle)
-        {
+FReply UTerminalEmulator::NativeOnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& InPointerEvent) {
+    if(InPointerEvent.GetEffectingButton().GetFName() == "LeftMouseButton") {
+        if(this->selState == ETerminalSelectionState::Idle) {
             const FVector2D ass = InPointerEvent.GetScreenSpacePosition();
             FVector2D bigAss = MyGeometry.AbsoluteToLocal(ass);
 
@@ -287,8 +270,7 @@ FReply UTerminalEmulator::NativeOnMouseButtonDown(const FGeometry& MyGeometry, c
 
             return FReply::Handled();
         }
-        if(this->selState == ETerminalSelectionState::Ready)
-        {
+        if(this->selState == ETerminalSelectionState::Ready) {
             this->selStart = -1;
             this->selEnd = -1;
             this->selState = ETerminalSelectionState::Idle;
@@ -299,8 +281,7 @@ FReply UTerminalEmulator::NativeOnMouseButtonDown(const FGeometry& MyGeometry, c
     return FReply::Unhandled();
 }
 
-FReply UTerminalEmulator::NativeOnMouseMove(const FGeometry& MyGeometry, const FPointerEvent& InPointerEvent)
-{
+FReply UTerminalEmulator::NativeOnMouseMove(const FGeometry& MyGeometry, const FPointerEvent& InPointerEvent) {
     const FVector2D ass = InPointerEvent.GetScreenSpacePosition();
     FVector2D bigAss = MyGeometry.AbsoluteToLocal(ass);
 
@@ -313,131 +294,109 @@ FReply UTerminalEmulator::NativeOnMouseMove(const FGeometry& MyGeometry, const F
     this->mouseX = x;
     this->mouseY = y;
 
-    if(this->selState == ETerminalSelectionState::Selecting)
-    {
+    if(this->selState == ETerminalSelectionState::Selecting) {
         this->selEnd = y * this->term.col + x;
     }
 
     return FReply::Handled();
 }
 
-void UTerminalEmulator::DrawLine(FTerminalDrawContext* DrawContext, FLine line, int x1, int y, int x2) const
-{
-    for(int x = x1; x < x2; x++)
-    {
+void UTerminalEmulator::DrawLine(FTerminalDrawContext* DrawContext, FLine line, int x1, int y, int x2) const {
+    for(int x = x1; x < x2; x++) {
         FGlyph glyph = line[x];
 
-        if(this->IsSelected(x, y))
+        if(this->IsSelected(x, y)) {
             glyph.mode ^= (uint16)EGlyphAttribute::ATTR_REVERSE;
+        }
         
         this->DrawGlyph(DrawContext, glyph, x, y);
     }
 }
 
-void UTerminalEmulator::DrawRegion(FTerminalDrawContext* DrawContext, int x1, int y1, int x2, int y2) const
-{
-    for(int y = y1; y < y2; y++)
-    {
+void UTerminalEmulator::DrawRegion(FTerminalDrawContext* DrawContext, int x1, int y1, int x2, int y2) const {
+    for(int y = y1; y < y2; y++) {
         this->DrawLine(DrawContext, this->term.line[y], x1, y, x2);
     }
 }
 
-void UTerminalEmulator::DrawCursor(FTerminalDrawContext* DrawContext) const
-{
-    if(!this->HasAnyUserFocus()) return;
+void UTerminalEmulator::DrawCursor(FTerminalDrawContext* DrawContext) const {
+    if(this->HasAnyUserFocus()) {
+        float winx = cdraw.cx * cw;
+        float winy = cdraw.cy * ch;
 
-    float winx = cdraw.cx * cw;
-    float winy = cdraw.cy * ch;
+        bool reversed = (cdraw.g.mode & (uint16)EGlyphAttribute::ATTR_REVERSE);
 
-    bool reversed = (cdraw.g.mode & (uint16)EGlyphAttribute::ATTR_REVERSE);
-
-    FLinearColor bg = (reversed) ? cdraw.g.fg : cdraw.g.bg;
-    FLinearColor fg = (reversed) ? cdraw.g.bg : cdraw.g.fg;
+        FLinearColor bg = (reversed) ? cdraw.g.fg : cdraw.g.bg;
+        FLinearColor fg = (reversed) ? cdraw.g.bg : cdraw.g.fg;
     
-    DrawContext->DrawRect(bg, winx, winy, cw, ch);
+        DrawContext->DrawRect(bg, winx, winy, cw, ch);
 
-    switch(this->CursorShape)
-    {
-        case ECursorShape::Block:
-            DrawContext->DrawRect(fg, winx, winy, cw, ch);
-            break;
-        case ECursorShape::Bar:
-            DrawContext->DrawRect(fg, winx, winy, this->CursorThickness, ch);
-            break;
-        case ECursorShape::Underline:
-            DrawContext->DrawRect(fg, winx, winy + (ch - this->CursorThickness), cw, this->CursorThickness);
-            break;
+        switch(this->CursorShape) {
+            case ECursorShape::Block:
+                DrawContext->DrawRect(fg, winx, winy, cw, ch);
+                break;
+            case ECursorShape::Bar:
+                DrawContext->DrawRect(fg, winx, winy, this->CursorThickness, ch);
+                break;
+            case ECursorShape::Underline:
+                DrawContext->DrawRect(fg, winx, winy + (ch - this->CursorThickness), cw, this->CursorThickness);
+                break;
+        }
     }
 }
 
-void UTerminalEmulator::CopySelection()
-{
+void UTerminalEmulator::CopySelection() {
     FString DumpDest;
     int i = -1;
     
     int ss = MIN(this->selStart, this->selEnd);
     int se = MAX(this->selStart, this->selEnd);
             
-    for(int y = 0; y < this->term.row; y++)
-    {
-        for(int x = 0; x < this->term.col; x++)
-        {
+    for(int y = 0; y < this->term.row; y++) {
+        for(int x = 0; x < this->term.col; x++) {
             i = y * this->term.col + x;
-            if(i >= ss && i <= se)
-            {
+            if(i >= ss && i <= se) {
                 TCHAR c = this->term.line[y][x].u;
                 if(c == '\0') continue;
                 DumpDest += c;
             }
         }
-        if(i >= ss && i <= se)
-        {
+        if(i >= ss && i <= se) {
             DumpDest += "\r\n";
         }
 
         i = -1;
     }
 
-    if(DumpDest.Len())
-    {
+    if(DumpDest.Len()) {
         FPlatformApplicationMisc::ClipboardCopy(*DumpDest);
     }
 }
 
-void UTerminalEmulator::PasteToInput()
-{
+void UTerminalEmulator::PasteToInput() {
     FString PasteDest;
     FPlatformApplicationMisc::ClipboardPaste(PasteDest);
 
-    if(PasteDest.Len())
-    {
-        for(TCHAR c : PasteDest)
-        {
+    if(PasteDest.Len()) {
+        for(TCHAR c : PasteDest) {
             this->Slave->WriteChar(c);
         }
     }
 }
 
-FReply UTerminalEmulator::NativeOnMouseButtonUp( const FGeometry& InGeometry, const FPointerEvent& InMouseEvent )
-{
-    if(InMouseEvent.GetEffectingButton().GetFName() == "LeftMouseButton")
-    {
-        if(this->selState == ETerminalSelectionState::Selecting)
-        {
+FReply UTerminalEmulator::NativeOnMouseButtonUp( const FGeometry& InGeometry, const FPointerEvent& InMouseEvent ) {
+    if(InMouseEvent.GetEffectingButton().GetFName() == "LeftMouseButton") {
+        if(this->selState == ETerminalSelectionState::Selecting) {
             this->selState = ETerminalSelectionState::Ready;
         }
     }
-    if(InMouseEvent.GetEffectingButton().GetFName() == "RightMouseButton")
-    {
-        if(this->selState == ETerminalSelectionState::Ready)
-        {
+    if(InMouseEvent.GetEffectingButton().GetFName() == "RightMouseButton") {
+        if(this->selState == ETerminalSelectionState::Ready) {
             this->CopySelection();
             this->selStart = -1;
             this->selEnd = -1;
             this->selState = ETerminalSelectionState::Idle;
-        }
-        else if(this->selState == ETerminalSelectionState::Idle)
-        {
+        } else if(this->selState == ETerminalSelectionState::Idle) {
             this->PasteToInput();
         }
     }
@@ -445,8 +404,7 @@ FReply UTerminalEmulator::NativeOnMouseButtonUp( const FGeometry& InGeometry, co
 	return FReply::Handled().SetUserFocus(this->TakeWidget());
 }
 
-int32 UTerminalEmulator::NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
-{
+int32 UTerminalEmulator::NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const {
     // Create a new draw context containing all of the Slate draw args we were given.
     FTerminalDrawContext* DrawContext = new FTerminalDrawContext(Args, AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, bParentEnabled);
 
@@ -466,10 +424,8 @@ int32 UTerminalEmulator::NativePaint(const FPaintArgs& Args, const FGeometry& Al
     return LayerId;
 }
 
-void UTerminalEmulator::DrawMouseCursor(FTerminalDrawContext* DrawContext) const
-{
-    if(this->isMouseInTerminal)
-    {
+void UTerminalEmulator::DrawMouseCursor(FTerminalDrawContext* DrawContext) const {
+    if(this->isMouseInTerminal) {
         int x = this->mouseX;
         int y = this->mouseY;
 
@@ -483,56 +439,48 @@ void UTerminalEmulator::DrawMouseCursor(FTerminalDrawContext* DrawContext) const
     }
 }
 
-void UTerminalEmulator::TtyRead()
-{
+void UTerminalEmulator::TtyRead() {
     // The string that will be written.
     FString buffer;
 
     TCHAR c;
     // Keep reading till we run out of characters to read.
-    while(this->Slave->ReadChar(c))
-    {
+    while(this->Slave->ReadChar(c)) {
         // Append the character to the string IF it's not null.
-        if(c == '\0') continue;
-        buffer += c;
+        if(c != '\0') {
+            buffer += c;
+        }
     }
 
     // Write to the terminal display!
     this->Write(buffer, false);
 }
 
-void UTerminalEmulator::WriteLine(const FText& InText, float InTime)
-{
+void UTerminalEmulator::WriteLine(const FText& InText, float InTime) {
     FTerminalEmulatorWrite write;
     write.Text = FText::Format(NSLOCTEXT("Terminal", "Line", "{0}\r\n"), InText);
     write.Time = InTime;
     this->TextQueue.Add(write);
 }
 
-void UTerminalEmulator::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
-{
-    if(this->TextQueue.Num() && !this->IsInTutorial)
-    {
-        if(this->TextQueue[0].Time < 0)
-        {
+void UTerminalEmulator::NativeTick(const FGeometry& MyGeometry, float InDeltaTime) {
+    if(this->TextQueue.Num() && !this->IsInTutorial) {
+        if(this->TextQueue[0].Time < 0) {
             FString str = this->TextQueue[0].Text.ToString();
-            for(TCHAR c : str)
+            for(TCHAR c : str) {
                 this->Master->WriteChar(c);
+            }
             this->TextQueue.RemoveAt(0);
         }
         this->TextQueue[0].Time -= InDeltaTime;
     }
 
     // Handle blink timing.
-    if(this->BlinkingTimeout <= 0.f)
-    {
+    if(this->BlinkingTimeout <= 0.f) {
         this->ShowBlinking = true;
-    }
-    else
-    {
+    } else {
         this->BlinkTime += InDeltaTime;
-        if(this->BlinkTime >= this->BlinkingTimeout)
-        {
+        if(this->BlinkTime >= this->BlinkingTimeout) {
             this->ShowBlinking = !this->ShowBlinking;
             this->BlinkTime = 0.f;
         }
@@ -550,25 +498,24 @@ void UTerminalEmulator::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
     int row = FMath::RoundToInt(drawSize.Y / h);
 
     // If the size doesn't match, we should resize.
-    if(this->term.row != row || this->term.col != col)
-    {
+    if(this->term.row != row || this->term.col != col) {
         this->Resize(col, row);
     }
 
     // Read from the tty and write to the terminal.
-    if(!this->IsInTutorial) this->TtyRead();
+    if(!this->IsInTutorial) {
+        this->TtyRead();
+    }
 
     int cx = this->term.c.x;
 
     LIMIT(this->term.ocx, 0, this->term.col - 1);
     LIMIT(this->term.ocy, 0, this->term.row - 1);
 
-    if(this->term.line[this->term.ocy][this->term.ocx].mode & (uint16)EGlyphAttribute::ATTR_WDUMMY)
-    {
+    if(this->term.line[this->term.ocy][this->term.ocx].mode & (uint16)EGlyphAttribute::ATTR_WDUMMY) {
         this->term.ocx--;
     }
-	if (term.line[term.c.y][cx].mode & (uint16)EGlyphAttribute::ATTR_WDUMMY)
-    {
+	if (term.line[term.c.y][cx].mode & (uint16)EGlyphAttribute::ATTR_WDUMMY) {
 		cx--;
     }
 
@@ -584,8 +531,7 @@ void UTerminalEmulator::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 
 }
 
-void UTerminalEmulator::InitializeScreen()
-{
+void UTerminalEmulator::InitializeScreen() {
     // Measure a character so we know the width and height.
     UCommonUtils::MeasureChar(TEXT('#'), this->DefaultFont, this->cw, this->ch);
 
@@ -596,11 +542,9 @@ void UTerminalEmulator::InitializeScreen()
     this->term.line.AddDefaulted(this->term.row);
 
     // Allocate all of the columns.
-    for(int i = 0; i < this->term.row; i++)
-    {
+    for(int i = 0; i < this->term.row; i++) {
         this->term.line[i].SetCount(this->term.col);
-        for(int j = 0; j < term.col; j++)
-        {
+        for(int j = 0; j < term.col; j++) {
             this->term.line[i][j].bg = this->BackgroundColor;
             this->term.line[i][j].fg = this->ForegroundColor.GetSpecifiedColor();
         }
@@ -618,15 +562,12 @@ void UTerminalEmulator::InitializeScreen()
     this->term.c.attr.fg = this->ForegroundColor.GetSpecifiedColor();
 }
 
-void copyTChar(TCHAR u, char* dest, int i)
-{
+void copyTChar(TCHAR u, char* dest, int i) {
     memcpy(dest+i, &u, sizeof(TCHAR));
 }
 
-void UTerminalEmulator::HandleControlCode(TCHAR c)
-{
-    switch(c)
-    {
+void UTerminalEmulator::HandleControlCode(TCHAR c) {
+    switch(c) {
         case '\t':
             this->PutTab(1);
             break;
@@ -647,8 +588,7 @@ void UTerminalEmulator::HandleControlCode(TCHAR c)
     }
 }
 
-void UTerminalEmulator::StartEscapeSequence()
-{
+void UTerminalEmulator::StartEscapeSequence() {
     this->escaping = true;
     this->currentArg = "";
     this->escapeArgs.Empty();
@@ -656,26 +596,22 @@ void UTerminalEmulator::StartEscapeSequence()
     this->escapeType = '\0';
 }
 
-void UTerminalEmulator::HandleEscapeChar(TCHAR c)
-{
+void UTerminalEmulator::HandleEscapeChar(TCHAR c) {
     // Read another char if the current one is a left square brace.
-    if(c == '[')
-    {
+    if(c == '[') {
         this->escapeMultiLen = true;
         return;
     }
 
     // If the character is a digit then we're a multi-length escape code
     // and the digit gets appended to the current argument.
-    if(c >= '0' && c <= '9' && this->escapeMultiLen)
-    {
+    if(c >= '0' && c <= '9' && this->escapeMultiLen) {
         this->currentArg += c;
         return;
     }
 
     // If we are a semicolon then it's an argument separator.
-    if(c == ';' && this->escapeMultiLen)
-    {
+    if(c == ';' && this->escapeMultiLen) {
         // Push the current argument onto the argument array and then
         // clear it.
         this->escapeArgs.Add(FCString::Atoi(*this->currentArg));
@@ -686,8 +622,7 @@ void UTerminalEmulator::HandleEscapeChar(TCHAR c)
     // If we're anything else then the escape sequence is over.
     
     // If there's still an argument we'll quickly push that:
-    if(this->currentArg.Len() > 0)
-    {
+    if(this->currentArg.Len() > 0) {
         this->escapeArgs.Add(FCString::Atoi(*this->currentArg));
         this->currentArg = "";
     }
@@ -703,8 +638,7 @@ void UTerminalEmulator::HandleEscapeChar(TCHAR c)
     this->escaping = false;
 }
 
-void UTerminalEmulator::ScrollDown(int origin, int n)
-{
+void UTerminalEmulator::ScrollDown(int origin, int n) {
     int i;
     FLine temp;
 
@@ -718,12 +652,9 @@ void UTerminalEmulator::ScrollDown(int origin, int n)
 	}
 }
 
-void UTerminalEmulator::UpdateTerminalMode()
-{
-    for(int a : this->escapeArgs)
-    {
-        switch(a)
-        {
+void UTerminalEmulator::UpdateTerminalMode() {
+    for(int a : this->escapeArgs) {
+        switch(a) {
             case 0: // Reset everything.
                 this->term.c.attr.mode = 0;
                 this->term.c.attr.bg = this->BackgroundColor;
@@ -752,24 +683,20 @@ void UTerminalEmulator::UpdateTerminalMode()
                 break;
         }
 
-        if(a >= 40 && a <= 47)
-        {
+        if(a >= 40 && a <= 47) {
             // Background color
             this->term.c.attr.bg = UCommonUtils::GetConsoleColor((EConsoleColor)(a - 40));
         }
 
-        if(a >= 30 && a <= 37)
-        {
+        if(a >= 30 && a <= 37) {
             // Foreground color
             this->term.c.attr.fg = UCommonUtils::GetConsoleColor((EConsoleColor)(a - 30));
         }
     }
 }
 
-void UTerminalEmulator::HandleEscapeSequence()
-{
-    switch(escapeType)
-    {
+void UTerminalEmulator::HandleEscapeSequence() {
+    switch(escapeType) {
         case 'm': // Set Terminal Mode - sets the cursor attributes.
             this->UpdateTerminalMode();
             break;
@@ -777,59 +704,43 @@ void UTerminalEmulator::HandleEscapeSequence()
         case 'f': // Force Cursor Position
             // if we're not given a row and column, then move home.
             // Otherwise move to the row and column.
-            if(this->escapeArgs.Num() == 2)
-            {
+            if(this->escapeArgs.Num() == 2) {
                 this->MoveTo(this->escapeArgs[1], this->escapeArgs[0]);
-            }
-            else
-            {
+            } else {
                 this->MoveTo(0, 0);
             }
             break;
         case 'A': // Move up.
-            if(this->escapeArgs.Num())
-            {
+            if(this->escapeArgs.Num()) {
                 this->MoveTo(this->term.c.x, this->term.c.y - this->escapeArgs[0]);
-            }
-            else
-            {
+            } else {
                 this->MoveTo(this->term.c.x, this->term.c.y - 1);
             }
             break;
         case 'B':
-            if(this->escapeArgs.Num())
-            {
+            if(this->escapeArgs.Num()) {
                 this->MoveTo(this->term.c.x, this->term.c.y + this->escapeArgs[0]);
-            }
-            else
-            {
+            } else {
                 this->MoveTo(this->term.c.x, this->term.c.y + 1);
             }
             break;
         case 'C':
-            if(this->escapeArgs.Num())
-            {
+            if(this->escapeArgs.Num()) {
                 this->MoveTo(this->term.c.x + this->escapeArgs[0], this->term.c.y);
-            }
-            else
-            {
+            } else {
                 this->MoveTo(this->term.c.x + 1, this->term.c.y);
             }
             break;
         case 'D':
             // If we are multi-len this is cursor backward.  Otherwise this scrolls the screen up a line.
-            if(!this->escapeMultiLen)
-            {
+            if(!this->escapeMultiLen) {
                 this->ScrollDown(this->term.top, 1);
                 break;
             }
 
-            if(this->escapeArgs.Num())
-            {
+            if(this->escapeArgs.Num()) {
                 this->MoveTo(this->term.c.x - this->escapeArgs[0], this->term.c.y);
-            }
-            else
-            {
+            } else {
                 this->MoveTo(this->term.c.x - 1, this->term.c.y);
             }
             break;
@@ -848,8 +759,7 @@ void UTerminalEmulator::HandleEscapeSequence()
             this->term.c = this->SavedCursor;
             break;
         case 'n': // Device status
-            switch(this->escapeArgs[0])
-            {
+            switch(this->escapeArgs[0]) {
                 case 6: // Cursor position.
                     this->WriteInput("\x1B[" + FString::FromInt(this->term.c.y) + ";" + FString::FromInt(this->term.c.x) + "R");
                     break;
@@ -862,26 +772,21 @@ void UTerminalEmulator::HandleEscapeSequence()
             this->NativePreConstruct();
             break;
         case 'h':
-            if(this->escapeArgs.Num() && this->escapeArgs[0] == 7)
-            {
+            if(this->escapeArgs.Num() && this->escapeArgs[0] == 7) {
                 this->term.mode |= MODE_WRAP;
             }
             break;
         case 'l':
-            if(this->escapeArgs.Num() && this->escapeArgs[0] == 7)
-            {
+            if(this->escapeArgs.Num() && this->escapeArgs[0] == 7) {
                 this->term.mode &= ~MODE_WRAP;
             }
             break;
         case 'r': // Scroll Screen
             // If we're given arguments, they're the area at which we're allowed to scroll.
-            if(this->escapeArgs.Num() == 2)
-            {
+            if(this->escapeArgs.Num() == 2) {
                 this->term.top = this->escapeArgs[0];
                 this->term.bot = this->escapeArgs[1];
-            }
-            else 
-            {
+            } else  {
                 // Entire screen can be scrolled.
                 this->term.top = 0;
                 this->term.bot = this->term.row - 1;
@@ -891,20 +796,16 @@ void UTerminalEmulator::HandleEscapeSequence()
             this->ScrollUp(this->term.top, 1);
             break;
         case 'K': // Erasing.
-            if(this->escapeArgs.Num() && this->escapeArgs[0] != 0)
-            {
-                switch(this->escapeArgs[0])
-                {
+            if(this->escapeArgs.Num() && this->escapeArgs[0] != 0) {
+                switch(this->escapeArgs[0]) {
                     case 1: // erase start of line.
-                        for(int i = 0; i < this->term.c.x; i++)
-                        {
+                        for(int i = 0; i < this->term.c.x; i++) {
                             this->term.line[this->term.c.y][i] = this->term.c.attr;
                             this->term.line[this->term.c.y][i].u = '\0';
                         }
                         break;
                     case 2: // Entire line.
-                        for(int i = 0; i < this->term.col; i++)
-                        {
+                        for(int i = 0; i < this->term.col; i++) {
                             this->term.line[this->term.c.y][i] = this->term.c.attr;
                             this->term.line[this->term.c.y][i].u = '\0';
                         }
@@ -913,17 +814,14 @@ void UTerminalEmulator::HandleEscapeSequence()
                 return;
             }
             // Erase end of line.
-            for(int i = this->term.c.x; i < this->term.col; i++)
-            {
+            for(int i = this->term.c.x; i < this->term.col; i++) {
                 this->term.line[this->term.c.y][i] = term.c.attr;
                 this->term.line[this->term.c.y][i].u = '\0';
             }
             break;
         case 'J':
-            if(this->escapeArgs.Num() && this->escapeArgs[0] != 0)
-            {
-                switch(this->escapeArgs[0])
-                {
+            if(this->escapeArgs.Num() && this->escapeArgs[0] != 0) {
+                switch(this->escapeArgs[0]) {
                     case 1:
                         this->ClearRegion(0, 0, this->term.col - 1, this->term.row - this->term.c.y - 1);
                         break;
@@ -939,24 +837,19 @@ void UTerminalEmulator::HandleEscapeSequence()
     }
 }
 
-void UTerminalEmulator::WriteInput(FString data)
-{
-    for(TCHAR c : data)
-    {
+void UTerminalEmulator::WriteInput(FString data) {
+    for(TCHAR c : data) {
         this->Slave->WriteChar(c);
     }
 }
 
-void UTerminalEmulator::PutChar(TCHAR u)
-{
-    if(this->escaping)
-    {
+void UTerminalEmulator::PutChar(TCHAR u) {
+    if(this->escaping) {
         this->HandleEscapeChar(u);
         return;
     }
     // Handle control codes.
-    if(ISCONTROL(u))
-    {
+    if(ISCONTROL(u)) {
         this->HandleControlCode(u);
         return;
     }
@@ -964,20 +857,17 @@ void UTerminalEmulator::PutChar(TCHAR u)
     // For now we'll just get text showing.
     FGlyph* gp = &term.line[term.c.y][term.c.x];
 
-    if(IS_SET(MODE_WRAP) && term.c.state & (uint8)ECursorState::WrapNext)
-    {
+    if(IS_SET(MODE_WRAP) && term.c.state & (uint8)ECursorState::WrapNext) {
         // gp->mode |= (uint16)EGlyphAttribute::ATTR_WRAP;
         this->NewLine(1);
         gp = &term.line[term.c.y][term.c.x];
     }
 
-    if(IS_SET(MODE_INSERT) && term.c.x + 1 < term.col)
-    {
+    if(IS_SET(MODE_INSERT) && term.c.x + 1 < term.col) {
         memmove(gp+1, gp, (term.col - term.c.x - 1) * sizeof(FGlyph));
     }
 
-    if (term.c.x+1 > term.col) 
-    {
+    if (term.c.x+1 > term.col)  {
 		this->NewLine(1);
 		gp = &term.line[term.c.y][term.c.x];
 	}
@@ -992,8 +882,7 @@ void UTerminalEmulator::PutChar(TCHAR u)
     }
 }
 
-void UTerminalEmulator::NewLine(int firstCol)
-{
+void UTerminalEmulator::NewLine(int firstCol) {
     int y = this->term.c.y;
 
 	if (y == this->term.bot) {
@@ -1004,9 +893,8 @@ void UTerminalEmulator::NewLine(int firstCol)
 	this->MoveTo(firstCol ? 0 : term.c.x, y);
 }
 
-void UTerminalEmulator::MoveTo(int x, int y)
-{
-    	int miny, maxy;
+void UTerminalEmulator::MoveTo(int x, int y) {
+    int miny, maxy;
 
 	if (term.c.state & (uint8)ECursorState::Origin) {
 		miny = term.top;
@@ -1020,8 +908,7 @@ void UTerminalEmulator::MoveTo(int x, int y)
 	term.c.y = LIMIT(y, miny, maxy);
 }
 
-void UTerminalEmulator::ScrollUp(int origin, int n)
-{
+void UTerminalEmulator::ScrollUp(int origin, int n) {
     int i;
 	FLine temp;
 
@@ -1038,25 +925,24 @@ void UTerminalEmulator::ScrollUp(int origin, int n)
 	this->SelectionScroll(origin, -n);
 }
 
-void UTerminalEmulator::SelectionScroll(int orig, int n)
-{
+void UTerminalEmulator::SelectionScroll(int orig, int n) {
     // TODO
 }
 
-void UTerminalEmulator::SelectionClear()
-{
+void UTerminalEmulator::SelectionClear() {
     // TODO
 }
 
-void UTerminalEmulator::ClearRegion(int x1, int y1, int x2, int y2)
-{
+void UTerminalEmulator::ClearRegion(int x1, int y1, int x2, int y2) {
     int x, y, temp;
 	FGlyph *gp;
 
-	if (x1 > x2)
+	if (x1 > x2) {
 		temp = x1, x1 = x2, x2 = temp;
-	if (y1 > y2)
+    }
+	if (y1 > y2) {
 		temp = y1, y1 = y2, y2 = temp;
+    }
 
 	LIMIT(x1, 0, term.col-1);
 	LIMIT(x2, 0, term.col-1);
@@ -1066,8 +952,9 @@ void UTerminalEmulator::ClearRegion(int x1, int y1, int x2, int y2)
 	for (y = y1; y <= y2; y++) {
 		for (x = x1; x <= x2; x++) {
 			gp = &term.line[y][x];
-			if (this->IsSelected(x, y))
+			if (this->IsSelected(x, y)) {
 				this->SelectionClear();
+            }
 			gp->fg = term.c.attr.fg;
 			gp->bg = term.c.attr.bg;
 			gp->mode = 0;
@@ -1076,21 +963,15 @@ void UTerminalEmulator::ClearRegion(int x1, int y1, int x2, int y2)
 	}
 }
 
-void UTerminalEmulator::Write(FString InString, bool ShowControl)
-{
-    for(int i = 0; i < InString.Len(); i++)
-    {
+void UTerminalEmulator::Write(FString InString, bool ShowControl) {
+    for(int i = 0; i < InString.Len(); i++) {
         TCHAR c = InString[i];
-        if(ShowControl && ISCONTROL(c))
-        {
-            if(c & 0x80)
-            {
+        if(ShowControl && ISCONTROL(c)) {
+            if(c & 0x80) {
                 c &= 0x7f;
                 this->PutChar('^');
                 this->PutChar('[');
-            }
-            else if(c != '\r' && c != '\n' && c != '\t')
-            {
+            } else if(c != '\r' && c != '\n' && c != '\t') {
                 c ^= 0x40;
                 this->PutChar('^');
             }
@@ -1099,19 +980,13 @@ void UTerminalEmulator::Write(FString InString, bool ShowControl)
     }
 }
 
-FReply UTerminalEmulator::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
-{
-    
-
+FReply UTerminalEmulator::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) {
     return FReply::Unhandled();
 }
 
-FReply UTerminalEmulator::NativeOnKeyChar(const FGeometry& InGeometry, const FCharacterEvent& InCharEvent)
-{
-    if(IsInTutorial)
-    {
-        if(InCharEvent.GetCharacter() == '\r')
-        {
+FReply UTerminalEmulator::NativeOnKeyChar(const FGeometry& InGeometry, const FCharacterEvent& InCharEvent) {
+    if(IsInTutorial) {
+        if(InCharEvent.GetCharacter() == '\r') {
             this->DismissTutorial();
         }
         return FReply::Handled();
@@ -1121,13 +996,11 @@ FReply UTerminalEmulator::NativeOnKeyChar(const FGeometry& InGeometry, const FCh
     return FReply::Handled();
 }
 
-FReply UTerminalEmulator::NativeOnFocusReceived(const FGeometry & InGeometry, const FFocusEvent & InFocusEvent)
-{
+FReply UTerminalEmulator::NativeOnFocusReceived(const FGeometry & InGeometry, const FFocusEvent & InFocusEvent) {
 	return FReply::Handled();
 }
 
-UConsoleContext* UTerminalEmulator::CreateConsoleContext(UUserContext* PeacegateUser)
-{
+UConsoleContext* UTerminalEmulator::CreateConsoleContext(UUserContext* PeacegateUser) {
     check(PeacegateUser);
 
     UConsoleContext* Console = NewObject<UConsoleContext>();
@@ -1138,34 +1011,30 @@ UConsoleContext* UTerminalEmulator::CreateConsoleContext(UUserContext* Peacegate
     return Console;
 }
 
-void UTerminalEmulator::ReportTerminalSize(int& Rows, int& Cols)
-{
+void UTerminalEmulator::ReportTerminalSize(int& Rows, int& Cols) {
     Rows = this->term.row;
     Cols = this->term.col;
 }
 
-void UTerminalEmulator::DismissTutorial()
-{
-    if(!this->IsInTutorial) return;
+void UTerminalEmulator::DismissTutorial() {
+    if(this->IsInTutorial) {
+        FCursor c = this->term.altc;
+        TArray<FLine> line = this->term.alt;
 
-    FCursor c = this->term.altc;
-    TArray<FLine> line = this->term.alt;
+        this->term.alt = this->term.line;
+        this->term.altc = this->term.c;
 
-    this->term.alt = this->term.line;
-    this->term.altc = this->term.c;
+        this->term.line = line;
+        this->term.c = c;    
 
-    this->term.line = line;
-    this->term.c = c;    
-
-    this->IsInTutorial = false;
-    this->TutorialState->DismissPrompt();
-    this->TutorialState = nullptr;
+        this->IsInTutorial = false;
+        this->TutorialState->DismissPrompt();
+        this->TutorialState = nullptr;
+    }
 }
 
-void UTerminalEmulator::ShowTutorial(const FText& InTitle, const FText& InText, UTutorialPromptState* Tutorial)
-{
-    if(!this->IsInTutorial)
-    {
+void UTerminalEmulator::ShowTutorial(const FText& InTitle, const FText& InText, UTutorialPromptState* Tutorial) {
+    if(!this->IsInTutorial) {
         FCursor c = this->term.c;
         TArray<FLine> line = this->term.line;
 
@@ -1188,13 +1057,10 @@ void UTerminalEmulator::ShowTutorial(const FText& InTitle, const FText& InText, 
 
     this->term.c.attr.mode = (uint16)EGlyphAttribute::ATTR_BOLD;
 
-    if(InTitle.ToString().Len() <= MaxLen)
-    {
+    if(InTitle.ToString().Len() <= MaxLen) {
         this->MoveTo((this->term.col - InTitle.ToString().Len()) / 2, this->term.c.y);
         Write(InTitle.ToString());
-    }
-    else 
-    {
+    } else  {
         TArray<FString> TitleWords;
         InTitle.ToString().ParseIntoArray(TitleWords, *this->WordDelimeters, false);
 
@@ -1203,31 +1069,24 @@ void UTerminalEmulator::ShowTutorial(const FText& InTitle, const FText& InText, 
 
         this->MoveTo(Start, this->term.c.y);
 
-        for(FString Word : TitleWords)
-        {
+        for(FString Word : TitleWords) {
             Word = Word + " ";
-            if(Word.Len() > MaxLen)
-            {
+            if(Word.Len() > MaxLen) {
                 int WL = Word.Len() - 1;
                 int i = 0;
-                while(WL > 0)
-                {
+                while(WL > 0) {
                     Write(FString::Chr(Word[i]));
                     L++;
                     i++;
-                    if((L % MaxLen) == 0)
-                    {
+                    if((L % MaxLen) == 0) {
                         L = 0;
                         Write("\r\n");
                         this->MoveTo(Start, this->term.c.y);
                     }
                     WL--;
                 }
-            }
-            else
-            {
-                if(L + Word.Len() > MaxLen)
-                {
+            } else {
+                if(L + Word.Len() > MaxLen) {
                     L = 0;
                     Write("\r\n");
                     MoveTo(Start, this->term.c.y);
@@ -1242,13 +1101,10 @@ void UTerminalEmulator::ShowTutorial(const FText& InTitle, const FText& InText, 
     this->Write("\r\n\r\n");
     this->term.c.attr.mode = 0;
 
-    if(InText.ToString().Len() <= MaxLen)
-    {
+    if(InText.ToString().Len() <= MaxLen) {
         this->MoveTo((this->term.col - InText.ToString().Len()) / 2, this->term.c.y);
         Write(InText.ToString());
-    }
-    else 
-    {
+    } else  {
         TArray<FString> TitleWords;
         InText.ToString().ParseIntoArray(TitleWords, *this->WordDelimeters, false);
 
@@ -1257,31 +1113,24 @@ void UTerminalEmulator::ShowTutorial(const FText& InTitle, const FText& InText, 
 
         this->MoveTo(Start, this->term.c.y);
 
-        for(FString Word : TitleWords)
-        {
+        for(FString Word : TitleWords) {
             Word = Word + " ";
-            if(Word.Len() > MaxLen)
-            {
+            if(Word.Len() > MaxLen) {
                 int WL = Word.Len() - 1;
                 int i = 0;
-                while(WL > 0)
-                {
+                while(WL > 0) {
                     Write(FString::Chr(Word[i]));
                     L++;
                     i++;
-                    if((L % MaxLen) == 0)
-                    {
+                    if((L % MaxLen) == 0) {
                         L = 0;
                         Write("\r\n");
                         this->MoveTo(Start, this->term.c.y);
                     }
                     WL--;
                 }
-            }
-            else
-            {
-                if(L + Word.Len() > MaxLen)
-                {
+            } else {
+                if(L + Word.Len() > MaxLen) {
                     L = 0;
                     Write("\r\n");
                     MoveTo(Start, this->term.c.y);

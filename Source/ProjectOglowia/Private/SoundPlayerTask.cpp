@@ -34,10 +34,8 @@
 #include "PeacenetWorldStateActor.h"
 #include "UserContext.h"
 
-void USoundPlayerTask::NativeStart()
-{
-    if(!this->SoundToPlay)
-    {
+void USoundPlayerTask::NativeStart() {
+    if(!this->SoundToPlay) {
         this->Complete();
         return;
     }
@@ -47,10 +45,8 @@ void USoundPlayerTask::NativeStart()
     UGameplayStatics::PlaySound2D(this->GetPlayerUser()->GetPeacenet()->GetWorld(), this->SoundToPlay);
 }
 
-void USoundPlayerTask::NativeTick(float InDeltaSeconds)
-{
-    if(this->TimeToWait <= 0.f)
-    {
+void USoundPlayerTask::NativeTick(float InDeltaSeconds) {
+    if(this->TimeToWait <= 0.f) {
         this->Complete();
         return;
     }

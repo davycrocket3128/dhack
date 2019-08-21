@@ -36,8 +36,7 @@
 #include "SystemContext.h"
 #include "UserContext.h"
 
-void UTutorialTask::MissionEnded()
-{
+void UTutorialTask::MissionEnded() {
     // Get rid of the objective text in case we have any.
     // Save desktops should handle the GUI side of this by not showing the mission acquisition
     // UI when not in a mission but.... there's such a thing as drunk, stoned or uncaffeinated Michael.
@@ -48,87 +47,72 @@ void UTutorialTask::MissionEnded()
     this->OnMissionEnded();
 }
 
-void UTutorialTask::SetObjectiveText(const FText& InObjectiveText)
-{
+void UTutorialTask::SetObjectiveText(const FText& InObjectiveText) {
     this->GetPlayerUser()->GetDesktop()->SetObjectiveText(InObjectiveText);
 }
 
-AMissionActor* UTutorialTask::GetMissionActor()
-{
+AMissionActor* UTutorialTask::GetMissionActor() {
     return this->Mission;
 }
 
-bool UTutorialTask::IsTutorialActive()
-{
+bool UTutorialTask::IsTutorialActive() {
     return this->GetPlayerUser()->GetPeacenet()->IsTutorialActive();
 }
 
-void UTutorialTask::ShowTutorialIfNotSet(FString InBoolean, const FText& InTitle, const FText& InTutorial)
-{
+void UTutorialTask::ShowTutorialIfNotSet(FString InBoolean, const FText& InTitle, const FText& InTutorial) {
     if(this->IsTutorialActive()) return;
 
-    if(!this->IsSet(InBoolean))
-    {
+    if(!this->IsSet(InBoolean)) {
         this->GetPlayerUser()->GetPeacenet()->GetTutorialState()->ActivatePrompt(InTitle, InTutorial);
         this->SetBoolean(InBoolean, true);
     }
 }
 
-bool UTutorialTask::IsSet(FString InSaveBoolean)
-{
+bool UTutorialTask::IsSet(FString InSaveBoolean) {
     return this->GetPlayerUser()->GetPeacenet()->SaveGame->IsTrue(InSaveBoolean);
 }
 
-void UTutorialTask::SetBoolean(FString InSaveBoolean, bool InValue)
-{
+void UTutorialTask::SetBoolean(FString InSaveBoolean, bool InValue) {
     this->GetPlayerUser()->GetPeacenet()->SaveGame->SetValue(InSaveBoolean, InValue);
 }
 
-bool UTutorialTask::GetIsFailed()
-{
+bool UTutorialTask::GetIsFailed() {
     return this->IsFailed;
 }
 
-FText UTutorialTask::GetFailMessage()
-{
+FText UTutorialTask::GetFailMessage() {
     return this->FailMessage;
 }
 
-void UTutorialTask::Fail(const FText& InFailMessage)
-{
+void UTutorialTask::Fail(const FText& InFailMessage) {
     check(!this->IsFailed);
     this->IsFailed = true;
     this->FailMessage = InFailMessage;
 }
 
-void UTutorialTask::HandleEvent(FString EventName, TMap<FString, FString> InEventArgs)
-{
-    if(this->IsFailed) return;
-
-    this->NativeEvent(EventName, InEventArgs);
-    this->OnHandleEvent(EventName, InEventArgs);
+void UTutorialTask::HandleEvent(FString EventName, TMap<FString, FString> InEventArgs) {
+    if(!this->IsFailed) {
+        this->NativeEvent(EventName, InEventArgs);
+        this->OnHandleEvent(EventName, InEventArgs);
+    }
 }
 
-UUserContext* UTutorialTask::GetPlayerUser()
-{
+UUserContext* UTutorialTask::GetPlayerUser() {
     int PlayerID = this->GetPeacenet()->SaveGame->PlayerComputerID;
     USystemContext* PlayerSystem = this->GetPeacenet()->GetSystemContext(PlayerID);
     return PlayerSystem->GetUserContext(this->GetPeacenet()->SaveGame->PlayerUserID);
 }
 
-APeacenetWorldStateActor* UTutorialTask::GetPeacenet()
-{
+APeacenetWorldStateActor* UTutorialTask::GetPeacenet() {
     return this->Mission->GetPeacenet();
 }
 
-void UTutorialTask::Complete()
-{
+void UTutorialTask::Complete() {
     this->IsFinished = true;
     this->SetObjectiveText(FText::GetEmpty());
 }
 
-void UTutorialTask::Start(AMissionActor* InMission)
-{
+void UTutorialTask::Start(AMissionActor* InMission) {
     check(InMission);
 
     this->Mission = InMission;
@@ -139,8 +123,7 @@ void UTutorialTask::Start(AMissionActor* InMission)
     this->OnStart();
 }
 
-void UTutorialTask::Tick(float InDeltaSeconds)
-{
+void UTutorialTask::Tick(float InDeltaSeconds) {
     if(this->IsFailed) return;
     if(this->IsFinished) return;
 
@@ -148,7 +131,6 @@ void UTutorialTask::Tick(float InDeltaSeconds)
     this->OnTick(InDeltaSeconds);
 }
 
-bool UTutorialTask::GetIsFinished()
-{
+bool UTutorialTask::GetIsFinished() {
     return this->IsFinished;
 }

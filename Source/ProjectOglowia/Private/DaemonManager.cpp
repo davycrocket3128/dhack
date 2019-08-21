@@ -35,18 +35,15 @@
 #include "SystemContext.h"
 #include "PeacenetWorldStateActor.h"
 
-bool UDaemonManager::IsDaemonRunning(FName InDaemonName)
-{
-    for(auto Daemon : this->ActiveDaemons)
-    {
+bool UDaemonManager::IsDaemonRunning(FName InDaemonName) {
+    for(auto Daemon : this->ActiveDaemons) {
         if(Daemon->GetName() == InDaemonName)
             return true;
     }
     return false;
 }
 
-void UDaemonManager::Initialize(USystemContext* InSystem, UProcess* InSystemProcess)
-{
+void UDaemonManager::Initialize(USystemContext* InSystem, UProcess* InSystemProcess) {
     // Check system and process validity.
     check(InSystem);
     check(InSystemProcess);
@@ -58,10 +55,10 @@ void UDaemonManager::Initialize(USystemContext* InSystem, UProcess* InSystemProc
     this->SystemContext = InSystem;
     
     // If the system process we've previously stored is valid and not dead, kill it.
-    if(this->SystemProcess)
-    {
-        if(!this->SystemProcess->IsDead())
+    if(this->SystemProcess) {
+        if(!this->SystemProcess->IsDead()) {
             this->SystemProcess->Kill();
+        }
         this->SystemProcess = nullptr;
     }
 
@@ -78,17 +75,13 @@ void UDaemonManager::Initialize(USystemContext* InSystem, UProcess* InSystemProc
     this->StartEnabledDaemons();
 }
 
-bool UDaemonManager::IsDaemonEnabled(FName InName)
-{
+bool UDaemonManager::IsDaemonEnabled(FName InName) {
     return !this->SystemContext->GetComputer().DisabledDaemons.Contains(InName);
 }
 
-void UDaemonManager::StartEnabledDaemons()
-{
-    for(auto Daemon : this->AvailableDaemons)
-    {
-        if(this->IsDaemonEnabled(Daemon.Name))
-        {
+void UDaemonManager::StartEnabledDaemons() {
+    for(auto Daemon : this->AvailableDaemons) {
+        if(this->IsDaemonEnabled(Daemon.Name)) {
             UPeacegateDaemon* DaemonInstance = this->CreateDaemon(Daemon.Name);
 
             ActiveDaemons.Add(DaemonInstance);
@@ -99,12 +92,9 @@ void UDaemonManager::StartEnabledDaemons()
     }
 }
 
-UPeacegateDaemon* UDaemonManager::CreateDaemon(FName InName)
-{
-    for(auto Daemon : this->AvailableDaemons)
-    {
-        if(Daemon.Name == InName)
-        {
+UPeacegateDaemon* UDaemonManager::CreateDaemon(FName InName) {
+    for(auto Daemon : this->AvailableDaemons) {
+        if(Daemon.Name == InName) {
             UPeacegateDaemon* Instance = NewObject<UPeacegateDaemon>(this, Daemon.DaemonClass);
             Instance->SetMetadata(this, Daemon.Name, Daemon.FriendlyName, Daemon.Description);
             return Instance;
@@ -113,49 +103,39 @@ UPeacegateDaemon* UDaemonManager::CreateDaemon(FName InName)
     return nullptr;
 }
 
-void UDaemonManager::StartDaemon(UPeacegateDaemon* InDaemon)
-{
+void UDaemonManager::StartDaemon(UPeacegateDaemon* InDaemon) {
     // The daemon will create its process on its own, all we need to do is start it.
     InDaemon->Start();
 }
 
-UProcess* UDaemonManager::Fork(FString InProcessName)
-{
+UProcess* UDaemonManager::Fork(FString InProcessName) {
     return this->SystemProcess->Fork(InProcessName);
 }
 
-void UDaemonManager::DaemonStoppedGracefully(UPeacegateDaemon* InDaemon)
-{
+void UDaemonManager::DaemonStoppedGracefully(UPeacegateDaemon* InDaemon) {
     this->ActiveDaemons.Remove(InDaemon);
 }
 
-APeacenetWorldStateActor* UDaemonManager::GetPeacenet()
-{
+APeacenetWorldStateActor* UDaemonManager::GetPeacenet() {
     return this->SystemContext->GetPeacenet();
 }
 
-USystemContext* UDaemonManager::GetSystemContext()
-{
+USystemContext* UDaemonManager::GetSystemContext() {
     return this->SystemContext;
 }
 
-bool UDaemonManager::IsActive()
-{
+bool UDaemonManager::IsActive() {
     return this->SystemProcess && !this->SystemProcess->IsDead();
 }
 
-void UDaemonManager::StartDaemonByName(FName InName)
-{
-    for(auto Daemon : this->ActiveDaemons)
-    {
+void UDaemonManager::StartDaemonByName(FName InName) {
+    for(auto Daemon : this->ActiveDaemons) {
         if(Daemon->GetName() == InName)
             return;
     }
 
-    for(auto DaemonInfo : this->AvailableDaemons)
-    {
-        if(DaemonInfo.Name == InName)
-        {
+    for(auto DaemonInfo : this->AvailableDaemons) {
+        if(DaemonInfo.Name == InName) {
             UPeacegateDaemon* Daemon = this->CreateDaemon(InName);
             ActiveDaemons.Add(Daemon);
             this->StartDaemon(Daemon);
@@ -164,33 +144,29 @@ void UDaemonManager::StartDaemonByName(FName InName)
     }
 }
 
-void UDaemonManager::StopDaemonByName(FName InName)
-{
-    for(int i = 0; i < ActiveDaemons.Num(); i++)
-    {
+void UDaemonManager::StopDaemonByName(FName InName) {
+    for(int i = 0; i < ActiveDaemons.Num(); i++) {
         UPeacegateDaemon* Daemon = ActiveDaemons[i];
-        if(Daemon->GetName() == InName)
-        {
+        if(Daemon->GetName() == InName) {
             Daemon->Stop();
             return;
         }
     }
 }
 
-void UDaemonManager::RestartDaemonByName(FName InName)
-{
+void UDaemonManager::RestartDaemonByName(FName InName) {
     this->StopDaemonByName(InName);
     this->StartDaemonByName(InName);
 }
 
-void UDaemonManager::EnableDaemon(FName InDaemon)
-{
-    if(this->SystemContext->GetComputer().DisabledDaemons.Contains(InDaemon))
+void UDaemonManager::EnableDaemon(FName InDaemon) {
+    if(this->SystemContext->GetComputer().DisabledDaemons.Contains(InDaemon)) {
         this->SystemContext->GetComputer().DisabledDaemons.Remove(InDaemon);
+    }
 }
 
-void UDaemonManager::DisableDaemon(FName InDaemon)
-{
-    if(!this->SystemContext->GetComputer().DisabledDaemons.Contains(InDaemon))
+void UDaemonManager::DisableDaemon(FName InDaemon) {
+    if(!this->SystemContext->GetComputer().DisabledDaemons.Contains(InDaemon)) {
         this->SystemContext->GetComputer().DisabledDaemons.Add(InDaemon);
+    }
 }

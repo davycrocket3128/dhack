@@ -31,18 +31,15 @@
 
 #include "HackSubtask.h"
 
-void UHackSubtask::SetObjectiveText(const FText& InObjectiveText)
-{
+void UHackSubtask::SetObjectiveText(const FText& InObjectiveText) {
     this->GetPlayerUser()->GetDesktop()->SetObjectiveText(InObjectiveText);
 }
 
-UUserContext* UHackSubtask::GetPlayerUser()
-{
+UUserContext* UHackSubtask::GetPlayerUser() {
     return this->HackTask->GetPlayerUser();
 }
 
-USystemContext* UHackSubtask::GetHackedSystem()
-{
+USystemContext* UHackSubtask::GetHackedSystem() {
     // UHackTask is friends with us so we can just steal private data from it lol.
     // Friendship, love and gratitude... It's normal.  And lovely.  Bliss.
     int HackedIdentity = this->HackTask->TargetEntity;
@@ -55,8 +52,7 @@ USystemContext* UHackSubtask::GetHackedSystem()
     return this->GetPlayerUser()->GetPeacenet()->GetSystemContext(HackedIdentity);
 }
 
-void UHackSubtask::Fail(const FText& InFailMessage)
-{
+void UHackSubtask::Fail(const FText& InFailMessage) {
     check(!this->IsFinished);
     check(!this->IsFailed);
 
@@ -64,16 +60,14 @@ void UHackSubtask::Fail(const FText& InFailMessage)
     this->FailMessage = InFailMessage;
 }
 
-void UHackSubtask::Finish()
-{
+void UHackSubtask::Finish() {
     check(!this->IsFinished);
 
     this->IsFinished = true;
     this->SetObjectiveText(FText::GetEmpty());
 }
 
-void UHackSubtask::Start(UHackTask* InHackTask)
-{
+void UHackSubtask::Start(UHackTask* InHackTask) {
     check(InHackTask);
 
     this->HackTask = InHackTask;
@@ -84,29 +78,24 @@ void UHackSubtask::Start(UHackTask* InHackTask)
     this->OnStart();
 }
 
-void UHackSubtask::Tick(float InDeltaSeconds)
-{
+void UHackSubtask::Tick(float InDeltaSeconds) {
     this->NativeTick(InDeltaSeconds);
     this->OnTick(InDeltaSeconds);
 }
 
-bool UHackSubtask::GetIsFailed()
-{
+bool UHackSubtask::GetIsFailed() {
     return this->IsFailed;
 }
 
-bool UHackSubtask::GetIsFinished()
-{
+bool UHackSubtask::GetIsFinished() {
     return this->IsFinished;
 }
 
-FText UHackSubtask::GetFailMessage()
-{
+FText UHackSubtask::GetFailMessage() {
     return this->FailMessage;
 }
 
-void UHackSubtask::GameEvent(FString EventName, TMap<FString, FString> InEventData)
-{
+void UHackSubtask::GameEvent(FString EventName, TMap<FString, FString> InEventData) {
     this->NativeGameEvent(EventName, InEventData);
     this->OnGameEvent(EventName, InEventData);
 }

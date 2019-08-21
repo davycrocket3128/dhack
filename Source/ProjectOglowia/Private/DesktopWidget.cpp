@@ -49,42 +49,43 @@
 #include "CommandInfo.h"
 #include "TerminalCommand.h"
 
-UUserWidget* UDesktopWidget::CreateWidgetOwnedByDesktop(TSubclassOf<UUserWidget> InWidgetClass)
-{
+UUserWidget* UDesktopWidget::CreateWidgetOwnedByDesktop(TSubclassOf<UUserWidget> InWidgetClass) {
 	return CreateWidget<UUserWidget, APlayerController>(this->GetOwningPlayer(), InWidgetClass);
 }
 
-void UDesktopWidget::StartMissionIfAvailable(UMissionAsset* InMission)
-{
-	if(this->IsMissionActive()) return;
-
-	if(!InMission) return;
-
-	if(this->GetPeacenet()->IsMissionCompleted(InMission))
+void UDesktopWidget::StartMissionIfAvailable(UMissionAsset* InMission) {
+	if(this->IsMissionActive()) {
 		return;
+	}
+
+	if(!InMission) {
+		return;
+	}
+
+	if(this->GetPeacenet()->IsMissionCompleted(InMission)) {
+		return;
+	}
 
 	this->GetPeacenet()->StartMission(InMission);
 }
 
-bool UDesktopWidget::IsUpgradeInstalled(USystemUpgrade* InUpgrade)
-{
-	if(!this->IsSessionActive()) return false;
+bool UDesktopWidget::IsUpgradeInstalled(USystemUpgrade* InUpgrade) {
+	if(!this->IsSessionActive()) {
+		return false;
+	}
 	return this->GetUserContext()->IsUpgradeInstalled(InUpgrade);
 }
 
-float UDesktopWidget::GetStealthiness()
-{
+float UDesktopWidget::GetStealthiness() {
 	return this->GetUserContext()->GetStealthiness();
 }
 
-void UDesktopWidget::ResetSession(UUserContext* InNewSession)
-{
+void UDesktopWidget::ResetSession(UUserContext* InNewSession) {
 	this->SessionActive = false;
 	this->ActivateSession(InNewSession);
 }
 
-void UDesktopWidget::ShowProgramOnWorkspace(UProgram* InProgram)
-{
+void UDesktopWidget::ShowProgramOnWorkspace(UProgram* InProgram) {
 	// Make sure nothing is invalid.
 	check(InProgram);
 	check(this->GetWorkspace());
@@ -100,35 +101,29 @@ void UDesktopWidget::ShowProgramOnWorkspace(UProgram* InProgram)
 	});
 }
 
-APeacenetWorldStateActor* UDesktopWidget::GetPeacenet()
-{
+APeacenetWorldStateActor* UDesktopWidget::GetPeacenet() {
 	return this->GetUserContext()->GetPeacenet();
 }
 
-UUserContext* UDesktopWidget::GetUserContext()
-{
+UUserContext* UDesktopWidget::GetUserContext() {
 	return this->SystemContext->GetUserContext(this->UserID);
 }
 
-void UDesktopWidget::CloseActiveProgram()
-{
+void UDesktopWidget::CloseActiveProgram() {
 	this->EventActiveProgramClose.Broadcast();
 }
 
-USystemContext* UDesktopWidget::GetSystemContext()
-{
+USystemContext* UDesktopWidget::GetSystemContext() {
 	return this->SystemContext;
 }
 
-ATerminalCommand* UDesktopWidget::ForkCommand(UCommandInfo* InCommandInfo, UConsoleContext* InConsoleContext)
-{
+ATerminalCommand* UDesktopWidget::ForkCommand(UCommandInfo* InCommandInfo, UConsoleContext* InConsoleContext) {
 	UProcess* Child = InConsoleContext->GetUserContext()->Fork(InCommandInfo->ID.ToString());
 
 	return ATerminalCommand::CreateCommandFromAsset(InConsoleContext->GetUserContext(), InCommandInfo, Child);
 }
 
-UProgram * UDesktopWidget::SpawnProgramFromClass(TSubclassOf<UProgram> InClass, const FText& InTitle, UTexture2D* InIcon, bool InEnableMinimizeMaximize)
-{
+UProgram * UDesktopWidget::SpawnProgramFromClass(TSubclassOf<UProgram> InClass, const FText& InTitle, UTexture2D* InIcon, bool InEnableMinimizeMaximize) {
 	UWindow* OutputWindow = nullptr;
 
 	UProgram* Program = UProgram::CreateProgram(this->SystemContext->GetPeacenet()->WindowClass, InClass, this->SystemContext->GetUserContext(this->UserID), OutputWindow, InTitle.ToString(), nullptr);
@@ -140,8 +135,7 @@ UProgram * UDesktopWidget::SpawnProgramFromClass(TSubclassOf<UProgram> InClass, 
 	return Program;
 }
 
-void UDesktopWidget::NativeConstruct()
-{
+void UDesktopWidget::NativeConstruct() {
 	// Notify Blueprint when a mission is completed.
 	TScriptDelegate<> MissionCompleteDelegate;
 	MissionCompleteDelegate.BindUFunction(this, "OnMissionComplete");
@@ -153,14 +147,11 @@ void UDesktopWidget::NativeConstruct()
 	this->SystemContext->GetPeacenet()->MissionFailed.Add(MissionFailDelegate);
 
 	// Set the default wallpaper if our computer doesn't have one.
-	if(!this->GetSystemContext()->GetComputer().CurrentWallpaper && !this->GetSystemContext()->GetComputer().HasWallpaperBeenSet)
-	{
+	if(!this->GetSystemContext()->GetComputer().CurrentWallpaper && !this->GetSystemContext()->GetComputer().HasWallpaperBeenSet) {
 		// Go through all wallpaper assets.
-		for(auto Wallpaper : this->GetSystemContext()->GetPeacenet()->Wallpapers)
-		{
+		for(auto Wallpaper : this->GetSystemContext()->GetPeacenet()->Wallpapers) {
 			// Is it the default wallpaper?
-			if(Wallpaper->IsDefault)
-			{
+			if(Wallpaper->IsDefault) {
 				// Assign the texture to the computer.
 				this->GetSystemContext()->GetComputer().CurrentWallpaper = Wallpaper->WallpaperTexture;
 			}
@@ -173,65 +164,55 @@ void UDesktopWidget::NativeConstruct()
 	MapUpdateDelegate.BindUFunction(this, "UpdateMap");
 	this->SystemContext->GetPeacenet()->MapsUpdated.Add(MapUpdateDelegate);
 
-	if(this->SystemContext->GetComputer().Users.Num() > 1)
-	{
+	if(this->SystemContext->GetComputer().Users.Num() > 1) {
 		// We have more than a root user.
 		// If we only have two users then we'll possess the first user that isn't root
-		if(this->SystemContext->GetComputer().Users.Num() == 2)
-		{
+		if(this->SystemContext->GetComputer().Users.Num() == 2) {
 			this->ActivateSession(this->SystemContext->GetUserContext(this->SystemContext->GetComputer().Users[1].ID));
-		}
-		else 
-		{
+		} else {
 			// We don't know what the fuck to do, it's up to the player
 			this->SessionActive = false;
 		}
-	}
-	else 
-	{
+	} else {
 		this->ActivateSession(this->GetUserContext());
 	}
 
 	Super::NativeConstruct();
 }
 
-FText UDesktopWidget::GetObjectiveText()
-{
+FText UDesktopWidget::GetObjectiveText() {
 	return this->ObjectiveText;
 }
 
-void UDesktopWidget::SetObjectiveText(const FText& InObjectiveText)
-{
+void UDesktopWidget::SetObjectiveText(const FText& InObjectiveText) {
 	this->ObjectiveText = InObjectiveText;
 }
 
-FText UDesktopWidget::GetMissionAcquisition()
-{
-	if(!this->IsMissionActive()) return FText::GetEmpty();
+FText UDesktopWidget::GetMissionAcquisition() {
+	if(!this->IsMissionActive()) {
+		return FText::GetEmpty();
+	}
 	return this->GetPeacenet()->GetMissionActor()->GetMissionAsset()->Description;
 }
 
-FText UDesktopWidget::GetMissionName()
-{
-	if(!this->IsMissionActive()) return FText::GetEmpty();
+FText UDesktopWidget::GetMissionName() {
+	if(!this->IsMissionActive()) {
+		return FText::GetEmpty();
+	}
 	return this->GetPeacenet()->GetMissionActor()->GetMissionName();
 }
 
-bool UDesktopWidget::IsMissionActive()
-{
+bool UDesktopWidget::IsMissionActive() {
 	return this->GetPeacenet()->IsInMission();
 }
 
-void UDesktopWidget::AbandonMission()
-{
-	if(this->IsMissionActive())
-	{
+void UDesktopWidget::AbandonMission() {
+	if(this->IsMissionActive()) {
 		this->GetPeacenet()->GetMissionActor()->FailCurrentTask(NSLOCTEXT("Mission", "Abandoned", "The mission was abandoned."));
 	}
 }
 
-void UDesktopWidget::SetWallpaper(UTexture2D* InTexture)
-{
+void UDesktopWidget::SetWallpaper(UTexture2D* InTexture) {
 	this->GetSystemContext()->GetComputer().CurrentWallpaper = InTexture;
 }
 
@@ -239,21 +220,17 @@ void UDesktopWidget::OnFilesystemOperation(EFilesystemEventType InType, FString 
 {
 }
 
-void UDesktopWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
-{
+void UDesktopWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime) {
 	check(this->SystemContext);
 	check(this->SystemContext->GetPeacenet());
 
 	// If a session is active, and we can get a user context from it...
-	if(this->IsSessionActive())
-	{
+	if(this->IsSessionActive()) {
 		UUserContext* User = this->GetUserContext();
-		if(User)
-		{
+		if(User) {
 			// If the user context is invalid, kernel panic for now.
 			// TODO: Graceful user log-out.
-			if(!User->IsUserContextValid())
-			{
+			if(!User->IsUserContextValid()) {
 				this->KernelPanic();
 			}
 		}
@@ -263,11 +240,9 @@ void UDesktopWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	this->MyComputer = this->SystemContext->GetComputer();
 
 	// If a notification isn't currently active...
-	if (!bIsWaitingForNotification)
-	{
+	if (!bIsWaitingForNotification) {
 		// Do we have notifications left in the queue?
-		if (this->NotificationQueue.Num())
-		{
+		if (this->NotificationQueue.Num()) {
 			// Grab the first notification.
 			FDesktopNotification Note = this->NotificationQueue[0];
 
@@ -293,8 +268,7 @@ void UDesktopWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	// update hostname
 	this->CurrentHostname = this->SystemContext->GetHostname();
 
-	if(this->GetUserContext()->HasIdentity())
-	{
+	if(this->GetUserContext()->HasIdentity()) {
 		// And now the Peacenet name.
 		this->CurrentPeacenetName = this->MyCharacter.CharacterName;
 	}
@@ -307,68 +281,76 @@ void UDesktopWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	Super::NativeTick(MyGeometry, InDeltaTime);
 }
 
-bool UDesktopWidget::IsInTextMode()
-{
-	if(!this->IsSessionActive()) return false;
-	if(!this->SupportsTextMode()) return false;
+bool UDesktopWidget::IsInTextMode() {
+	if(!this->IsSessionActive()) {
+		return false;
+	}
+	if(!this->SupportsTextMode()) {
+		return false;
+	}
 
 	return this->DetermineIsTextMode();
 }
 
-void UDesktopWidget::ActivateTextMode()
-{
-	if(!this->IsSessionActive()) return;
-	if(this->IsInTextMode()) return;
-	if(!this->SupportsTextMode()) return;
+void UDesktopWidget::ActivateTextMode() {
+	if(!this->IsSessionActive()) {
+		return;
+	}
+	if(this->IsInTextMode()) {
+		return;
+	}
+	if(!this->SupportsTextMode()) {
+		return;
+	}
 
 	this->TextModeActivated();
 }
 
-void UDesktopWidget::DeactivateTextMode()
-{
-	if(!this->IsSessionActive()) return;
-	if(!this->IsInTextMode()) return;
-	if(!this->SupportsTextMode()) return;
+void UDesktopWidget::DeactivateTextMode() {
+	if(!this->IsSessionActive()) {
+		return;
+	}
+	if(!this->IsInTextMode()) {
+		return;
+	}
+	if(!this->SupportsTextMode()) {
+		return;
+	}
 
 	this->TextModeDeactivated();
 }
 
-void UDesktopWidget::ResetAppLauncher()
-{
-	if(!IsSessionActive())
+void UDesktopWidget::ResetAppLauncher() {
+	if(!IsSessionActive()) {
 		return;
+	}
 
 	// Clear the main menu.
 	this->ClearAppLauncherMainMenu();
 
 	// Collect app launcher categories.
 	TArray<FString> CategoryNames;
-	for (auto Program : this->SystemContext->GetInstalledPrograms())
-	{
-		if (!CategoryNames.Contains(Program->AppLauncherItem.Category.ToString()))
-		{
+	for (auto Program : this->SystemContext->GetInstalledPrograms()) {
+		if (!CategoryNames.Contains(Program->AppLauncherItem.Category.ToString())) {
 			CategoryNames.Add(Program->AppLauncherItem.Category.ToString());
 			this->AddAppLauncherMainMenuItem(Program->AppLauncherItem.Category);
 		}
 	}
 }
 
-bool UDesktopWidget::IsSessionActive()
-{
+bool UDesktopWidget::IsSessionActive() {
 	return this->SessionActive;
 }
 
-TArray<UUserContext*> UDesktopWidget::GetAvailableSessions()
-{
+TArray<UUserContext*> UDesktopWidget::GetAvailableSessions() {
 	TArray<UUserContext*> Ret;
 
-	if(this->IsSessionActive())
+	if(this->IsSessionActive()) {
 		return Ret;
+	}
 
-	for(auto user : this->SystemContext->GetComputer().Users)
-	{
-		if(user.ID != 0)
-		{
+	for(auto user : this->SystemContext->GetComputer().Users) {
+		if(user.ID != 0) {
 			Ret.Add(SystemContext->GetUserContext(user.ID));
 		}
 	}
@@ -376,9 +358,10 @@ TArray<UUserContext*> UDesktopWidget::GetAvailableSessions()
 	return Ret;
 }
 
-void UDesktopWidget::ActivateSession(UUserContext* user)
-{
-	if(this->SessionActive) return;
+void UDesktopWidget::ActivateSession(UUserContext* user) {
+	if(this->SessionActive) {
+		return;
+	}
 
 	this->UserID = user->GetUserID();
 	this->SessionActive = true;
@@ -396,35 +379,31 @@ void UDesktopWidget::ActivateSession(UUserContext* user)
 	TScriptDelegate<> FSOperation;
 	FSOperation.BindUFunction(this, "OnFilesystemOperation");
 
-	if(!this->Filesystem->FilesystemOperation.Contains(FSOperation))
+	if(!this->Filesystem->FilesystemOperation.Contains(FSOperation)) {
 		this->Filesystem->FilesystemOperation.Add(FSOperation);
+	}
 }
 
-int UDesktopWidget::GetOpenConnectionCount()
-{
+int UDesktopWidget::GetOpenConnectionCount() {
 	return this->SystemContext->GetOpenConnectionCount();
 }
 
-void UDesktopWidget::KernelPanic()
-{
+void UDesktopWidget::KernelPanic() {
 	// Call the visual aspect of the kernel panic:
 	this->OnKernelPanic();
 
 	// If a session is active, deactivate it.
-	if(this->IsSessionActive())
-	{
+	if(this->IsSessionActive()) {
 		this->UserID = -1;
 		this->SessionActive = false;
 	}
 }
 
-FString UDesktopWidget::GetIPAddress()
-{
+FString UDesktopWidget::GetIPAddress() {
 	return this->GetSystemContext()->GetIPAddress();
 }
 
-void UDesktopWidget::EnqueueNotification(const FText & InTitle, const FText & InMessage, UTexture2D * InIcon)
-{
+void UDesktopWidget::EnqueueNotification(const FText & InTitle, const FText & InMessage, UTexture2D * InIcon) {
 	FDesktopNotification note;
 	note.Title = InTitle;
 	note.Message = InMessage;
@@ -432,23 +411,23 @@ void UDesktopWidget::EnqueueNotification(const FText & InTitle, const FText & In
 	this->NotificationQueue.Add(note);
 }
 
-void UDesktopWidget::ResetDesktopIcons()
-{
+void UDesktopWidget::ResetDesktopIcons() {
+	// stub
 }
 
-void UDesktopWidget::ShowAppLauncherCategory(const FString& InCategoryName)
-{
-	if(!IsSessionActive())
+void UDesktopWidget::ShowAppLauncherCategory(const FString& InCategoryName) {
+	if(!IsSessionActive()) {
 		return;
+	}
 
 	// Clear the sub-menu.
 	this->ClearAppLauncherSubMenu();
 
 	// Add all the programs.
-	for (auto Program : this->SystemContext->GetInstalledPrograms())
-	{
-		if (Program->AppLauncherItem.Category.ToString() != InCategoryName)
+	for (auto Program : this->SystemContext->GetInstalledPrograms()) {
+		if (Program->AppLauncherItem.Category.ToString() != InCategoryName) {
 			continue;
+		}
 
 		// because Blueprints hate strings being passed by-value.
 		FString ProgramName = Program->ID.ToString();
@@ -458,15 +437,14 @@ void UDesktopWidget::ShowAppLauncherCategory(const FString& InCategoryName)
 	}
 }
 
-bool UDesktopWidget::OpenProgram(const FName InExecutableName, UProgram*& OutProgram)
-{
-	if(!IsSessionActive())
+bool UDesktopWidget::OpenProgram(const FName InExecutableName, UProgram*& OutProgram) {
+	if(!IsSessionActive()) {
 		return false;
+	}
 
 	return this->SystemContext->OpenProgram(InExecutableName, OutProgram);
 }
 
-void UDesktopWidget::FinishShowingNotification()
-{
+void UDesktopWidget::FinishShowingNotification() {
 	bIsWaitingForNotification = false;
 }

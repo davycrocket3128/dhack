@@ -31,8 +31,7 @@
 
 #include "LootableFileContents.h"
 
-void ULootableFileContents::SpawnFile (FString Path, UPeacegateFileSystem* Filesystem)
-{
+void ULootableFileContents::SpawnFile (FString Path, UPeacegateFileSystem* Filesystem) {
     check(Filesystem);
 
     this->NativeSpawnFile(Path, Filesystem);

@@ -36,8 +36,7 @@
 //
 // Usage:
 //   processes
-void AProcessListCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
-{
+void AProcessListCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) {
     // Retrieve all running processes:
     TArray<int> RunningProcesses = this->GetUserContext()->GetRunningProcesses();
 
@@ -62,13 +61,11 @@ void AProcessListCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FS
     TArray<FText> Uids;
 
     // Go through all of the running processes:
-    for(int ProcessID : RunningProcesses)
-    {
+    for(int ProcessID : RunningProcesses) {
         // Get the process information.
         EProcessResult Result;
         UProcess* Process;
-        if(this->GetUserContext()->GetProcess(ProcessID, Process, Result))
-        {
+        if(this->GetUserContext()->GetProcess(ProcessID, Process, Result)) {
             // Get the process name, username and UID for the process.
             FString ProcessName = Process->GetProcessName();
             FString Username = Process->GetUsername();
@@ -80,14 +77,17 @@ void AProcessListCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FS
             FText Pid = FText::FromString(FString::FromInt(ProcessID));
 
             // Calculate longest length.
-            if(Name.ToString().Len() > LongestName)
+            if(Name.ToString().Len() > LongestName) {
                 LongestName = Name.ToString().Len();
+            }
 
-            if(Uid.ToString().Len() > LongestUid)
+            if(Uid.ToString().Len() > LongestUid) {
                 LongestUid = Uid.ToString().Len();
+            }
 
-            if(Pid.ToString().Len() > LongestPid)
+            if(Pid.ToString().Len() > LongestPid) {
                 LongestPid = Pid.ToString().Len();
+            }
 
             // Add the text to the right columns.
             Names.Add(Name);
@@ -99,12 +99,14 @@ void AProcessListCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FS
     // Print the table cell headers.
     InConsole->SetBold(true);
     InConsole->Write(PidHeader);
-    for(int i = 0; i <= LongestPid - PidHeaderLen; i++)
+    for(int i = 0; i <= LongestPid - PidHeaderLen; i++) {
         InConsole->Write(FText::FromString(" "));
+    }
     InConsole->Write(FText::FromString(" | "));
     InConsole->Write(UidHeader);
-    for(int i = 0; i <= LongestUid - UidHeaderLen; i++)
+    for(int i = 0; i <= LongestUid - UidHeaderLen; i++) {
         InConsole->Write(FText::FromString(" "));
+    }
     InConsole->Write(FText::FromString(" | "));
     InConsole->WriteLine(NameHeader);
     InConsole->SetBold(false);
@@ -113,8 +115,7 @@ void AProcessListCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FS
     InConsole->WriteEmptyLine();
 
     // Now we write all the cells!
-    for(int i = 0; i < Names.Num(); i++)
-    {
+    for(int i = 0; i < Names.Num(); i++) {
         // Get the text for each cell.
         FText Name = Names[i];
         FText Uid = Uids[i];
@@ -127,12 +128,14 @@ void AProcessListCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FS
 
         // Write everything correctly!
         InConsole->Write(Pid);
-        for(int j = 0; j <= PidPad; j++)
+        for(int j = 0; j <= PidPad; j++) {
             InConsole->Write(FText::FromString(" "));
+        }
         InConsole->Write(FText::FromString(" | "));
         InConsole->Write(Uid);
-        for(int j = 0; j <= UidPad; j++)
+        for(int j = 0; j <= UidPad; j++) {
             InConsole->Write(FText::FromString(" "));
+        }
         InConsole->Write(FText::FromString(" | "));
         InConsole->WriteLine(Name);
 

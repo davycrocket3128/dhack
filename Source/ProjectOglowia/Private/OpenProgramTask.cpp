@@ -32,20 +32,18 @@
 #include "OpenProgramTask.h"
 #include "UserContext.h"
 
-void UOpenProgramTask::NativeStart()
-{
+void UOpenProgramTask::NativeStart() {
     check(this->Program);
-    if(!this->Program) this->Complete();
+    if(!this->Program) {
+        this->Complete();
+    }
 
     this->SetObjectiveText(FText::Format(NSLOCTEXT("Objectives", "OpenProgram", "Open {0}."), this->Program->FullName));
 }
 
-void UOpenProgramTask::NativeEvent(FString EventName, TMap<FString, FString> InEventArgs)
-{
-    if(EventName == "ProgramOpened")
-    {
-        if(InEventArgs["WindowTitle"] == this->Program->FullName.ToString())
-        {
+void UOpenProgramTask::NativeEvent(FString EventName, TMap<FString, FString> InEventArgs) {
+    if(EventName == "ProgramOpened") {
+        if(InEventArgs["WindowTitle"] == this->Program->FullName.ToString()) {
             this->Complete();
             return;
         }

@@ -32,10 +32,10 @@
 
 #include "MarkovChain.h"
 
-TCHAR UMarkovChain::GetNext(FMarkovSource InSource)
-{
-	if (!MarkovMap.Contains(InSource))
+TCHAR UMarkovChain::GetNext(FMarkovSource InSource) {
+	if (!MarkovMap.Contains(InSource)) {
 		return TEXT('\0');
+	}
 
 	TMap<TCHAR, int> Map = this->MarkovMap[InSource];
 
@@ -45,18 +45,15 @@ TCHAR UMarkovChain::GetNext(FMarkovSource InSource)
 
 	int KeyCount = Map.GetKeys(Keys);
 
-	for (int i = 0; i < KeyCount; i++)
-	{
+	for (int i = 0; i < KeyCount; i++) {
 		Total += Map[Keys[i]];
 	}
 
 	int Rng = this->Random.RandRange(0, Total - 1);
 
-	for (int i = 0; i < KeyCount; i++)
-	{
+	for (int i = 0; i < KeyCount; i++) {
 		Rng -= Map[Keys[i]];
-		if (Rng < 0)
-		{
+		if (Rng < 0) {
 			return Keys[i];
 		}
 	}
@@ -64,8 +61,7 @@ TCHAR UMarkovChain::GetNext(FMarkovSource InSource)
 	return TEXT('\0');
 }
 
-FMarkovSource UMarkovChain::RandomSource()
-{
+FMarkovSource UMarkovChain::RandomSource() {
 	TArray<FMarkovSource> Keys;
 
 	int KeyCount = this->MarkovMap.GetKeys(Keys);
@@ -73,36 +69,39 @@ FMarkovSource UMarkovChain::RandomSource()
 	return Keys[Random.RandRange(0, KeyCount - 1)];
 }
 
-bool UMarkovChain::IsDeadEnd(FMarkovSource InSource, int Depth)
-{
-	if (Depth <= 0)
+bool UMarkovChain::IsDeadEnd(FMarkovSource InSource, int Depth) {
+	if (Depth <= 0) {
 		return false;
+	}
 
-	if (!MarkovMap.Contains(InSource))
+	if (!MarkovMap.Contains(InSource)) {
 		return true;
+	}
 
 	TMap<TCHAR, int> Map = this->MarkovMap[InSource];
 
 	TArray<TCHAR> Keys;
 
-	if (Map.GetKeys(Keys) == 1)
-		if(Keys[0] == TEXT('\0'))
+	if (Map.GetKeys(Keys) == 1) {
+		if(Keys[0] == TEXT('\0')) {
 			return true;
+		}
+	}
 
 	FMarkovSource TempSource = InSource;
 
-	for (int i = 0; i < Keys.Num(); ++i)
-	{
+	for (int i = 0; i < Keys.Num(); ++i) {
 		TempSource = InSource;
 		TempSource.Rotate(Keys[i]);
-		if (!IsDeadEnd(TempSource, Depth - 1)) return false;
+		if (!IsDeadEnd(TempSource, Depth - 1)) {
+			return false;
+		}
 	}
 
 	return true;
 }
 
-TCHAR UMarkovChain::GetNextCharGuarantee(FMarkovSource InSource, int InSteps)
-{
+TCHAR UMarkovChain::GetNextCharGuarantee(FMarkovSource InSource, int InSteps) {
 	check(!IsDeadEnd(InSource, InSteps));
 
 	TMap<TCHAR, int> Temp;
@@ -112,22 +111,22 @@ TCHAR UMarkovChain::GetNextCharGuarantee(FMarkovSource InSource, int InSteps)
 
 	int KeyCount = Map.GetKeys(Keys);
 
-	if (KeyCount == 1)
+	if (KeyCount == 1) {
 		return Keys[0];
+	}
 
 	check(KeyCount > 0);
 
 	int Total = 0;
-	for (int i = 0; i < KeyCount; ++i)
-	{
+	for (int i = 0; i < KeyCount; ++i) {
 		FMarkovSource TempSource = InSource;
 		TempSource.Rotate(Keys[i]);
-		if (!IsDeadEnd(TempSource, InSteps))
-		{
-			if (Temp.Contains(Keys[i]))
+		if (!IsDeadEnd(TempSource, InSteps)) {
+			if (Temp.Contains(Keys[i])) {
 				Temp[Keys[i]] = Map[Keys[i]];
-			else
+			} else {
 				Temp.Add(Keys[i], Map[Keys[i]]);
+			}
 			Total += Map[Keys[i]];
 		}
 	}
@@ -138,11 +137,9 @@ TCHAR UMarkovChain::GetNextCharGuarantee(FMarkovSource InSource, int InSteps)
 
 	int TempKeyCount = Temp.GetKeys(TempKeys);
 
-	for (int i = 0; i < TempKeyCount; i++)
-	{
+	for (int i = 0; i < TempKeyCount; i++) {
 		Rng -= Temp[TempKeys[i]];
-		if (Rng < 0)
-		{
+		if (Rng < 0) {
 			return TempKeys[i];
 		}
 	}
@@ -152,34 +149,36 @@ TCHAR UMarkovChain::GetNextCharGuarantee(FMarkovSource InSource, int InSteps)
 	return TEXT('\0');
 }
 
-void UMarkovChain::Init(TArray<FString> InArray, int N, FRandomStream InRng)
-{
+void UMarkovChain::Init(TArray<FString> InArray, int N, FRandomStream InRng) {
 	this->Random = InRng;
 
-	for (FString ArrayString : InArray)
-	{
+	for (FString ArrayString : InArray) {
 		FMarkovSource Source;
 		Source.SetCount(N);
 
-		for (TCHAR Char : ArrayString)
-		{
-			if (Char == TEXT('\0'))
+		for (TCHAR Char : ArrayString) {
+			if (Char == TEXT('\0')) {
 				break;
+			}
 
-			if (!MarkovMap.Contains(Source))
+			if (!MarkovMap.Contains(Source)) {
 				MarkovMap.Add(Source, TMap<TCHAR, int>());
+			}
 
-			if (!MarkovMap[Source].Contains(Char))
+			if (!MarkovMap[Source].Contains(Char)) {
 				MarkovMap[Source].Add(Char, 0);
+			}
 
 			MarkovMap[Source][Char]++;
 			Source.Rotate(Char);
 		}
-		if (!MarkovMap.Contains(Source))
+		if (!MarkovMap.Contains(Source)) {
 			MarkovMap.Add(Source, TMap<TCHAR, int>());
+		}
 
-		if (!MarkovMap[Source].Contains(TEXT('\0')))
+		if (!MarkovMap[Source].Contains(TEXT('\0'))) {
 			MarkovMap[Source].Add(TEXT('\0'), 0);
+		}
 
 		MarkovMap[Source][TEXT('\0')]++;
 	}
@@ -187,18 +186,15 @@ void UMarkovChain::Init(TArray<FString> InArray, int N, FRandomStream InRng)
 	SourceCount = N;
 }
 
-FString UMarkovChain::GetMarkovString(int InLength)
-{
+FString UMarkovChain::GetMarkovString(int InLength) {
 	FString Out;
 
 	FMarkovSource src;
 	src.SetCount(SourceCount);
 
-	if (InLength < 1) 
-	{
+	if (InLength < 1) {
 		TCHAR tmp = GetNext(src);
-		while (tmp != TEXT('\0'))
-		{
+		while (tmp != TEXT('\0')) {
 			Out.AppendChar(tmp);
 			src.Rotate(tmp);
 			tmp = GetNext(src);

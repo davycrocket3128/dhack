@@ -46,8 +46,7 @@
 #include "TutorialDaemon.h"
 #include "Kismet/GameplayStatics.h"
 
-void UPeacenetGameInstance::RegisterDaemons()
-{
+void UPeacenetGameInstance::RegisterDaemons() {
 	// Register the tutorial daemon for player computers so Peacegate can show hints and tutorials.
 	this->RegisterPeacegateDaemon(
 		UTutorialDaemon::StaticClass(),
@@ -58,8 +57,7 @@ void UPeacenetGameInstance::RegisterDaemons()
 	);
 }
 
-void UPeacenetGameInstance::RegisterPeacegateDaemon(TSubclassOf<UPeacegateDaemon> InDaemonClass, FName Name, FText FriendlyName, FText Description, EDaemonType DaemonType)
-{
+void UPeacenetGameInstance::RegisterPeacegateDaemon(TSubclassOf<UPeacegateDaemon> InDaemonClass, FName Name, FText FriendlyName, FText Description, EDaemonType DaemonType) {
 	// Check that a daemon with this name isn't already registered.
 	check(!this->RegisteredDaemons.Contains(Name));
 
@@ -77,12 +75,10 @@ void UPeacenetGameInstance::RegisterPeacegateDaemon(TSubclassOf<UPeacegateDaemon
 	this->RegisteredDaemons.Add(Name, Info);
 }
 
-void UPeacenetGameInstance::CreateWorld(FString InCharacterName, UPeacenetGameTypeAsset* InGameType)
-{
+void UPeacenetGameInstance::CreateWorld(FString InCharacterName, UPeacenetGameTypeAsset* InGameType) {
 	check(InGameType);
 
-	if(APeacenetWorldStateActor::HasExistingOS())
-	{
+	if(APeacenetWorldStateActor::HasExistingOS()) {
 		UGameplayStatics::DeleteGameInSlot("PeacegateOS", 0);
 	}
 
@@ -226,39 +222,31 @@ void UPeacenetGameInstance::CreateWorld(FString InCharacterName, UPeacenetGameTy
 	UGameplayStatics::SaveGameToSlot(SaveGame, "PeacegateOS", 0);
 }
 
-TArray<UPeacenetGameTypeAsset*> const& UPeacenetGameInstance::GetGameTypes() const
-{
+TArray<UPeacenetGameTypeAsset*> const& UPeacenetGameInstance::GetGameTypes() const {
 	return this->GameTypes;
 }
 
-UPeacenetSettings * UPeacenetGameInstance::GetSettings()
-{
+UPeacenetSettings * UPeacenetGameInstance::GetSettings() {
 	return this->Settings;
 }
 
-void UPeacenetGameInstance::SaveSettings()
-{
+void UPeacenetGameInstance::SaveSettings() {
 	// Save the settings save to disk.
 	UGameplayStatics::SaveGameToSlot(this->Settings, "PeacenetSettings", 0);
 
 	this->SettingsApplied.Broadcast(this->Settings);
 }
 
-void UPeacenetGameInstance::LoadSettings()
-{
+void UPeacenetGameInstance::LoadSettings() {
 	// Load it in.
 	this->Settings = Cast<UPeacenetSettings>(UGameplayStatics::LoadGameFromSlot("PeacenetSettings", 0));
 }
 
-void UPeacenetGameInstance::Init()
-{
+void UPeacenetGameInstance::Init() {
 	// Do we have a settings save?
-	if (UGameplayStatics::DoesSaveGameExist("PeacenetSettings", 0))
-	{
+	if (UGameplayStatics::DoesSaveGameExist("PeacenetSettings", 0)) {
 		this->LoadSettings();
-	}
-	else
-	{
+	} else {
 		// Create a new save.
 		this->Settings = NewObject<UPeacenetSettings>();
 
@@ -271,11 +259,11 @@ void UPeacenetGameInstance::Init()
 	// A place to store computer type asset data
 	TArray<FAssetData> Assets;
 
-	if (!AssetRegistryModule.Get().GetAssetsByClass("PeacenetGameTypeAsset", Assets, true))
+	if (!AssetRegistryModule.Get().GetAssetsByClass("PeacenetGameTypeAsset", Assets, true)) {
 		check(false);
+	}
 
-	for (auto& Asset : Assets)
-	{
+	for (auto& Asset : Assets) {
 		this->GameTypes.Add(Cast<UPeacenetGameTypeAsset>(Asset.GetAsset()));
 	}
 
@@ -287,8 +275,7 @@ void UPeacenetGameInstance::Init()
 	AssetRegistryModule.Get().GetAssetsByClass("DaemonInfoAsset", DaemonAssets, true);
 
 	// Loop through them and register them.
-	for(auto& Asset : DaemonAssets)
-	{
+	for(auto& Asset : DaemonAssets) {
 		UDaemonInfoAsset* InfoAsset = Cast<UDaemonInfoAsset>(Asset.GetAsset());
 
 		// Register the daemon!
@@ -296,29 +283,23 @@ void UPeacenetGameInstance::Init()
 	}
 
 	// Load or create the Profile.
-	if(UGameplayStatics::DoesSaveGameExist("Profile", 0)) 
-	{
+	if(UGameplayStatics::DoesSaveGameExist("Profile", 0))  {
 		this->Profile = Cast<UProfile>(UGameplayStatics::LoadGameFromSlot("Profile", 0));
-	}
-	else
-	{
+	} else {
 		this->Profile = NewObject<UProfile>();
 	}
 
 	Super::Init();
 }
 
-bool UPeacenetGameInstance::HasOldSaveFile() 
-{
+bool UPeacenetGameInstance::HasOldSaveFile() {
 	// If there is no profile data yet there is still a Peacegate state file, then we have an old pre-0.3.x save file we can
 	// convert if the player chooses to.
 	return APeacenetWorldStateActor::HasExistingOS() && !this->Profile->ProfileData.Num();
 }
 
-void UPeacenetGameInstance::LoadAndConvertOldSave() 
-{
-	if(this->HasOldSaveFile()) 
-	{
+void UPeacenetGameInstance::LoadAndConvertOldSave() {
+	if(this->HasOldSaveFile())  {
 		// Old saves are on PeacegateOS (user 0).
 		UPeacenetSaveGame* OldSave = Cast<UPeacenetSaveGame>(UGameplayStatics::LoadGameFromSlot("PeacegateOS", 0));
 
@@ -328,8 +309,7 @@ void UPeacenetGameInstance::LoadAndConvertOldSave()
 		bool result = OldSave->GetComputerByID(OldSave->PlayerComputerID, OldPC, OldIndex);
 		check(result);
 
-		if(result)
-		{
+		if(result) {
 			// Create new profile data.
 			FProfileData NewProfile;
 			NewProfile.Username = OldPC.Users[OldPC.Users.Num() - 1].Username; // give it the actual username
@@ -383,8 +363,7 @@ bool UPeacenetGameInstance::GetMostRecentCredentials(FString& Username, FString&
 	return true;
 }
 
-void UPeacenetGameInstance::Shutdown()
-{
+void UPeacenetGameInstance::Shutdown() {
 	// Save the Profile.
 	UGameplayStatics::SaveGameToSlot(this->Profile, "Profile", 0);
 
@@ -399,28 +378,20 @@ void UPeacenetGameInstance::Shutdown()
 	Super::Shutdown();
 }
 
-TArray<FDaemonInfo> UPeacenetGameInstance::GetDaemonsForSystem(USystemContext* InSystemContext)
-{
+TArray<FDaemonInfo> UPeacenetGameInstance::GetDaemonsForSystem(USystemContext* InSystemContext) {
 	TArray<FDaemonInfo> Ret;
 
-	for(auto RegisteredDaemon : this->RegisteredDaemons)
-	{
-		if(RegisteredDaemon.Value.DaemonType == EDaemonType::AllSystems)
+	for(auto RegisteredDaemon : this->RegisteredDaemons) {
+		if(RegisteredDaemon.Value.DaemonType == EDaemonType::AllSystems) {
 			Ret.Add(RegisteredDaemon.Value);
-		else
-		{
-			if(RegisteredDaemon.Value.DaemonType == EDaemonType::Player)
-			{
-				if(InSystemContext->GetComputer().OwnerType == EComputerOwnerType::Player)
-				{
+		} else {
+			if(RegisteredDaemon.Value.DaemonType == EDaemonType::Player) {
+				if(InSystemContext->GetComputer().OwnerType == EComputerOwnerType::Player) {
 					Ret.Add(RegisteredDaemon.Value);
 				}
 				continue;
-			}
-			else
-			{
-				if(InSystemContext->GetComputer().OwnerType != EComputerOwnerType::Player)
-				{
+			} else {
+				if(InSystemContext->GetComputer().OwnerType != EComputerOwnerType::Player) {
 					Ret.Add(RegisteredDaemon.Value);
 				}
 				continue;

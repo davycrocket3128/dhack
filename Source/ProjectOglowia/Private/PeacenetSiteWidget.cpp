@@ -33,8 +33,7 @@
 #include "PeacenetSiteWidget.h"
 #include "PeacenetSiteAsset.h"
 
-void UPeacenetSiteWidget::Setup(UPeacenetSiteAsset* InSiteAsset, UProgram* InOwningProgram)
-{
+void UPeacenetSiteWidget::Setup(UPeacenetSiteAsset* InSiteAsset, UProgram* InOwningProgram) {
     check(InSiteAsset);
     check(InOwningProgram);
 

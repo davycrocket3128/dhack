@@ -36,8 +36,7 @@
 #include "SystemContext.h"
 #include "UserContext.h"
 
-void UMissionTask::MissionEnded()
-{
+void UMissionTask::MissionEnded() {
     // Get rid of the objective text in case we have any.
     // Save desktops should handle the GUI side of this by not showing the mission acquisition
     // UI when not in a mission but.... there's such a thing as drunk, stoned or uncaffeinated Michael.
@@ -48,87 +47,76 @@ void UMissionTask::MissionEnded()
     this->OnMissionEnded();
 }
 
-void UMissionTask::SetObjectiveText(const FText& InObjectiveText)
-{
+void UMissionTask::SetObjectiveText(const FText& InObjectiveText) {
     this->GetPlayerUser()->GetDesktop()->SetObjectiveText(InObjectiveText);
 }
 
-AMissionActor* UMissionTask::GetMissionActor()
-{
+AMissionActor* UMissionTask::GetMissionActor() {
     return this->Mission;
 }
 
-bool UMissionTask::IsTutorialActive()
-{
+bool UMissionTask::IsTutorialActive() {
     return this->GetPlayerUser()->GetPeacenet()->IsTutorialActive();
 }
 
-void UMissionTask::ShowTutorialIfNotSet(FString InBoolean, const FText& InTitle, const FText& InTutorial)
-{
-    if(this->IsTutorialActive()) return;
+void UMissionTask::ShowTutorialIfNotSet(FString InBoolean, const FText& InTitle, const FText& InTutorial) {
+    if(this->IsTutorialActive()) {
+        return;
+    }
 
-    if(!this->IsSet(InBoolean))
-    {
+    if(!this->IsSet(InBoolean)) {
         this->GetPlayerUser()->GetPeacenet()->GetTutorialState()->ActivatePrompt(InTitle, InTutorial);
         this->SetBoolean(InBoolean, true);
     }
 }
 
-bool UMissionTask::IsSet(FString InSaveBoolean)
-{
+bool UMissionTask::IsSet(FString InSaveBoolean) {
     return this->GetPlayerUser()->GetPeacenet()->SaveGame->IsTrue(InSaveBoolean);
 }
 
-void UMissionTask::SetBoolean(FString InSaveBoolean, bool InValue)
-{
+void UMissionTask::SetBoolean(FString InSaveBoolean, bool InValue) {
     this->GetPlayerUser()->GetPeacenet()->SaveGame->SetValue(InSaveBoolean, InValue);
 }
 
-bool UMissionTask::GetIsFailed()
-{
+bool UMissionTask::GetIsFailed() {
     return this->IsFailed;
 }
 
-FText UMissionTask::GetFailMessage()
-{
+FText UMissionTask::GetFailMessage() {
     return this->FailMessage;
 }
 
-void UMissionTask::Fail(const FText& InFailMessage)
-{
+void UMissionTask::Fail(const FText& InFailMessage) {
     check(!this->IsFailed);
     this->IsFailed = true;
     this->FailMessage = InFailMessage;
 }
 
-void UMissionTask::HandleEvent(FString EventName, TMap<FString, FString> InEventArgs)
-{
-    if(this->IsFailed) return;
+void UMissionTask::HandleEvent(FString EventName, TMap<FString, FString> InEventArgs) {
+    if(this->IsFailed) {
+        return;
+    }
 
     this->NativeEvent(EventName, InEventArgs);
     this->OnHandleEvent(EventName, InEventArgs);
 }
 
-UUserContext* UMissionTask::GetPlayerUser()
-{
+UUserContext* UMissionTask::GetPlayerUser() {
     int PlayerID = this->GetPeacenet()->SaveGame->PlayerComputerID;
     USystemContext* PlayerSystem = this->GetPeacenet()->GetSystemContext(PlayerID);
     return PlayerSystem->GetUserContext(this->GetPeacenet()->SaveGame->PlayerUserID);
 }
 
-APeacenetWorldStateActor* UMissionTask::GetPeacenet()
-{
+APeacenetWorldStateActor* UMissionTask::GetPeacenet() {
     return this->Mission->GetPeacenet();
 }
 
-void UMissionTask::Complete()
-{
+void UMissionTask::Complete() {
     this->IsFinished = true;
     this->SetObjectiveText(FText::GetEmpty());
 }
 
-void UMissionTask::Start(AMissionActor* InMission)
-{
+void UMissionTask::Start(AMissionActor* InMission) {
     check(InMission);
 
     this->Mission = InMission;
@@ -139,16 +127,18 @@ void UMissionTask::Start(AMissionActor* InMission)
     this->OnStart();
 }
 
-void UMissionTask::Tick(float InDeltaSeconds)
-{
-    if(this->IsFailed) return;
-    if(this->IsFinished) return;
+void UMissionTask::Tick(float InDeltaSeconds) {
+    if(this->IsFailed) {
+        return;
+    }
+    if(this->IsFinished) {
+        return;
+    }
 
     this->NativeTick(InDeltaSeconds);
     this->OnTick(InDeltaSeconds);
 }
 
-bool UMissionTask::GetIsFinished()
-{
+bool UMissionTask::GetIsFinished() {
     return this->IsFinished;
 }

@@ -37,58 +37,47 @@
 #include "SystemContext.h"
 #include "Process.h"
 
-UProcess* ATerminalCommand::ForkProcess(FString InName)
-{
+UProcess* ATerminalCommand::ForkProcess(FString InName) {
 	return this->MyProcess->Fork(InName);
 }
 
-UProcess* ATerminalCommand::GetProcess()
-{
+UProcess* ATerminalCommand::GetProcess() {
 	return this->MyProcess;
 }
 
-void ATerminalCommand::SendGameEvent(FString InEventName, TMap<FString, FString> InEventData)
-{
+void ATerminalCommand::SendGameEvent(FString InEventName, TMap<FString, FString> InEventData) {
 	this->Console->GetUserContext()->GetPeacenet()->SendGameEvent(InEventName, InEventData);
 }
 
-bool ATerminalCommand::IsTutorialActive()
-{
+bool ATerminalCommand::IsTutorialActive() {
 	return this->Console->GetUserContext()->GetPeacenet()->IsTutorialActive();
 }
 
-bool ATerminalCommand::IsSet(FString InSaveBoolean)
-{
+bool ATerminalCommand::IsSet(FString InSaveBoolean) {
 	return this->Console->GetUserContext()->GetPeacenet()->IsTrue(InSaveBoolean);
 }
 
-void ATerminalCommand::ShowTutorialIfNotSet(FString InSaveBoolean, const FText& InTutorialTitle, const FText& InTutorialText)
-{
-	if(!this->IsSet(InSaveBoolean) && !this->IsTutorialActive())
-	{
+void ATerminalCommand::ShowTutorialIfNotSet(FString InSaveBoolean, const FText& InTutorialTitle, const FText& InTutorialText) {
+	if(!this->IsSet(InSaveBoolean) && !this->IsTutorialActive()) {
 		this->Console->GetUserContext()->GetPeacenet()->GetTutorialState()->ActivatePrompt(InTutorialTitle, InTutorialText);
 		this->Console->GetUserContext()->GetPeacenet()->SetSaveValue(InSaveBoolean, true);
 	}
 }
 
-int ATerminalCommand::GetProcessID()
-{
+int ATerminalCommand::GetProcessID() {
 	return this->MyProcess->GetProcessID();
 }
 
-UUserContext* ATerminalCommand::GetUserContext()
-{
+UUserContext* ATerminalCommand::GetUserContext() {
 	check(this->GetConsole());
 	return this->GetConsole()->GetUserContext();
 }
 
-UConsoleContext* ATerminalCommand::GetConsole()
-{
+UConsoleContext* ATerminalCommand::GetConsole() {
 	return this->Console;
 }
 
-void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Argv)
-{
+void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Argv) {
 	// Make sure Peacegate has given us a process before we can run.
 	check(this->MyProcess);
 
@@ -102,11 +91,9 @@ void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Ar
 
 	Argv.RemoveAt(0);
 
-	if(this->CommandInfo->UsageStrings.Num())
-	{
+	if(this->CommandInfo->UsageStrings.Num()) {
 		FString Usage = "usage: ";
-		for(auto UsageString : this->CommandInfo->UsageStrings)
-		{
+		for(auto UsageString : this->CommandInfo->UsageStrings) {
 			Usage += "\n    " + this->CommandName + " " + UsageString;
 		}
 
@@ -115,8 +102,7 @@ void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Ar
 
 		this->ArgumentMap = UDocoptForUnrealBPLibrary::ParseArguments(Usage, Argv, false, "", true, HasError, Error);
 
-		if(HasError)
-		{
+		if(HasError) {
 			InConsole->SetForegroundColor(EConsoleColor::Magenta);
 			InConsole->WriteLine(FText::Format(NSLOCTEXT("TerminalCommand", "DocoptError", "{0}: {1}"), FText::FromString(CommandName), FText::FromString(Error)));
 			InConsole->ResetForegroundColor();
@@ -125,34 +111,29 @@ void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Ar
 			
 			bool PrintAll = true;
 			
-			for(auto UsageStr : this->CommandInfo->UsageStrings)
-			{
+			for(auto UsageStr : this->CommandInfo->UsageStrings) {
 				bool Print = true;
-				for(FString arg : Argv)
-				{
-					if(!UsageStr.Contains(arg))
-					{
+				for(FString arg : Argv) {
+					if(!UsageStr.Contains(arg)) {
 						Print = false;
 						break;
 					}
 				}
 
-				if(!Print) continue;
+				if(Print) {
+					PrintAll = false;
 
-				PrintAll = false;
-
-				InConsole->SetForegroundColor(EConsoleColor::Green);
-				InConsole->Write(FText::FromString(" "));
-				InConsole->Write(FText::FromString(this->CommandName));
-				InConsole->ResetForegroundColor();
-				InConsole->Write(FText::FromString(" "));
-				InConsole->WriteLine(FText::FromString(UsageStr));
+					InConsole->SetForegroundColor(EConsoleColor::Green);
+					InConsole->Write(FText::FromString(" "));
+					InConsole->Write(FText::FromString(this->CommandName));
+					InConsole->ResetForegroundColor();
+					InConsole->Write(FText::FromString(" "));
+					InConsole->WriteLine(FText::FromString(UsageStr));
+				}
 			}
 
-			if(PrintAll)
-			{
-				for(auto UsageStr : this->CommandInfo->UsageStrings)
-				{
+			if(PrintAll) {
+				for(auto UsageStr : this->CommandInfo->UsageStrings) {
 					InConsole->SetForegroundColor(EConsoleColor::Green);
 					InConsole->Write(FText::FromString(" "));
 					InConsole->Write(FText::FromString(this->CommandName));
@@ -170,8 +151,6 @@ void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Ar
 			this->Complete();
 			return;
 		}
-
-
 	}
 
 	this->ArgumentList = Argv;
@@ -179,25 +158,22 @@ void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Ar
 	NativeRunCommand(InConsole, Argv);
 }
 
-void ATerminalCommand::NativeRunCommand(UConsoleContext * InConsole, TArray<FString> InArguments)
-{
+void ATerminalCommand::NativeRunCommand(UConsoleContext * InConsole, TArray<FString> InArguments) {
 	// Call into BP to do the rest.
 	this->OnRunCommand(InConsole, InArguments);
 }
 
-void ATerminalCommand::Complete()
-{
+void ATerminalCommand::Complete() {
 	this->CompleteInternal(true);
 }
 
-void ATerminalCommand::ProcessEnded()
-{
-	if(this->IsCompleting) return;
-	this->CompleteInternal(false);
+void ATerminalCommand::ProcessEnded() {
+	if(!this->IsCompleting) {
+		this->CompleteInternal(false);
+	}
 }
 
-void ATerminalCommand::CompleteInternal(bool KillProcess)
-{
+void ATerminalCommand::CompleteInternal(bool KillProcess) {
 	// If we end up killing our process, this stops this function
 	// from triggering by the "process ended" handler.
 	this->IsCompleting = true;
@@ -205,12 +181,10 @@ void ATerminalCommand::CompleteInternal(bool KillProcess)
 	// If we're killing the process, we need to tell the game that the command
 	// has finished running.  This gets sent to both Peacegate OS (resulting in
 	// the process being killed) and the mission system that we've finished.
-	if(KillProcess)
-	{
+	if(KillProcess) {
 		// Join the argument list together.
 		FString ArgListText = "";
-		for(auto Arg : this->ArgumentList)
-		{
+		for(auto Arg : this->ArgumentList) {
 			ArgListText += Arg + " ";
 		}
 		ArgListText = ArgListText.TrimStartAndEnd();
@@ -221,11 +195,9 @@ void ATerminalCommand::CompleteInternal(bool KillProcess)
 		MissionEventData.Add("Arguments", ArgListText);
 
 		// Add docopt arguments to the event data.
-		for(auto DocoptArg : this->ArgumentMap)
-		{
+		for(auto DocoptArg : this->ArgumentMap) {
 			if(DocoptArg.Value->IsEmpty()) continue;
-			if(!MissionEventData.Contains(DocoptArg.Key))
-			{
+			if(!MissionEventData.Contains(DocoptArg.Key)) {
 				MissionEventData.Add(DocoptArg.Key, DocoptArg.Value->AsString());
 			}
 		}
@@ -249,8 +221,7 @@ void ATerminalCommand::CompleteInternal(bool KillProcess)
 	this->Destroy();
 }
 
-ATerminalCommand* ATerminalCommand::CreateCommandFromAsset(UUserContext* InUserContext, UCommandInfo* InCommandInfo, UProcess* OwningProcess)
-{
+ATerminalCommand* ATerminalCommand::CreateCommandFromAsset(UUserContext* InUserContext, UCommandInfo* InCommandInfo, UProcess* OwningProcess) {
 	// Return nullptr if the command asset or user context are invalid.
 	if(!InUserContext) return nullptr;
 	if(!InCommandInfo) return nullptr;

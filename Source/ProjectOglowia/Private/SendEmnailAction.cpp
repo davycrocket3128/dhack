@@ -38,8 +38,7 @@
 #include "PeacenetWorldStateActor.h"
 #include "PeacenetSaveGame.h"
 
-void USendEmailAction::NativeMissionCompleted()
-{
+void USendEmailAction::NativeMissionCompleted() {
     // Get the subject line of the email.  If empty, it is "Re: <mission name>".
     FText realSubject = this->Subject.IsEmpty() ? FText::Format(NSLOCTEXT("Email", "ReplySubject", "Re: {0}"), this->GetMission()->GetMissionAsset()->Name) : this->Subject;
 

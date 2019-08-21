@@ -32,24 +32,20 @@
 #include "Payload.h"
 #include "NetworkedConsoleContext.h"
 
-void UPayload::Disconnect()
-{
+void UPayload::Disconnect() {
     // Kill the gsfconsole monitor process when we disconnect if it isn't dead already.
-    if(LocalProcess && !LocalProcess->IsDead())
-    {
+    if(LocalProcess && !LocalProcess->IsDead()) {
         LocalProcess->Kill();
     }
     
     // Only disconnect if we still have access to the local process.
-    if(LocalProcess)
-    {
+    if(LocalProcess) {
         LocalProcess = nullptr;
         return this->Disconnected.Broadcast();    
     }
 }
 
-void UPayload::DeployPayload(UConsoleContext* OriginConsole, UUserContext* OriginUser, UUserContext* TargetUser, UProcess* OwningLocalProcess)
-{
+void UPayload::DeployPayload(UConsoleContext* OriginConsole, UUserContext* OriginUser, UUserContext* TargetUser, UProcess* OwningLocalProcess) {
     // Create a local process so that, when the owning process is killed, we disconnect.
     this->LocalProcess = OwningLocalProcess->Fork("gsfconsole-payload-monitor");
 
@@ -68,7 +64,6 @@ void UPayload::DeployPayload(UConsoleContext* OriginConsole, UUserContext* Origi
     this->OnPayloadDeployed(HackerContext, OriginUser, TargetUser);
 }
 
-UProcess* UPayload::GetLocalProcess()
-{
+UProcess* UPayload::GetLocalProcess() {
     return this->LocalProcess;
 }

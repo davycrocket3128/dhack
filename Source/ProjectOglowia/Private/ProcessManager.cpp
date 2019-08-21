@@ -33,8 +33,7 @@
 #include "Process.h"
 #include "SystemContext.h"
 
-void UProcessManager::Initialize(USystemContext* InSystem)
-{
+void UProcessManager::Initialize(USystemContext* InSystem) {
     // So that we have a Peacegate context.
     this->OwningSystem = InSystem;
 
@@ -49,8 +48,7 @@ void UProcessManager::Initialize(USystemContext* InSystem)
     this->RootProcess->OnKilled.Add(CrashDelegate);
 }
 
-void UProcessManager::RootProcessKilled()
-{
+void UProcessManager::RootProcessKilled() {
     // Restart the root process:
     this->Initialize(this->OwningSystem);
 
@@ -67,33 +65,28 @@ void UProcessManager::RootProcessKilled()
     this->OwningSystem->Crash();
 }
 
-int UProcessManager::GetNextProcessID()
-{
+int UProcessManager::GetNextProcessID() {
     int id = this->NextProcessID;
     this->NextProcessID++;
     return id;
 }
 
-void UProcessManager::ProcessKilled()
-{
+void UProcessManager::ProcessKilled() {
     this->RootProcess->CullDeadChildren();
 }
 
-UProcess* UProcessManager::CreateProcess(FString Name)
-{
+UProcess* UProcessManager::CreateProcess(FString Name) {
     return this->CreateProcessAs(Name, this->RootProcess->UserID);
 }
 
-UProcess* UProcessManager::CreateProcessAs(FString Name, int UserID)
-{
+UProcess* UProcessManager::CreateProcessAs(FString Name, int UserID) {
     UProcess* Process = NewObject<UProcess>();
     Process->Initialize(this, UserID, "", Name);
     Process->Parent(this->RootProcess);
     return Process;
 }
 
-TArray<UProcess*> UProcessManager::GetAllProcesses()
-{
+TArray<UProcess*> UProcessManager::GetAllProcesses() {
     TArray<UProcess*> Ret;
 
     // Tell the root process to collect itself into the array.
@@ -102,36 +95,32 @@ TArray<UProcess*> UProcessManager::GetAllProcesses()
     return Ret;
 }
 
-TArray<UProcess*> UProcessManager::GetProcessesForUser(int UserID)
-{
+TArray<UProcess*> UProcessManager::GetProcessesForUser(int UserID) {
     // Get all of the processes that are currently running...
     TArray<UProcess*> AllProcesses = this->GetAllProcesses();
 
     // If we're root then we own all processes because we're root and root
     // can do everything.
-    if(UserID == 0)
+    if(UserID == 0) {
         return AllProcesses;
+    }
 
     // Otherwise, we only get to see processes that have our user ID.
     TArray<UProcess*> OurProcesses;
-    for(auto Process : AllProcesses)
-    {
-        if(Process->UserID == UserID)
-        {
+    for(auto Process : AllProcesses) {
+        if(Process->UserID == UserID) {
             OurProcesses.Add(Process);
         }
     }
     return OurProcesses;
 }
 
-bool UProcessManager::KillProcess(int ProcessID, int UserID, EProcessResult& OutKillResult)
-{
+bool UProcessManager::KillProcess(int ProcessID, int UserID, EProcessResult& OutKillResult) {
     // The process to kill...
     UProcess* Process = nullptr;
 
     // Try to get the process by ID.  If we can't then we'll return false with an error.
-    if(this->GetProcess(ProcessID, UserID, Process, OutKillResult))
-    {
+    if(this->GetProcess(ProcessID, UserID, Process, OutKillResult)) {
         // Kill the process.
         Process->Kill();
         return true;
@@ -140,25 +129,19 @@ bool UProcessManager::KillProcess(int ProcessID, int UserID, EProcessResult& Out
     return false;
 }
 
-bool UProcessManager::GetProcess(int ProcessID, int UserID, UProcess*& OutProcess, EProcessResult& OutProcessResult)
-{
+bool UProcessManager::GetProcess(int ProcessID, int UserID, UProcess*& OutProcess, EProcessResult& OutProcessResult) {
     // Default everything to zero.
     OutProcessResult = EProcessResult::Success;
     OutProcess = nullptr;
 
     // Look through all of the processes to find the right one.
-    for(auto Process: this->GetAllProcesses())
-    {
+    for(auto Process: this->GetAllProcesses()) {
         // Check the ID.
-        if(Process->ProcessID == ProcessID)
-        {
+        if(Process->ProcessID == ProcessID) {
             // If we're root or the user id matches then we can say we found one.
-            if(UserID == 0 || Process->UserID == UserID)
-            {
+            if(UserID == 0 || Process->UserID == UserID) {
                 OutProcess = Process;
-            }
-            else
-            {
+            } else {
                 OutProcessResult = EProcessResult::PermissionDenied;
             }
 
@@ -168,14 +151,14 @@ bool UProcessManager::GetProcess(int ProcessID, int UserID, UProcess*& OutProces
     }
 
     // If the process is still nullptr, we have not found a process yet.
-    if(!OutProcess && OutProcessResult == EProcessResult::Success)
+    if(!OutProcess && OutProcessResult == EProcessResult::Success) {
         OutProcessResult = EProcessResult::ProcessNotRunning;
+    }
 
     // Return whether we succeeded.
     return OutProcessResult == EProcessResult::Success;
 }
 
-bool UProcessManager::IsActive()
-{
+bool UProcessManager::IsActive() {
     return this->RootProcess && !this->RootProcess->IsDead();
 }

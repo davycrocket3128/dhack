@@ -33,23 +33,20 @@
 #include "UserContext.h"
 #include "ProceduralGenerationEngine.h"
 
-AIdentityCommand::AIdentityCommand()
-{
+AIdentityCommand::AIdentityCommand() {
     PrimaryActorTick.bCanEverTick = true;
 }
 
-const FText AIdentityCommand::MakeAliasFrom(FString InName)
-{
+const FText AIdentityCommand::MakeAliasFrom(FString InName) {
     FString Ret;
 
-    for(int i = 0; i < InName.Len(); i++)
-    {
+    for(int i = 0; i < InName.Len(); i++) {
         TCHAR c = InName[i];
 
-        if(FChar::IsWhitespace(c) || FChar::IsUnderscore(c))
-        {
-            if(Ret.Len() > 0 && FChar::IsUnderscore(Ret[Ret.Len() - 1]))
+        if(FChar::IsWhitespace(c) || FChar::IsUnderscore(c)) {
+            if(Ret.Len() > 0 && FChar::IsUnderscore(Ret[Ret.Len() - 1])) {
                 continue;
+            }
             
             Ret += "_";
             continue;
@@ -61,19 +58,13 @@ const FText AIdentityCommand::MakeAliasFrom(FString InName)
     return FText::FromString(Ret);
 }
 
-void AIdentityCommand::Tick(float DeltaSeconds)
-{
-    if(!this->HasName)
-    {
+void AIdentityCommand::Tick(float DeltaSeconds) {
+    if(!this->HasName) {
         FString name = "";
-        if(this->GetConsole()->GetLine(name))
-        {
-            if(name.TrimStartAndEnd().IsEmpty())
-            {
+        if(this->GetConsole()->GetLine(name)) {
+            if(name.TrimStartAndEnd().IsEmpty()) {
                 this->GetConsole()->WriteLine(NSLOCTEXT("IdentityCommand", "NameError_Blank", "Your name must not be blank."));
-            }
-            else
-            {
+            } else {
                 HasName = true;
                 this->IdentityName = name;
                 this->GetConsole()->WriteLine(FText::GetEmpty());
@@ -88,19 +79,15 @@ void AIdentityCommand::Tick(float DeltaSeconds)
         }
     }
 
-    if(!this->UseNameAsAlias)
-    {
+    if(!this->UseNameAsAlias) {
         FString answer;
-        if(this->GetConsole()->GetLine(answer))
-        {
-            if(answer.TrimStartAndEnd().IsEmpty())
-            {
+        if(this->GetConsole()->GetLine(answer)) {
+            if(answer.TrimStartAndEnd().IsEmpty()) {
                 answer = "y";
             }
 
             answer = answer.ToLower().TrimStartAndEnd();
-            if(answer == "y")
-            {
+            if(answer == "y") {
                 this->AliasName = this->MakeAliasFrom(this->IdentityName).ToString();
                 this->UseNameAsAlias = true;
                 this->HasAlias = true;
@@ -109,14 +96,12 @@ void AIdentityCommand::Tick(float DeltaSeconds)
                 this->GetConsole()->WriteLine(FText::GetEmpty());
                 this->GetConsole()->Write(NSLOCTEXT("IdentityCommand", "AliasConfirmPrompt", "Is this correct? [Y/n]: "));
                 return;
-            }
-            else if(answer == "n") {
+            } else if(answer == "n") {
                 this->UseNameAsAlias = true;
                 this->GetConsole()->WriteLine(FText::GetEmpty());
                 this->GetConsole()->Write(NSLOCTEXT("IdentityCommand", "AliasPrompt", "Enter your Alias: "));
                 return;
-            }
-            else {
+            } else {
                 this->GetConsole()->WriteLine(NSLOCTEXT("IdentityCommand", "AnswerError", "Answer must be either 'y' or 'n'."));
             }
 
@@ -125,17 +110,12 @@ void AIdentityCommand::Tick(float DeltaSeconds)
         }
     }
 
-    if(!this->HasAlias)
-    {
+    if(!this->HasAlias) {
         FString name = "";
-        if(this->GetConsole()->GetLine(name))
-        {
-            if(name.TrimStartAndEnd().IsEmpty())
-            {
+        if(this->GetConsole()->GetLine(name)) {
+            if(name.TrimStartAndEnd().IsEmpty()) {
                 this->GetConsole()->WriteLine(NSLOCTEXT("IdentityCommand", "AliasError_Blank", "Your alias must not be blank."));
-            }
-            else
-            {
+            } else {
                 HasAlias = true;
                 this->AliasName = name;
                 this->GetConsole()->WriteLine(FText::GetEmpty());
@@ -149,19 +129,15 @@ void AIdentityCommand::Tick(float DeltaSeconds)
 
     }
 
-    if(!AliasConfirmed)
-    {
+    if(!AliasConfirmed) {
         FString answer;
-        if(this->GetConsole()->GetLine(answer))
-        {
-            if(answer.TrimStartAndEnd().IsEmpty())
-            {
+        if(this->GetConsole()->GetLine(answer)) {
+            if(answer.TrimStartAndEnd().IsEmpty()) {
                 answer = "y";
             }
             
             answer = answer.ToLower().TrimStartAndEnd();
-            if(answer == "y")
-            {
+            if(answer == "y") {
                 FPeacenetIdentity& identity = this->GetUserContext()->GetPeacenet()->GetNewIdentity();
                 identity.CharacterName = this->IdentityName;
                 identity.CharacterType = (this->GetUserContext()->GetComputer().ID == this->GetUserContext()->GetPeacenet()->GetPlayerComputer().ID) ? EIdentityType::Player : EIdentityType::NonPlayer;
@@ -175,14 +151,12 @@ void AIdentityCommand::Tick(float DeltaSeconds)
                 this->AliasConfirmed = true;
                 this->Complete();
                 return;
-            }
-            else if(answer == "n") {
+            } else if(answer == "n") {
                 this->HasAlias = false;
                 this->GetConsole()->WriteLine(FText::GetEmpty());
                 this->GetConsole()->Write(NSLOCTEXT("IdentityCommand", "AliasPrompt", "Enter your Alias: "));
                 return;
-            }
-            else {
+            } else {
                 this->GetConsole()->WriteLine(NSLOCTEXT("IdentityCommand", "AnswerError", "Answer must be either 'y' or 'n'."));
                 this->GetConsole()->WriteLine(FText::GetEmpty());
                 this->GetConsole()->WriteLine(FText::Format(NSLOCTEXT("IdentityCommand", "ConfirmAliasInfo", "Using {0} as your Alias."), FText::FromString(this->AliasName)));
@@ -196,26 +170,20 @@ void AIdentityCommand::Tick(float DeltaSeconds)
     }
 }
 
-void AIdentityCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
-{
-    if(InArguments.Contains("-c"))
-    {
-        if(InConsole->GetUserContext()->HasIdentity())
-        {
+void AIdentityCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) {
+    if(InArguments.Contains("-c")) {
+        if(InConsole->GetUserContext()->HasIdentity()) {
             InConsole->WriteLine(NSLOCTEXT("IdentityCommand", "AlreadyHasIdentity", "Error: You already have a Peacenet Identity.  You cannot create a new one on this system."));
             this->Complete();
-        }
-        else {
+        } else {
             InConsole->WriteLine(NSLOCTEXT("IdentityCommand", "BeginningIdentityCreation", "Beginning Peacenet Identity creation..."));
             InConsole->WriteLine(FText::GetEmpty());
             InConsole->WriteLine(NSLOCTEXT("IdentityCommand", "NameInfo", "Please enter your full name.  This name is what other people in The Peacenet will call you when talking to you.  If you wish, you may enter a username or alias instead."));
             InConsole->WriteLine(FText::GetEmpty());
             InConsole->Write(NSLOCTEXT("IdentityCommand", "NamePrompt", "Enter your full name: "));
         }
-    }
-    else {
-        if(InConsole->GetUserContext()->HasIdentity())
-        {
+    } else {
+        if(InConsole->GetUserContext()->HasIdentity()) {
             InConsole->WriteLine(NSLOCTEXT("IdentityCommand", "CurrentIdentity", "Current Peacenet Identity"));
             InConsole->WriteLine(NSLOCTEXT("IdentityCommand", "CurrentIdentityDashes", "========================="));
             InConsole->WriteLine(FText::GetEmpty());
@@ -227,8 +195,7 @@ void AIdentityCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FStri
             InConsole->WriteLine(FText::GetEmpty());
             
             this->Complete();
-        }
-        else {
+        } else {
             InConsole->WriteLine(FText::Format(NSLOCTEXT("IdentityCommand", "MustCreateIdentity", "Error: You do not have a Peacenet Identity yet.  Try creating one by running '{0} -c'."), FText::FromString(this->CommandName)));
             this->Complete();
         }

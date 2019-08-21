@@ -50,12 +50,9 @@
 //   "<upgrade>": "test",
 //   "list-upgrades": false   
 // }
-void AUpgradeControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
-{
-    if(this->ArgumentMap["enable"]->AsBoolean())
-    {
-        if(!this->GetUserContext()->HasIdentity())
-        {
+void AUpgradeControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) {
+    if(this->ArgumentMap["enable"]->AsBoolean()) {
+        if(!this->GetUserContext()->HasIdentity()) {
             InConsole->SetBold(true);
             InConsole->SetForegroundColor(EConsoleColor::Red);
             InConsole->WriteLine(NSLOCTEXT("UpgradeCtl", "IdentityNeeded", "Error: This operation requires a Peacenet Identity.  Have you tried running 'identity -c' to create one?"));
@@ -67,12 +64,9 @@ void AUpgradeControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray
 
         FString upgradeId = this->ArgumentMap["<upgrade>"]->AsString();
 
-        for(auto Upgrade : this->GetUserContext()->GetPeacenet()->GetAllSystemUpgrades())
-        {
-            if(Upgrade->ID.ToString() == upgradeId)
-            {
-                if(Upgrade->IsUnlocked(this->GetUserContext()))
-                {
+        for(auto Upgrade : this->GetUserContext()->GetPeacenet()->GetAllSystemUpgrades()) {
+            if(Upgrade->ID.ToString() == upgradeId) {
+                if(Upgrade->IsUnlocked(this->GetUserContext())) {
                     InConsole->SetBold(true);
                     InConsole->SetForegroundColor(EConsoleColor::Red);
                     InConsole->WriteLine(NSLOCTEXT("UpgradeCtl", "UpgradeInstalledAlready", "Error: The specified upgrade is already enabled."));
@@ -81,12 +75,9 @@ void AUpgradeControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray
                     return;
                 }
 
-                if(Upgrade->UpgradeIsUnlockable(this->GetUserContext()))
-                {
+                if(Upgrade->UpgradeIsUnlockable(this->GetUserContext())) {
                     Upgrade->TriggerUnlock(this->GetUserContext());
-                }
-                else 
-                {
+                } else {
                     InConsole->SetBold(true);
                     InConsole->SetForegroundColor(EConsoleColor::Red);
                     InConsole->WriteLine(NSLOCTEXT("UpgradeCtl", "UpgradeUnavailable", "Error: This upgrade is not currently available."));
@@ -104,11 +95,8 @@ void AUpgradeControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray
         InConsole->ResetFormatting();
         this->Complete();
         return;
-    }
-    else if(this->ArgumentMap["disable"]->AsBoolean())
-    {
-        if(!this->GetUserContext()->HasIdentity())
-        {
+    } else if(this->ArgumentMap["disable"]->AsBoolean()) {
+        if(!this->GetUserContext()->HasIdentity()) {
             InConsole->SetBold(true);
             InConsole->SetForegroundColor(EConsoleColor::Red);
             InConsole->WriteLine(NSLOCTEXT("UpgradeCtl", "IdentityNeeded", "Error: This operation requires a Peacenet Identity.  Have you tried running 'identity -c' to create one?"));
@@ -120,14 +108,10 @@ void AUpgradeControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray
 
         FString upgradeId = this->ArgumentMap["<upgrade>"]->AsString();
 
-        for(auto Upgrade : this->GetUserContext()->GetPeacenet()->GetAllSystemUpgrades())
-        {
-            if(Upgrade->ID.ToString() == upgradeId)
-            {
-                if(Upgrade->IsUnlocked(this->GetUserContext()))
-                {
-                    if(!Upgrade->CanUserUnlock)
-                    {
+        for(auto Upgrade : this->GetUserContext()->GetPeacenet()->GetAllSystemUpgrades()) {
+            if(Upgrade->ID.ToString() == upgradeId) {
+                if(Upgrade->IsUnlocked(this->GetUserContext())) {
+                    if(!Upgrade->CanUserUnlock) {
                         InConsole->SetBold(true);
                         InConsole->SetForegroundColor(EConsoleColor::Red);
                         InConsole->WriteLine(NSLOCTEXT("UpgradeCtl", "StoryUpgrade", "Error: You cannot disable upgrades that were given to you during a mission."));
@@ -137,14 +121,11 @@ void AUpgradeControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray
                     }
 
                     // This for loop effectively makes the disable command OwO(n^2).
-                    for(auto Dep : this->GetUserContext()->GetPeacenet()->GetAllSystemUpgrades())
-                    {
+                    for(auto Dep : this->GetUserContext()->GetPeacenet()->GetAllSystemUpgrades()) {
                         if(Dep == Upgrade) continue;
 
-                        if(UCommonUtils::UpgradeDependsOn(this->GetUserContext(), Dep, Upgrade))
-                        {
-                            if(Dep->IsUnlocked(this->GetUserContext()))
-                            {
+                        if(UCommonUtils::UpgradeDependsOn(this->GetUserContext(), Dep, Upgrade)) {
+                            if(Dep->IsUnlocked(this->GetUserContext())) {
                                 InConsole->SetBold(true);
                                 InConsole->SetForegroundColor(EConsoleColor::Red);
                                 InConsole->WriteLine(NSLOCTEXT("UpgradeCtl", "UpgradeNeeded", "Error: This upgrade is required by another upgrade that is currently enabled.  You cannot therefore disable this upgrade."));
@@ -179,20 +160,14 @@ void AUpgradeControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray
         InConsole->ResetFormatting();
         this->Complete();
         return;
-    }
-    else if(this->ArgumentMap["list-upgrades"]->AsBoolean())
-    {
+    } else if(this->ArgumentMap["list-upgrades"]->AsBoolean()) {
         TArray<USystemUpgrade*> Installed;
         TArray<USystemUpgrade*> Available;
         
-        for(auto Upgrade : this->GetUserContext()->GetPeacenet()->GetAllSystemUpgrades())
-        {
-            if(Upgrade->IsUnlocked(this->GetUserContext()))
-            {
+        for(auto Upgrade : this->GetUserContext()->GetPeacenet()->GetAllSystemUpgrades()) {
+            if(Upgrade->IsUnlocked(this->GetUserContext())) {
                 Installed.Add(Upgrade);
-            }
-            else
-            {
+            } else {
                 Available.Add(Upgrade);
             }
         }
@@ -204,8 +179,7 @@ void AUpgradeControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray
         InConsole->ResetFormatting();
         InConsole->WriteLine(FText::GetEmpty());
 
-        for(auto Upgrade : Installed)
-        {
+        for(auto Upgrade : Installed) {
             InConsole->Write(FText::FromString(" - "));
             InConsole->SetForegroundColor(EConsoleColor::Green);
             InConsole->WriteLine(FText::FromName(Upgrade->ID));
@@ -213,8 +187,7 @@ void AUpgradeControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray
             
         }
 
-        if(Available.Num() == 0)
-        {
+        if(Available.Num() == 0) {
             InConsole->SetForegroundColor(EConsoleColor::Magenta);
             InConsole->SetItalic(true);
             InConsole->WriteLine(NSLOCTEXT("UpgradeCtl", "NoAvailableUpgrades", "There are no upgrades to display in this list."));
@@ -233,15 +206,11 @@ void AUpgradeControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray
         InConsole->ResetFormatting();
         InConsole->WriteLine(FText::GetEmpty());
 
-        for(auto Upgrade : Available)
-        {
+        for(auto Upgrade : Available) {
             InConsole->Write(FText::FromString(" - "));
-            if(Upgrade->UpgradeIsUnlockable(this->GetUserContext()))
-            {
+            if(Upgrade->UpgradeIsUnlockable(this->GetUserContext())) {
                 InConsole->SetForegroundColor(EConsoleColor::Green);
-            }
-            else 
-            {
+            } else {
                 InConsole->SetForegroundColor(EConsoleColor::Red);
             }
             InConsole->Write(FText::FromName(Upgrade->ID));
@@ -250,16 +219,13 @@ void AUpgradeControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray
             InConsole->WriteLine(FText::Format(NSLOCTEXT("UpgradeCtl", "UpgradeSkill", "{0} XP"), FText::AsNumber(Upgrade->RequiredSkillPoints)));
         }
 
-        if(Available.Num() == 0)
-        {
+        if(Available.Num() == 0) {
             InConsole->SetForegroundColor(EConsoleColor::Magenta);
             InConsole->SetItalic(true);
             InConsole->WriteLine(NSLOCTEXT("UpgradeCtl", "NoAvailableUpgrades", "There are no upgrades to display in this list."));
             InConsole->ResetFormatting();
             InConsole->WriteEmptyLine();
-        }
-        else 
-        {
+        } else {
             InConsole->WriteEmptyLine();
             InConsole->WriteLine(NSLOCTEXT("UpgradeCtl", "UpgradeListLegend", "Legend:\r\n  Red: Not unlocked yet.\r\n  Green: Available."));
             InConsole->WriteEmptyLine();

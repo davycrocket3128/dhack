@@ -36,8 +36,7 @@
 #include "ConsoleReadLineLatentAction.h"
 #include "SystemContext.h"
 
-void UConsoleContext::Setup(UPtyStream* InPty, UUserContext* InUserContext)
-{
+void UConsoleContext::Setup(UPtyStream* InPty, UUserContext* InUserContext) {
 	// Crash if we're not being given a valid user context.
 	check(InUserContext);
 	check(InPty);
@@ -54,21 +53,18 @@ void UConsoleContext::Setup(UPtyStream* InPty, UUserContext* InUserContext)
 	this->WorkingDirectory = this->UserContext->GetHomeDirectory();
 }
 
-FString UConsoleContext::GetWorkingDirectory()
-{
+FString UConsoleContext::GetWorkingDirectory() {
 	return this->WorkingDirectory;
 }
 
-UUserContext* UConsoleContext::GetUserContext()
-{
+UUserContext* UConsoleContext::GetUserContext() {
 	if(!this->UserContext) return nullptr;
 
 	// If our user context is invalid, we need to request a new one from its owning system.
 	//
 	// In Peacenet 0.3.0, it is now possible to kill user-session processes as well as the
 	// root "peacegate" process, which invalidates User Contexts.
-	if(!this->UserContext->IsUserContextValid())
-	{
+	if(!this->UserContext->IsUserContextValid()) {
 		// Request a valid User Context.
 		this->UserContext = this->UserContext->RequestValidUser();
 	}
@@ -76,51 +72,44 @@ UUserContext* UConsoleContext::GetUserContext()
 	return this->UserContext;
 }
 
-void UConsoleContext::InvokeTtyUpdate()
-{
+void UConsoleContext::InvokeTtyUpdate() {
 	this->UpdateTty.ExecuteIfBound();
 }
 
-void UConsoleContext::WriteEmptyLine()
-{
+void UConsoleContext::WriteEmptyLine() {
 	this->WriteToPty("\r\n");
 }
 
-bool UConsoleContext::GetLine(FString& OutLine)
-{
+bool UConsoleContext::GetLine(FString& OutLine) {
 	FString line;
 	TCHAR c;
 	bool res = false;
-	while(this->Pty->ReadChar(c))
-	{
+	while(this->Pty->ReadChar(c)) {
 		res = true;
 		line += c;
 	}
 	OutLine = line.TrimStartAndEnd(); // get rid of the \r\n at the end.
-	if(res)
+	if(res) {
 		this->WriteToPty("\r\n");
+	}
 	return res;
 }
 
-void UConsoleContext::SetWorkingDirectory(const FString & InPath)
-{
-	if (this->GetUserContext()->GetFilesystem()->DirectoryExists(InPath))
-	{
+void UConsoleContext::SetWorkingDirectory(const FString & InPath) {
+	if (this->GetUserContext()->GetFilesystem()->DirectoryExists(InPath)) {
 		this->WorkingDirectory = InPath;
 	}
 }
 
-FString UConsoleContext::CombineWithWorkingDirectory(const FString & InPath)
-{
-	if (InPath.StartsWith("/"))
+FString UConsoleContext::CombineWithWorkingDirectory(const FString & InPath) {
+	if (InPath.StartsWith("/")) {
 		return this->GetUserContext()->GetFilesystem()->ResolveToAbsolute(InPath);
+	}
 	return this->GetUserContext()->GetFilesystem()->ResolveToAbsolute(WorkingDirectory + TEXT("/") + InPath);
 }
 
-FString UConsoleContext::GetDisplayWorkingDirectory()
-{
-	if (WorkingDirectory.StartsWith(this->GetUserContext()->GetHomeDirectory()))
-	{
+FString UConsoleContext::GetDisplayWorkingDirectory() {
+	if (WorkingDirectory.StartsWith(this->GetUserContext()->GetHomeDirectory())) {
 		FString NewWorkingDirectory(WorkingDirectory);
 		NewWorkingDirectory.RemoveFromStart(this->GetUserContext()->GetHomeDirectory());
 		return TEXT("~") + NewWorkingDirectory;
@@ -128,29 +117,25 @@ FString UConsoleContext::GetDisplayWorkingDirectory()
 	return WorkingDirectory;
 }
 
-void UConsoleContext::WriteToPty(FString str)
-{
+void UConsoleContext::WriteToPty(FString str) {
 	check(this->Pty);
 
 	TArray<TCHAR> buf = str.GetCharArray();
 	this->Pty->Write(buf, 0, buf.Num());
 }
 
-void UConsoleContext::SetBold(bool InValue)
-{
+void UConsoleContext::SetBold(bool InValue) {
 	this->IsBold = InValue;
 	this->SetTerminalMode();
 }
 
-void UConsoleContext::SetItalic(bool InValue)
-{
+void UConsoleContext::SetItalic(bool InValue) {
 	this->IsItalic = InValue;
 	this->SetTerminalMode();
 }
 
 // Resets all formatting (including colors) to default.
-void UConsoleContext::ResetFormatting()
-{
+void UConsoleContext::ResetFormatting() {
 	this->IsBackgroundColorSet = this->IsForegroundColorSet = false;
 	this->BackgroundColor = EConsoleColor::Black;
 	this->ForegroundColor = EConsoleColor::White;
@@ -160,68 +145,56 @@ void UConsoleContext::ResetFormatting()
 	this->SetTerminalMode();
 }
 
-void UConsoleContext::SetReversed(bool InValue)
-{
+void UConsoleContext::SetReversed(bool InValue) {
 	this->IsReversed = InValue;
 	this->SetTerminalMode();
 }
 
-void UConsoleContext::SetForegroundColor(EConsoleColor InColor)
-{
+void UConsoleContext::SetForegroundColor(EConsoleColor InColor) {
 	this->SetColors(InColor, this->BackgroundColor);
 }
 
-void UConsoleContext::ResetForegroundColor()
-{
+void UConsoleContext::ResetForegroundColor() {
 	this->IsForegroundColorSet = false;
 	this->ForegroundColor = EConsoleColor::White;
 	this->SetTerminalMode();
 }
 
-void UConsoleContext::SetUnderline(bool InValue)
-{
+void UConsoleContext::SetUnderline(bool InValue) {
 	this->IsUnderline = InValue;
 	this->SetTerminalMode();
 }
 
-void UConsoleContext::SetColors(EConsoleColor InForeground, EConsoleColor InBackground)
-{
-	if(this->BackgroundColor != InBackground)
-	{
+void UConsoleContext::SetColors(EConsoleColor InForeground, EConsoleColor InBackground) {
+	if(this->BackgroundColor != InBackground) {
 		this->IsBackgroundColorSet = true;
 		this->BackgroundColor = InBackground;
 	}
-	if(this->ForegroundColor != InForeground)
-	{
+	if(this->ForegroundColor != InForeground) {
 		this->ForegroundColor = InForeground;
 		this->IsForegroundColorSet = true;
 	}
 	this->SetTerminalMode();
 }
 
-void UConsoleContext::ReadLine(UObject* WorldContextObject, FLatentActionInfo LatentInfo, FString& OutText)
-{
-	if (WorldContextObject) 
-	{
+void UConsoleContext::ReadLine(UObject* WorldContextObject, FLatentActionInfo LatentInfo, FString& OutText) {
+	if (WorldContextObject) {
 		UWorld* world = WorldContextObject->GetWorld();
-		if (world)
-		{
+		if (world) {
 			FLatentActionManager& LatentActionManager = world->GetLatentActionManager();
-			if (LatentActionManager.FindExistingAction<FConsoleReadLineLatentAction>(LatentInfo.CallbackTarget, LatentInfo.UUID) == NULL)
-			{
+			if (LatentActionManager.FindExistingAction<FConsoleReadLineLatentAction>(LatentInfo.CallbackTarget, LatentInfo.UUID) == NULL) {
 				//Here in a second, once I confirm the project loads, we need to see whats wrong with this
 				LatentActionManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, new FConsoleReadLineLatentAction(this, LatentInfo, OutText));
 			}
 		}
-	}}
+	}
+}
 
-void UConsoleContext::Clear()
-{
+void UConsoleContext::Clear() {
 	this->WriteToPty("\x1B[2J");
 }
 
-void UConsoleContext::Write(const FText& InText, float InDelaySeconds)
-{
+void UConsoleContext::Write(const FText& InText, float InDelaySeconds) {
 	// TODO: Have the game wait InDelaySeconds before actually writing the text to the pty.
 	// The pty doesn't have a concept of time, it's just a set of FIFO buffers, so
 	// we'll ignore the delay for now. Blueprints can, of course, use the "Delay" node,
@@ -236,8 +209,7 @@ void UConsoleContext::Write(const FText& InText, float InDelaySeconds)
 	this->WriteToPty(AsString);
 }
 
-void UConsoleContext::WriteLine(const FText& InText, float InDelaySeconds)
-{
+void UConsoleContext::WriteLine(const FText& InText, float InDelaySeconds) {
 	// Write the text as usual...
 	this->Write(InText, InDelaySeconds);
 
@@ -245,8 +217,7 @@ void UConsoleContext::WriteLine(const FText& InText, float InDelaySeconds)
 	this->WriteToPty("\r\n");
 }
 
-void UConsoleContext::OverwriteLine(const FText& InText, float InDelaySeconds)
-{
+void UConsoleContext::OverwriteLine(const FText& InText, float InDelaySeconds) {
 	// Forces the game to wait before writing the escape codes.
 	this->Write(FText::GetEmpty(), InDelaySeconds);
 
@@ -260,8 +231,7 @@ void UConsoleContext::OverwriteLine(const FText& InText, float InDelaySeconds)
 	this->Write(InText, 0);
 }
 
-UConsoleContext* UConsoleContext::Pipe()
-{
+UConsoleContext* UConsoleContext::Pipe() {
 	// So this involves creating a new buffer...
 	UPtyFifoBuffer* SharedBuffer = NewObject<UPtyFifoBuffer>();
 
@@ -285,8 +255,7 @@ UConsoleContext* UConsoleContext::Pipe()
 	return PipeConsole;
 }
 
-UConsoleContext* UConsoleContext::Redirect(UPtyFifoBuffer* InBuffer)
-{
+UConsoleContext* UConsoleContext::Redirect(UPtyFifoBuffer* InBuffer) {
 	// A redirect is basically a pipe as we need to pipe ourselves as input into the redirected console,
 	// so we'll use Pipe() to do that.
 	UConsoleContext* RedirectedConsole = this->Pipe();
@@ -296,11 +265,9 @@ UConsoleContext* UConsoleContext::Redirect(UPtyFifoBuffer* InBuffer)
 
 	// All good.
 	return RedirectedConsole;
-	
 }
 
-UConsoleContext* UConsoleContext::Clone()
-{
+UConsoleContext* UConsoleContext::Clone() {
 	UConsoleContext* Cloned = NewObject<UConsoleContext>();
 	Cloned->Setup(this->GetPty()->Clone(), this->UserContext);
 	Cloned->WorkingDirectory = this->WorkingDirectory;
@@ -309,24 +276,20 @@ UConsoleContext* UConsoleContext::Clone()
 	return Cloned;
 }
 
-UConsoleContext* UConsoleContext::PipeOut(UConsoleContext* InConsole)
-{
+UConsoleContext* UConsoleContext::PipeOut(UConsoleContext* InConsole) {
 	UConsoleContext* PipedConsole = this->Pipe();
 	PipedConsole->Pty->OutputStream = InConsole->Pty->OutputStream;
 	return PipedConsole;
 }
 
-UPtyStream* UConsoleContext::GetPty()
-{
+UPtyStream* UConsoleContext::GetPty() {
 	return this->Pty;
 }
 
-FIntPoint UConsoleContext::GetCursorPosition()
-{
+FIntPoint UConsoleContext::GetCursorPosition() {
 	this->WriteToPty("\x1B[6n");
 	FString Line;
-	while(!this->GetLine(Line))
-	{
+	while(!this->GetLine(Line)) {
 		// force the terminal to respond.
 		this->UpdateTty.ExecuteIfBound();
 	}
@@ -343,30 +306,25 @@ FIntPoint UConsoleContext::GetCursorPosition()
 	return FIntPoint(ColNum, RowNum);
 }
 
-int UConsoleContext::GetCursorColumn()
-{
+int UConsoleContext::GetCursorColumn() {
 	return this->GetCursorPosition().X;
 }
 
-int UConsoleContext::GetCursorRow()
-{
+int UConsoleContext::GetCursorRow() {
 	return this->GetCursorPosition().Y;
 }
 
-void UConsoleContext::OnTtyUpdate(UObject* Callee, FName FunctionName)
-{
+void UConsoleContext::OnTtyUpdate(UObject* Callee, FName FunctionName) {
 	check(!this->UpdateTty.IsBound());
 	this->UpdateTty.BindUFunction(Callee, FunctionName);
 }
 
-void UConsoleContext::OnGetSize(UObject* Callee, FName FunctionName)
-{
+void UConsoleContext::OnGetSize(UObject* Callee, FName FunctionName) {
     check(!this->GetSizeDelegate.IsBound());
     this->GetSizeDelegate.BindUFunction(Callee, FunctionName);
 }
 
-FIntPoint UConsoleContext::GetTerminalSize()
-{
+FIntPoint UConsoleContext::GetTerminalSize() {
     int w = 0;
     int h = 0;
 
@@ -375,33 +333,27 @@ FIntPoint UConsoleContext::GetTerminalSize()
     return FIntPoint(w, h);
 }
 
-int UConsoleContext::GetRows()
-{
+int UConsoleContext::GetRows() {
     return this->GetTerminalSize().Y;
 }
 
-int UConsoleContext::GetColumns()
-{
+int UConsoleContext::GetColumns() {
     return this->GetTerminalSize().X;
 }
 
-void UConsoleContext::Beep()
-{
+void UConsoleContext::Beep() {
 	this->WriteToPty("\x7");
 }
 
-void UConsoleContext::CancelAdvancedReadLine()
-{
-	if(this->LineNoise)
-	{
+void UConsoleContext::CancelAdvancedReadLine() {
+	if(this->LineNoise) {
 		this->LineNoise = nullptr;
 		this->GetPty()->RawMode(false);
 		this->WriteToPty("\r\n");
 	}
 }
 
-void UConsoleContext::InitAdvancedGetLine(FString Prompt)
-{
+void UConsoleContext::InitAdvancedGetLine(FString Prompt) {
 	check(!this->LineNoise);
 
 	this->LineNoise = NewObject<ULineNoise>();
@@ -409,10 +361,8 @@ void UConsoleContext::InitAdvancedGetLine(FString Prompt)
 	this->LineNoise->SetConsole(this, Prompt);
 }
 
-bool UConsoleContext::UpdateAdvancedGetLine(FString& Line)
-{
-	if(!this->LineNoise)
-	{
+bool UConsoleContext::UpdateAdvancedGetLine(FString& Line) {
+	if(!this->LineNoise) {
 		Line = "";
 		return true;
 	}
@@ -429,8 +379,7 @@ bool UConsoleContext::UpdateAdvancedGetLine(FString& Line)
 // Resets the terminal's attributes to default values and then sends
 // the terminal modes that correspond to this context's current formatting
 // settings.  Use this when these settings change to have them take effect.
-void UConsoleContext::SetTerminalMode()
-{
+void UConsoleContext::SetTerminalMode() {
 	// Start by resetting the terminal mode to default.
 	this->WriteToPty("\x1B[0");
 
@@ -443,33 +392,49 @@ void UConsoleContext::SetTerminalMode()
 	TArray<int> args;
 
 	// Send the foreground and background colors as necessary.
-	if(this->IsBackgroundColorSet)
+	if(this->IsBackgroundColorSet) {
 		args.Add(40 + (int)this->BackgroundColor);
-	if(this->IsForegroundColorSet)
+	} else if(this->IsForegroundColorSet) {
 		args.Add(30 + (int)this->ForegroundColor);
+	}
 	
 	// Now for the font attributes...
-	if(this->IsBold) args.Add(1);
-	if(this->IsItalic) args.Add(3); // Thank you Victor Tran! Didn't know this was an accepted mode.
-	if(this->IsUnderline) args.Add(4);
+	if(this->IsBold) {
+		args.Add(1);
+	}
+	// Thank you Victor Tran! Didn't know this was an accepted mode.
+	if(this->IsItalic) { 
+		args.Add(3);
+	}
+	if(this->IsUnderline) {
+		args.Add(4);
+	}
 
 	// Color modes.
-	if(this->IsReversed) args.Add(7);
-	if(this->IsDim) args.Add(2);
+	if(this->IsReversed) {
+		args.Add(7);
+	}
+	if(this->IsDim) {
+		args.Add(2);
+	}
 
 	// Blinking and other effects.
-	if(this->IsHidden) args.Add(8);
-	if(this->IsBlinking) args.Add(5);
+	if(this->IsHidden) {
+		args.Add(8);
+	}
+	if(this->IsBlinking) {
+		args.Add(5);
+	}
 
 	// Loop through the above arguments and send them.
-	for(int a : args)
+	for(int a : args) {
 		this->WriteToPty(";" + FString::FromInt(a));
+	}
 
 	// Finish the escape sequence off with the "m" (terminal mode) mode.
 	this->WriteToPty("m");
 }
 
-FString UConsoleContext::Tab()
-{
+FString UConsoleContext::Tab() {
 	return "\t";
 }

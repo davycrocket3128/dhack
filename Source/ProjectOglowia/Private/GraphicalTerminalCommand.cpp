@@ -35,18 +35,14 @@
 #include "UserContext.h"
 #include "PeacenetWorldStateActor.h"
 
-AGraphicalTerminalCommand::AGraphicalTerminalCommand()
-{
+AGraphicalTerminalCommand::AGraphicalTerminalCommand() {
 }
 
-AGraphicalTerminalCommand::~AGraphicalTerminalCommand()
-{
+AGraphicalTerminalCommand::~AGraphicalTerminalCommand() {
 }
 
-void AGraphicalTerminalCommand::NativeRunCommand(UConsoleContext * InConsole, TArray<FString> InArguments)
-{
-	if(!InConsole->GetUserContext()->GetDesktop() || InConsole->GetUserContext()->GetDesktop()->IsInTextMode())
-	{
+void AGraphicalTerminalCommand::NativeRunCommand(UConsoleContext * InConsole, TArray<FString> InArguments) {
+	if(!InConsole->GetUserContext()->GetDesktop() || InConsole->GetUserContext()->GetDesktop()->IsInTextMode()) {
 		InConsole->SetBold(true);
 		InConsole->SetForegroundColor(EConsoleColor::Red);
 		InConsole->WriteLine(NSLOCTEXT("General", "TextModeError", "You cannot run this program in text mode because it requires an X11 window manager."));

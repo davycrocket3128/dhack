@@ -32,20 +32,17 @@
 #include "Grep.h"
 #include "Regex.h"
 
-void AGrep::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
-{
+void AGrep::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) {
     FString PatternText = this->ArgumentMap["<pattern>"]->AsString();
 
     FRegexPattern Pattern(PatternText);
 
     FString Line;
-    while(InConsole->GetLine(Line))
-    {
+    while(InConsole->GetLine(Line)) {
         FRegexMatcher Matcher(Pattern, Line);
 
         TArray<int> indexes;
-        while(Matcher.FindNext())
-        {
+        while(Matcher.FindNext()) {
             indexes.Add(Matcher.GetMatchBeginning());
             indexes.Add(Matcher.GetMatchEnding());
         }
@@ -53,18 +50,12 @@ void AGrep::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArgum
         if(!indexes.Num()) continue;
 
         bool isMatching = false;
-        for(int i = 0; i < Line.Len(); i++)
-        {
-            if(indexes.Num())
-            {
-                if(indexes[0] == i)
-                {
-                    if(!isMatching)
-                    {
+        for(int i = 0; i < Line.Len(); i++) {
+            if(indexes.Num()) {
+                if(indexes[0] == i) {
+                    if(!isMatching) {
                         Line.InsertAt(i, "&c&*");
-                    }
-                    else
-                    {
+                    } else {
                         Line.InsertAt(i+1, "&7&r");
                     }
                     isMatching = !isMatching;

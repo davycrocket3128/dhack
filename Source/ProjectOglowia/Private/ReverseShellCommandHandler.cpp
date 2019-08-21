@@ -31,7 +31,6 @@
 
 #include "ReverseShellCommandHandler.h"
 
-void AReverseShellCommandHandler::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> Arguments)
-{
+void AReverseShellCommandHandler::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> Arguments) {
     this->Complete();
 }

@@ -33,17 +33,14 @@
 #include "TerminalSlowTypeLatentAction.h"
 #include "ConsoleContext.h"
 
-void FTerminalSlowTypeLatentAction::UpdateOperation(FLatentResponse & Response)
-{
-	if (CharIndex >= TextToWrite.Num())
-	{
+void FTerminalSlowTypeLatentAction::UpdateOperation(FLatentResponse & Response) {
+	if (CharIndex >= TextToWrite.Num()) {
 		Response.FinishAndTriggerIf(true, ExecutionFunction, OutputLink, CallbackTarget);
 		return;
 	}
 
 	Countdown = Countdown - Response.ElapsedTime();
-	if (Countdown <= 0)
-	{
+	if (Countdown <= 0) {
 		Countdown = CountdownTime;
 		TCHAR Character = TextToWrite[CharIndex];
 		TerminalWidgetInstance->GetPty()->WriteChar(Character);

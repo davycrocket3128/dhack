@@ -45,21 +45,17 @@
 #include "ProceduralGenerationEngine.h"
 #include "SystemUpgrade.h"
 
-FText UUserContext::GetFirstName()
-{
+FText UUserContext::GetFirstName() {
 	return UCommonUtils::GetFirstName(FText::FromString(this->GetCharacterName()));
 }
 
-bool UUserContext::IsDaemonRunning(FName InDaemonName)
-{
+bool UUserContext::IsDaemonRunning(FName InDaemonName) {
 	return this->GetOwningSystem()->IsDaemonRunning(InDaemonName);
 }
 
-void UUserContext::CreateFirstIdentity(const FText& IdentityName, const FText& AliasName, bool UseAliasAsEmail)
-{
+void UUserContext::CreateFirstIdentity(const FText& IdentityName, const FText& AliasName, bool UseAliasAsEmail) {
 	// Only do this if we don't have an identity.
-	if(!this->HasIdentity())
-	{
+	if(!this->HasIdentity()) {
 		// Get a new Peacenet identity to store our shit in:
 		FPeacenetIdentity& OurNewIdentity = this->GetPeacenet()->GetNewIdentity();
 
@@ -88,8 +84,7 @@ void UUserContext::CreateFirstIdentity(const FText& IdentityName, const FText& A
 		EFilesystemStatusCode StatusCode = EFilesystemStatusCode::OK;
 
 		// Ensure the /etc folder exists.
-		if(!Filesystem->DirectoryExists("/etc"))
-		{
+		if(!Filesystem->DirectoryExists("/etc")) {
 			// Create the directory and assert on error
 			Filesystem->CreateDirectory("/etc", StatusCode);
 			check(StatusCode == EFilesystemStatusCode::OK);
@@ -117,85 +112,76 @@ void UUserContext::CreateFirstIdentity(const FText& IdentityName, const FText& A
 	}
 }
 
-bool UUserContext::GetDaemonManager(UDaemonManager*& OutDaemonManager)
-{
+bool UUserContext::GetDaemonManager(UDaemonManager*& OutDaemonManager) {
 	return this->GetOwningSystem()->GetDaemonManager(this, OutDaemonManager);
 }
 
-bool UUserContext::IsPowerUser()
-{
-	if(this->IsAdministrator())
+bool UUserContext::IsPowerUser() {
+	if(this->IsAdministrator()) {
 		return true;
+	}
 	
-	for(auto& User : this->GetComputer().Users)
-		if(User.ID == this->UserID && User.Domain == EUserDomain::PowerUser)
+	for(auto& User : this->GetComputer().Users) {
+		if(User.ID == this->UserID && User.Domain == EUserDomain::PowerUser) {
 			return true;
+		}
+	}
 	
 	return false;
 }
 
-bool UUserContext::KillProcess(int ProcessID, EProcessResult& OutKillResult)
-{
+bool UUserContext::KillProcess(int ProcessID, EProcessResult& OutKillResult) {
 	return this->GetOwningSystem()->KillProcess(ProcessID, this, OutKillResult);
 }
 
-bool UUserContext::GetProcess(int ProcessID, UProcess*& OutProcess, EProcessResult& OutProcessResult)
-{
+bool UUserContext::GetProcess(int ProcessID, UProcess*& OutProcess, EProcessResult& OutProcessResult) {
 	return this->GetOwningSystem()->GetProcess(ProcessID, this, OutProcess, OutProcessResult);
 }
 
-bool UUserContext::IsUserContextValid()
-{
+bool UUserContext::IsUserContextValid() {
 	return this && this->UserSession && !this->UserSession->IsDead();
 }
 
-UUserContext* UUserContext::RequestValidUser()
-{
+UUserContext* UUserContext::RequestValidUser() {
 	if(this->IsUserContextValid()) return this;
 
 	return this->OwningSystem->GetUserContext(this->UserID);
 }
 
-TArray<int> UUserContext::GetRunningProcesses()
-{
+TArray<int> UUserContext::GetRunningProcesses() {
 	return this->GetOwningSystem()->GetRunningProcesses();
 }
 
-TArray<FString> UUserContext::GetNearbyHosts()
-{
+TArray<FString> UUserContext::GetNearbyHosts() {
 	return this->GetOwningSystem()->GetNearbyHosts();
 }
 
-int UUserContext::GetSkill()
-{
-	if(!this->HasIdentity()) return 0;
-	return this->GetOwningSystem()->GetCharacter().Skill;
+int UUserContext::GetSkill() {
+	if(!this->HasIdentity()) {
+		return 0;
+	} else {
+		return this->GetOwningSystem()->GetCharacter().Skill;
+	}
 }
 
-bool UUserContext::HasIdentity()
-{
+bool UUserContext::HasIdentity() {
 	return this->GetOwningSystem()->HasIdentity();
 }
 
-float UUserContext::GetStealthiness()
-{
+float UUserContext::GetStealthiness() {
 	return this->GetPeacenet()->GetStealthiness(this->GetOwningSystem()->GetCharacter());
 }
 
-bool UUserContext::IsUpgradeInstalled(USystemUpgrade* InUpgrade)
-{
+bool UUserContext::IsUpgradeInstalled(USystemUpgrade* InUpgrade) {
 	return this->GetOwningSystem()->IsUpgradeInstalled(InUpgrade);
 }
 
-void UUserContext::SetStealthiness(float InValue)
-{
+void UUserContext::SetStealthiness(float InValue) {
 	this->GetPeacenet()->SetStealthiness(this->GetOwningSystem()->GetCharacter(), InValue);
 }
 
-void UUserContext::Destroy()
-{
-	if(this->HackingUser)
-	{
+void UUserContext::Destroy() {
+	if(this->HackingUser) {
 		this->HackingUser->Destroy();
 	}
 
@@ -204,47 +190,39 @@ void UUserContext::Destroy()
 	this->UserID = -1;
 }
 
-TArray<UPayloadAsset*> UUserContext::GetPayloads()
-{
+TArray<UPayloadAsset*> UUserContext::GetPayloads() {
 	return this->GetOwningSystem()->GetPayloads();
 }
 
-int UUserContext::GetUserID()
-{
+int UUserContext::GetUserID() {
 	return this->UserID;
 }
 
-TArray<UExploit*> UUserContext::GetExploits()
-{
+TArray<UExploit*> UUserContext::GetExploits() {
 	return this->GetOwningSystem()->GetExploits();
 }
 
-void UUserContext::ParseURL(FString InURL, int InDefaultPort, FString& OutUsername, FString& OutHost, int& OutPort, FString& OutPath)
-{
+void UUserContext::ParseURL(FString InURL, int InDefaultPort, FString& OutUsername, FString& OutHost, int& OutPort, FString& OutPath) {
 	bool HasPort = false;
 	bool HasUser = false;
 	bool HasPath = false;
 
 	UCommonUtils::ParseURL(InURL, OutUsername, OutHost, OutPort, OutPath, HasPath, HasUser, HasPort);
 
-	if(!HasPort)
-	{
+	if(!HasPort) {
 		OutPort = InDefaultPort;
 	}
 
-	if(!HasUser)
-	{
+	if(!HasUser) {
 		OutUsername = this->GetUsername();
 	}
 }
 
-FUserInfo UUserContext::GetUserInfo()
-{
+FUserInfo UUserContext::GetUserInfo() {
     return this->GetOwningSystem()->GetUserInfo(this->UserID);
 }
 
-void UUserContext::Setup(USystemContext* InOwningSystem, int InUserID, UProcess* InUserSessionProcess)
-{
+void UUserContext::Setup(USystemContext* InOwningSystem, int InUserID, UProcess* InUserSessionProcess) {
     // Make sure the owning system is valid.
     check(InOwningSystem);
 	check(InUserSessionProcess);
@@ -254,77 +232,64 @@ void UUserContext::Setup(USystemContext* InOwningSystem, int InUserID, UProcess*
 	this->UserSession = InUserSessionProcess;
 }
 
-FString UUserContext::GetHostname()
-{
+FString UUserContext::GetHostname() {
     return this->OwningSystem->GetHostname();
 }
 
-FString UUserContext::GetUsername()
-{
+FString UUserContext::GetUsername() {
     return this->OwningSystem->GetUsername(this->UserID);
 }
 
-FString UUserContext::GetCharacterName()
-{
+FString UUserContext::GetCharacterName() {
     return this->OwningSystem->GetCharacter().CharacterName;
 }
 
-FString UUserContext::GetHomeDirectory()
-{
+FString UUserContext::GetHomeDirectory() {
     return this->OwningSystem->GetUserHomeDirectory(this->UserID);
 }
 
-UPeacegateFileSystem* UUserContext::GetFilesystem()
-{
+UPeacegateFileSystem* UUserContext::GetFilesystem() {
     return this->OwningSystem->GetFilesystem(this->UserID);
 }
 
-bool UUserContext::DnsResolve(FString InHost, FComputer& OutComputer, EConnectionError& OutError)
-{
+bool UUserContext::DnsResolve(FString InHost, FComputer& OutComputer, EConnectionError& OutError) {
 	return this->GetOwningSystem()->DnsResolve(InHost, OutComputer, OutError);
 }
 
-TArray<UPeacegateProgramAsset*> UUserContext::GetInstalledPrograms()
-{
+TArray<UPeacegateProgramAsset*> UUserContext::GetInstalledPrograms() {
 	return this->GetOwningSystem()->GetInstalledPrograms();
 }
 
-TArray<UCommandInfo*> UUserContext::GetInstalledCommands()
-{
+TArray<UCommandInfo*> UUserContext::GetInstalledCommands() {
 	return this->GetOwningSystem()->GetInstalledCommands();
 }
 
-FString UUserContext::GetIPAddress()
-{
+FString UUserContext::GetIPAddress() {
 	return this->GetOwningSystem()->GetIPAddress();
 }
 
-FComputer& UUserContext::GetComputer()
-{
+FComputer& UUserContext::GetComputer() {
 	return this->GetOwningSystem()->GetComputer();
 }
 
-FPeacenetIdentity& UUserContext::GetPeacenetIdentity()
-{
+FPeacenetIdentity& UUserContext::GetPeacenetIdentity() {
 	return this->GetOwningSystem()->GetCharacter();
 }
 
-bool UUserContext::TryGetTerminalCommand(FName CommandName, UProcess* OwningProcess, ATerminalCommand*& Command, FString& InternalUsage, FString& FriendlyUsage)
-{
-	if(!OwningProcess) OwningProcess = this->UserSession;
+bool UUserContext::TryGetTerminalCommand(FName CommandName, UProcess* OwningProcess, ATerminalCommand*& Command, FString& InternalUsage, FString& FriendlyUsage) {
+	if(!OwningProcess) {
+		OwningProcess = this->UserSession;
+	}
 	return this->GetOwningSystem()->TryGetTerminalCommand(CommandName, OwningProcess, Command, InternalUsage, FriendlyUsage);
 }
 
-APeacenetWorldStateActor* UUserContext::GetPeacenet()
-{
+APeacenetWorldStateActor* UUserContext::GetPeacenet() {
     return this->OwningSystem->GetPeacenet();
 }
 
-UDesktopWidget* UUserContext::GetDesktop()
-{
+UDesktopWidget* UUserContext::GetDesktop() {
 	// If we're a hacker context we grab desktop from hacking user.
-	if(this->HackingUser)
-	{
+	if(this->HackingUser) {
 		return this->HackingUser->GetDesktop();
 	}
 
@@ -332,35 +297,29 @@ UDesktopWidget* UUserContext::GetDesktop()
     return this->OwningSystem->GetDesktop();
 }
 
-USystemContext* UUserContext::GetOwningSystem()
-{
+USystemContext* UUserContext::GetOwningSystem() {
     return this->OwningSystem;
 }
 
-bool UUserContext::IsAdministrator()
-{
+bool UUserContext::IsAdministrator() {
 	return this->GetUserInfo().IsAdminUser;
 }
 
-UUserContext* UUserContext::GetHacker()
-{
+UUserContext* UUserContext::GetHacker() {
 	return this->HackingUser;
 }
 
-void UUserContext::SetHacker(UUserContext* InHacker)
-{
+void UUserContext::SetHacker(UUserContext* InHacker) {
 	check(InHacker);
 	check(InHacker->GetDesktop());
 	this->HackingUser = InHacker;
 }
 
-bool UUserContext::OpenProgram(FName InExecutableName, UProgram*& OutProgram, bool InCheckForExistingWindow)
-{
+bool UUserContext::OpenProgram(FName InExecutableName, UProgram*& OutProgram, bool InCheckForExistingWindow) {
     return this->GetOwningSystem()->OpenProgram(InExecutableName, OutProgram, InCheckForExistingWindow);
 }
 
-void UUserContext::ShowProgramOnWorkspace(UProgram* InProgram)
-{
+void UUserContext::ShowProgramOnWorkspace(UProgram* InProgram) {
     // Check the program and desktop.
     check(InProgram);
     check(this->GetDesktop());
@@ -369,39 +328,30 @@ void UUserContext::ShowProgramOnWorkspace(UProgram* InProgram)
     this->GetDesktop()->ShowProgramOnWorkspace(InProgram);
 }
 
-FString UUserContext::GetUserTypeDisplay()
-{
-	if(this->IsAdministrator())
-	{
+FString UUserContext::GetUserTypeDisplay() {
+	if(this->IsAdministrator()) {
 		return "#";
-	}
-	else
-	{
+	} else {
 		return "$";
 	}
 }
 
-bool UUserContext::OpenFile(const FString& InPath, EFileOpenResult& OutResult)
-{
-	if (!this->GetFilesystem())
-	{
+bool UUserContext::OpenFile(const FString& InPath, EFileOpenResult& OutResult) {
+	if (!this->GetFilesystem()) {
 		OutResult = EFileOpenResult::PermissionDenied;
 		return false;
 	}
 
-	if (!this->GetFilesystem()->FileExists(InPath))
-	{
+	if (!this->GetFilesystem()->FileExists(InPath)) {
 		OutResult = EFileOpenResult::FileNotFound;
 		return false;
 	}
 
 	// Can we open the file as a program?
 	FFileRecord Record = this->GetFilesystem()->GetFileRecord(InPath);
-	if(Record.RecordType == EFileRecordType::Program)
-	{
+	if(Record.RecordType == EFileRecordType::Program) {
 		int ProgramIndex = Record.ContentID;
-		if(this->GetPeacenet()->Programs.Num() > ProgramIndex)
-		{
+		if(this->GetPeacenet()->Programs.Num() > ProgramIndex) {
 			UPeacegateProgramAsset* ProgramAsset = this->GetPeacenet()->Programs[ProgramIndex];
 			// TODO: Shouldn't the CreateProgram function deal with this internally?
 			TSubclassOf<UWindow> WindowClass = this->GetPeacenet()->WindowClass;
@@ -419,15 +369,13 @@ bool UUserContext::OpenFile(const FString& InPath, EFileOpenResult& OutResult)
 
 	FString Path;
 	FString Extension;
-	if (!InPath.Split(TEXT("."), &Path, &Extension, ESearchCase::IgnoreCase, ESearchDir::FromEnd))
-	{
+	if (!InPath.Split(TEXT("."), &Path, &Extension, ESearchCase::IgnoreCase, ESearchDir::FromEnd)) {
 		OutResult = EFileOpenResult::NoSuitableProgram;
 		return false;
 	}
 
 	UPeacegateProgramAsset* ProgramAsset;
-	if (!this->GetOwningSystem()->GetSuitableProgramForFileExtension(Extension, ProgramAsset))
-	{
+	if (!this->GetOwningSystem()->GetSuitableProgramForFileExtension(Extension, ProgramAsset)) {
 		OutResult = EFileOpenResult::NoSuitableProgram;
 		return false;
 	}
@@ -447,65 +395,51 @@ bool UUserContext::OpenFile(const FString& InPath, EFileOpenResult& OutResult)
 	return true;
 }
 
-UProcess* UUserContext::Fork(FString InName)
-{
+UProcess* UUserContext::Fork(FString InName) {
 	return this->UserSession->Fork(InName);
 }
 
-TArray<FString> UUserContext::GetKnownHosts()
-{
+TArray<FString> UUserContext::GetKnownHosts() {
 	return this->GetPeacenet()->GetPlayerKnownHosts();
 }
 
-EUserColor UUserContext::GetUserColor()
-{
-	for(auto& User : this->GetOwningSystem()->GetComputer().Users)
-	{
-		if(User.ID == this->UserID)
-		{
+EUserColor UUserContext::GetUserColor() {
+	for(auto& User : this->GetOwningSystem()->GetComputer().Users) {
+		if(User.ID == this->UserID) {
 			return User.UserColor;
 		}
 	}
 	return EUserColor::Peaceful;
 }
 
-FString UUserContext::GetEmailAddress()
-{
+FString UUserContext::GetEmailAddress() {
 	return this->GetOwningSystem()->GetCharacter().EmailAddress;
 }
 
-UMailProvider* UUserContext::GetMailProvider()
-{
+UMailProvider* UUserContext::GetMailProvider() {
 	return this->GetOwningSystem()->GetMailProvider();
 }
 
-void UUserContext::SetUserColor(EUserColor InColor)
-{
-	for(auto& User : this->GetOwningSystem()->GetComputer().Users)
-	{
-		if(User.ID == this->UserID)
-		{
+void UUserContext::SetUserColor(EUserColor InColor) {
+	for(auto& User : this->GetOwningSystem()->GetComputer().Users) {
+		if(User.ID == this->UserID) {
 			User.UserColor = InColor;
 		}
 	}
 }
 
-TArray<UWallpaperAsset*> UUserContext::GetAvailableWallpapers()
-{
+TArray<UWallpaperAsset*> UUserContext::GetAvailableWallpapers() {
 	return this->GetOwningSystem()->GetAvailableWallpapers();
 }
 
-UTexture2D* UUserContext::GetCurrentWallpaper()
-{
+UTexture2D* UUserContext::GetCurrentWallpaper() {
 	return this->GetOwningSystem()->GetComputer().CurrentWallpaper;
 }
 
-void UUserContext::DisableWallpaper()
-{
+void UUserContext::DisableWallpaper() {
 	this->GetOwningSystem()->DisableWallpaper();
 }
 
-void UUserContext::SetCurrentWallpaper(UWallpaperAsset* InWallpaperAsset)
-{
+void UUserContext::SetCurrentWallpaper(UWallpaperAsset* InWallpaperAsset) {
 	this->GetOwningSystem()->SetCurrentWallpaper(InWallpaperAsset);
 }

@@ -31,8 +31,7 @@
 
 #include "ManualCommand.h"
 
-void AManualCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
-{
+void AManualCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) {
     // Get the name of the manual page to find.
     FString ManualName = this->ArgumentMap["<manualPage>"]->AsString();
 
@@ -40,16 +39,13 @@ void AManualCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString
     TArray<FManualPage> LikelyPages;
 
     // Go through every manual page.
-    for(auto& ManualPage : InConsole->GetUserContext()->GetPeacenet()->GetManualPages())
-    {
-        if(ManualPage.ID.ToString() == ManualName)
-        {
+    for(auto& ManualPage : InConsole->GetUserContext()->GetPeacenet()->GetManualPages()) {
+        if(ManualPage.ID.ToString() == ManualName) {
             // We have a match.
             InConsole->SetForegroundColor(EConsoleColor::Yellow);
             InConsole->SetBold(true);
             InConsole->WriteLine(ManualPage.FullName);
-            for(int i = 0; i < ManualPage.FullName.ToString().Len(); i++)
-            {
+            for(int i = 0; i < ManualPage.FullName.ToString().Len(); i++) {
                 InConsole->Write(FText::FromString("="));
             }
             InConsole->SetBold(false);
@@ -67,8 +63,7 @@ void AManualCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString
             
             InConsole->WriteLine(FText::GetEmpty());
             
-            for(auto Metadata : ManualPage.ManualMetadata)
-            {
+            for(auto Metadata : ManualPage.ManualMetadata) {
                 InConsole->SetBold(true);
                 InConsole->SetUnderline(true);
                 InConsole->WriteLine(Metadata.Title);
@@ -80,16 +75,12 @@ void AManualCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString
             }
             this->Complete();
             return;
-        }
-        else
-        {
-            if(ManualPage.ID.ToString().ToLower().Contains(ManualName.ToLower()))
-            {
+        } else {
+            if(ManualPage.ID.ToString().ToLower().Contains(ManualName.ToLower())) {
                 LikelyPages.Add(ManualPage);
                 continue;
             }
-            if(ManualPage.FullName.ToString().ToLower().Contains(ManualName.ToLower()))
-            {
+            if(ManualPage.FullName.ToString().ToLower().Contains(ManualName.ToLower())) {
                 LikelyPages.Add(ManualPage);
                 continue;
             }
@@ -102,8 +93,7 @@ void AManualCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString
     InConsole->SetForegroundColor(EConsoleColor::Red);
     InConsole->WriteLine(FText::Format(NSLOCTEXT("Manual", "NoPagesFound", "No manual page named \"{0}\" was found."), FText::FromString(ManualName)));
     
-    if(!LikelyPages.Num())
-    {
+    if(!LikelyPages.Num()) {
         InConsole->ResetFormatting();
         this->Complete();
         return;
@@ -113,8 +103,7 @@ void AManualCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString
     InConsole->ResetFormatting();
     InConsole->SetBold(true);
     InConsole->SetForegroundColor(EConsoleColor::Yellow);
-    for(auto ManualPage : LikelyPages)
-    {
+    for(auto ManualPage : LikelyPages) {
         InConsole->WriteLine(FText::Format(NSLOCTEXT("Manual", "LikelyPage", " - {0}"), FText::FromName(ManualPage.ID)));
     }
     InConsole->WriteLine(FText::GetEmpty());

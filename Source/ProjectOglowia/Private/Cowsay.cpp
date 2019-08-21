@@ -31,15 +31,13 @@
 
 #include "Cowsay.h"
 
-void ACowsay::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
-{
+void ACowsay::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) {
     // This is the text that will go in the cow's speech bubble.
     FString SpeechText = "";
     
     // Read from the console for cow speech.
     FString SpeechLine = "";
-    while(InConsole->GetLine(SpeechLine))
-    {
+    while(InConsole->GetLine(SpeechLine)) {
         SpeechText = SpeechText + SpeechLine + "\r\n";
     }
 
@@ -47,10 +45,8 @@ void ACowsay::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArg
     SpeechText = SpeechText.TrimStartAndEnd();
 
     // If the speech text is empty then we'll read from command-line arguments instead.
-    if(!SpeechText.Len())
-    {
-        for(auto& Arg : InArguments)
-        {
+    if(!SpeechText.Len()) {
+        for(auto& Arg : InArguments) {
             SpeechText = SpeechText + Arg + " ";
         }
     }
@@ -68,22 +64,18 @@ void ACowsay::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArg
     this->Complete();
 }
 
-FString ACowsay::GetCow()
-{
+FString ACowsay::GetCow() {
     return "\\  ^__^\r\n \\ (oo)\\_______\r\n   (__)\\       )\\/\\\r\n       ||----w |\r\n       ||     ||";
 }
 
-TArray<FString> ACowsay::SplitLines(FString InText, int InWrap)
-{
+TArray<FString> ACowsay::SplitLines(FString InText, int InWrap) {
     TArray<FString> Lines;
     FString Current = "";
 
-    for(int i = 0; i < InText.Len(); i++)
-    {
+    for(int i = 0; i < InText.Len(); i++) {
         TCHAR Char = InText[i];
 
-        switch(Char)
-        {
+        switch(Char) {
             case '\0':
             case '\b':
             case '\t':
@@ -99,15 +91,13 @@ TArray<FString> ACowsay::SplitLines(FString InText, int InWrap)
                 break;
         }
 
-        if(Current.Len() >= InWrap && InWrap > 0)
-        {
+        if(Current.Len() >= InWrap && InWrap > 0) {
             Lines.Add(Current);
             Current = "";
         }
     }
 
-    if(Current.Len() > 0)
-    {
+    if(Current.Len() > 0) {
         Lines.Add(Current);
         Current = "";
     }
@@ -115,8 +105,7 @@ TArray<FString> ACowsay::SplitLines(FString InText, int InWrap)
     return Lines;
 }
 
-FString ACowsay::MakeSpeech(FString InSpeech, FString InCow)
-{
+FString ACowsay::MakeSpeech(FString InSpeech, FString InCow) {
     // Split the cow into individual lines of text.
     TArray<FString> cowlines = this->SplitLines(InCow, 0);
 
@@ -129,8 +118,7 @@ FString ACowsay::MakeSpeech(FString InSpeech, FString InCow)
     // Add the top of the speech bubble.
     sb += " _";
 
-    for(int i = 0; i < length; i++)
-    {
+    for(int i = 0; i < length; i++) {
         sb += "_";
     }
     
@@ -140,26 +128,19 @@ FString ACowsay::MakeSpeech(FString InSpeech, FString InCow)
     TArray<FString> lines = this->SplitLines(InSpeech, length);
     
     // And go through each line.
-    for(int i = 0; i < lines.Num(); i++)
-    {
+    for(int i = 0; i < lines.Num(); i++) {
         TCHAR begin = '|';
         TCHAR end = '|';
         
-        if(i == 0)
-        {
-            if(lines.Num() == 1)
-            {
+        if(i == 0) {
+            if(lines.Num() == 1) {
                 begin = '<';
                 end = '>';
-            }
-            else
-            {
+            } else {
                 begin = '/';
                 end = '\\';
             }
-        }
-        else if(i == lines.Num() - 1)
-        {
+        } else if(i == lines.Num() - 1) {
             begin = '\\';
             end = '/';
         }
@@ -170,24 +151,20 @@ FString ACowsay::MakeSpeech(FString InSpeech, FString InCow)
         int pad = length - lineLength;
         
         sb += FString::Chr(begin) + " " + line;
-        for(int j = 0; j < pad; j++)
-        {
+        for(int j = 0; j < pad; j++) {
             sb += " ";
         }
         sb += " " + FString::Chr(end) + "\r\n";
    }
 
     sb += " -";
-    for(int i = 0; i < length; i++)
-    {
+    for(int i = 0; i < length; i++) {
         sb += "-";
     }
     sb += "- \r\n";
 
-    for(auto& cowline : cowlines)
-    {
-        for(int i = 0; i < length + 4; i++)
-        {
+    for(auto& cowline : cowlines) {
+        for(int i = 0; i < length + 4; i++) {
             sb += " ";
         }
         sb += cowline + "\r\n";

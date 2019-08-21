@@ -31,8 +31,7 @@
 
 #include "ManualPageAssetBase.h"
 
-FManualPage UManualPageAssetBase::GetManualPage()
-{
+FManualPage UManualPageAssetBase::GetManualPage() {
     // Create the manual page builder which will make generation a lot easier.
     UManualPageBuilder* Builder = NewObject<UManualPageBuilder>();
 

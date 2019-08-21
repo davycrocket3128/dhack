@@ -33,40 +33,29 @@
 #include "Window.h"
 #include "UserContext.h"
 
-FReply UWindow::NativeOnPreviewKeyDown( const FGeometry& InGeometry, const FKeyEvent& InKeyEvent )
-{
+FReply UWindow::NativeOnPreviewKeyDown( const FGeometry& InGeometry, const FKeyEvent& InKeyEvent ) {
 	// Only respond if keyboard is focused.
-	if(this->IsFocused)
-	{
+	if(this->IsFocused) {
 		// Close keybind: CTRL+Q
-		if(InKeyEvent.IsControlDown() && InKeyEvent.GetKey().GetFName() == "Q")
-		{
-			if(this->EnableCloseButton)
-			{
+		if(InKeyEvent.IsControlDown() && InKeyEvent.GetKey().GetFName() == "Q") {
+			if(this->EnableCloseButton) {
 				this->Close();
 				return FReply::Handled();
 			}
 		}
 		
-		if(this->EnableMinimizeAndMaximize)
-		{
+		if(this->EnableMinimizeAndMaximize) {
 			// Minimize/Restore: CTRL+Down
 			// Maximize: CTRL+Up
-			if(InKeyEvent.IsControlDown())
-			{
-				if(InKeyEvent.GetKey().GetFName() == "Up")
-				{
+			if(InKeyEvent.IsControlDown()) {
+				if(InKeyEvent.GetKey().GetFName() == "Up") {
 					this->Maximize();
 					return FReply::Handled();
 				}
-				if(InKeyEvent.GetKey().GetFName() == "Down")
-				{
-					if(this->IsMaximized)
-					{
+				if(InKeyEvent.GetKey().GetFName() == "Down") {
+					if(this->IsMaximized) {
 						this->Restore();
-					}
-					else
-					{
+					} else {
 						this->Minimize();
 					}
 					return FReply::Handled();
@@ -79,70 +68,59 @@ FReply UWindow::NativeOnPreviewKeyDown( const FGeometry& InGeometry, const FKeyE
 }
 
 // Show an infobox (no callbacks.)
-void UWindow::ShowInfo(const FText& InTitle, const FText& InMessage, const EInfoboxIcon InIcon)
-{
+void UWindow::ShowInfo(const FText& InTitle, const FText& InMessage, const EInfoboxIcon InIcon) {
 	FInfoboxDismissedEvent Dismissed;
 	FInfoboxInputValidator Validator;
 
 	this->ShowInfoWithCallbacks(InTitle, InMessage, InIcon, EInfoboxButtonLayout::OK, false, Dismissed, Validator);
 }
 
-void UWindow::Close()
-{
+void UWindow::Close() {
 	OnWindowClosed();
 	NativeWindowClosed.Broadcast(this);
 }
 
-void UWindow::Minimize()
-{
+void UWindow::Minimize() {
 	OnWindowMinimized();
 }
 
-void UWindow::Maximize()
-{
+void UWindow::Maximize() {
 	this->IsMaximized = true;
 	OnWindowMaximized();
 }
 
-void UWindow::Restore()
-{
+void UWindow::Restore() {
 	this->IsMaximized = false;
 	OnWindowRestored();
 }
 
-void UWindow::AddWindowToClientSlot(const UUserWidget* InClientWidget)
-{
+void UWindow::AddWindowToClientSlot(const UUserWidget* InClientWidget) {
 	OnAddWindowToClientSlot(InClientWidget);
 }
 
-void UWindow::SetClientMinimumSize(const FVector2D& InSize)
-{
+void UWindow::SetClientMinimumSize(const FVector2D& InSize) {
 	OnSetClientMinimumSize(InSize);
 }
 
-void UWindow::NativeOnAddedToFocusPath(const FFocusEvent & InFocusEvent)
-{
+void UWindow::NativeOnAddedToFocusPath(const FFocusEvent & InFocusEvent) {
 	this->IsFocused = true;
 
 	this->WindowFocusEvent.Broadcast(true, this);
 	Super::NativeOnAddedToFocusPath(InFocusEvent);
 }
 
-void UWindow::NativeOnRemovedFromFocusPath(const FFocusEvent & InFocusEvent)
-{
+void UWindow::NativeOnRemovedFromFocusPath(const FFocusEvent & InFocusEvent) {
 	this->IsFocused = false;
 
 	this->WindowFocusEvent.Broadcast(false, this);
 	Super::NativeOnRemovedFromFocusPath(InFocusEvent);
 }
 
-UUserContext* UWindow::GetUserContext()
-{
+UUserContext* UWindow::GetUserContext() {
 	return this->UserContext;
 }
 
-void UWindow::SetUserContext(UUserContext* InUserContext)
-{
+void UWindow::SetUserContext(UUserContext* InUserContext) {
 	// Crash if it's null
 	check(InUserContext);
 

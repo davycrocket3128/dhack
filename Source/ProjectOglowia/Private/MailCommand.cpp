@@ -35,17 +35,14 @@
 #include "UserContext.h"
 #include "SystemContext.h"
 
-void AMailCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
-{
+void AMailCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) {
     UMailProvider* MailProvider = this->GetUserContext()->GetMailProvider();
 
-    if(this->ArgumentMap["view"]->AsBoolean())
-    {
+    if(this->ArgumentMap["view"]->AsBoolean()) {
         int id = this->ArgumentMap["<id>"]->AsNumber();
 
         UMailMessage* Message = MailProvider->GetMessageByID(id);
-        if(Message)
-        {
+        if(Message) {
             InConsole->WriteLine(FText::GetEmpty());
             InConsole->SetBold(true);
             InConsole->SetUnderline(true);
@@ -59,8 +56,7 @@ void AMailCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
             InConsole->WriteLine(FText::GetEmpty());
             InConsole->WriteLine(Message->GetMessageText());
             InConsole->WriteLine(FText::GetEmpty());
-            if(Message->HasMission())
-            {
+            if(Message->HasMission()) {
                 InConsole->WriteLine(FText::GetEmpty());
                 InConsole->SetBold(true);
                 InConsole->SetForegroundColor(EConsoleColor::Magenta);
@@ -80,9 +76,7 @@ void AMailCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
         InConsole->SetForegroundColor(EConsoleColor::Yellow);
         InConsole->WriteLine(NSLOCTEXT("MailCommand", "MessageNotFound", "No message with the specified ID was found."));
         InConsole->ResetFormatting();
-    }
-    else if(this->ArgumentMap["inbox"]->AsBoolean())
-    {
+    } else if(this->ArgumentMap["inbox"]->AsBoolean()) {
         InConsole->SetBold(true);
         InConsole->SetForegroundColor(EConsoleColor::Yellow);
         InConsole->WriteLine(FText::Format(NSLOCTEXT("MailCommand", "ViewingInbox", "Viewing inbox of {0}:"), FText::FromString(this->GetUserContext()->GetEmailAddress())));
@@ -90,9 +84,7 @@ void AMailCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
         InConsole->ResetFormatting();
 
         this->WriteMessageList(InConsole, MailProvider->GetMessagesInInbox());
-    }
-    else if(this->ArgumentMap["outbox"]->AsBoolean())
-    {
+    } else if(this->ArgumentMap["outbox"]->AsBoolean()) {
         InConsole->SetBold(true);
         InConsole->SetForegroundColor(EConsoleColor::Yellow);
         InConsole->WriteLine(FText::Format(NSLOCTEXT("MailCommand", "ViewingOutbox", "Viewing outbox of {0}:"), FText::FromString(this->GetUserContext()->GetEmailAddress())));
@@ -100,9 +92,7 @@ void AMailCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
         InConsole->ResetFormatting();
 
         InConsole->WriteLine(NSLOCTEXT("General", "NYI", "Not yet implemented."));
-    }
-    else if(this->ArgumentMap["missions"]->AsBoolean())
-    {
+    } else if(this->ArgumentMap["missions"]->AsBoolean()) {
         InConsole->SetBold(true);
         InConsole->SetForegroundColor(EConsoleColor::Yellow);
         InConsole->WriteLine(FText::Format(NSLOCTEXT("MailCommand", "ViewingMissions", "Viewing available missions in mailbox of {0}:"), FText::FromString(this->GetUserContext()->GetEmailAddress())));
@@ -110,19 +100,14 @@ void AMailCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
         InConsole->ResetFormatting();
 
         this->WriteMessageList(InConsole, MailProvider->GetMessagesWithMissions());
-    }
-    else if(this->ArgumentMap["start"]->AsBoolean())
-    {
+    } else if(this->ArgumentMap["start"]->AsBoolean()) {
         int id = this->ArgumentMap["<id>"]->AsNumber();
 
         auto Message = MailProvider->GetMessageByID(id);
 
-        if(Message)
-        {
-            if(Message->HasMission())
-            {
-                if(Message->CanPlayMission())
-                {
+        if(Message) {
+            if(Message->HasMission()) {
+                if(Message->CanPlayMission()) {
                     InConsole->WriteLine(NSLOCTEXT("MailCommand", "StartingMission", "Starting mission..."));
                     Message->BeginMission();
                     this->Complete();
@@ -152,8 +137,7 @@ void AMailCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
     this->Complete();
 }
 
-void AMailCommand::WriteMessageList(UConsoleContext* InConsole, TArray<UMailMessage*> InMessages)
-{
+void AMailCommand::WriteMessageList(UConsoleContext* InConsole, TArray<UMailMessage*> InMessages) {
     TArray<UMailMessage*> Messages;
     
     FText ParticipantsHead = NSLOCTEXT("MailCommand", "ParticipantsHead", "Participants");
@@ -164,47 +148,54 @@ void AMailCommand::WriteMessageList(UConsoleContext* InConsole, TArray<UMailMess
     int LongestSubject = SubjectHead.ToString().Len();
     int LongestParticipants = ParticipantsHead.ToString().Len();
 
-    for(auto Message : InMessages)
-    {
+    for(auto Message : InMessages) {
         Messages.Add(Message);
         int IdLen = Message->GetMessageId().Len();
         int SubjectLen = Message->GetSubject().ToString().Len();
         int ParticipantsLen = Message->GetParticipants().ToString().Len();
-        if(IdLen > LongestId) LongestId = IdLen;
-        if(SubjectLen > LongestSubject) LongestSubject = SubjectLen;
-        if(ParticipantsLen > LongestParticipants) LongestParticipants = ParticipantsLen;
+        if(IdLen > LongestId) {
+            LongestId = IdLen;
+        }
+        if(SubjectLen > LongestSubject) {
+            LongestSubject = SubjectLen;
+        }
+        if(ParticipantsLen > LongestParticipants) {
+            LongestParticipants = ParticipantsLen;
+        } 
     }
 
     InConsole->SetBold(true);
 
     InConsole->Write(IdHead);
-    for(int i = 0; i <= LongestId - IdHead.ToString().Len(); i++)
+    for(int i = 0; i <= LongestId - IdHead.ToString().Len(); i++) {
         InConsole->Write(FText::FromString(" "));
+    }
     InConsole->Write(FText::FromString(" | "));
     InConsole->Write(SubjectHead);
-    for(int i = 0; i <= LongestSubject - SubjectHead.ToString().Len(); i++)
+    for(int i = 0; i <= LongestSubject - SubjectHead.ToString().Len(); i++) {
         InConsole->Write(FText::FromString(" "));
+    }
     InConsole->Write(FText::FromString(" | "));
     InConsole->WriteLine(ParticipantsHead);
     InConsole->WriteLine(FText::GetEmpty());
 
     InConsole->ResetFormatting();
 
-    for(auto Message : Messages)
-    {
+    for(auto Message : Messages) {
         InConsole->Write(FText::FromString(Message->GetMessageId()));
-        for(int i = 0; i <= LongestId - Message->GetMessageId().Len(); i++)
+        for(int i = 0; i <= LongestId - Message->GetMessageId().Len(); i++) {
             InConsole->Write(FText::FromString(" "));
+        }
         InConsole->Write(FText::FromString(" | "));
         InConsole->Write(Message->GetSubject());
-        for(int i = 0; i <= LongestSubject - Message->GetSubject().ToString().Len(); i++)
+        for(int i = 0; i <= LongestSubject - Message->GetSubject().ToString().Len(); i++) {
             InConsole->Write(FText::FromString(" "));
+        }
         InConsole->Write(FText::FromString(" | "));
         InConsole->WriteLine(Message->GetParticipants());
     }
 
-    if(!Messages.Num())
-    {
+    if(!Messages.Num()) {
         InConsole->SetForegroundColor(EConsoleColor::Magenta);
         InConsole->WriteLine(NSLOCTEXT("MailCommand", "EmptyMailbox", "This mailbox is empty, no messages can be displayed."));
         InConsole->ResetFormatting();

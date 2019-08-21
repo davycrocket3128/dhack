@@ -44,8 +44,7 @@
 #include "PeacenetWorldStateActor.h"
 #include "Engine/Public/Engine.h"
 
-bool UCommonUtils::WidgetsOverlap(const FGeometry& InFirstWidgetGeometry, const FGeometry& InSecondWidgetGeometry)
-{
+bool UCommonUtils::WidgetsOverlap(const FGeometry& InFirstWidgetGeometry, const FGeometry& InSecondWidgetGeometry) {
 	// Essentially we need to treat the geometries as rectangles and use a simple collision detection algorithm I learned
 	// from the lovely, lovely St. Lawrence College dual credit program.
 	FVector2D FirstTopCorner = InFirstWidgetGeometry.AbsolutePosition;
@@ -75,11 +74,11 @@ bool UCommonUtils::WidgetsOverlap(const FGeometry& InFirstWidgetGeometry, const 
 	return true;
 }
 
-bool UCommonUtils::GetWidgetIntersection(const FGeometry& InFirstWidgetGeometry, const FGeometry& InSecondWidgetGeometry, FVector2D& OutIntersectionSize)
-{
+bool UCommonUtils::GetWidgetIntersection(const FGeometry& InFirstWidgetGeometry, const FGeometry& InSecondWidgetGeometry, FVector2D& OutIntersectionSize) {
 	// If the widgets don't intersect then return false.
-	if(!UCommonUtils::WidgetsOverlap(InFirstWidgetGeometry, InSecondWidgetGeometry))
+	if(!UCommonUtils::WidgetsOverlap(InFirstWidgetGeometry, InSecondWidgetGeometry)) {
 		return false;
+	}
 
 	// The returned intersection size goes here:
 	float ix = 0.f, iy = 0.f;
@@ -112,8 +111,7 @@ bool UCommonUtils::GetWidgetIntersection(const FGeometry& InFirstWidgetGeometry,
 	return true;
 }
 
-FText UCommonUtils::GetFirstName(const FText& InText)
-{
+FText UCommonUtils::GetFirstName(const FText& InText) {
 	// Convert the text to a string.
 	FString AsString = InText.ToString();
 
@@ -121,11 +119,11 @@ FText UCommonUtils::GetFirstName(const FText& InText)
 	FString FirstName;
 
 	// Go through every character and append until we hit whitespace.
-	for(int i = 0; i < AsString.Len(); i++)
-	{
+	for(int i = 0; i < AsString.Len(); i++) {
 		TCHAR c = AsString[i];
-		if(FChar::IsWhitespace(c))
+		if(FChar::IsWhitespace(c)) {
 			break;
+		}
 		FirstName += c;
 	}
 
@@ -133,8 +131,7 @@ FText UCommonUtils::GetFirstName(const FText& InText)
 	return FText::FromString(FirstName);
 }
 
-FString UCommonUtils::Aliasify(FString InString)
-{
+FString UCommonUtils::Aliasify(FString InString) {
 	// FIXME: Possibly more efficient algorithm? - Michael
 
 	// Convert the string to lowercase and trim whitespace from the start and end.
@@ -144,19 +141,21 @@ FString UCommonUtils::Aliasify(FString InString)
 	FString RetVal;
 
 	// Go through all characters in the source string.
-	for(int i = 0; i < InString.Len(); i++)
-	{
+	for(int i = 0; i < InString.Len(); i++) {
 		// Pull the current character:
 		TCHAR c = InString[i];
 
 		// Handle hyphens and periods:
-		if(c == '-' || c == '.')
-		{
+		if(c == '-' || c == '.') {
 			// Skip if the ret string is empty.
-			if(!RetVal.Len()) continue;
+			if(!RetVal.Len()) {
+				continue;
+			}
 
 			// Skip if the ret string ends with the character.
-			if(RetVal.EndsWith(FString::Chr(c))) continue;
+			if(RetVal.EndsWith(FString::Chr(c))) {
+				continue;
+			}
 
 			// Add it!
 			RetVal += c;
@@ -164,12 +163,12 @@ FString UCommonUtils::Aliasify(FString InString)
 		}
 
 		// Handle non-alphanumeric characters as they can't appear in aliases.
-		if(!FChar::IsAlnum(c))
-		{
+		if(!FChar::IsAlnum(c)) {
 			// If the return string is empty or ends with an underscore, then we'll skip.
 			// This prevents the string from beginning with an underscore and having duplicate underscores in it.
-			if(RetVal.EndsWith("_") || !RetVal.Len())
+			if(RetVal.EndsWith("_") || !RetVal.Len()) {
 				continue;
+			}
 
 			// Otherwise, append an underscore to the string.
 			RetVal += "_";
@@ -183,59 +182,56 @@ FString UCommonUtils::Aliasify(FString InString)
 	return RetVal;
 }
 
-void UCommonUtils::ReorderCanvasPanel(UCanvasPanel* InCanvasPanel, UWindow* InFocusWindow)
-{
+void UCommonUtils::ReorderCanvasPanel(UCanvasPanel* InCanvasPanel, UWindow* InFocusWindow) {
 	// First we need to collect a list of all widget slots in ascending Z order.
 	// This will allow us to "normalize" everything.
 	TArray<UCanvasPanelSlot*> SortedSlots;
 
 	int ChildCount = InCanvasPanel->GetChildrenCount();
-	for(int i = 0; i < ChildCount; i++)
-	{
+	for(int i = 0; i < ChildCount; i++) {
 		auto Widget = InCanvasPanel->GetChildAt(i);
 		UCanvasPanelSlot* Slot = Cast<UCanvasPanelSlot>(Widget->Slot);
 		int ZOrder = Slot->GetZOrder();
 		bool Added = false;
-		for(int j = 0; j < SortedSlots.Num(); j++)
-		{
-			if(SortedSlots[j]->GetZOrder() > ZOrder)
-			{
+		for(int j = 0; j < SortedSlots.Num(); j++) {
+			if(SortedSlots[j]->GetZOrder() > ZOrder) {
 				Added = true;
 				SortedSlots.Insert(Slot, j);
 				break;
 			}
 		}
-		if(!Added) SortedSlots.Add(Slot);
+		if(!Added) {
+			 SortedSlots.Add(Slot);
+		}
 	}
 
 	// Now, we can start rearranging everything properly.
-	for(int i = 0; i < SortedSlots.Num(); i++)
+	for(int i = 0; i < SortedSlots.Num(); i++) {
 		SortedSlots[i]->SetZOrder(i);
+	}
 
 	// The above should have preserved the visual locations of each widget.
 	
 	// Now we can work on the focus window if we have one.
-	if(InFocusWindow)
-	{
+	if(InFocusWindow) {
 		// Grab the ZOrder of the focus window before setting it to a sentinel value.
 		UCanvasPanelSlot* FocusSlot = Cast<UCanvasPanelSlot>(InFocusWindow->Slot);
 		int FocusZ = FocusSlot->GetZOrder();
 		FocusSlot->SetZOrder(-1);
 
-		for(int i = 0; i < SortedSlots.Num(); i++)
-		{
+		for(int i = 0; i < SortedSlots.Num(); i++) {
 			UCanvasPanelSlot* Slot = SortedSlots[i];
 			if(Slot->GetZOrder() == -1) continue; // Skip the focus window.
-			if(Slot->GetZOrder() > FocusZ)
+			if(Slot->GetZOrder() > FocusZ) {
 				Slot->SetZOrder(Slot->GetZOrder() - 1);
+			}
 		}
 
 		FocusSlot->SetZOrder(SortedSlots.Num() - 1);
 	}
 }
 
-bool UCommonUtils::GetPlayerUserContext(APlayerController* InPlayerController, UUserContext*& OutUserContext)
-{
+bool UCommonUtils::GetPlayerUserContext(APlayerController* InPlayerController, UUserContext*& OutUserContext) {
 	// The reason we need a player controller is that we need a way to get context as to where the player is.
 	// By that I mean, in 3D space.  What level are they in?  What actors are in tere?
 	//
@@ -252,21 +248,21 @@ bool UCommonUtils::GetPlayerUserContext(APlayerController* InPlayerController, U
 	// If that's nullptr, something has SEVERELY FUCKED UP in Unreal Engine.
 	check(WorldContext);
 
-	if(!WorldContext) // graceful, silent failure in release builds.
+	// graceful, silent failure in release builds.
+	if(!WorldContext) {
 		return false;
+	}
 
 	// Allows us to iterate through the current world for any Peacenet world state actors.
 	TActorIterator<APeacenetWorldStateActor> ActorItr(WorldContext, APeacenetWorldStateActor::StaticClass(), EActorIteratorFlags::SkipPendingKill);
 
 	// Keep on goin' til we run outta gas.
-	while(ActorItr)
-	{
+	while(ActorItr) {
 		// Try to get a pointer to a Peacenet world state actor.
 		APeacenetWorldStateActor* Peacenet = *ActorItr;
 
 		// If it's valid...
-		if(Peacenet)
-		{
+		if(Peacenet) {
 			// WE HAVE A PEACENET CONTEXT!
 			//
 			// So now we can get the player user.
@@ -276,19 +272,22 @@ bool UCommonUtils::GetPlayerUserContext(APlayerController* InPlayerController, U
 			USystemContext* PlayerSystem = Peacenet->GetSystemContext(Peacenet->GetPlayerComputer().ID);
 
 			// Make sure it's valid.
-			if(!PlayerSystem)
+			if(!PlayerSystem) {
 				return false;
+			}
 
 			// Now we can get the desktop session:
 			UDesktopWidget* PlayerDesktop = PlayerSystem->GetDesktop();
 
 			// Make sure that's valid too.
-			if(!PlayerDesktop)
+			if(!PlayerDesktop) {
 				return false;
+			}
 
 			// If the player desktop doesn't have an active session then we return false.
-			if(!PlayerDesktop->IsSessionActive())
+			if(!PlayerDesktop->IsSessionActive()) {
 				return false;
+			}
 
 			// Get the player user from the desktop and return true!
 			OutUserContext = PlayerDesktop->GetUserContext();
@@ -302,10 +301,8 @@ bool UCommonUtils::GetPlayerUserContext(APlayerController* InPlayerController, U
 	 return false;
 }
 
-FText UCommonUtils::GetConnectionError(EConnectionError InConnectionError)
-{
-	switch(InConnectionError)
-	{
+FText UCommonUtils::GetConnectionError(EConnectionError InConnectionError) {
+	switch(InConnectionError) {
 		case EConnectionError::None:
 			return NSLOCTEXT("Connection", "Success", "Connection successful.");
 		case EConnectionError::HostNotFound:
@@ -319,8 +316,7 @@ FText UCommonUtils::GetConnectionError(EConnectionError InConnectionError)
 	}
 }
 
-void UCommonUtils::ParseHost(FString InHost, FString& OutAddress, bool& HasPort, int& OutPort)
-{
+void UCommonUtils::ParseHost(FString InHost, FString& OutAddress, bool& HasPort, int& OutPort) {
 	// Regex pattern used to parse address and port out of host.
 	FRegexPattern HostPattern("(.*):(\\d*)");
 
@@ -328,8 +324,7 @@ void UCommonUtils::ParseHost(FString InHost, FString& OutAddress, bool& HasPort,
 	FRegexMatcher Matcher(HostPattern, InHost);
 
 	// If the pattern matches then we have a port.
-	if(Matcher.FindNext())
-	{
+	if(Matcher.FindNext()) {
 		HasPort = true;
 
 		// The address is whatever's in the first capture group.
@@ -337,9 +332,7 @@ void UCommonUtils::ParseHost(FString InHost, FString& OutAddress, bool& HasPort,
 
 		// The port is in the second capture group.
 		OutPort = FCString::Atoi(*Matcher.GetCaptureGroup(2));
-	}
-	else
-	{
+	} else {
 		// No port!
 		HasPort = false;
 		OutPort = -1;
@@ -347,14 +340,15 @@ void UCommonUtils::ParseHost(FString InHost, FString& OutAddress, bool& HasPort,
 	}
 }
 
-bool UCommonUtils::UpgradeDependsOn(UUserContext* UserContext, USystemUpgrade* Target, USystemUpgrade* Dependency)
-{
-	if(Target->Dependencies.Num() == 0) return false;
+bool UCommonUtils::UpgradeDependsOn(UUserContext* UserContext, USystemUpgrade* Target, USystemUpgrade* Dependency) {
+	if(Target->Dependencies.Num() == 0) {
+		return false;
+	}
 
-	for(auto TargetDep : Target->Dependencies)
-	{
-		if(TargetDep == Dependency)
+	for(auto TargetDep : Target->Dependencies) {
+		if(TargetDep == Dependency) {
 			return true;
+		}
 
 		bool result = UpgradeDependsOn(UserContext, TargetDep, Dependency);
 		if(result) return true;
@@ -363,10 +357,8 @@ bool UCommonUtils::UpgradeDependsOn(UUserContext* UserContext, USystemUpgrade* T
 	return false;
 }
 
-FLinearColor UCommonUtils::GetConsoleColor(EConsoleColor InConsoleColor)
-{
-	switch(InConsoleColor)
-	{
+FLinearColor UCommonUtils::GetConsoleColor(EConsoleColor InConsoleColor) {
+	switch(InConsoleColor) {
 		default:
 		case EConsoleColor::Black:
 			return FLinearColor(0.f, 0.f, 0.f);
@@ -387,8 +379,7 @@ FLinearColor UCommonUtils::GetConsoleColor(EConsoleColor InConsoleColor)
 	}
 }
 
-TArray<FText> UCommonUtils::GetKernelMessages()
-{
+TArray<FText> UCommonUtils::GetKernelMessages() {
 	TArray<FText> ret;
 
 	// Yes. I know. This looks like it came out of Philip Adams' asshole.  Just looking at it gives me RSI.
@@ -604,23 +595,19 @@ TArray<FText> UCommonUtils::GetKernelMessages()
 	return ret;
 }
 
-FLinearColor UCommonUtils::GetForegroundColor(FLinearColor InColor)
-{
+FLinearColor UCommonUtils::GetForegroundColor(FLinearColor InColor) {
 	float r = InColor.R;
 	float g = InColor.G;
 	float b = InColor.B;
 
-	if((r + g + b) / 3 <= 0.6f)
-	{
+	if((r + g + b) / 3 <= 0.6f) {
 		return FLinearColor(1.f, 1.f, 1.f, 1.f);
-	}
-	else {
+	} else {
 		return FLinearColor(0.f, 0.f, 0.f, 1.f);
 	}
 }
 
-FText UCommonUtils::GetRichTextSegment(const FText& InSourceText, int InEndIndex, bool& FoundIncompleteTag, int& TrueEndIndex)
-{
+FText UCommonUtils::GetRichTextSegment(const FText& InSourceText, int InEndIndex, bool& FoundIncompleteTag, int& TrueEndIndex) {
 	// Convert the source text to a string, that way we can more easily perform parsing
 	// on it.
 	FString SourceString = InSourceText.ToString();
@@ -635,31 +622,25 @@ FText UCommonUtils::GetRichTextSegment(const FText& InSourceText, int InEndIndex
 	int i = 0;
 
 	// Go through every character in the source string UNTIL THE END INDEX.
-	for(i = 0; i < SourceString.Len() && i < InEndIndex; i++)
-	{
+	for(i = 0; i < SourceString.Len() && i < InEndIndex; i++) {
 		// Get the current character.
 		TCHAR c = SourceString[i];
 
 		// Are we outside of a tag?
-		if(!InRichTag)
-		{
+		if(!InRichTag) {
 			// Check if the current character is the start of a tag.
-			if(c == '<')
-			{
+			if(c == '<') {
 				// We're now in a tag.
 				InRichTag = true;
 				TagIdentifier = FString::Chr(c);
 				continue;
 			}
-		}
-		else
-		{
+		} else {
 			// If we are in a tag, add the current character to the identifier...
 			TagIdentifier = TagIdentifier.AppendChar(c);
 
 			// And check if the current character is the ending of a tag.
-			if(c == '>')
-			{
+			if(c == '>') {
 				// We're no longer in the tag.
 				InRichTag = false;
 			}
@@ -667,22 +648,17 @@ FText UCommonUtils::GetRichTextSegment(const FText& InSourceText, int InEndIndex
 	}
 
 	// If we're still in a tag then continue until we hit the end tag.
-	if(InRichTag)
-	{
+	if(InRichTag) {
 		FoundIncompleteTag = true;
-		for(i = i; i < SourceString.Len(); i++)
-		{
+		for(i = i; i < SourceString.Len(); i++) {
 			TCHAR c = SourceString[i];
 			TagIdentifier = TagIdentifier.AppendChar(c);
-			if(c == '>')
-			{
+			if(c == '>') {
 				InRichTag = false;
 				break;
 			}
 		}	
-	}
-	else
-	{
+	} else {
 		FoundIncompleteTag = false;
 	}
 
@@ -691,8 +667,7 @@ FText UCommonUtils::GetRichTextSegment(const FText& InSourceText, int InEndIndex
 	FString ReturnedText = SourceString.Left(i);
 
 	// Unless the tag identifier isn't empty and is not equal to "</>".
-	if(TagIdentifier.Len() && TagIdentifier != "</>")
-	{
+	if(TagIdentifier.Len() && TagIdentifier != "</>") {
 		// Then we append "</>" to the end of returned text.
 		ReturnedText = ReturnedText.Append("</>");
 	}
@@ -704,8 +679,7 @@ FText UCommonUtils::GetRichTextSegment(const FText& InSourceText, int InEndIndex
 	return FText::FromString(ReturnedText);
 }
 
-void UCommonUtils::ParseURL(FString InURL, FString& OutUsername, FString& OutHost, int& OutPort, FString& OutPath, bool& HasPath, bool& HasUser, bool& HasPort)
-{
+void UCommonUtils::ParseURL(FString InURL, FString& OutUsername, FString& OutHost, int& OutPort, FString& OutPath, bool& HasPath, bool& HasUser, bool& HasPort) {
 	HasPort=false;
 	HasPath=false;
 	HasUser=false;
@@ -715,28 +689,24 @@ void UCommonUtils::ParseURL(FString InURL, FString& OutUsername, FString& OutHos
 	FString PortDelim = ":";
 	FString PathDelim = "/";
 
-	if(InURL.Contains(PathDelim))
-	{
+	if(InURL.Contains(PathDelim)) {
 		int PathStart = InURL.Find(PathDelim);
 		OutPath = InURL.RightChop(PathStart);
 		InURL.RemoveFromEnd(OutPath);
 		HasPath = true;
 	}
 
-	if(InURL.Contains(PortDelim))
-	{
+	if(InURL.Contains(PortDelim)) {
 		int PortStart = InURL.Find(PortDelim, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
 		FString PortString = InURL.RightChop(PortStart+1);
-		if(PortString.Len())
-		{
+		if(PortString.Len()) {
 			HasPort = true;
 			OutPort = FCString::Atoi(*PortString);
 		}
 		InURL = InURL.Left(PortStart);
 	}
 
-	if(InURL.Contains(UserDelim))
-	{
+	if(InURL.Contains(UserDelim)) {
 		int UserEnd = InURL.Find(UserDelim);
 		OutUsername = InURL.Left(UserEnd);
 		InURL = InURL.RightChop(UserEnd+1);
@@ -746,13 +716,11 @@ void UCommonUtils::ParseURL(FString InURL, FString& OutUsername, FString& OutHos
 	OutHost = InURL;
 }
 
-void UCommonUtils::GetFriendlyFileOpenText(EFileOpenResult InResult, FString& OutTitle, FString& OutDescription)
-{
+void UCommonUtils::GetFriendlyFileOpenText(EFileOpenResult InResult, FString& OutTitle, FString& OutDescription) {
 	OutTitle = "";
 	OutDescription = "";
 
-	switch(InResult)
-	{
+	switch(InResult) {
 		case EFileOpenResult::FileNotFound:
 			OutTitle = "File not found";
 			OutDescription = "The system could not find the file specified.";
@@ -768,52 +736,43 @@ void UCommonUtils::GetFriendlyFileOpenText(EFileOpenResult InResult, FString& Ou
 	}
 }
 
-bool UCommonUtils::GetClipboardText(FString& OutText)
-{
+bool UCommonUtils::GetClipboardText(FString& OutText) {
 	FPlatformApplicationMisc::ClipboardPaste(OutText);
 	return OutText.Len();
 }
 
-void UCommonUtils::PutClipboardText(FString InText)
-{
+void UCommonUtils::PutClipboardText(FString InText) {
 	FPlatformApplicationMisc::ClipboardCopy(*InText);
 }
 
-FText UCommonUtils::GetFriendlyFilesystemStatusCode(const EFilesystemStatusCode InStatusCode)
-{
-	switch (InStatusCode)
-	{
-	case EFilesystemStatusCode::OK:
-		return FText();
-	case EFilesystemStatusCode::DirectoryNotEmpty:
-		return NSLOCTEXT("Peacegate", "DirectoryNotEmpty", "Directory not empty.");
-	case EFilesystemStatusCode::FileOrDirectoryExists:
-		return NSLOCTEXT("Peacegate", "FileOrDirectoryExists", "File or directory exists.");
-	case EFilesystemStatusCode::FileOrDirectoryNotFound:
-		return NSLOCTEXT("Peacegate", "FileOrDirectoryNotFound", "File or directory not found.");
-	case EFilesystemStatusCode::PermissionDenied:
-		return NSLOCTEXT("Peacegate", "PermissionDenied", "Permission denied.");
-
-
-	default:
-		return NSLOCTEXT("Peacegate", "UnknownError", "An unknown error has occurred.");
+FText UCommonUtils::GetFriendlyFilesystemStatusCode(const EFilesystemStatusCode InStatusCode) {
+	switch (InStatusCode) {
+		case EFilesystemStatusCode::OK:
+			return FText();
+		case EFilesystemStatusCode::DirectoryNotEmpty:
+			return NSLOCTEXT("Peacegate", "DirectoryNotEmpty", "Directory not empty.");
+		case EFilesystemStatusCode::FileOrDirectoryExists:
+			return NSLOCTEXT("Peacegate", "FileOrDirectoryExists", "File or directory exists.");
+		case EFilesystemStatusCode::FileOrDirectoryNotFound:
+			return NSLOCTEXT("Peacegate", "FileOrDirectoryNotFound", "File or directory not found.");
+		case EFilesystemStatusCode::PermissionDenied:
+			return NSLOCTEXT("Peacegate", "PermissionDenied", "Permission denied.");
+		default:
+			return NSLOCTEXT("Peacegate", "UnknownError", "An unknown error has occurred.");
 	}
 }
 
-UPeacegateFileSystem * UCommonUtils::CreateFilesystem(USystemContext* InSystemContext, int InUserID)
-{
+UPeacegateFileSystem * UCommonUtils::CreateFilesystem(USystemContext* InSystemContext, int InUserID) {
 	UPeacegateFileSystem* FS = NewObject<UPeacegateFileSystem>();
 	FS->SystemContext = InSystemContext;
 	FS->Initialize(InUserID);
 	return FS;
 }
 
-FLinearColor UCommonUtils::GetUserColor(EUserColor InColor)
-{
+FLinearColor UCommonUtils::GetUserColor(EUserColor InColor) {
 	FColor Result = FColor(0x00, 0x00, 0x00, 0xFF);
 
-	switch(InColor)
-	{
+	switch(InColor) {
 		case EUserColor::Peaceful:
 			Result = FColor(0x1B, 0xAA, 0xF7, 0xFF);
 			break;
@@ -844,8 +803,7 @@ FLinearColor UCommonUtils::GetUserColor(EUserColor InColor)
 	return FLinearColor(Result);
 }
 
-void UCommonUtils::MeasureChar(const TCHAR InChar, const FSlateFontInfo & InSlateFont, float & OutWidth, float & OutHeight)
-{
+void UCommonUtils::MeasureChar(const TCHAR InChar, const FSlateFontInfo & InSlateFont, float & OutWidth, float & OutHeight) {
 	float x, y = 0;
 
 	const UFont* RawFont = Cast<UFont>(InSlateFont.FontObject);
@@ -860,18 +818,17 @@ void UCommonUtils::MeasureChar(const TCHAR InChar, const FSlateFontInfo & InSlat
 	OutHeight = y * Scale;
 }
 
-void UCommonUtils::SetEnableBloom(UCameraComponent * InCamera, bool InEnableBloom)
-{
+void UCommonUtils::SetEnableBloom(UCameraComponent * InCamera, bool InEnableBloom) {
 	auto PostProcessSettings = InCamera->PostProcessSettings;
 	PostProcessSettings.bOverride_BloomIntensity = InEnableBloom;
 	InCamera->PostProcessSettings = PostProcessSettings;
 }
 
-void UCommonUtils::ParseCharacterName(const FString InCharacterName, FString & OutUsername, FString & OutHostname)
-{
+void UCommonUtils::ParseCharacterName(const FString InCharacterName, FString & OutUsername, FString & OutHostname) {
 	// No sense doing this if there's only whitespace
-	if (InCharacterName.IsEmpty())
+	if (InCharacterName.IsEmpty()) {
 		return;
+	}
 
 	// Unix usernames can only be lower-case.
 	FString NameString = InCharacterName.ToLower();
@@ -889,22 +846,17 @@ void UCommonUtils::ParseCharacterName(const FString InCharacterName, FString & O
 	// the chars in the name string
 	TArray<TCHAR> NameChars = NameString.GetCharArray();
 
-	for (auto Char : NameChars)
-	{
-		if (!ValidUnixUsernameChars.Contains(FString(1, &Char)))
-		{
+	for (auto Char : NameChars) {
+		if (!ValidUnixUsernameChars.Contains(FString(1, &Char))) {
 			InvalidChar = Char;
 			break;
 		}
 	}
 
 	// Did that for loop above change us?
-	if (InvalidChar != TEXT('\0'))
-	{
+	if (InvalidChar != TEXT('\0')) {
 		NameString.Split(FString(1, &InvalidChar), &FirstName, &Rem);
-	}
-	else
-	{
+	} else {
 		FirstName = NameString;
 	}
 
@@ -912,8 +864,7 @@ void UCommonUtils::ParseCharacterName(const FString InCharacterName, FString & O
 	OutHostname = FirstName + TEXT("-pc");
 }
 
-float UCommonUtils::GetRotation(FVector2D InA, FVector2D InB)
-{
+float UCommonUtils::GetRotation(FVector2D InA, FVector2D InB) {
 	float adj = InA.X - InB.X;
     float opp = InA.Y - InB.Y;
     return FMath::RadiansToDegrees<float>(FMath::Atan2(opp, adj)/* - FMath::PI*/);

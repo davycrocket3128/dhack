@@ -31,24 +31,19 @@
 
 #include "DeleteLogsHackTask.h"
 
-void UDeleteLogsHackTask::NativeStart()
-{
+void UDeleteLogsHackTask::NativeStart() {
     this->SetObjectiveText(NSLOCTEXT("Objectives", "DeleteLogs", "Delete system logs to clear your tracks."));
 }
 
-void UDeleteLogsHackTask::NativeGameEvent(FString Event, TMap<FString, FString> Data)
-{
-    if(Event == "FileDeleted")
-    {
+void UDeleteLogsHackTask::NativeGameEvent(FString Event, TMap<FString, FString> Data) {
+    if(Event == "FileDeleted") {
         // Is the identity that of our hacked system?
         FString Identity = Data["Identity"];
         FString Hacked = FString::FromInt(this->GetHackedSystem()->GetCharacter().ID);
 
-        if(Identity == Hacked)
-        {
+        if(Identity == Hacked) {
             // Was the file /var/log/system.log?
-            if(Data["Path"] == "/var/log/system.log")
-            {
+            if(Data["Path"] == "/var/log/system.log") {
                 // Then we're good.
                 this->Finish();
             }

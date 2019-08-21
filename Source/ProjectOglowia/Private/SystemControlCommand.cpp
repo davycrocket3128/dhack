@@ -49,66 +49,47 @@
 //  systemctl start <service>  - starts the specified system daemon.
 //  systemctl restart <service>  - restarts the specified system daemon.
 //  systemctl stop <service>  - stops the specified system daemon.
-void ASystemControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
-{
+void ASystemControlCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) {
     UDaemonManager* DaemonManager = nullptr;
 
-    if(!this->GetUserContext()->GetDaemonManager(DaemonManager))
-    {
+    if(!this->GetUserContext()->GetDaemonManager(DaemonManager)) {
         InConsole->SetForegroundColor(EConsoleColor::Red);
         InConsole->WriteLine(NSLOCTEXT("SystemCtl", "NeedsRoot", "systemctl: need to be root."));
         InConsole->ResetFormatting();
         this->Complete();
         return;
-    }
-    if(this->ArgumentMap["poweroff"]->AsBoolean())
-    {
+    } else if(this->ArgumentMap["poweroff"]->AsBoolean()) {
         InConsole->WriteLine(NSLOCTEXT("System", "Goodbye", "Goodbye."));
         FPlatformMisc::RequestExit(false);
         this->Complete();
         return;
-    }
-    else if(this->ArgumentMap["reboot"]->AsBoolean())
-    {
+    } else if(this->ArgumentMap["reboot"]->AsBoolean()) {
         this->GetUserContext()->GetPeacenet()->QuitGame();
         return;
+    } else if(this->ArgumentMap["list-units"]->AsBoolean()) {
+        // todo
     }
-    else if(this->ArgumentMap["list-units"]->AsBoolean())
-    {
-
-    }
-    else if(this->ArgumentMap["enable"]->AsBoolean())
-    {
+    else if(this->ArgumentMap["enable"]->AsBoolean()) {
         FName DaemonName = FName(*this->ArgumentMap["<service>"]->AsString());
 
-        if(this->GetUserContext()->GetComputer().DisabledDaemons.Contains(DaemonName))
-        {
+        if(this->GetUserContext()->GetComputer().DisabledDaemons.Contains(DaemonName)) {
             this->GetUserContext()->GetComputer().DisabledDaemons.Remove(DaemonName);
         }
-    }
-    else if(this->ArgumentMap["disable"]->AsBoolean())
-    {
+    } else if(this->ArgumentMap["disable"]->AsBoolean()) {
         FName DaemonName = FName(*this->ArgumentMap["<service>"]->AsString());
 
-        if(!this->GetUserContext()->GetComputer().DisabledDaemons.Contains(DaemonName))
-        {
+        if(!this->GetUserContext()->GetComputer().DisabledDaemons.Contains(DaemonName)) {
             this->GetUserContext()->GetComputer().DisabledDaemons.Add(DaemonName);
         }
-    }
-    else if(this->ArgumentMap["start"]->AsBoolean())
-    {
+    } else if(this->ArgumentMap["start"]->AsBoolean()) {
         FName DaemonName = FName(*this->ArgumentMap["<service>"]->AsString());
 
         DaemonManager->StartDaemonByName(DaemonName);
-    }
-    else if(this->ArgumentMap["stop"]->AsBoolean())
-    {
+    } else if(this->ArgumentMap["stop"]->AsBoolean()) {
         FName DaemonName = FName(*this->ArgumentMap["<service>"]->AsString());
 
         DaemonManager->StopDaemonByName(DaemonName);
-    }
-    else if(this->ArgumentMap["restart"]->AsBoolean())
-    {
+    } else if(this->ArgumentMap["restart"]->AsBoolean()) {
         FName DaemonName = FName(*this->ArgumentMap["<service>"]->AsString());
 
         DaemonManager->RestartDaemonByName(DaemonName);

@@ -33,15 +33,14 @@
 #include "SystemUpgrade.h"
 #include "SystemContext.h"
 
-bool UPeacegateProgramAsset::IsUnlocked(USystemContext* InSystemContext)
-{
-    if(!this->RequiredUpgrade)
+bool UPeacegateProgramAsset::IsUnlocked(USystemContext* InSystemContext) {
+    if(!this->RequiredUpgrade) {
         return true;
+    }
 
     return InSystemContext && InSystemContext->IsUpgradeInstalled(this->RequiredUpgrade);
 }
 
-void UPeacegateProgramAsset::BuildManualPage(UManualPageBuilder* InBuilder)
-{
+void UPeacegateProgramAsset::BuildManualPage(UManualPageBuilder* InBuilder) {
     InBuilder->SetMetadata(FText::FromString("Category"), this->AppLauncherItem.Category);
 }

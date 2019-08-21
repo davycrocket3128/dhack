@@ -33,10 +33,8 @@
 #include "UserContext.h"
 #include "SystemContext.h"
 
-void UUnlockUpgradeAction::NativeStart()
-{
-    if(this->Upgrade)
-    {
+void UUnlockUpgradeAction::NativeStart() {
+    if(this->Upgrade) {
         this->Upgrade->TriggerUnlock(this->GetPlayerUser());
     }
     this->Complete();

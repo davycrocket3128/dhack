@@ -33,14 +33,11 @@
 #include "HackSubtask.h"
 #include "PeacenetWorldStateActor.h"
 
-void UHackTask::NativeTick(float InDeltaSeconds)
-{
+void UHackTask::NativeTick(float InDeltaSeconds) {
     // Are we in the hack and is the payload active?
-    if(this->IsInHack && this->IsPayloadDeployed && !this->AllSubtasksCompleted)
-    {
+    if(this->IsInHack && this->IsPayloadDeployed && !this->AllSubtasksCompleted) {
         // If the current task is -1 then we automatically advance.
-        if(this->CurrentSubtask == -1)
-        {
+        if(this->CurrentSubtask == -1) {
             this->AdvanceSubtask();
             return;
         }
@@ -49,23 +46,20 @@ void UHackTask::NativeTick(float InDeltaSeconds)
         this->RealSubtasks[this->CurrentSubtask]->Tick(InDeltaSeconds);
 
         // If it's failed, we fail.
-        if(this->RealSubtasks[this->CurrentSubtask]->GetIsFailed())
-        {
+        if(this->RealSubtasks[this->CurrentSubtask]->GetIsFailed()) {
             this->Fail(this->RealSubtasks[this->CurrentSubtask]->GetFailMessage());
             return;
         }
 
         // If it's completed, we advance.
-        if(this->RealSubtasks[this->CurrentSubtask]->GetIsFinished())
-        {
+        if(this->RealSubtasks[this->CurrentSubtask]->GetIsFinished()) {
             this->AdvanceSubtask();
             return;
         }
     }
 }
 
-void UHackTask::NativeStart()
-{
+void UHackTask::NativeStart() {
     // Check that we have a story character to hack.
     check(this->StoryCharacter);
 
@@ -83,35 +77,30 @@ void UHackTask::NativeStart()
     this->RealSubtasks = TArray<UHackSubtask*>();
 
     // Load in only VALID subtasks.
-    for(auto& Subtask : this->SubTasks)
-    {
-        if(Subtask.Subtask)
+    for(auto& Subtask : this->SubTasks) {
+        if(Subtask.Subtask) {
             this->RealSubtasks.Add(Subtask.Subtask);
+        }
     }
 
     // Do we need to start a disconnect objective when the subtasks are completed?
     this->HasSubtasks = this->RealSubtasks.Num();
 
     // Tell the player to hack the system.
-    if(this->FailOnCoverBlow)
-    {
+    if(this->FailOnCoverBlow) {
         this->SetObjectiveText(FText::Format(NSLOCTEXT("Objectives", "HackUndercover", "Hack {0} without blowing your cover."), this->StoryCharacter->Name));
-    }
-    else
-    {
+    } else {
         this->SetObjectiveText(FText::Format(NSLOCTEXT("Objectives", "Hack", "Hack {0}."), this->StoryCharacter->Name));
     }
 }
 
-void UHackTask::AdvanceSubtask()
-{
+void UHackTask::AdvanceSubtask() {
     // Increase the subtask pointer by one so the next subtask becomes the current.
     this->CurrentSubtask++;
     
     // If the pointer is at the end of the subtask list, then we allow the player to disconnect from the remote computer
     // without failing the mission.
-    if(this->CurrentSubtask >= this->RealSubtasks.Num())
-    {
+    if(this->CurrentSubtask >= this->RealSubtasks.Num()) {
         // Push a "Disconnect" objective
         this->SetObjectiveText(NSLOCTEXT("Objectives", "Disconnect", "Disconnect from the remote system."));
 
@@ -123,32 +112,24 @@ void UHackTask::AdvanceSubtask()
     this->RealSubtasks[this->CurrentSubtask]->Start(this);
 }
 
-void UHackTask::NativeEvent(FString EventName, TMap<FString, FString> InEventArgs)
-{
-    if(EventName == "HackStart" && !IsInHack)
-    {
-        if(InEventArgs["Identity"] == FString::FromInt(this->TargetEntity))
-        {
+void UHackTask::NativeEvent(FString EventName, TMap<FString, FString> InEventArgs) {
+    if(EventName == "HackStart" && !IsInHack) {
+        if(InEventArgs["Identity"] == FString::FromInt(this->TargetEntity)) {
             this->IsInHack = true;
         }
     }
 
-    if(EventName == "PayloadDeploy" && IsInHack && !IsPayloadDeployed)
-    {
-        if(InEventArgs["Identity"] == FString::FromInt(this->TargetEntity))
-        {
+    if(EventName == "PayloadDeploy" && IsInHack && !IsPayloadDeployed) {
+        if(InEventArgs["Identity"] == FString::FromInt(this->TargetEntity)) {
             this->IsPayloadDeployed = true;
             this->CurrentSubtask = -1;
         }
     }
 
-    if(EventName == "HackSuccess" && IsInHack && IsPayloadDeployed)
-    {
-        if(InEventArgs["Identity"] == FString::FromInt(this->TargetEntity))
-        {
+    if(EventName == "HackSuccess" && IsInHack && IsPayloadDeployed) {
+        if(InEventArgs["Identity"] == FString::FromInt(this->TargetEntity)) {
             // If the hack ends before all sub-tasks are completed, we fail.
-            if(!this->AllSubtasksCompleted)
-            {
+            if(!this->AllSubtasksCompleted) {
                 this->Fail(NSLOCTEXT("TaskFailures", "HackTaskMissingSubtasks", "Not all objectives were completed before the hack was ended."));
                 return;
             }
@@ -159,8 +140,7 @@ void UHackTask::NativeEvent(FString EventName, TMap<FString, FString> InEventArg
 
     // If we're in a hack and the payload is running, and there is a sub-task currently active,
     // we're going to forward the game event to the sub-task.
-    if(IsInHack && IsPayloadDeployed && !AllSubtasksCompleted && this->RealSubtasks.Num() && this->CurrentSubtask >= 0 && this->CurrentSubtask < this->RealSubtasks.Num())
-    {
+    if(IsInHack && IsPayloadDeployed && !AllSubtasksCompleted && this->RealSubtasks.Num() && this->CurrentSubtask >= 0 && this->CurrentSubtask < this->RealSubtasks.Num()) {
         this->RealSubtasks[this->CurrentSubtask]->GameEvent(EventName, InEventArgs);
     }
 }

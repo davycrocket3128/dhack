@@ -34,8 +34,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/SaveGame.h"
 
-void AMissionActor::SilentFail()
-{
+void AMissionActor::SilentFail() {
     // Fail the mission directly without alerting the world state.
     this->IsFailed = true;
 
@@ -43,34 +42,27 @@ void AMissionActor::SilentFail()
     this->AbandonMission();
 }
 
-void AMissionActor::FireCompletionEvents()
-{
-    if(this->Mission && this->Mission->OnCompletion.Num())
-    {
-        for(auto Event : this->Mission->OnCompletion)
-        {
-            if(Event.Action)
-            {
+void AMissionActor::FireCompletionEvents() {
+    if(this->Mission && this->Mission->OnCompletion.Num()) {
+        for(auto Event : this->Mission->OnCompletion) {
+            if(Event.Action) {
                 Event.Action->MissionCompleted(this);
             }
         }
     }
 }
 
-void AMissionActor::Advance()
-{
+void AMissionActor::Advance() {
     // Advance the current task pointer so the next task
     // begins.
     this->CurrentTask++;
     
     // Did we go past the total number of tasks? If so,
     // the mission is completed.
-    if(this->CurrentTask >= this->LoadedTasks.Num())
-    {
+    if(this->CurrentTask >= this->LoadedTasks.Num()) {
         // Let the last task know we've ended.
         int last = this->CurrentTask-1;
-        if(last >= 0 && this->LoadedTasks[last].Task)
-        {
+        if(last >= 0 && this->LoadedTasks[last].Task) {
             this->LoadedTasks[last].Task->MissionEnded();
         }
 
@@ -89,8 +81,7 @@ void AMissionActor::Advance()
     // First we check if the new task is a checkpoint, and if so
     // we create a save state and allow the player to restore
     // from this point in the mission.
-    if(this->LoadedTasks[this->CurrentTask].IsCheckpoint)
-    {
+    if(this->LoadedTasks[this->CurrentTask].IsCheckpoint) {
         this->SetCheckpoint();
     }
 
@@ -98,8 +89,7 @@ void AMissionActor::Advance()
     this->LoadedTasks[this->CurrentTask].Task->Start(this);
 }
 
-void AMissionActor::SetCheckpoint()
-{
+void AMissionActor::SetCheckpoint() {
     // Set the checkpoint task.
     this->CheckpointTask = this->CurrentTask;
 
@@ -107,22 +97,21 @@ void AMissionActor::SetCheckpoint()
     UGameplayStatics::SaveGameToSlot(this->Peacenet->SaveGame, "PeacegateOS_PreMission", 1);
 }
 
-void AMissionActor::Complete()
-{
+void AMissionActor::Complete() {
     // Delete the save states.
     this->DeleteSaveStates();
 
     // Adds the mission to the list of completed missions.
     // If it isn't in there already.
-    if(!this->Peacenet->SaveGame->CompletedMissions.Contains(this->Mission))
+    if(!this->Peacenet->SaveGame->CompletedMissions.Contains(this->Mission)) {
         this->Peacenet->SaveGame->CompletedMissions.Add(this->Mission);
+    }
 
     // Tell The Peacenet that we've completed.
     this->Peacenet->EndMission(true);
 
     // If the mission says "update the music state" then we'll do that now.
-    if(this->Mission->UpdateFreeRoamMusicState)
-    {
+    if(this->Mission->UpdateFreeRoamMusicState) {
         // Because I'm a good programmer with a ton of confidence and happiness thanks to
         // a certain friend of mine with red hair, I have already created a function in the public
         // API for doing EXACTLY what this if statement needs to do on truth.  NO. CODE. DUPLICATION.
@@ -130,8 +119,7 @@ void AMissionActor::Complete()
     }
 
     // Broadcast that the mission has completed, unless the mission is silent.
-    if(!this->Mission->CompleteSilently)
-    {
+    if(!this->Mission->CompleteSilently) {
         this->Peacenet->BroadcastMissionComplete(this->Mission);
     }
     
@@ -147,14 +135,12 @@ void AMissionActor::Complete()
     this->Destroy();
 }
 
-AMissionActor::AMissionActor()
-{
+AMissionActor::AMissionActor() {
     // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void AMissionActor::Setup(APeacenetWorldStateActor* InPeacenet, UMissionAsset* InMission)
-{
+void AMissionActor::Setup(APeacenetWorldStateActor* InPeacenet, UMissionAsset* InMission) {
     check(InPeacenet);
     check(InMission);
 
@@ -167,9 +153,10 @@ void AMissionActor::Setup(APeacenetWorldStateActor* InPeacenet, UMissionAsset* I
     this->CurrentTask = -1;
 
     this->LoadedTasks.Empty();
-    for(auto Task : this->Mission->Tasks)
-    {
-        if(!Task.Task) continue;
+    for(auto Task : this->Mission->Tasks) {
+        if(!Task.Task) {
+            continue;
+        }
 
         this->LoadedTasks.Add(Task);
     }
@@ -178,25 +165,20 @@ void AMissionActor::Setup(APeacenetWorldStateActor* InPeacenet, UMissionAsset* I
     UGameplayStatics::SaveGameToSlot(this->Peacenet->SaveGame, TEXT("PeacegateOS_PreMission"), 0);
 }
 
-void AMissionActor::DeleteSaveStates()
-{
+void AMissionActor::DeleteSaveStates() {
         // Delete the backup.
     UGameplayStatics::DeleteGameInSlot("PeacegateOS_PreMission", 0);
 
     // Delete objective backup if it exists.
-    if(UGameplayStatics::DoesSaveGameExist("PeacegateOS_PreMission", 1))
-    {
+    if(UGameplayStatics::DoesSaveGameExist("PeacegateOS_PreMission", 1)) {
         UGameplayStatics::DeleteGameInSlot("PeacegateOS_PreMission", 1);
     }
 }
 
-void AMissionActor::Abort()
-{
+void AMissionActor::Abort() {
     // Let the current task know that we're ending.
-    if(this->CurrentTask >= 0 && this->CurrentTask < this->LoadedTasks.Num())
-    {
-        if(this->LoadedTasks[this->CurrentTask].Task)
-        {
+    if(this->CurrentTask >= 0 && this->CurrentTask < this->LoadedTasks.Num()) {
+        if(this->LoadedTasks[this->CurrentTask].Task) {
             this->LoadedTasks[this->CurrentTask].Task->MissionEnded();
         }
     }
@@ -217,61 +199,53 @@ void AMissionActor::Abort()
     this->Destroy();
 }
 
-void AMissionActor::SendGameEvent(FString EventName, TMap<FString, FString> InEventData)
-{
-    if(this->CurrentTask >= 0 && this->CurrentTask < this->LoadedTasks.Num() && this->LoadedTasks[this->CurrentTask].Task)
+void AMissionActor::SendGameEvent(FString EventName, TMap<FString, FString> InEventData) {
+    if(this->CurrentTask >= 0 && this->CurrentTask < this->LoadedTasks.Num() && this->LoadedTasks[this->CurrentTask].Task) {
         this->LoadedTasks[this->CurrentTask].Task->HandleEvent(EventName, InEventData);
+    }
 }
 
-APeacenetWorldStateActor* AMissionActor::GetPeacenet()
-{
+APeacenetWorldStateActor* AMissionActor::GetPeacenet() {
     return this->Peacenet;
 }
 
-void AMissionActor::Tick(float InDeltaSeconds)
-{
-    if(!this->Peacenet) return;
-    if(!this->Mission) return;
-
-    if(this->IsFailed) return;
-
-    if(this->CurrentTask == -1)
-    {
-        this->Advance();
+void AMissionActor::Tick(float InDeltaSeconds) {
+    if(!this->Peacenet) {
+        return;
     }
-    else if(this->LoadedTasks[this->CurrentTask].Task->GetIsFinished())
-    {
-        this->Advance();
+    if(!this->Mission) {
+        return;
     }
-    else if(this->LoadedTasks[this->CurrentTask].Task->GetIsFailed())
-    {
+
+    if(this->IsFailed) {
+        return;
+    }
+
+    if(this->CurrentTask == -1) {
+        this->Advance();
+    } else if(this->LoadedTasks[this->CurrentTask].Task->GetIsFinished()) {
+        this->Advance();
+    } else if(this->LoadedTasks[this->CurrentTask].Task->GetIsFailed()) {
         this->IsFailed = true;
         this->Peacenet->FailMission(this->LoadedTasks[this->CurrentTask].Task->GetFailMessage());
-    }
-    else
-    {
+    } else {
         this->LoadedTasks[this->CurrentTask].Task->Tick(InDeltaSeconds);
-
-        
     }
 
     Super::Tick(InDeltaSeconds);
 }
 
-bool AMissionActor::HasCheckpoint()
-{
+bool AMissionActor::HasCheckpoint() {
     return this->CheckpointTask != -1;
 }
 
-void AMissionActor::RestoreCheckpoint()
-{
+void AMissionActor::RestoreCheckpoint() {
     // DO NOT DO THIS if the mission isn't failed!
     check(this->IsFailed);
 
     // Restoring the checkpoint is essentially doing the reverse of setting the checkpoint.
     // But we can only do it if there is a checkpoint in the first place.
-    if(this->HasCheckpoint())
-    {
+    if(this->HasCheckpoint()) {
         // Instead of setting the checkpoint task to the current task, we set the current task to the
         // checkpoint task.
         this->CurrentTask = this->CheckpointTask;
@@ -288,8 +262,7 @@ void AMissionActor::RestoreCheckpoint()
     }
 }
 
-void AMissionActor::RestartMission()
-{
+void AMissionActor::RestartMission() {
     // Do not allow restarting of the mission if we're not failed.
     check(this->IsFailed);
 
@@ -305,19 +278,16 @@ void AMissionActor::RestartMission()
     this->IsFailed = false;
 }
 
-UMissionAsset* AMissionActor::GetMissionAsset()
-{
+UMissionAsset* AMissionActor::GetMissionAsset() {
     return this->Mission;
 }
 
-void AMissionActor::FailCurrentTask(const FText& InFailReason)
-{
+void AMissionActor::FailCurrentTask(const FText& InFailReason) {
     this->IsFailed = true;
     this->Peacenet->FailMission(InFailReason);
 }
 
-void AMissionActor::AbandonMission()
-{
+void AMissionActor::AbandonMission() {
     // Only allow this if the mission is failed.
     check(this->IsFailed);
 
@@ -325,7 +295,6 @@ void AMissionActor::AbandonMission()
     this->Abort();
 }
 
-FText AMissionActor::GetMissionName()
-{
+FText AMissionActor::GetMissionName() {
     return this->Mission->Name;
 }

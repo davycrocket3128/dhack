@@ -36,21 +36,18 @@
 #include "UserContext.h"
 #include "SystemContext.h"
 
-APeacenetWorldStateActor* UPostCompletionMissionAction::GetPeacenet()
-{
+APeacenetWorldStateActor* UPostCompletionMissionAction::GetPeacenet() {
     return this->GetMission()->GetPeacenet();
 }
 
-UUserContext* UPostCompletionMissionAction::GetPlayerUser()
-{
+UUserContext* UPostCompletionMissionAction::GetPlayerUser() {
     int PlayerID = this->GetPeacenet()->GetPlayerComputer().ID;
     USystemContext* PlayerSystem = this->GetPeacenet()->GetSystemContext(PlayerID);
     return PlayerSystem->GetUserContext(this->GetPeacenet()->GetPlayerUserID());
 }
 
 
-void UPostCompletionMissionAction::MissionCompleted(AMissionActor* MissionActor)
-{
+void UPostCompletionMissionAction::MissionCompleted(AMissionActor* MissionActor) {
     check(MissionActor);
 
     this->Mission = MissionActor;
@@ -59,7 +56,6 @@ void UPostCompletionMissionAction::MissionCompleted(AMissionActor* MissionActor)
     this->OnMissionCompleted();
 }
 
-AMissionActor* UPostCompletionMissionAction::GetMission()
-{
+AMissionActor* UPostCompletionMissionAction::GetMission() {
     return this->Mission;
 }

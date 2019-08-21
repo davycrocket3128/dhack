@@ -32,37 +32,28 @@
 #include "AlertManager.h"
 #include "PeacenetWorldStateActor.h"
 
-AAlertManager::AAlertManager()
-{
-     	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+AAlertManager::AAlertManager() {
+    // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void AAlertManager::ResetStealthIncreaseTimer(int EntityID)
-{
+void AAlertManager::ResetStealthIncreaseTimer(int EntityID) {
     if(this->GetStealthStatus(EntityID).IsInAlert) return;
 
-    if(this->GetStealthStatus(EntityID).IsSuspicious)
-    {
+    if(this->GetStealthStatus(EntityID).IsSuspicious) {
         this->GetStealthStatus(EntityID).TimeUntilStealthIncrease = this->SuspiciousStealthIncreaseInterval;
-    }
-    else
-    {
+    } else {
         this->GetStealthStatus(EntityID).TimeUntilStealthIncrease = this->StealthIncreaseInterval;
     }
 }
 
-void AAlertManager::Setup(APeacenetWorldStateActor* InPeacenet)
-{
+void AAlertManager::Setup(APeacenetWorldStateActor* InPeacenet) {
     this->Peacenet = InPeacenet;
 }
 
-FStealthStatus& AAlertManager::GetStealthStatus(int InEntityID)
-{
-    for(int i = 0; i < this->StealthStatuses.Num(); i++)
-    {
-        if(this->StealthStatuses[i].EntityID == InEntityID)
-        {
+FStealthStatus& AAlertManager::GetStealthStatus(int InEntityID) {
+    for(int i = 0; i < this->StealthStatuses.Num(); i++) {
+        if(this->StealthStatuses[i].EntityID == InEntityID) {
             return this->StealthStatuses[i];
         }
     }
@@ -75,36 +66,32 @@ FStealthStatus& AAlertManager::GetStealthStatus(int InEntityID)
     return this->StealthStatuses[this->StealthStatuses.Num() - 1];
 }
 
-void AAlertManager::Tick(float DeltaTime)
-{
+void AAlertManager::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
 
-    for(auto& StealthStatus : this->StealthStatuses)
-    {
+    for(auto& StealthStatus : this->StealthStatuses) {
         if(StealthStatus.IsInAlert) continue;
 
         float stealthiness = StealthStatus.Stealthiness;
 
-        if(stealthiness >= 1.f) continue;
+        if(stealthiness >= 1.f) { 
+            continue;
+        }
 
-        if(StealthStatus.Cooldown >= 0.f)
-        {
+        if(StealthStatus.Cooldown >= 0.f) {
             StealthStatus.Cooldown -= DeltaTime;
             continue;
         }
 
         StealthStatus.TimeUntilStealthIncrease -= DeltaTime;
 
-        if(StealthStatus.TimeUntilStealthIncrease <= 0.f)
-        {
+        if(StealthStatus.TimeUntilStealthIncrease <= 0.f) {
             this->ResetStealthIncreaseTimer(StealthStatus.EntityID);
             stealthiness += 0.01f;
             StealthStatus.Stealthiness = FMath::Clamp(stealthiness, 0.f, 1.f);
 
-            if(stealthiness >= 0.70f)
-            {
-                if(StealthStatus.IsSuspicious)
-                {
+            if(stealthiness >= 0.70f) {
+                if(StealthStatus.IsSuspicious) {
                     StealthStatus.IsSuspicious = false;
                 
                 	this->Peacenet->SendGameEvent("SuspicionLowered", {
@@ -113,6 +100,5 @@ void AAlertManager::Tick(float DeltaTime)
                 }
             }
         }
-
     }
 }

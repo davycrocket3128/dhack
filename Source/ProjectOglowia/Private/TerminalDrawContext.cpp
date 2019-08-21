@@ -34,21 +34,18 @@
 #include "SlateColorBrush.h"
 #include "SlateCore.h"
 
-FVector2D FTerminalDrawContext::GetSize()
-{
+FVector2D FTerminalDrawContext::GetSize() {
     return this->AllottedGeometry.GetDrawSize();
 }
 
-void FTerminalDrawContext::DrawRect(FLinearColor color, float x, float y, float w, float h)
-{
+void FTerminalDrawContext::DrawRect(FLinearColor color, float x, float y, float w, float h) {
     FSlateBrush brush = FSlateColorBrush(FLinearColor::White);
 
     FSlateDrawElement::MakeBox(this->DrawElements, this->LayerId, this->AllottedGeometry.ToPaintGeometry(FVector2D(x, y), FVector2D(w, h)), &brush, ESlateDrawEffect::None, color);
     // this->LayerId++;
 }
 
-void FTerminalDrawContext::DrawString(FString string, FSlateFontInfo font, FLinearColor color, float x, float y)
-{
+void FTerminalDrawContext::DrawString(FString string, FSlateFontInfo font, FLinearColor color, float x, float y) {
     // Ignore the alpha channel in the event we try to render transparent text
     // (i.e, background is transparent and text attribute has ATTR_REVERSE bit set to 1)
     color.A = 1.f;

@@ -34,8 +34,7 @@
 #include "UserContext.h"
 #include "PeacegateProgramAsset.h"
 
-void AHelpCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
-{
+void AHelpCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) {
     // Get all installed commands and programs.
     TArray<UPeacegateProgramAsset*> Programs = InConsole->GetUserContext()->GetInstalledPrograms();
     TArray<UCommandInfo*> Commands = InConsole->GetUserContext()->GetInstalledCommands();
@@ -54,24 +53,24 @@ void AHelpCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
     // Maximum length of each name.
     int NameLength = 0;
 
-    for(auto Program : Programs)
-    {
+    for(auto Program : Programs) {
         // Add it to the list of shit to display.
         NameMap.Add(Program->ID.ToString(), Program->Summary.ToString());
 
         // Update the length if we need to.
-        if(NameLength < Program->ID.ToString().Len())
+        if(NameLength < Program->ID.ToString().Len()) {
             NameLength = Program->ID.ToString().Len();
+        }
     }
     
-    for(auto Command : Commands)
-    {
+    for(auto Command : Commands) {
         // Add it to the list of shit to display.
         NameMap.Add(Command->ID.ToString(), Command->Summary.ToString());
 
         // Update the length if we need to.
-        if(NameLength < Command->ID.ToString().Len())
+        if(NameLength < Command->ID.ToString().Len()) {
             NameLength = Command->ID.ToString().Len();
+        }
     }
 
     // Get all the added names.
@@ -79,14 +78,14 @@ void AHelpCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
     NameMap.GetKeys(Keys);
 
     // Loop through them.
-    for(auto& Key : Keys)
-    {
+    for(auto& Key : Keys) {
         InConsole->SetColors(EConsoleColor::Cyan, EConsoleColor::Black);
         InConsole->Write(FText::FromString(Key));
         InConsole->ResetFormatting();
         int Spaces = (NameLength - Key.Len()) + 1;
-        for(int i = 0; i < Spaces; i++)
+        for(int i = 0; i < Spaces; i++) {
             InConsole->Write(FText::FromString(" "));
+        }
         InConsole->SetItalic(true);
         InConsole->WriteLine(FText::FromString(NameMap[Key]));
         InConsole->ResetFormatting();

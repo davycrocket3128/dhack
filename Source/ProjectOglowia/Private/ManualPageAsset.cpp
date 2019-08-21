@@ -31,10 +31,8 @@
 
 #include "ManualPageAsset.h"
 
-void UManualPageAsset::BuildManualPage(UManualPageBuilder* InBuilder)
-{
-    for(auto Metadata : this->AdditionalData)
-    {
+void UManualPageAsset::BuildManualPage(UManualPageBuilder* InBuilder) {
+    for(auto Metadata : this->AdditionalData) {
         InBuilder->SetMetadata(Metadata.Title, Metadata.Content);
     }
 }

@@ -50,33 +50,32 @@
 #include "TutorialTask.h"
 #include "Window.h"
 
-FEmail& APeacenetWorldStateActor::GetMessageData(int ID)
-{
-	for(int i = 0; i < this->SaveGame->EmailMessages.Num(); i++)
-	{
-		if(this->SaveGame->EmailMessages[i].ID == ID)
+FEmail& APeacenetWorldStateActor::GetMessageData(int ID) {
+	for(int i = 0; i < this->SaveGame->EmailMessages.Num(); i++) {
+		if(this->SaveGame->EmailMessages[i].ID == ID) {
 			return this->SaveGame->EmailMessages[i];
+		}
 	}
 	return this->InvalidEmail;
 }
 
-FPeacenetIdentity& APeacenetWorldStateActor::GetNewIdentity()
-{
+FPeacenetIdentity& APeacenetWorldStateActor::GetNewIdentity() {
 	// We must have a save file.
 	check(this->SaveGame);
 
 	// Figure out which IDs are taken.
 	TArray<int> TakenIDs;
-	for(auto& Identity : this->SaveGame->Characters)
-	{
-		if(!TakenIDs.Contains(Identity.ID))
+	for(auto& Identity : this->SaveGame->Characters) {
+		if(!TakenIDs.Contains(Identity.ID)) {
 			TakenIDs.Add(Identity.ID);
+		}
 	}
 
 	// Find the first ID that isn't taken, starting from 0.
 	int i = 0;
-	while(TakenIDs.Contains(i))
+	while(TakenIDs.Contains(i)) {
 		i++;
+	}
 
 	// Create a new identity with the new entity ID.
 	FPeacenetIdentity id;
@@ -89,26 +88,26 @@ FPeacenetIdentity& APeacenetWorldStateActor::GetNewIdentity()
 	return this->SaveGame->Characters[this->SaveGame->Characters.Num() - 1];
 }
 
-bool APeacenetWorldStateActor::GetStoryCharacterID(UStoryCharacter* InStoryCharacter, int& OutEntityID)
-{
-	if(this->SaveGame)
+bool APeacenetWorldStateActor::GetStoryCharacterID(UStoryCharacter* InStoryCharacter, int& OutEntityID) {
+	if(this->SaveGame) {
 		return this->SaveGame->GetStoryCharacterID(InStoryCharacter, OutEntityID);
+	}
 	return false;
 }
 
-void APeacenetWorldStateActor::SetSaveValue(FString InValueName, bool InValue)
-{
-	if(this->SaveGame) this->SaveGame->SetValue(InValueName, InValue);
+void APeacenetWorldStateActor::SetSaveValue(FString InValueName, bool InValue) {
+	if(this->SaveGame) {
+		this->SaveGame->SetValue(InValueName, InValue);
+	}
 }
 
-FEmail& APeacenetWorldStateActor::GetNewEmailMessage()
-{
+FEmail& APeacenetWorldStateActor::GetNewEmailMessage() {
 	// Get a list of taken email IDs.
 	TArray<int> TakenIDs;
-	for(auto& Message : this->GetEmailMessages())
-	{
-		if(!TakenIDs.Contains(Message.ID))
+	for(auto& Message : this->GetEmailMessages()) {
+		if(!TakenIDs.Contains(Message.ID)) {
 			TakenIDs.Add(Message.ID);
+		}
 	}
 
 	// Find the first not-taken ID.
@@ -127,13 +126,11 @@ FEmail& APeacenetWorldStateActor::GetNewEmailMessage()
 	return this->SaveGame->EmailMessages[this->SaveGame->EmailMessages.Num() - 1];
 }
 
-int APeacenetWorldStateActor::GetPlayerUserID()
-{
+int APeacenetWorldStateActor::GetPlayerUserID() {
 	return this->SaveGame->PlayerUserID;
 }
 
-bool APeacenetWorldStateActor::DnsResolve(FString InHost, FComputer& OutComputer, EConnectionError& OutError)
-{
+bool APeacenetWorldStateActor::DnsResolve(FString InHost, FComputer& OutComputer, EConnectionError& OutError) {
 	// Default the error to nothing.
 	OutError = EConnectionError::None;
 
@@ -143,23 +140,20 @@ bool APeacenetWorldStateActor::DnsResolve(FString InHost, FComputer& OutComputer
 	int MaxHops = 100;
 
 	// Try to resolve any domain names to an IP address.
-	while(this->SaveGame->DomainNameMap.Contains(InHost))
-	{
+	while(this->SaveGame->DomainNameMap.Contains(InHost)) {
 		// Resolve the domain.
 		InHost = this->SaveGame->DomainNameMap[InHost];
 		MaxHops--;
 
 		// Break with timeout error if max hops is less than zero.
-		if(MaxHops < 0)
-		{
+		if(MaxHops < 0) {
 			OutError = EConnectionError::ConnectionTimedOut;
 			return false;
 		}
 	}
 
 	// If, at this point, we do not have an IP address in the host, we're going to timeout.
-	if(!this->SaveGame->ComputerIPMap.Contains(InHost))
-	{
+	if(!this->SaveGame->ComputerIPMap.Contains(InHost)) {
 		OutError = EConnectionError::ConnectionTimedOut;
 		return false;
 	}
@@ -172,15 +166,13 @@ bool APeacenetWorldStateActor::DnsResolve(FString InHost, FComputer& OutComputer
 	bool result = this->SaveGame->GetComputerByID(Entity, pc, Index);
 
 	// If we didn't find a computer then we'll timeout.
-	if(!result)
-	{
+	if(!result) {
 		OutError = EConnectionError::ConnectionTimedOut;
 		return false;
 	}
 
 	// Detect crashed systems and refuse connection.
-	if(pc.Crashed)
-	{
+	if(pc.Crashed) {
 		OutError = EConnectionError::ConnectionTimedOut;
 		return false;
 	}
@@ -195,23 +187,22 @@ bool APeacenetWorldStateActor::DnsResolve(FString InHost, FComputer& OutComputer
 	return true;
 }
 
-bool APeacenetWorldStateActor::CharacterNameExists(FString InCharacterName)
-{
+bool APeacenetWorldStateActor::CharacterNameExists(FString InCharacterName) {
 	return this->SaveGame && this->SaveGame->CharacterNameExists(InCharacterName);
 }
 
-FComputer& APeacenetWorldStateActor::GetNewComputer()
-{
+FComputer& APeacenetWorldStateActor::GetNewComputer() {
 	TArray<int> TakenIDs;
-	for(auto& PC : this->SaveGame->Computers)
-	{
-		if(!TakenIDs.Contains(PC.ID))
+	for(auto& PC : this->SaveGame->Computers) {
+		if(!TakenIDs.Contains(PC.ID)) {
 			TakenIDs.Add(PC.ID);
+		}
 	}
 
 	int i = 0;
-	while(TakenIDs.Contains(i))
+	while(TakenIDs.Contains(i)) {
 		i++;
+	}
 
 	FComputer pc;
 	pc.ID = i;
@@ -220,29 +211,26 @@ FComputer& APeacenetWorldStateActor::GetNewComputer()
 	return this->SaveGame->Computers[this->SaveGame->Computers.Num() - 1];
 }
 
-void APeacenetWorldStateActor::ClearNonPlayerEntities()
-{
+void APeacenetWorldStateActor::ClearNonPlayerEntities() {
 	this->SaveGame->ClearNonPlayerEntities();
 }
 
-TArray<FString> APeacenetWorldStateActor::GetDomainNames()
-{
+TArray<FString> APeacenetWorldStateActor::GetDomainNames() {
 	TArray<FString> keys;
-	if(this->SaveGame)
+	if(this->SaveGame) {
 		this->SaveGame->DomainNameMap.GetKeys(keys);
+	}
 	return keys;
 }
 
-void APeacenetWorldStateActor::AssignStoryCharacterID(UStoryCharacter* InStoryCharacter, FPeacenetIdentity& InIdentity)
-{
+void APeacenetWorldStateActor::AssignStoryCharacterID(UStoryCharacter* InStoryCharacter, FPeacenetIdentity& InIdentity) {
 	check(this->SaveGame);
 	check(InStoryCharacter);
 
 	this->SaveGame->AssignStoryCharacterID(InStoryCharacter, InIdentity.ID);
 }
 
-FPeacenetIdentity& APeacenetWorldStateActor::GetCharacterByID(int InEntityID)
-{
+FPeacenetIdentity& APeacenetWorldStateActor::GetCharacterByID(int InEntityID) {
 	int i = 0;
 	FPeacenetIdentity identity;
 	bool result = this->SaveGame && this->SaveGame->GetCharacterByID(InEntityID, identity, i);
@@ -250,22 +238,19 @@ FPeacenetIdentity& APeacenetWorldStateActor::GetCharacterByID(int InEntityID)
 	return this->SaveGame->Characters[i];
 }
 
-TArray<FEmail> APeacenetWorldStateActor::GetEmailMessages()
-{
+TArray<FEmail> APeacenetWorldStateActor::GetEmailMessages() {
 	check(this->SaveGame);
 
 	return this->SaveGame->EmailMessages;
 }
 
-bool APeacenetWorldStateActor::IdentityExists(int EntityID)
-{
+bool APeacenetWorldStateActor::IdentityExists(int EntityID) {
 	FPeacenetIdentity id;
 	int i;
 	return this->SaveGame && this->SaveGame->GetCharacterByID(EntityID, id, i);
 }
 
-FComputer& APeacenetWorldStateActor::GetPlayerComputer()
-{
+FComputer& APeacenetWorldStateActor::GetPlayerComputer() {
 	check(this->SaveGame);
 	check(this->SaveGame->PlayerHasComputer());
 
@@ -277,23 +262,19 @@ FComputer& APeacenetWorldStateActor::GetPlayerComputer()
 	return this->SaveGame->Computers[i];
 }
 
-bool APeacenetWorldStateActor::IsMissionCompleted(UMissionAsset* InMission)
-{
+bool APeacenetWorldStateActor::IsMissionCompleted(UMissionAsset* InMission) {
 	return this->SaveGame && InMission && this->SaveGame->CompletedMissions.Contains(InMission);
 }
 
-void APeacenetWorldStateActor::BroadcastMissionComplete(UMissionAsset* InMissionAsset)
-{
+void APeacenetWorldStateActor::BroadcastMissionComplete(UMissionAsset* InMissionAsset) {
 	this->MissionCompleteEvent.Broadcast(InMissionAsset);
 }
 
-int APeacenetWorldStateActor::GetGameStat(FName InStatName)
-{
+int APeacenetWorldStateActor::GetGameStat(FName InStatName) {
 	return this->SaveGame->GetGameStat(InStatName);
 }
 
-void APeacenetWorldStateActor::SetGameStat(FName InStatName, int InValue)
-{
+void APeacenetWorldStateActor::SetGameStat(FName InStatName, int InValue) {
 	int previousValue = this->GetGameStat(InStatName);
 	this->SaveGame->SetGameStat(InStatName, InValue);
 
@@ -304,20 +285,16 @@ void APeacenetWorldStateActor::SetGameStat(FName InStatName, int InValue)
 	});
 }
 
-void APeacenetWorldStateActor::IncreaseGameStat(FName InStatName)
-{
+void APeacenetWorldStateActor::IncreaseGameStat(FName InStatName) {
 	this->SetGameStat(InStatName, this->GetGameStat(InStatName) + 1);
 }
 
-bool APeacenetWorldStateActor::IsNewGame()
-{
+bool APeacenetWorldStateActor::IsNewGame() {
 	return this->SaveGame->IsNewGame;
 }
 
-void APeacenetWorldStateActor::SendGameEvent(FString EventName, TMap<FString, FString> InEventData)
-{
-	if(this->CurrentMission)
-	{
+void APeacenetWorldStateActor::SendGameEvent(FString EventName, TMap<FString, FString> InEventData) {
+	if(this->CurrentMission) {
 		this->CurrentMission->SendGameEvent(EventName, InEventData);
 	}
 
@@ -326,37 +303,30 @@ void APeacenetWorldStateActor::SendGameEvent(FString EventName, TMap<FString, FS
 	this->GameEventSent.Broadcast(EventName, Data);
 }
 
-TArray<FString> APeacenetWorldStateActor::GetPlayerKnownHosts()
-{
+TArray<FString> APeacenetWorldStateActor::GetPlayerKnownHosts() {
 	TArray<FString> Ret;
 
-	for(auto HostID : this->SaveGame->PlayerKnownPCs)
-	{
+	for(auto HostID : this->SaveGame->PlayerKnownPCs) {
 		Ret.Add(this->ReverseDns(HostID));
 	}
 
 	return Ret;
 }
 
-bool APeacenetWorldStateActor::IdentityHasSystemContext(int InIdentityID)
-{
-	for(auto SystemContext : this->SystemContexts)
-	{
-		if(SystemContext->GetCharacter().ID == InIdentityID)
-		{
+bool APeacenetWorldStateActor::IdentityHasSystemContext(int InIdentityID) {
+	for(auto SystemContext : this->SystemContexts) {
+		if(SystemContext->GetCharacter().ID == InIdentityID) {
 			return true;
 		}
 	}
 	return false;
 }
 
-void APeacenetWorldStateActor::QuitGame()
-{
+void APeacenetWorldStateActor::QuitGame() {
 	this->GameQuitRequested.Broadcast();
 }
 
-TArray<FString> APeacenetWorldStateActor::GetLinkedHosts(USystemContext* InSystem)
-{
+TArray<FString> APeacenetWorldStateActor::GetLinkedHosts(USystemContext* InSystem) {
 	// Generate any links that need to be generated.
 	this->Procgen->GenerateLinks(InSystem->GetComputer());
 
@@ -366,8 +336,7 @@ TArray<FString> APeacenetWorldStateActor::GetLinkedHosts(USystemContext* InSyste
 	// The list of hosts we're going to return:
 	TArray<FString> Ret;
 
-	for(int System : LinkedPCs)
-	{
+	for(int System : LinkedPCs) {
 		Ret.Add(this->ReverseDns(System));
 	}
 
@@ -376,79 +345,67 @@ TArray<FString> APeacenetWorldStateActor::GetLinkedHosts(USystemContext* InSyste
 	return Ret;
 }
 
-FString APeacenetWorldStateActor::ReverseDns(int ComputerID)
-{
+FString APeacenetWorldStateActor::ReverseDns(int ComputerID) {
 	FString IP;
-	for(auto IPMap : this->SaveGame->ComputerIPMap)
-	{
-		if(IPMap.Value == ComputerID)
-		{
+	for(auto IPMap : this->SaveGame->ComputerIPMap) {
+		if(IPMap.Value == ComputerID) {
 			IP = IPMap.Key;
 			break;
 		}
 	}
 
-	if(IP.Len())
-	{
+	if(IP.Len()) {
 		bool KeepGoing = true;
-		while(KeepGoing)
-		{
+		while(KeepGoing) {
 			bool Found = false;
 
-			for(auto Dns : this->SaveGame->DomainNameMap)
-			{
-				if(Dns.Value == IP)
-				{
+			for(auto Dns : this->SaveGame->DomainNameMap) {
+				if(Dns.Value == IP) {
 					IP = Dns.Key;
 					Found = true;
 					break;
 				}
 			}
 
-			if(!Found)
+			if(!Found) {
 				KeepGoing = false;
+			}
 		}
 	}
 	return IP;
 }
 
-void APeacenetWorldStateActor::FailMission(const FText& InFailMessage)
-{
+void APeacenetWorldStateActor::FailMission(const FText& InFailMessage) {
 	check(this->CurrentMission);
 
 	this->MissionFailed.Broadcast(this->CurrentMission, InFailMessage);
 }
 
-UProceduralGenerationEngine* APeacenetWorldStateActor::GetProcgen()
-{
+UProceduralGenerationEngine* APeacenetWorldStateActor::GetProcgen() {
 	return this->Procgen;
 }
 
 // Sets default values
-APeacenetWorldStateActor::APeacenetWorldStateActor()
-{
+APeacenetWorldStateActor::APeacenetWorldStateActor() {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
-bool APeacenetWorldStateActor::IsInMission()
-{
+bool APeacenetWorldStateActor::IsInMission() {
 	return this->CurrentMission && this->CurrentMission->IsValidLowLevelFast();
 }
 
-AMissionActor* APeacenetWorldStateActor::GetMissionActor()
-{
+AMissionActor* APeacenetWorldStateActor::GetMissionActor() {
 	return this->CurrentMission;
 }
 
-void APeacenetWorldStateActor::StartMission(UMissionAsset* InMission)
-{
+void APeacenetWorldStateActor::StartMission(UMissionAsset* InMission) {
 	check(InMission);
 	check(!this->IsInMission());
 
-	if(!InMission) return;
-	if(this->IsInMission()) return;
+	if(!InMission || this->IsInMission()) {
+		return;
+	}
 
 	FVector Location(0.0f, 0.0f, 0.0f);
 	 FRotator Rotation(0.0f, 0.0f, 0.0f);
@@ -458,16 +415,14 @@ void APeacenetWorldStateActor::StartMission(UMissionAsset* InMission)
 	this->CurrentMission->Setup(this, InMission);
 }
 
-void APeacenetWorldStateActor::AbortMission()
-{
+void APeacenetWorldStateActor::AbortMission() {
 	check(this->IsInMission());
 
 	this->CurrentMission->Abort();
 	this->CurrentMission = nullptr;
 }
 
-bool APeacenetWorldStateActor::IsPortOpen(FString InIPAddress, int InPort)
-{
+bool APeacenetWorldStateActor::IsPortOpen(FString InIPAddress, int InPort) {
 	check(this->SaveGame);
 	check(this->Procgen);
 
@@ -482,21 +437,20 @@ bool APeacenetWorldStateActor::IsPortOpen(FString InIPAddress, int InPort)
 
 	this->Procgen->GenerateFirewallRules(this->SaveGame->Computers[ComputerIndex]);
 
-	for(FFirewallRule& Rule : this->SaveGame->Computers[ComputerIndex].FirewallRules)
-	{
-		if(Rule.Port == InPort)
+	for(FFirewallRule& Rule : this->SaveGame->Computers[ComputerIndex].FirewallRules) {
+		if(Rule.Port == InPort) {
 			return !Rule.IsFiltered;
+		}
 	}
 
 	return false;
 }
 
-USystemContext* APeacenetWorldStateActor::GetSystemContext(int InComputerID)
-{
-	for(auto Context : this->SystemContexts)
-	{
-		if(Context->GetComputer().ID == InComputerID)
+USystemContext* APeacenetWorldStateActor::GetSystemContext(int InComputerID) {
+	for(auto Context : this->SystemContexts) {
+		if(Context->GetComputer().ID == InComputerID) {
 			return Context;
+		}
 	}
 
 	check(this->SaveGame);
@@ -516,14 +470,11 @@ USystemContext* APeacenetWorldStateActor::GetSystemContext(int InComputerID)
 }
 
 
-bool APeacenetWorldStateActor::GetOwningIdentity(FComputer& InComputer, int& OutIdentityID)
-{
+bool APeacenetWorldStateActor::GetOwningIdentity(FComputer& InComputer, int& OutIdentityID) {
 	check(this->SaveGame);
 
-	for(auto& Identity : this->SaveGame->Characters)
-	{
-		if(Identity.ComputerID == InComputer.ID)
-		{
+	for(auto& Identity : this->SaveGame->Characters) {
+		if(Identity.ComputerID == InComputer.ID) {
 			OutIdentityID = Identity.ID;
 			return true;
 		}
@@ -531,17 +482,14 @@ bool APeacenetWorldStateActor::GetOwningIdentity(FComputer& InComputer, int& Out
 	return false;
 }
 
-bool APeacenetWorldStateActor::ResolveHost(FString InHost, FComputer& OutComputer, EConnectionError& OutError)
-{
+bool APeacenetWorldStateActor::ResolveHost(FString InHost, FComputer& OutComputer, EConnectionError& OutError) {
 	// If it's a domain name, map it to the IP address.
-	if(this->SaveGame->DomainNameMap.Contains(InHost))
-	{
+	if(this->SaveGame->DomainNameMap.Contains(InHost)) {
 		return this->ResolveHost(this->SaveGame->DomainNameMap[InHost], OutComputer, OutError);
 	}
 
 	// TODO: Host -> IP (a.k.a DNS).
-	if(!this->SaveGame->ComputerIPMap.Contains(InHost))
-	{
+	if(!this->SaveGame->ComputerIPMap.Contains(InHost)) {
 		OutError = EConnectionError::ConnectionTimedOut;
 		return false;
 	}
@@ -552,13 +500,13 @@ bool APeacenetWorldStateActor::ResolveHost(FString InHost, FComputer& OutCompute
 	return result;
 }
 
-bool APeacenetWorldStateActor::ScanForServices(FString InIPAddress, TArray<FFirewallRule>& OutRules)
-{
+bool APeacenetWorldStateActor::ScanForServices(FString InIPAddress, TArray<FFirewallRule>& OutRules) {
 	check(this->SaveGame);
 	check(this->Procgen);
 
-	if(!this->SaveGame->IPAddressAllocated(InIPAddress))
+	if(!this->SaveGame->IPAddressAllocated(InIPAddress)) {
 		return false;
+	}
 
 	int ComputerID = this->SaveGame->ComputerIPMap[InIPAddress];
 
@@ -577,41 +525,36 @@ bool APeacenetWorldStateActor::ScanForServices(FString InIPAddress, TArray<FFire
 	return OutRules.Num();
 }
 
-void APeacenetWorldStateActor::UpdateMaps()
-{
+void APeacenetWorldStateActor::UpdateMaps() {
 	MapsUpdated.Broadcast();
 }
 
-TArray<UComputerService*> APeacenetWorldStateActor::GetServicesFor(EComputerType InComputerType)
-{
+TArray<UComputerService*> APeacenetWorldStateActor::GetServicesFor(EComputerType InComputerType) {
 	TArray<UComputerService*> Ret;
-	for(auto Service : this->ComputerServices)
-	{
-		if(Service->TargetComputerType == InComputerType)
+	for(auto Service : this->ComputerServices) {
+		if(Service->TargetComputerType == InComputerType) {
 			Ret.Add(Service);
+		}
 	}
 	return Ret;
 }
 
-bool APeacenetWorldStateActor::IsIPAddress(FString InIPAddress)
-{
+bool APeacenetWorldStateActor::IsIPAddress(FString InIPAddress) {
 	return this->SaveGame && this->SaveGame->ComputerIPMap.Contains(InIPAddress);
 }
 
-bool APeacenetWorldStateActor::IsTrue(FString InSaveBoolean)
-{
+bool APeacenetWorldStateActor::IsTrue(FString InSaveBoolean) {
 	return this->SaveGame && this->SaveGame->IsTrue(InSaveBoolean);
 }
 
-FString APeacenetWorldStateActor::GetIPAddress(FComputer& InComputer)
-{
+FString APeacenetWorldStateActor::GetIPAddress(FComputer& InComputer) {
 	check(this->SaveGame);
 	check(this->Procgen);
 
-	for(auto& IP : this->SaveGame->ComputerIPMap)
-	{
-		if(IP.Value == InComputer.ID)
+	for(auto& IP : this->SaveGame->ComputerIPMap) {
+		if(IP.Value == InComputer.ID) {
 			return IP.Key;
+		}
 	}
 
 	// Peacenet 0.2.x: IP addresses do not, under any circumstances, require Peacenet Identities.
@@ -621,20 +564,17 @@ FString APeacenetWorldStateActor::GetIPAddress(FComputer& InComputer)
 }
 
 // Loads all the terminal commands in the game
-void APeacenetWorldStateActor::LoadTerminalCommands()
-{
+void APeacenetWorldStateActor::LoadTerminalCommands() {
 	TArray<UCommandInfo*> Commands;
 
 	// Load command assets.
 	this->LoadAssets(TEXT("CommandInfo"), Commands);
 
-	for (auto Command : Commands)
-	{
+	for (auto Command : Commands) {
 		this->CommandInfo.Add(Command->ID, Command);
-		}
+	}
 
-	for (auto Program : this->Programs)
-	{
+	for (auto Program : this->Programs)	{
 		UCommandInfo* CoffeeIsCode = NewObject<UCommandInfo>();
 
 		CoffeeIsCode->ID = Program->ID;
@@ -646,28 +586,23 @@ void APeacenetWorldStateActor::LoadTerminalCommands()
 	}
 }
 
-TArray<UExploit*> APeacenetWorldStateActor::GetExploits()
-{
+TArray<UExploit*> APeacenetWorldStateActor::GetExploits() {
 	return this->Exploits;
 }
 
-TArray<UPayloadAsset*> APeacenetWorldStateActor::GetAllPayloads()
-{
+TArray<UPayloadAsset*> APeacenetWorldStateActor::GetAllPayloads() {
 	return this->Payloads;
 }
 
-TArray<FManualPage> APeacenetWorldStateActor::GetManualPages()
-{
+TArray<FManualPage> APeacenetWorldStateActor::GetManualPages() {
 	return this->ManualPages;
 }
 
-TArray<USystemUpgrade*> APeacenetWorldStateActor::GetAllSystemUpgrades()
-{
+TArray<USystemUpgrade*> APeacenetWorldStateActor::GetAllSystemUpgrades() {
 	return this->UserUnlockableUpgrades;
 }
 
-void APeacenetWorldStateActor::SendMissionMail(UMissionAsset* InMission)
-{
+void APeacenetWorldStateActor::SendMissionMail(UMissionAsset* InMission) {
 	check(InMission);
 
 	FEmail MissionEmail;
@@ -684,49 +619,47 @@ void APeacenetWorldStateActor::SendMissionMail(UMissionAsset* InMission)
 	this->GetSystemContext(this->SaveGame->PlayerComputerID)->GetMailProvider()->NotifyReceivedMessage(MissionEmail.ID);
 }
 
-void APeacenetWorldStateActor::SendAvailableMissions()
-{
-	for(auto Mission : this->Missions)
-	{
-		if(this->SaveGame->CompletedMissions.Contains(Mission)) continue;
+void APeacenetWorldStateActor::SendAvailableMissions() {
+	for(auto Mission : this->Missions) {
+		if(this->SaveGame->CompletedMissions.Contains(Mission)) {
+			continue;
+		}
 
 		bool IsMissingMission = false;
 
-		for(auto RequiredMission : Mission->RequiredMissions)
-		{
-			if(!this->SaveGame->CompletedMissions.Contains(RequiredMission))
-			{
+		for(auto RequiredMission : Mission->RequiredMissions) {
+			if(!this->SaveGame->CompletedMissions.Contains(RequiredMission)) {
 				IsMissingMission = true;
 				break;
 			}
 		}
 
-		if(IsMissingMission) continue;
+		if(IsMissingMission) {
+			continue;
+		}
 
 		bool HasMissionMail = false;
 
-		for(auto& MailMessage : this->SaveGame->EmailMessages)
-		{
-			if(MailMessage.ToEntities.Contains(this->SaveGame->GetPlayerIdentity()) && MailMessage.Mission == Mission)
-			{
+		for(auto& MailMessage : this->SaveGame->EmailMessages) {
+			if(MailMessage.ToEntities.Contains(this->SaveGame->GetPlayerIdentity()) && MailMessage.Mission == Mission) {
 				HasMissionMail = true;
 				break;
 			}
 		}
 
-		if(HasMissionMail) continue;
+		if(HasMissionMail) {
+			continue;
+		}
 
 		this->SendMissionMail(Mission);
 	}
 }
 
-void APeacenetWorldStateActor::EndMission(bool DoGameUpdate)
-{
+void APeacenetWorldStateActor::EndMission(bool DoGameUpdate) {
 	// Tells the game we're no longer in a mission.
 	this->CurrentMission = nullptr;
 
-	if(DoGameUpdate)
-	{
+	if(DoGameUpdate) {
 		// Notifies of any new missions.
 		this->SendAvailableMissions();
 
@@ -735,19 +668,16 @@ void APeacenetWorldStateActor::EndMission(bool DoGameUpdate)
 	}
 }
 
-float APeacenetWorldStateActor::GetStealthiness(FPeacenetIdentity& InIdentity)
-{
+float APeacenetWorldStateActor::GetStealthiness(FPeacenetIdentity& InIdentity) {
 	return this->AlertManager->GetStealthStatus(InIdentity.ID).Stealthiness;
 }
 
-void APeacenetWorldStateActor::SetStealthiness(FPeacenetIdentity& InIdentity, float InValue)
-{
+void APeacenetWorldStateActor::SetStealthiness(FPeacenetIdentity& InIdentity, float InValue) {
 	this->AlertManager->GetStealthStatus(InIdentity.ID).Stealthiness = InValue;
 	this->AlertManager->ResetStealthIncreaseTimer(InIdentity.ID);
 	this->AlertManager->GetStealthStatus(InIdentity.ID).Cooldown = 30.f;
 
-	if(InValue <= 0.7f && !this->AlertManager->GetStealthStatus(InIdentity.ID).IsSuspicious)
-	{
+	if(InValue <= 0.7f && !this->AlertManager->GetStealthStatus(InIdentity.ID).IsSuspicious) {
 		this->AlertManager->GetStealthStatus(InIdentity.ID).IsSuspicious = true;
 	
 		this->SendGameEvent("SuspicionRaised", {
@@ -755,8 +685,7 @@ void APeacenetWorldStateActor::SetStealthiness(FPeacenetIdentity& InIdentity, fl
 		});
 	}
 
-	if(InValue <= 0.45f && !this->AlertManager->GetStealthStatus(InIdentity.ID).IsInAlert)
-	{
+	if(InValue <= 0.45f && !this->AlertManager->GetStealthStatus(InIdentity.ID).IsInAlert) {
 		this->AlertManager->GetStealthStatus(InIdentity.ID).IsInAlert = true;
 
 		this->SendGameEvent("CoverBlown", {
@@ -766,8 +695,7 @@ void APeacenetWorldStateActor::SetStealthiness(FPeacenetIdentity& InIdentity, fl
 }
 
 // Called when the game starts or when spawned
-void APeacenetWorldStateActor::BeginPlay()
-{
+void APeacenetWorldStateActor::BeginPlay() {
 	Super::BeginPlay();
 
 	// Spawn in the alert manager.
@@ -784,8 +712,7 @@ void APeacenetWorldStateActor::BeginPlay()
 	// Load all the manual pages.
 	TArray<UManualPageAssetBase*> ManualAssets;
 	this->LoadAssets<UManualPageAssetBase>("ManualPageAssetBase", ManualAssets);
-	for(auto ManualAsset : ManualAssets)
-	{
+	for(auto ManualAsset : ManualAssets) {
 		this->ManualPages.Add(ManualAsset->GetManualPage());
 	}
 
@@ -823,29 +750,24 @@ void APeacenetWorldStateActor::BeginPlay()
 
 	this->LoadAssets<UMissionAsset>("MissionAsset", TempMissions);
 
-	for(auto Mission: TempMissions)
-	{
+	for(auto Mission: TempMissions) {
 		check(Mission->Assigner);
 
-		if(Mission->Assigner)
-		{
+		if(Mission->Assigner) {
 			this->Missions.Add(Mission);
 		}
 	}
 }
 
-void APeacenetWorldStateActor::SilentlyFailMission()
-{
+void APeacenetWorldStateActor::SilentlyFailMission() {
 	check(this->IsInMission());
 
 	this->CurrentMission->SilentFail();
 }
 
-void APeacenetWorldStateActor::EndPlay(const EEndPlayReason::Type InReason)
-{
+void APeacenetWorldStateActor::EndPlay(const EEndPlayReason::Type InReason) {
 	// If we're in a mission, we're going to abandon ship.
-	if(this->IsInMission())
-	{
+	if(this->IsInMission()) {
 		this->CurrentMission->Abort();
 	}
 
@@ -853,8 +775,7 @@ void APeacenetWorldStateActor::EndPlay(const EEndPlayReason::Type InReason)
 	this->AlertManager->Destroy();
 
 	// Destroy all system contexts.
-	while(this->SystemContexts.Num())
-	{
+	while(this->SystemContexts.Num()) {
 		this->SystemContexts[0]->Destroy();
 		this->SystemContexts.RemoveAt(0);
 	}
@@ -863,15 +784,13 @@ void APeacenetWorldStateActor::EndPlay(const EEndPlayReason::Type InReason)
 }
 
 // Called every frame
-void APeacenetWorldStateActor::Tick(float DeltaTime)
-{
+void APeacenetWorldStateActor::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
 	this->Procgen->Update(DeltaTime);
 
 	// Is the save loaded?
-	if (SaveGame)
-	{
+	if (SaveGame) {
 		// Get time of day
 		float TimeOfDay = SaveGame->EpochTime;
 
@@ -879,8 +798,7 @@ void APeacenetWorldStateActor::Tick(float DeltaTime)
 		TimeOfDay += (DeltaTime * 6);
 
 		// Has it been a full day yet?
-		if (TimeOfDay >= SaveGame->SECONDS_DAY_LENGTH)
-		{
+		if (TimeOfDay >= SaveGame->SECONDS_DAY_LENGTH) {
 			TimeOfDay = 0;
 		}
 
@@ -895,18 +813,15 @@ void APeacenetWorldStateActor::Tick(float DeltaTime)
 	}
 }
 
-UTutorialPromptState* APeacenetWorldStateActor::GetTutorialState()
-{
+UTutorialPromptState* APeacenetWorldStateActor::GetTutorialState() {
 	return this->TutorialState;
 }
 
-bool APeacenetWorldStateActor::IsTutorialActive()
-{
+bool APeacenetWorldStateActor::IsTutorialActive() {
 	return this->GetTutorialState()->IsPromptActive();
 }
 
-void APeacenetWorldStateActor::StartGame(TSubclassOf<UDesktopWidget> InDesktopClass, TSubclassOf<UWindow> InWindowClass)
-{
+void APeacenetWorldStateActor::StartGame(TSubclassOf<UDesktopWidget> InDesktopClass, TSubclassOf<UWindow> InWindowClass) {
 	check(HasExistingOS() || this->SaveGame);
 
 	if(!this->SaveGame) {
@@ -923,8 +838,7 @@ void APeacenetWorldStateActor::StartGame(TSubclassOf<UDesktopWidget> InDesktopCl
 	UPeacenetGameInstance* GameInstance = Cast<UPeacenetGameInstance>(GetGameInstance());
 
 	// Create a new computer for the player if none is available.
-	if(!this->SaveGame->PlayerHasComputer())
-	{
+	if(!this->SaveGame->PlayerHasComputer()) {
 		FComputer pc;
 		pc.ID = 0;
 		pc.OwnerType = EComputerOwnerType::Player;
@@ -958,16 +872,14 @@ void APeacenetWorldStateActor::StartGame(TSubclassOf<UDesktopWidget> InDesktopCl
 	this->PlayerSystemReady.Broadcast(PlayerSystemContext);
 
 	// This allows the game to notify the player of any new missions.
-	if(this->SaveGame->PlayerHasIdentity())
+	if(this->SaveGame->PlayerHasIdentity()) {
 		this->SendAvailableMissions();
+	}
 }
 
-bool APeacenetWorldStateActor::FindProgramByName(FName InName, UPeacegateProgramAsset *& OutProgram)
-{
-	for (auto Program : this->Programs)
-	{
-		if (Program->ID == InName)
-		{
+bool APeacenetWorldStateActor::FindProgramByName(FName InName, UPeacegateProgramAsset *& OutProgram) {
+	for (auto Program : this->Programs) {
+		if (Program->ID == InName) {
 			OutProgram = Program;
 			return true;
 		}
@@ -976,10 +888,10 @@ bool APeacenetWorldStateActor::FindProgramByName(FName InName, UPeacegateProgram
 	return false;
 }
 
-FText APeacenetWorldStateActor::GetTimeOfDay()
-{
-	if (!SaveGame)
+FText APeacenetWorldStateActor::GetTimeOfDay() {
+	if (!SaveGame) {
 		return FText();
+	}
 
 	float TOD = SaveGame->EpochTime;
 
@@ -988,8 +900,7 @@ FText APeacenetWorldStateActor::GetTimeOfDay()
 	float Hours = FMath::Fmod((TOD / 60.f) / 60.f, 24.f);
 
 	FString MinutesString = FString::FromInt((int)Minutes);
-	if (Minutes < 10.f)
-	{
+	if (Minutes < 10.f) {
 		MinutesString = TEXT("0") + MinutesString;
 	}
 
@@ -998,22 +909,19 @@ FText APeacenetWorldStateActor::GetTimeOfDay()
 	return FText::FromString(HoursString + TEXT(":") + MinutesString);
 }
 
-bool APeacenetWorldStateActor::HasExistingOS(int SlotId)
-{
+bool APeacenetWorldStateActor::HasExistingOS(int SlotId) {
 	return UGameplayStatics::DoesSaveGameExist(TEXT("PeacegateOS"), SlotId);
 }
 
-void APeacenetWorldStateActor::SaveWorld()
-{
-	// If we're in a mission, back the fuck out.
-	if(this->IsInMission()) return;
-
-	// Actually save the game.
-	UGameplayStatics::SaveGameToSlot(this->SaveGame, TEXT("PeacegateOS"), this->MySlotId);
+void APeacenetWorldStateActor::SaveWorld() {
+	// Save the game if we are not currently in a mission (saving the main state while in a mission
+	// has the possibility of fucking up the game's state later on)
+	if(!this->IsInMission()) {
+		UGameplayStatics::SaveGameToSlot(this->SaveGame, TEXT("PeacegateOS"), this->MySlotId);
+	}
 }
 
-APeacenetWorldStateActor* APeacenetWorldStateActor::LoadExistingOS(const APlayerController* InPlayerController, int SlotId)
-{
+APeacenetWorldStateActor* APeacenetWorldStateActor::LoadExistingOS(const APlayerController* InPlayerController, int SlotId) {
 	check(HasExistingOS(SlotId));
 
 	UWorld* World = InPlayerController->GetWorld();
@@ -1024,21 +932,17 @@ APeacenetWorldStateActor* APeacenetWorldStateActor::LoadExistingOS(const APlayer
 	return ExistingPeacenet;
 }
 
-void APeacenetWorldStateActor::RemoveDomain(FString InDomainName)
-{
-	if(this->SaveGame->DomainNameMap.Contains(InDomainName))
-	{
+void APeacenetWorldStateActor::RemoveDomain(FString InDomainName) {
+	if(this->SaveGame->DomainNameMap.Contains(InDomainName)) {
 		this->SaveGame->DomainNameMap.Remove(InDomainName);
 	}
 }
 
-TArray<FPeacenetIdentity> APeacenetWorldStateActor::GetCharacters()
-{
+TArray<FPeacenetIdentity> APeacenetWorldStateActor::GetCharacters() {
 	return this->SaveGame->Characters;
 }
 
-FComputer& APeacenetWorldStateActor::GetComputerByID(int InEntityID)
-{
+FComputer& APeacenetWorldStateActor::GetComputerByID(int InEntityID) {
 	FComputer pc;
 	int i = -1;
 	bool result = this->SaveGame->GetComputerByID(InEntityID, pc, i);
@@ -1046,40 +950,30 @@ FComputer& APeacenetWorldStateActor::GetComputerByID(int InEntityID)
 	return this->SaveGame->Computers[i];
 }
 
-void APeacenetWorldStateActor::ReplaceDomain(FString InDomain, FString NewDomain)
-{
+void APeacenetWorldStateActor::ReplaceDomain(FString InDomain, FString NewDomain) {
 	FString OldDest = this->SaveGame->DomainNameMap[InDomain];
 	this->RemoveDomain(InDomain);
 	this->RegisterDomain(NewDomain, OldDest);
 }
 
-void APeacenetWorldStateActor::RegisterDomain(FString DomainName, FString DestinationHost)
-{
-	if(this->SaveGame->DomainNameMap.Contains(DomainName))
-	{
+void APeacenetWorldStateActor::RegisterDomain(FString DomainName, FString DestinationHost) {
+	if(this->SaveGame->DomainNameMap.Contains(DomainName)) {
 		this->SaveGame->DomainNameMap[DomainName] = DestinationHost;
-	}
-	else 
-	{
+	} else {
 		this->SaveGame->DomainNameMap.Add(DomainName, DestinationHost);
 	}
 }
 
-int APeacenetWorldStateActor::GetWorldSeed()
-{
+int APeacenetWorldStateActor::GetWorldSeed() {
 	return this->SaveGame->WorldSeed;
 }
 
-APeacenetWorldStateActor* APeacenetWorldStateActor::BootOS(const APlayerController* InPlayerController, bool InDeleteExistingSaveFile)
-{
+APeacenetWorldStateActor* APeacenetWorldStateActor::BootOS(const APlayerController* InPlayerController, bool InDeleteExistingSaveFile) {
 	// If we have an existing OS then we'll load that in if, and only if, we aren't deleting the existing OS.
-	if(APeacenetWorldStateActor::HasExistingOS())
-	{
-		if(InDeleteExistingSaveFile)
-		{
+	if(APeacenetWorldStateActor::HasExistingOS()) {
+		if(InDeleteExistingSaveFile) {
 			UGameplayStatics::DeleteGameInSlot(TEXT("PeacegateOS"), 0);
-		}
-		else {
+		} else {
 			return APeacenetWorldStateActor::LoadExistingOS(InPlayerController);
 		}
 	}

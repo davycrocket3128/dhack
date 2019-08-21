@@ -33,28 +33,22 @@
 #include "InfoboxBase.h"
 #include "Window.h"
 
-void UInfoboxBase::BindCallbacks(const FInfoboxDismissedEvent InDismissedEvent, const FInfoboxInputValidator InTextValidator)
-{
+void UInfoboxBase::BindCallbacks(const FInfoboxDismissedEvent InDismissedEvent, const FInfoboxInputValidator InTextValidator) {
 	DismissCallback = InDismissedEvent;
 	Validator = InTextValidator;
 }
 
 
-void UInfoboxBase::Dismiss(const EDialogResult InDialogResult, const FText& InUserInputText)
-{
+void UInfoboxBase::Dismiss(const EDialogResult InDialogResult, const FText& InUserInputText) {
 	Window->Close();
 	DismissCallback.ExecuteIfBound(InDialogResult, InUserInputText);
 }
 
 
-void UInfoboxBase::ValidateTextInput(const FText& InText)
-{
-	if (Validator.IsBound())
-	{
+void UInfoboxBase::ValidateTextInput(const FText& InText) {
+	if (Validator.IsBound()) {
 		Validator.Execute(InText, TextInputErrorText);
-	}
-	else
-	{
+	} else {
 		TextInputErrorText = FText::GetEmpty();
 	}
 }

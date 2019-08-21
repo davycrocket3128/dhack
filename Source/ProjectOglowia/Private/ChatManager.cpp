@@ -31,8 +31,7 @@
 
 #include "ChatManager.h"
 
-int UChatManager::PostMessage(int AuthorEntity, int Destination, FString Message)
-{
+int UChatManager::PostMessage(int AuthorEntity, int Destination, FString Message) {
     FChatMessage NewMessage;
     NewMessage.MessageID = this->Messages.Num();
     NewMessage.AuthorEntityID = AuthorEntity;

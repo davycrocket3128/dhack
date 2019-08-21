@@ -35,11 +35,9 @@
 //
 // Usage:
 //  kill <pid>
-void AKillProcessCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
-{
+void AKillProcessCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) {
     // Check if the specified <pid> is a number and throw an error if it isn't.
-    if(!this->ArgumentMap["<pid>"]->IsNumber())
-    {
+    if(!this->ArgumentMap["<pid>"]->IsNumber()) {
         InConsole->SetForegroundColor(EConsoleColor::Magenta);
         InConsole->WriteLine(NSLOCTEXT("Kill", "InvalidProcessID", "error: pid is not valid."));
         InConsole->ResetFormatting();
@@ -52,8 +50,7 @@ void AKillProcessCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FS
 
     // Try to kill the process.
     EProcessResult KillResult;
-    if(this->GetUserContext()->KillProcess(pid, KillResult))
-    {
+    if(this->GetUserContext()->KillProcess(pid, KillResult)) {
         // Success!
         InConsole->SetForegroundColor(EConsoleColor::Green);
         InConsole->WriteLine(FText::Format(NSLOCTEXT("Kill", "Killed", "[{0}] Killed."), FText::AsNumber(pid)));
@@ -66,8 +63,7 @@ void AKillProcessCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FS
     InConsole->SetForegroundColor(EConsoleColor::Red);
     InConsole->Write(FText::Format(NSLOCTEXT("Kill", "KillErrorStart", "kill: {0}: error: "), FText::AsNumber(pid)));
 
-    switch(KillResult)
-    {
+    switch(KillResult) {
         case EProcessResult::PermissionDenied:
             InConsole->WriteLine(NSLOCTEXT("Kill", "PermissionDenied", "permission denied."));
             break;

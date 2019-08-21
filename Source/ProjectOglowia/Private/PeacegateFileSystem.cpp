@@ -36,15 +36,11 @@
 #include "PeacenetWorldStateActor.h"
 #include "SystemContext.h"
 
-TArray<FFileRecord> UPeacegateFileSystem::GetFileRecords(FFolder& Folder)
-{
+TArray<FFileRecord> UPeacegateFileSystem::GetFileRecords(FFolder& Folder) {
 	TArray<FFileRecord> Records;
-	for(auto RecordID : Folder.FileRecords)
-	{
-		for(auto& Record : this->SystemContext->GetComputer().FileRecords)
-		{
-			if(Record.ID == RecordID)
-			{
+	for(auto RecordID : Folder.FileRecords) {
+		for(auto& Record : this->SystemContext->GetComputer().FileRecords) {
+			if(Record.ID == RecordID) {
 				Records.Add(Record);
 			}
 		}
@@ -52,16 +48,12 @@ TArray<FFileRecord> UPeacegateFileSystem::GetFileRecords(FFolder& Folder)
 	return Records;
 }
 
-bool UPeacegateFileSystem::GetFile(FFolder Parent, FString FileName, int & Index, FFileRecord & File)
-{
-	for (int i = 0; i < Parent.FileRecords.Num(); i++)
-	{
+bool UPeacegateFileSystem::GetFile(FFolder Parent, FString FileName, int & Index, FFileRecord & File) {
+	for (int i = 0; i < Parent.FileRecords.Num(); i++) {
 		int fileID = Parent.FileRecords[i];
 
-		for(auto& record : this->SystemContext->GetComputer().FileRecords)
-		{
-			if(record.ID == fileID && record.Name == FileName)
-			{
+		for(auto& record : this->SystemContext->GetComputer().FileRecords) {
+			if(record.ID == fileID && record.Name == FileName) {
 				File = record;
 				Index = i;
 				return true;
@@ -72,11 +64,8 @@ bool UPeacegateFileSystem::GetFile(FFolder Parent, FString FileName, int & Index
 	return false;
 }
 
-void UPeacegateFileSystem::RecursiveDelete(FFolder& InFolder)
-{
-
-	for (auto& Subfolder : InFolder.SubFolders)
-	{
+void UPeacegateFileSystem::RecursiveDelete(FFolder& InFolder) {
+	for (auto& Subfolder : InFolder.SubFolders) {
 		FFolder SubRecord = GetFolderByID(Subfolder);
 		RecursiveDelete(SubRecord);
 	}
@@ -85,10 +74,8 @@ void UPeacegateFileSystem::RecursiveDelete(FFolder& InFolder)
 
 	SystemContext->GetFolderTree(FolderTree);
 
-	for (int i = 0; i < FolderTree.Num(); i++)
-	{
-		if (FolderTree[i].FolderID == InFolder.FolderID)
-		{
+	for (int i = 0; i < FolderTree.Num(); i++) {
+		if (FolderTree[i].FolderID == InFolder.FolderID) {
 			FolderTree.RemoveAt(i);
 			return;
 		}
@@ -97,31 +84,27 @@ void UPeacegateFileSystem::RecursiveDelete(FFolder& InFolder)
 	SystemContext->PushFolderTree(FolderTree);
 }
 
-FFolder UPeacegateFileSystem::GetFolderByID(int FolderID)
-{
+FFolder UPeacegateFileSystem::GetFolderByID(int FolderID) {
 	TArray<FFolder> FolderTree;
 	SystemContext->GetFolderTree(FolderTree);
 
-	for (auto& Folder : FolderTree)
-	{
-		if (Folder.FolderID == FolderID)
+	for (auto& Folder : FolderTree) {
+		if (Folder.FolderID == FolderID) {
 			return Folder;
+		}
 	}
 
 	return FFolder();
 }
 
-void UPeacegateFileSystem::SetFolderByID(int FolderID, FFolder Folder)
-{
+void UPeacegateFileSystem::SetFolderByID(int FolderID, FFolder Folder) {
 	TArray<FFolder> FolderTree;
 	SystemContext->GetFolderTree(FolderTree);
 
-	for (int i = 0; i < FolderTree.Num(); i++)
-	{
+	for (int i = 0; i < FolderTree.Num(); i++) {
 		FFolder ExFolder = FolderTree[i];
 
-		if (ExFolder.FolderID == FolderID)
-		{
+		if (ExFolder.FolderID == FolderID) {
 			FolderTree[i] = Folder;
 			SystemContext->PushFolderTree(FolderTree);
 			return;
@@ -129,16 +112,13 @@ void UPeacegateFileSystem::SetFolderByID(int FolderID, FFolder Folder)
 	}
 }
 
-int UPeacegateFileSystem::GetNewFolderID()
-{
+int UPeacegateFileSystem::GetNewFolderID() {
 	TArray<FFolder> FolderTree;
 	SystemContext->GetFolderTree(FolderTree);
 	int ID = 0;
 
-	for (auto& Folder : FolderTree)
-	{
-		if (Folder.FolderID > ID)
-		{
+	for (auto& Folder : FolderTree) {
+		if (Folder.FolderID > ID) {
 			ID = Folder.FolderID;
 		}
 	}
@@ -146,35 +126,28 @@ int UPeacegateFileSystem::GetNewFolderID()
 	return ID+1;
 }
 
-bool UPeacegateFileSystem::TraversePath(const TArray<FString>& PathParts, UFolderNavigator *& OutNavigator)
-{
+bool UPeacegateFileSystem::TraversePath(const TArray<FString>& PathParts, UFolderNavigator *& OutNavigator) {
 	return TraversePath(PathParts, PathParts.Num(), OutNavigator);
 }
 
-bool UPeacegateFileSystem::TraversePath(const TArray<FString>& PathParts, const int Count, UFolderNavigator* &OutNavigator)
-{
+bool UPeacegateFileSystem::TraversePath(const TArray<FString>& PathParts, const int Count, UFolderNavigator* &OutNavigator) {
 	UFolderNavigator* Navigator = Root;
 
-	if (!Navigator)
-	{
+	if (!Navigator) {
 		// The filesystem is not ready.
 		OutNavigator = nullptr;
 		return false;
 	}
 
 	// Go through each part of the path that we want to.
-	for (int i = 0; i < PathParts.Num() && i < Count; i++)
-	{
+	for (int i = 0; i < PathParts.Num() && i < Count; i++) {
 		// Get the current path part.
 		FString FolderName = PathParts[i];
 
-		if (Navigator->SubFolders.Contains(FolderName))
-		{
+		if (Navigator->SubFolders.Contains(FolderName)) {
 			// Traverse down the Navigation Graph.
 			Navigator = Navigator->SubFolders[FolderName];
-		}
-		else
-		{
+		} else {
 			// Directory not found.
 			OutNavigator = nullptr;
 			return false;
@@ -186,20 +159,17 @@ bool UPeacegateFileSystem::TraversePath(const TArray<FString>& PathParts, const 
 	return true;
 }
 
-TArray<FString> UPeacegateFileSystem::GetPathParts(FString InPath, FString& ResolvedPath)
-{
+TArray<FString> UPeacegateFileSystem::GetPathParts(FString InPath, FString& ResolvedPath) {
 	ResolvedPath = ResolveToAbsolute(InPath);
 	TArray<FString> Parts;
 	ResolvedPath.ParseIntoArray(Parts, TEXT("/"), true);
 	return Parts;
 }
 
-void UPeacegateFileSystem::BuildChildNavigators(UFolderNavigator * RootNav)
-{
+void UPeacegateFileSystem::BuildChildNavigators(UFolderNavigator * RootNav) {
 	FFolder Folder = GetFolderByID(RootNav->FolderIndex);
 
-	for (auto SubfolderIndex : Folder.SubFolders)
-	{
+	for (auto SubfolderIndex : Folder.SubFolders) {
 		FFolder SubFolder = GetFolderByID(SubfolderIndex);
 		UFolderNavigator* ChildNav = NewObject<UFolderNavigator>();
 		ChildNav->FolderIndex = SubFolder.FolderID;
@@ -208,35 +178,29 @@ void UPeacegateFileSystem::BuildChildNavigators(UFolderNavigator * RootNav)
 	}
 }
 
-FString UPeacegateFileSystem::ResolveToAbsolute(const FString Path)
-{
+FString UPeacegateFileSystem::ResolveToAbsolute(const FString Path) {
 	TArray<FString> PartStack;
 	TArray<FString> Split;
 
 	Path.ParseIntoArray(Split, TEXT("/"), true);
 
-	for (auto& Part : Split)
-	{
-		if (Part == TEXT("."))
+	for (auto& Part : Split) {
+		if (Part == TEXT(".")) {
 			continue;
-		if (Part == TEXT(".."))
-		{
-			if (PartStack.Num() > 0)
+		} else if (Part == TEXT("..")) {
+			if (PartStack.Num() > 0) {
 				PartStack.Pop();
+			}
 			continue;
 		}
 		PartStack.Push(Part);
 	}
 
 	FString Absolute;
-	if (PartStack.Num() == 0)
-	{
+	if (PartStack.Num() == 0) {
 		Absolute = TEXT("/");
-	}
-	else
-	{
-		while (PartStack.Num() > 0)
-		{
+	} else {
+		while (PartStack.Num() > 0) {
 			Absolute = Absolute.Append(TEXT("/") + PartStack[0]);
 			PartStack.RemoveAt(0);
 		}
@@ -245,13 +209,11 @@ FString UPeacegateFileSystem::ResolveToAbsolute(const FString Path)
 	return Absolute;
 }
 
-void UPeacegateFileSystem::BuildFolderNavigator()
-{
+void UPeacegateFileSystem::BuildFolderNavigator() {
 	TArray<FFolder> FolderTree;
 	SystemContext->GetFolderTree(FolderTree);
 
-	if (FolderTree.Num()==0)
-	{
+	if (FolderTree.Num()==0) {
 		UFileUtilities::FormatFilesystem(FolderTree);
 		SystemContext->PushFolderTree(FolderTree);
 	}
@@ -259,17 +221,14 @@ void UPeacegateFileSystem::BuildFolderNavigator()
 	Root = NewObject<UFolderNavigator>();
 
 	BuildChildNavigators(Root);
-
 }
 
-void UPeacegateFileSystem::Initialize(int InUserID)
-{
+void UPeacegateFileSystem::Initialize(int InUserID) {
 	UserID = InUserID;
 	BuildFolderNavigator();
 }
 
-bool UPeacegateFileSystem::CreateDirectory(const FString InPath, EFilesystemStatusCode& OutStatusCode)
-{
+bool UPeacegateFileSystem::CreateDirectory(const FString InPath, EFilesystemStatusCode& OutStatusCode) {
 	// Used for logging.
 	FString ResolvedPath;
 
@@ -277,8 +236,7 @@ bool UPeacegateFileSystem::CreateDirectory(const FString InPath, EFilesystemStat
 	TArray<FString> Parts = GetPathParts(InPath, ResolvedPath);
 
 	// Don't try to create /.
-	if (Parts.Num() == 0)
-	{
+	if (Parts.Num() == 0) {
 		OutStatusCode = EFilesystemStatusCode::FileOrDirectoryExists;
 		return false;
 	}
@@ -287,8 +245,7 @@ bool UPeacegateFileSystem::CreateDirectory(const FString InPath, EFilesystemStat
 	UFolderNavigator* ParentNav = nullptr;
 
 	// If we can't traverse to the parent, return FileOrDirectoryNotFound.
-	if (!TraversePath(Parts, Parts.Num() - 1, ParentNav))
-	{
+	if (!TraversePath(Parts, Parts.Num() - 1, ParentNav)) {
 		OutStatusCode = EFilesystemStatusCode::FileOrDirectoryNotFound;
 		return false;
 	}
@@ -296,8 +253,7 @@ bool UPeacegateFileSystem::CreateDirectory(const FString InPath, EFilesystemStat
 	FString FolderName = Parts[Parts.Num() - 1]; // New folder name
 	
 	// Does a folder with this name exist here?
-	if (ParentNav->SubFolders.Contains(FolderName))
-	{
+	if (ParentNav->SubFolders.Contains(FolderName)) {
 		OutStatusCode = EFilesystemStatusCode::FileOrDirectoryExists;
 		return false;
 	}
@@ -350,23 +306,20 @@ bool UPeacegateFileSystem::CreateDirectory(const FString InPath, EFilesystemStat
 
 
 
-bool UPeacegateFileSystem::DirectoryExists(const FString InPath)
-{
+bool UPeacegateFileSystem::DirectoryExists(const FString InPath) {
 	FString ResolvedPath = ResolveToAbsolute(InPath);
 	TArray<FString> Parts;
 	ResolvedPath.ParseIntoArray(Parts, TEXT("/"), true);
 	UFolderNavigator* Navigator = Root;
 
-	if (Parts.Num() == 0)
+	if (Parts.Num() == 0) {
 		return true;
+	}
 
-	for (auto& Part : Parts)
-	{
-		if (Navigator->SubFolders.Contains(Part))
-		{
+	for (auto& Part : Parts) {
+		if (Navigator->SubFolders.Contains(Part)) {
 			Navigator = Navigator->SubFolders[Part];
-		}
-		else {
+		} else {
 			return false;
 		}
 	}
@@ -374,25 +327,22 @@ bool UPeacegateFileSystem::DirectoryExists(const FString InPath)
 	return true;
 }
 
-bool UPeacegateFileSystem::FileExists(const FString InPath)
-{
+bool UPeacegateFileSystem::FileExists(const FString InPath) {
 	FString ResolvedPath = ResolveToAbsolute(InPath);
 	TArray<FString> Parts;
 	ResolvedPath.ParseIntoArray(Parts, TEXT("/"), true);
 	UFolderNavigator* Navigator = Root;
 
-	if (Parts.Num() == 0)
+	if (Parts.Num() == 0) {
 		return false;
+	}
 
-	for (int i = 0; i < Parts.Num() - 1; i++)
-	{
+	for (int i = 0; i < Parts.Num() - 1; i++) {
 		auto& Part = Parts[i];
 
-		if (Navigator->SubFolders.Contains(Part))
-		{
+		if (Navigator->SubFolders.Contains(Part)) {
 			Navigator = Navigator->SubFolders[Part];
-		}
-		else {
+		} else {
 			return false;
 		}
 	}
@@ -401,18 +351,16 @@ bool UPeacegateFileSystem::FileExists(const FString InPath)
 
 	FFolder FileParent = GetFolderByID(Navigator->FolderIndex);
 
-	for (auto& FileRecord : this->GetFileRecords(FileParent))
-	{
-		if (FileRecord.Name == Filename)
+	for (auto& FileRecord : this->GetFileRecords(FileParent)) {
+		if (FileRecord.Name == Filename) {
 			return true;
-
+		}
 	}
 
 	return false;
 }
 
-bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, EFilesystemStatusCode& OutStatusCode)
-{
+bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, EFilesystemStatusCode& OutStatusCode) {
 	// Used for logging.
 	FString ResolvedPath;
 
@@ -421,8 +369,7 @@ bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, 
 	TArray<FString> Parts = GetPathParts(InPath, ResolvedPath);
 
 	// If the path part list is empty, user tried to delete root. Not allowed.
-	if (Parts.Num() == 0)
-	{
+	if (Parts.Num() == 0) {
 		OutStatusCode = EFilesystemStatusCode::PermissionDenied;
 		return false;
 	}
@@ -431,8 +378,7 @@ bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, 
 	UFolderNavigator* ParentNav = nullptr;
 
 	// Do we even have an existing parent?
-	if (!TraversePath(Parts, Parts.Num() - 1, ParentNav))
-	{
+	if (!TraversePath(Parts, Parts.Num() - 1, ParentNav)) {
 		// There's nothing to delete.
 		OutStatusCode = EFilesystemStatusCode::FileOrDirectoryNotFound;
 		return false;
@@ -442,8 +388,7 @@ bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, 
 	FString Filename = Parts[Parts.Num() - 1];
 
 	// If the filename is a folder...
-	if (ParentNav->SubFolders.Contains(Filename))
-	{
+	if (ParentNav->SubFolders.Contains(Filename)) {
 		// Get the folder's navigator so we know what to delete and can check it.
 		UFolderNavigator* NavToDelete = ParentNav->SubFolders[Filename];
 
@@ -451,11 +396,9 @@ bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, 
 		FFolder FolderToDelete = GetFolderByID(NavToDelete->FolderIndex);
 
 		// If we have subfolders...
-		if (NavToDelete->SubFolders.Num() > 0)
-		{
+		if (NavToDelete->SubFolders.Num() > 0) {
 			// Make sure the delete operation is recursive
-			if (!InRecursive)
-			{
+			if (!InRecursive) {
 				OutStatusCode = EFilesystemStatusCode::DirectoryNotEmpty;
 				return false;
 			}
@@ -483,9 +426,7 @@ bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, 
 
 		// Remove the just deleted navigator from its parent
 		ParentNav->SubFolders.Remove(Filename);
-	}
-	else
-	{
+	} else {
 		// Get the parent folder data.
 		FFolder ParentFolder = GetFolderByID(ParentNav->FolderIndex);
 
@@ -494,8 +435,7 @@ bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, 
 		FFileRecord FileToDelete;
 
 		// Try to find the file.
-		if (!GetFile(ParentFolder, Filename, FileIndex, FileToDelete))
-		{
+		if (!GetFile(ParentFolder, Filename, FileIndex, FileToDelete)) {
 			// File or directory not found.
 			OutStatusCode = EFilesystemStatusCode::FileOrDirectoryNotFound;
 			return false;
@@ -510,12 +450,9 @@ bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, 
 		});
 
 		// If the file record is a text file we must remove the text file.
-		if(FileToDelete.RecordType == EFileRecordType::Text)
-		{
-			for(int i = 0; i < this->SystemContext->GetComputer().TextFiles.Num(); i++)
-			{
-				if(this->SystemContext->GetComputer().TextFiles[i].ID == FileToDelete.ContentID)
-				{
+		if(FileToDelete.RecordType == EFileRecordType::Text) {
+			for(int i = 0; i < this->SystemContext->GetComputer().TextFiles.Num(); i++) {
+				if(this->SystemContext->GetComputer().TextFiles[i].ID == FileToDelete.ContentID) {
 					this->SystemContext->GetComputer().TextFiles.RemoveAt(i);
 					break;
 				}
@@ -523,10 +460,8 @@ bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, 
 		}
 
 		// Now we remove the file record itself from the save file.
-		for(int i = 0; i < this->SystemContext->GetComputer().FileRecords.Num(); i++)
-		{
-			if(this->SystemContext->GetComputer().FileRecords[i].ID == FileToDelete.ID)
-			{
+		for(int i = 0; i < this->SystemContext->GetComputer().FileRecords.Num(); i++) {
+			if(this->SystemContext->GetComputer().FileRecords[i].ID == FileToDelete.ID) {
 				this->SystemContext->GetComputer().FileRecords.RemoveAt(i);
 				break;
 			}
@@ -549,8 +484,7 @@ bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, 
 	return true;
 }
 
-FFileRecord UPeacegateFileSystem::GetFileRecord(FString InPath)
-{
+FFileRecord UPeacegateFileSystem::GetFileRecord(FString InPath) {
 	// used for logging.
 	FString ResolvedPath;
 
@@ -558,16 +492,14 @@ FFileRecord UPeacegateFileSystem::GetFileRecord(FString InPath)
 	TArray<FString> Parts = GetPathParts(InPath, ResolvedPath);
 
 	// If path part list is empty, don't read.
-	if (Parts.Num() == 0)
-	{
+	if (Parts.Num() == 0) {
 		return FFileRecord();
 	}
 
 	// Folder navigator to look up when finding the file.
 	UFolderNavigator* ParentNav = nullptr;
 
-	if (!TraversePath(Parts, Parts.Num() - 1, ParentNav))
-	{
+	if (!TraversePath(Parts, Parts.Num() - 1, ParentNav)) {
 		return FFileRecord();
 	}
 
@@ -581,43 +513,42 @@ FFileRecord UPeacegateFileSystem::GetFileRecord(FString InPath)
 	FFileRecord FoundFile;
 	int FoundIndex;
 
-	if (!GetFile(Parent, FileName, FoundIndex, FoundFile))
-	{
+	if (!GetFile(Parent, FileName, FoundIndex, FoundFile)) {
 		return FFileRecord();
 	}
 
 	return FoundFile;
 }
 
-void UPeacegateFileSystem::SetFileRecord(FString InPath, EFileRecordType RecordType, int ContentID)
-{
-	if (InPath.EndsWith(TEXT("/")))
+void UPeacegateFileSystem::SetFileRecord(FString InPath, EFileRecordType RecordType, int ContentID) {
+	if (InPath.EndsWith(TEXT("/"))) {
 		return;
+	}
 
-	if (DirectoryExists(InPath))
+	if (DirectoryExists(InPath)) {
 		return;
+	}
 	
 	FString FolderPath;
 	FString FileName;
 
-	if (!InPath.Split(TEXT("/"), &FolderPath, &FileName, ESearchCase::IgnoreCase, ESearchDir::FromEnd))
+	if (!InPath.Split(TEXT("/"), &FolderPath, &FileName, ESearchCase::IgnoreCase, ESearchDir::FromEnd)) {
 		return;
+	}
 
-	if (!DirectoryExists(FolderPath))
+	if (!DirectoryExists(FolderPath)) {
 		return;
+	}
 
 	FString ResolvedPath = ResolveToAbsolute(FolderPath);
 	TArray<FString> Parts;
 	ResolvedPath.ParseIntoArray(Parts, TEXT("/"), true);
 	UFolderNavigator* Navigator = this->Root;
 
-	for (auto& Part : Parts)
-	{
-		if (Navigator->SubFolders.Contains(Part))
-		{
+	for (auto& Part : Parts) {
+		if (Navigator->SubFolders.Contains(Part)) {
 			Navigator = Navigator->SubFolders[Part];
-		}
-		else {
+		} else {
 			return;
 		}
 	}
@@ -626,12 +557,9 @@ void UPeacegateFileSystem::SetFileRecord(FString InPath, EFileRecordType RecordT
 
 	bool FoundFile = false;
 
-	for (int RecordID : Folder.FileRecords)
-	{
-		for(auto& File : this->SystemContext->GetComputer().FileRecords)
-		{
-			if(File.ID == RecordID && File.Name == FileName)
-			{
+	for (int RecordID : Folder.FileRecords) {
+		for(auto& File : this->SystemContext->GetComputer().FileRecords) {
+			if(File.ID == RecordID && File.Name == FileName) {
 				// Set the record type and content ID of the file.
 				File.RecordType = RecordType;
 				File.ContentID = ContentID;
@@ -642,8 +570,7 @@ void UPeacegateFileSystem::SetFileRecord(FString InPath, EFileRecordType RecordT
 		}
 	}
 
-	if (!FoundFile)
-	{
+	if (!FoundFile) {
 		FFileRecord NewFile;
 		NewFile.ID = this->GetNextFileRecordID();
 		NewFile.Name = FileName;
@@ -660,8 +587,7 @@ void UPeacegateFileSystem::SetFileRecord(FString InPath, EFileRecordType RecordT
 	FilesystemOperation.Broadcast(EFilesystemEventType::WriteFile, ResolvedPath + TEXT("/") + FileName);
 }
 
-bool UPeacegateFileSystem::GetDirectories(const FString & InPath, TArray<FString>& OutDirectories, EFilesystemStatusCode& OutStatusCode)
-{
+bool UPeacegateFileSystem::GetDirectories(const FString & InPath, TArray<FString>& OutDirectories, EFilesystemStatusCode& OutStatusCode) {
 	// used for logging
 	FString ResolvedPath;
 
@@ -671,8 +597,7 @@ bool UPeacegateFileSystem::GetDirectories(const FString & InPath, TArray<FString
 	// Navigator that we're going to read.
 	UFolderNavigator* Navigator = nullptr;
 
-	if (!TraversePath(Parts, Navigator))
-	{
+	if (!TraversePath(Parts, Navigator)) {
 		// Directory doesn't exist.
 		OutStatusCode = EFilesystemStatusCode::FileOrDirectoryNotFound;
 		return false;
@@ -681,16 +606,14 @@ bool UPeacegateFileSystem::GetDirectories(const FString & InPath, TArray<FString
 	TArray<FString> Keys;
 	Navigator->SubFolders.GetKeys(Keys);
 
-	for (auto Key : Keys)
-	{
+	for (auto Key : Keys) {
 		OutDirectories.Add(ResolvedPath + TEXT("/") + Key);
 	}
 
 	return true;
 }
 
-bool UPeacegateFileSystem::GetFiles(const FString & InPath, TArray<FString>& OutFiles, EFilesystemStatusCode& OutStatusCode)
-{
+bool UPeacegateFileSystem::GetFiles(const FString & InPath, TArray<FString>& OutFiles, EFilesystemStatusCode& OutStatusCode) {
 	// used for logging
 	FString ResolvedPath;
 
@@ -700,8 +623,7 @@ bool UPeacegateFileSystem::GetFiles(const FString & InPath, TArray<FString>& Out
 	// We need this in order to get the folder data
 	UFolderNavigator* Navigator;
 
-	if (!TraversePath(Parts, Navigator))
-	{
+	if (!TraversePath(Parts, Navigator)) {
 		// Directory not found.
 		OutStatusCode = EFilesystemStatusCode::FileOrDirectoryNotFound;
 		return false;
@@ -711,34 +633,27 @@ bool UPeacegateFileSystem::GetFiles(const FString & InPath, TArray<FString>& Out
 	FFolder Folder = GetFolderByID(Navigator->FolderIndex);
 
 	// loop through each file
-	for (FFileRecord File : this->GetFileRecords(Folder))
-	{
+	for (FFileRecord File : this->GetFileRecords(Folder)) {
 		OutFiles.Add(ResolvedPath + TEXT("/") + File.Name);
 	}
 
 	return true;
 }
 
-int UPeacegateFileSystem::GetNextFileRecordID()
-{
+int UPeacegateFileSystem::GetNextFileRecordID() {
 	int ID = 0;
-	for(auto& Record : this->SystemContext->GetComputer().FileRecords)
-	{
-		if(Record.ID >= ID)
-		{
+	for(auto& Record : this->SystemContext->GetComputer().FileRecords) {
+		if(Record.ID >= ID) {
 			ID = Record.ID + 1;
 		}
 	}
 	return ID;
 }
 
-int UPeacegateFileSystem::GetNextTextFileID()
-{
+int UPeacegateFileSystem::GetNextTextFileID() {
 	int ID = 0;
-	for(auto& Record : this->SystemContext->GetComputer().TextFiles)
-	{
-		if(Record.ID >= ID)
-		{
+	for(auto& Record : this->SystemContext->GetComputer().TextFiles) {
+		if(Record.ID >= ID) {
 			ID = Record.ID + 1;
 		}
 	}
@@ -746,35 +661,35 @@ int UPeacegateFileSystem::GetNextTextFileID()
 }
 
 
-void UPeacegateFileSystem::WriteText(const FString & InPath, const FString & InText)
-{
-	if (InPath.EndsWith(TEXT("/")))
+void UPeacegateFileSystem::WriteText(const FString & InPath, const FString & InText) {
+	if (InPath.EndsWith(TEXT("/"))) {
 		return;
+	}
 
-	if (DirectoryExists(InPath))
+	if (DirectoryExists(InPath)) {
 		return;
+	}
 	
 	FString FolderPath;
 	FString FileName;
 
-	if (!InPath.Split(TEXT("/"), &FolderPath, &FileName, ESearchCase::IgnoreCase, ESearchDir::FromEnd))
+	if (!InPath.Split(TEXT("/"), &FolderPath, &FileName, ESearchCase::IgnoreCase, ESearchDir::FromEnd)) {
 		return;
+	}
 
-	if (!DirectoryExists(FolderPath))
+	if (!DirectoryExists(FolderPath)) {
 		return;
+	}
 
 	FString ResolvedPath = ResolveToAbsolute(FolderPath);
 	TArray<FString> Parts;
 	ResolvedPath.ParseIntoArray(Parts, TEXT("/"), true);
 	UFolderNavigator* Navigator = this->Root;
 
-	for (auto& Part : Parts)
-	{
-		if (Navigator->SubFolders.Contains(Part))
-		{
+	for (auto& Part : Parts) {
+		if (Navigator->SubFolders.Contains(Part)) {
 			Navigator = Navigator->SubFolders[Part];
-		}
-		else {
+		} else {
 			return;
 		}
 	}
@@ -783,14 +698,10 @@ void UPeacegateFileSystem::WriteText(const FString & InPath, const FString & InT
 
 	bool FoundFile = false;
 
-	for (int RecordID : Folder.FileRecords)
-	{
-		for(auto& File : this->SystemContext->GetComputer().FileRecords)
-		{
-			if(File.ID == RecordID && File.Name == FileName)
-			{
-				if(File.RecordType != EFileRecordType::Text)
-				{
+	for (int RecordID : Folder.FileRecords) {
+		for(auto& File : this->SystemContext->GetComputer().FileRecords) {
+			if(File.ID == RecordID && File.Name == FileName) {
+				if(File.RecordType != EFileRecordType::Text) {
 					File.RecordType = EFileRecordType::Text;
 				
 					FTextFile NewTextFile;
@@ -800,13 +711,9 @@ void UPeacegateFileSystem::WriteText(const FString & InPath, const FString & InT
 					NewTextFile.Content = InText;
 					
 					this->SystemContext->GetComputer().TextFiles.Add(NewTextFile);
-				}
-				else
-				{
-					for(auto& TextFile : this->SystemContext->GetComputer().TextFiles)
-					{
-						if(TextFile.ID == File.ContentID)
-						{
+				} else {
+					for(auto& TextFile : this->SystemContext->GetComputer().TextFiles) {
+						if(TextFile.ID == File.ContentID) {
 							TextFile.Content = InText;
 						}
 					}
@@ -817,8 +724,7 @@ void UPeacegateFileSystem::WriteText(const FString & InPath, const FString & InT
 		}
 	}
 
-	if (!FoundFile)
-	{
+	if (!FoundFile) {
 		FFileRecord NewFile;
 		NewFile.ID = this->GetNextFileRecordID();
 		NewFile.Name = FileName;
@@ -842,8 +748,7 @@ void UPeacegateFileSystem::WriteText(const FString & InPath, const FString & InT
 	FilesystemOperation.Broadcast(EFilesystemEventType::WriteFile, ResolvedPath + TEXT("/") + FileName);
 }
 
-bool UPeacegateFileSystem::ReadText(const FString & InPath, FString& OutText, EFilesystemStatusCode& OutStatusCode)
-{
+bool UPeacegateFileSystem::ReadText(const FString & InPath, FString& OutText, EFilesystemStatusCode& OutStatusCode) {
 	// used for logging.
 	FString ResolvedPath;
 
@@ -851,8 +756,7 @@ bool UPeacegateFileSystem::ReadText(const FString & InPath, FString& OutText, EF
 	TArray<FString> Parts = GetPathParts(InPath, ResolvedPath);
 
 	// If path part list is empty, don't read.
-	if (Parts.Num() == 0)
-	{
+	if (Parts.Num() == 0) {
 		OutStatusCode = EFilesystemStatusCode::PermissionDenied;
 		return false;
 	}
@@ -860,8 +764,7 @@ bool UPeacegateFileSystem::ReadText(const FString & InPath, FString& OutText, EF
 	// Folder navigator to look up when finding the file.
 	UFolderNavigator* ParentNav = nullptr;
 
-	if (!TraversePath(Parts, Parts.Num() - 1, ParentNav))
-	{
+	if (!TraversePath(Parts, Parts.Num() - 1, ParentNav)) {
 		// File's parent wasn't found.
 		OutStatusCode = EFilesystemStatusCode::FileOrDirectoryNotFound;
 		return false;
@@ -877,8 +780,7 @@ bool UPeacegateFileSystem::ReadText(const FString & InPath, FString& OutText, EF
 	FFileRecord FoundFile;
 	int FoundIndex;
 
-	if (!GetFile(Parent, FileName, FoundIndex, FoundFile))
-	{
+	if (!GetFile(Parent, FileName, FoundIndex, FoundFile)) {
 		// File not found.
 		OutStatusCode = EFilesystemStatusCode::FileOrDirectoryNotFound;
 		return false;
@@ -886,12 +788,9 @@ bool UPeacegateFileSystem::ReadText(const FString & InPath, FString& OutText, EF
 
 	OutStatusCode = EFilesystemStatusCode::OK;
 	// File contents are in base 64.
-	if(FoundFile.RecordType == EFileRecordType::Text)
-	{
-		for(auto& TextFile : this->SystemContext->GetComputer().TextFiles)
-		{
-			if(TextFile.ID == FoundFile.ContentID)
-			{
+	if(FoundFile.RecordType == EFileRecordType::Text) {
+		for(auto& TextFile : this->SystemContext->GetComputer().TextFiles) {
+			if(TextFile.ID == FoundFile.ContentID) {
 				OutText = TextFile.Content;
 			}
 		}
@@ -899,16 +798,14 @@ bool UPeacegateFileSystem::ReadText(const FString & InPath, FString& OutText, EF
 	return true;
 }
 
-bool UPeacegateFileSystem::MoveFile(const FString & Source, const FString & Destination, const bool InOverwrite, EFilesystemStatusCode & OutStatusCode)
-{
+bool UPeacegateFileSystem::MoveFile(const FString & Source, const FString & Destination, const bool InOverwrite, EFilesystemStatusCode & OutStatusCode) {
 	FString SourceResolved;
 	FString DestResolved;
 
 	TArray<FString> SourceParts = GetPathParts(Source, SourceResolved);
 	TArray<FString> DestParts = GetPathParts(Destination, DestResolved);
 
-	if (SourceParts.Num() == 0 || DestParts.Num() == 0)
-	{
+	if (SourceParts.Num() == 0 || DestParts.Num() == 0) {
 		// don't. fucking. touch. ROOT.
 		OutStatusCode = EFilesystemStatusCode::PermissionDenied;
 		return false;
@@ -917,8 +814,7 @@ bool UPeacegateFileSystem::MoveFile(const FString & Source, const FString & Dest
 	UFolderNavigator* SourceNav = nullptr;
 	UFolderNavigator* DestNav = nullptr;
 
-	if (!TraversePath(SourceParts, SourceParts.Num() - 1, SourceNav) || !TraversePath(DestParts, DestParts.Num() - 1, DestNav))
-	{
+	if (!TraversePath(SourceParts, SourceParts.Num() - 1, SourceNav) || !TraversePath(DestParts, DestParts.Num() - 1, DestNav)) {
 		// source/dest parent not found
 		OutStatusCode = EFilesystemStatusCode::FileOrDirectoryNotFound;
 		return false;
@@ -935,17 +831,14 @@ bool UPeacegateFileSystem::MoveFile(const FString & Source, const FString & Dest
 	FString SourceName = SourceParts[SourceParts.Num() - 1];
 	FString DestName = DestParts[DestParts.Num() - 1];
 
-	if (!GetFile(SourceFolder, SourceName, SourceFileIndex, SourceFile))
-	{
+	if (!GetFile(SourceFolder, SourceName, SourceFileIndex, SourceFile)) {
 		// Source file not found.
 		OutStatusCode = EFilesystemStatusCode::FileOrDirectoryNotFound;
 		return false;
 	}
 
-	if (GetFile(DestFolder, DestName, DestFileIndex, DestFile))
-	{
-		if (!InOverwrite)
-		{
+	if (GetFile(DestFolder, DestName, DestFileIndex, DestFile)) {
+		if (!InOverwrite) {
 			OutStatusCode = EFilesystemStatusCode::FileOrDirectoryExists;
 			return false;
 		}
@@ -955,9 +848,7 @@ bool UPeacegateFileSystem::MoveFile(const FString & Source, const FString & Dest
 		DestFile.ContentID = SourceFile.ContentID;
 
 		this->UpdateFileRecord(DestFile);
-	}
-	else 
-	{
+	} else  {
 		// Allocate a new destination file
 		DestFile = FFileRecord();
 		DestFile.ID = this->GetNextFileRecordID();
@@ -972,10 +863,8 @@ bool UPeacegateFileSystem::MoveFile(const FString & Source, const FString & Dest
 	}
 
 	// We need to remove the file record of the original file from the save game.
-	for(int i = 0; i < this->SystemContext->GetComputer().FileRecords.Num(); i++)
-	{
-		if(this->SystemContext->GetComputer().FileRecords[i].ID == SourceFile.ID)
-		{
+	for(int i = 0; i < this->SystemContext->GetComputer().FileRecords.Num(); i++) {
+		if(this->SystemContext->GetComputer().FileRecords[i].ID == SourceFile.ID) {
 			this->SystemContext->GetComputer().FileRecords.RemoveAt(i);
 			break;
 		}
@@ -991,16 +880,14 @@ bool UPeacegateFileSystem::MoveFile(const FString & Source, const FString & Dest
 	return true;
 }
 
-bool UPeacegateFileSystem::MoveFolder(const FString & Source, const FString & Destination, const bool InOverwrite, EFilesystemStatusCode & OutStatusCode)
-{
+bool UPeacegateFileSystem::MoveFolder(const FString & Source, const FString & Destination, const bool InOverwrite, EFilesystemStatusCode & OutStatusCode) {
 	FString SourceResolved;
 	FString DestResolved;
 
 	TArray<FString> SourceParts = GetPathParts(Source, SourceResolved);
 	TArray<FString> DestParts = GetPathParts(Destination, DestResolved);
 
-	if (SourceParts.Num() == 0 || DestParts.Num() == 0)
-	{
+	if (SourceParts.Num() == 0 || DestParts.Num() == 0) {
 		// don't. fucking. touch. ROOT.
 		OutStatusCode = EFilesystemStatusCode::PermissionDenied;
 		return false;
@@ -1009,8 +896,7 @@ bool UPeacegateFileSystem::MoveFolder(const FString & Source, const FString & De
 	UFolderNavigator* SourceNav = nullptr;
 	UFolderNavigator* DestNav = nullptr;
 
-	if (!TraversePath(SourceParts, SourceParts.Num() - 1, SourceNav) || !TraversePath(DestParts, DestParts.Num() - 1, DestNav))
-	{
+	if (!TraversePath(SourceParts, SourceParts.Num() - 1, SourceNav) || !TraversePath(DestParts, DestParts.Num() - 1, DestNav)) {
 		// source/dest parent not found
 		OutStatusCode = EFilesystemStatusCode::FileOrDirectoryNotFound;
 		return false;
@@ -1022,8 +908,7 @@ bool UPeacegateFileSystem::MoveFolder(const FString & Source, const FString & De
 	FString SourceName = SourceParts[SourceParts.Num() - 1];
 	FString DestName = DestParts[DestParts.Num() - 1];
 
-	if (!SourceNav->SubFolders.Contains(SourceName))
-	{
+	if (!SourceNav->SubFolders.Contains(SourceName)) {
 		// source directory not found.
 		OutStatusCode = EFilesystemStatusCode::FileOrDirectoryNotFound;
 		return false;
@@ -1031,10 +916,8 @@ bool UPeacegateFileSystem::MoveFolder(const FString & Source, const FString & De
 
 	UFolderNavigator* SourceChild = SourceNav->SubFolders[SourceName];
 
-	if (DestNav->SubFolders.Contains(DestName))
-	{
-		if (!InOverwrite)
-		{
+	if (DestNav->SubFolders.Contains(DestName)) {
+		if (!InOverwrite) {
 			// I NEED A FUCKING ADVIL.
 			OutStatusCode = EFilesystemStatusCode::FileOrDirectoryExists;
 			return false;
@@ -1084,29 +967,24 @@ bool UPeacegateFileSystem::MoveFolder(const FString & Source, const FString & De
 	return true;
 }
 
-void UPeacegateFileSystem::UpdateFileRecord(FFileRecord InRecord)
-{
+void UPeacegateFileSystem::UpdateFileRecord(FFileRecord InRecord) {
 	// This ensures that a file record is successfully updated in the save file.
-	for(int i = 0; i < this->SystemContext->GetComputer().FileRecords.Num(); i++)
-	{
-		if(this->SystemContext->GetComputer().FileRecords[i].ID == InRecord.ID)
-		{
+	for(int i = 0; i < this->SystemContext->GetComputer().FileRecords.Num(); i++) {
+		if(this->SystemContext->GetComputer().FileRecords[i].ID == InRecord.ID) {
 			this->SystemContext->GetComputer().FileRecords[i] = InRecord;
 			return;
 		}
 	}
 }
 
-bool UPeacegateFileSystem::CopyFile(const FString & Source, const FString & Destination, const bool InOverwrite, EFilesystemStatusCode & OutStatusCode)
-{
+bool UPeacegateFileSystem::CopyFile(const FString & Source, const FString & Destination, const bool InOverwrite, EFilesystemStatusCode & OutStatusCode) {
 	FString SourceResolved;
 	FString DestResolved;
 
 	TArray<FString> SourceParts = GetPathParts(Source, SourceResolved);
 	TArray<FString> DestParts = GetPathParts(Destination, DestResolved);
 
-	if (SourceParts.Num() == 0 || DestParts.Num() == 0)
-	{
+	if (SourceParts.Num() == 0 || DestParts.Num() == 0) {
 		// don't. fucking. touch. ROOT.
 		OutStatusCode = EFilesystemStatusCode::PermissionDenied;
 		return false;
@@ -1115,8 +993,7 @@ bool UPeacegateFileSystem::CopyFile(const FString & Source, const FString & Dest
 	UFolderNavigator* SourceNav = nullptr;
 	UFolderNavigator* DestNav = nullptr;
 
-	if (!TraversePath(SourceParts, SourceParts.Num() - 1, SourceNav) || !TraversePath(DestParts, DestParts.Num() - 1, DestNav))
-	{
+	if (!TraversePath(SourceParts, SourceParts.Num() - 1, SourceNav) || !TraversePath(DestParts, DestParts.Num() - 1, DestNav)) {
 		// source/dest parent not found
 		OutStatusCode = EFilesystemStatusCode::FileOrDirectoryNotFound;
 		return false;
@@ -1133,29 +1010,23 @@ bool UPeacegateFileSystem::CopyFile(const FString & Source, const FString & Dest
 	FString SourceName = SourceParts[SourceParts.Num() - 1];
 	FString DestName = DestParts[DestParts.Num() - 1];
 
-	if (!GetFile(SourceFolder, SourceName, SourceFileIndex, SourceFile))
-	{
+	if (!GetFile(SourceFolder, SourceName, SourceFileIndex, SourceFile)) {
 		// Source file not found.
 		OutStatusCode = EFilesystemStatusCode::FileOrDirectoryNotFound;
 		return false;
 	}
 
-	if (GetFile(DestFolder, DestName, DestFileIndex, DestFile))
-	{
-		if (!InOverwrite)
-		{
+	if (GetFile(DestFolder, DestName, DestFileIndex, DestFile)) {
+		if (!InOverwrite) {
 			OutStatusCode = EFilesystemStatusCode::FileOrDirectoryExists;
 			return false;
 		}
 
 		// If the destination file is a text file then we need to remove that
 		// text file entry.
-		if(DestFile.RecordType == EFileRecordType::Text)
-		{
-			for(int i = 0; i < this->SystemContext->GetComputer().TextFiles.Num(); i++)
-			{
-				if(this->SystemContext->GetComputer().TextFiles[i].ID == DestFile.ContentID)
-				{
+		if(DestFile.RecordType == EFileRecordType::Text) {
+			for(int i = 0; i < this->SystemContext->GetComputer().TextFiles.Num(); i++) {
+				if(this->SystemContext->GetComputer().TextFiles[i].ID == DestFile.ContentID) {
 					this->SystemContext->GetComputer().TextFiles.RemoveAt(i);
 				}
 			}
@@ -1169,17 +1040,14 @@ bool UPeacegateFileSystem::CopyFile(const FString & Source, const FString & Dest
 		// an issue where overwriting the destination content overwrites the source
 		// content.  If it's not a text file, we can just copy the content ID over
 		// because anything that isn't text is a UE4 asset (which the player can't write to).
-		if(SourceFile.RecordType == EFileRecordType::Text)
-		{
+		if(SourceFile.RecordType == EFileRecordType::Text) {
 			// This creates the new entry ID.
 			FTextFile TextFile;
 			TextFile.ID = this->GetNextTextFileID();
 			
 			// Now we need to read the text of the source file to copy it over.
-			for(auto SourceText : this->SystemContext->GetComputer().TextFiles)
-			{
-				if(SourceText.ID == SourceFile.ContentID)
-				{
+			for(auto SourceText : this->SystemContext->GetComputer().TextFiles) {
+				if(SourceText.ID == SourceFile.ContentID) {
 					// Copy over the text.
 					TextFile.Content =  SourceText.Content;
 				}
@@ -1192,15 +1060,11 @@ bool UPeacegateFileSystem::CopyFile(const FString & Source, const FString & Dest
 			DestFile.ContentID = TextFile.ID;
 
 			this->UpdateFileRecord(DestFile);
-		}
-		else
-		{
+		} else {
 			// Just copy over the content ID.
 			DestFile.ContentID = SourceFile.ContentID;
 		}
-	}
-	else
-	{
+	} else {
 		// Allocate a new destination file
 		DestFile = FFileRecord();
 		DestFile.ID = this->GetNextFileRecordID();
@@ -1209,17 +1073,14 @@ bool UPeacegateFileSystem::CopyFile(const FString & Source, const FString & Dest
 
 		// Just like above, we need to handle copying over text differently
 		// than other content types.
-		if(SourceFile.RecordType == EFileRecordType::Text)
-		{
+		if(SourceFile.RecordType == EFileRecordType::Text) {
 			// This creates the new entry ID.
 			FTextFile TextFile;
 			TextFile.ID = this->GetNextTextFileID();
 			
 			// Now we need to read the text of the source file to copy it over.
-			for(auto SourceText : this->SystemContext->GetComputer().TextFiles)
-			{
-				if(SourceText.ID == SourceFile.ContentID)
-				{
+			for(auto SourceText : this->SystemContext->GetComputer().TextFiles) {
+				if(SourceText.ID == SourceFile.ContentID) {
 					// Copy over the text.
 					TextFile.Content =  SourceText.Content;
 				}
@@ -1230,9 +1091,7 @@ bool UPeacegateFileSystem::CopyFile(const FString & Source, const FString & Dest
 
 			// And this re-assigns the file content ID!
 			DestFile.ContentID = TextFile.ID;
-		}
-		else
-		{
+		} else {
 			// Just copy over the content ID.
 			DestFile.ContentID = SourceFile.ContentID;
 		}
@@ -1252,13 +1111,14 @@ bool UPeacegateFileSystem::CopyFile(const FString & Source, const FString & Dest
 }
 
 
-bool UPeacegateFileSystem::IsValidAsFileName(const FString & InFileName)
-{
-	if (InFileName.IsEmpty())
+bool UPeacegateFileSystem::IsValidAsFileName(const FString & InFileName) {
+	if (InFileName.IsEmpty()) {
 		return false;
+	}
 
-	if(InFileName.StartsWith("."))
+	if(InFileName.StartsWith(".")) {
 		return false;
+	}
 
 	TArray<TCHAR> CharsInString = InFileName.GetCharArray();
 
@@ -1266,19 +1126,19 @@ bool UPeacegateFileSystem::IsValidAsFileName(const FString & InFileName)
 
 	int index = 0;
 
-	for (auto& Character : CharsInString)
-	{
-		if (!AllowedCharString.FindChar(Character, index))
+	for (auto& Character : CharsInString) {
+		if (!AllowedCharString.FindChar(Character, index)) {
 			return false;
+		}
 	}
 
 	return true;
 }
 
-bool UPeacegateFileSystem::IsValidAsUserName(const FString & InUserName)
-{
-	if (InUserName.IsEmpty())
+bool UPeacegateFileSystem::IsValidAsUserName(const FString & InUserName) {
+	if (InUserName.IsEmpty()) {
 		return false;
+	}
 
 	TArray<TCHAR> CharsInString = InUserName.GetCharArray();
 
@@ -1286,10 +1146,10 @@ bool UPeacegateFileSystem::IsValidAsUserName(const FString & InUserName)
 
 	int index = 0;
 
-	for (auto& Character : CharsInString)
-	{
-		if (!AllowedCharString.FindChar(Character, index))
+	for (auto& Character : CharsInString) {
+		if (!AllowedCharString.FindChar(Character, index)) {
 			return false;
+		}
 	}
 
 	return true;

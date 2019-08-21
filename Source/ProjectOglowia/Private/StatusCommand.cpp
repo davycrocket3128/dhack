@@ -32,8 +32,7 @@
 #include "StatusCommand.h"
 #include "UserContext.h"
 
-void AStatusCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
-{
+void AStatusCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) {
     InConsole->WriteLine(NSLOCTEXT("StatusCommand", "StatusTitle", "Peacegate OS System Status"));
     InConsole->WriteLine(FText::GetEmpty());
 
@@ -46,16 +45,13 @@ void AStatusCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString
 
     InConsole->WriteLine(NSLOCTEXT("StatusCommand", "Identity", "IDENTITY:"));
     
-    if(this->GetUserContext()->HasIdentity())
-    {
+    if(this->GetUserContext()->HasIdentity()) {
         InConsole->WriteLine(FText::Format(NSLOCTEXT("StatusCommand", "Fullname", "Full Name: {0}"), FText::FromString(this->GetUserContext()->GetCharacterName())));
         InConsole->WriteLine(FText::Format(NSLOCTEXT("StatusCommand", "Alias", "Alias: {0}"), FText::FromString(this->GetUserContext()->GetPeacenetIdentity().PreferredAlias)));
         InConsole->WriteLine(FText::Format(NSLOCTEXT("StatusCommand", "Email", "Email Address: {0}"), FText::FromString(this->GetUserContext()->GetEmailAddress())));
 
         InConsole->WriteLine(FText::Format(NSLOCTEXT("StatusCommand", "Skill", "Skill points: {0}"), this->GetUserContext()->GetPeacenetIdentity().Skill));
-
-    }
-    else {
+    } else {
         InConsole->WriteLine(NSLOCTEXT("StatusCommand", "NoIdentity", "You don't currently have a Peacenet Identity, so no information can be shown here."));
     }
 

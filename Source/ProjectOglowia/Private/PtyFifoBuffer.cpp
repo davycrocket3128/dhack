@@ -31,19 +31,17 @@
 
 #include "PtyFifoBuffer.h"
 
-int UPtyFifoBuffer::GetPosition()
-{
+int UPtyFifoBuffer::GetPosition() {
     return this->BitstreamDream.Num() - this->Pos;
 }
 
-int UPtyFifoBuffer::Read(TArray<TCHAR>& Buffer, int Offset, int Count)
-{
+int UPtyFifoBuffer::Read(TArray<TCHAR>& Buffer, int Offset, int Count) {
     int bytesRead = 0;
 
-    for(int i = Offset; i < Offset + Count; i++)
-    {
-        if(this->BitstreamDream.Num() - this->Pos == 0)
+    for(int i = Offset; i < Offset + Count; i++) {
+        if(this->BitstreamDream.Num() - this->Pos == 0) {
             break;
+        }
 
         Buffer[i] = this->BitstreamDream[this->Pos];
         this->Pos++;
@@ -52,38 +50,32 @@ int UPtyFifoBuffer::Read(TArray<TCHAR>& Buffer, int Offset, int Count)
     return bytesRead;
 }
 
-void UPtyFifoBuffer::Write(TArray<TCHAR> Buffer, int Offset, int Count)
-{
-    for(int i = Offset; i < Offset + Count; i++)
-    {
+void UPtyFifoBuffer::Write(TArray<TCHAR> Buffer, int Offset, int Count) {
+    for(int i = Offset; i < Offset + Count; i++) {
         this->WriteChar(Buffer[i]);
     }
 }
 
-void UPtyFifoBuffer::WriteChar(TCHAR c)
-{
+void UPtyFifoBuffer::WriteChar(TCHAR c) {
     this->BitstreamDream.Add(c);
 }
 
-FString UPtyFifoBuffer::DumpToString()
-{
+FString UPtyFifoBuffer::DumpToString() {
     FString Ret;
 
-    for(TCHAR c : this->BitstreamDream)
-    {
-        if(c != '\0')
+    for(TCHAR c : this->BitstreamDream) {
+        if(c != '\0') {
             Ret += c;
+        }
     }
 
     return Ret;
 }
 
-bool UPtyFifoBuffer::IsRaw()
-{
+bool UPtyFifoBuffer::IsRaw() {
     return this->Raw;
 }
 
-void UPtyFifoBuffer::RawMode(bool value)
-{
+void UPtyFifoBuffer::RawMode(bool value) {
     this->Raw = value;
 }

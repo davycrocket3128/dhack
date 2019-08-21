@@ -33,69 +33,62 @@
 #include "ProcessManager.h"
 #include "PeacenetWorldStateActor.h"
 
-APeacenetWorldStateActor* UProcess::GetPeacenet()
-{
+APeacenetWorldStateActor* UProcess::GetPeacenet() {
     return this->ProcessManager->OwningSystem->GetPeacenet();
 }
 
-void UProcess::KillInternal(bool NotifyProcessManager)
-{
-    // Prevent killing of dead processes.
-    if(this->Dead) return;
+void UProcess::KillInternal(bool NotifyProcessManager) {
+    // Don't kill if we're already dead.  We're not necrophiliacs over here. :)
+    if(!this->Dead) {
+        // Commit suicide.
+        this->Dead = true;
 
-    // Commit suicide.
-    this->Dead = true;
+        // Fire an event that we're dead.
+        this->OnKilled.Broadcast();
 
-    // Fire an event that we're dead.
-    this->OnKilled.Broadcast();
+        // Kill and destroy all child processes.
+        TArray<UProcess*> Copy = this->ChildProcesses;
+        for(auto Process : Copy) {
+            Process->KillInternal(false);
+        }
 
-    // Kill and destroy all child processes.
-    TArray<UProcess*> Copy = this->ChildProcesses;
-    for(auto Process : Copy)
-    {
-        Process->KillInternal(false);
+        this->OnTimeToEnd.Broadcast();
+
+        if(NotifyProcessManager) {
+            this->ProcessManager->ProcessKilled();
+        }
     }
-
-    this->OnTimeToEnd.Broadcast();
-
-    if(NotifyProcessManager)
-        this->ProcessManager->ProcessKilled();
 }
 
-void UProcess::Kill()
-{
+void UProcess::Kill() {
     this->KillInternal(true);
 }
 
-void UProcess::Parent(UProcess* InParent)
-{
+void UProcess::Parent(UProcess* InParent) {
     check(InParent);
     check(!InParent->ChildProcesses.Contains(this));
 
     InParent->ChildProcesses.Add(this);
 }
 
-void UProcess::CullDeadChildren()
-{
+void UProcess::CullDeadChildren() {
     TArray<int> IndexesToRemove;
 
-    for(int i = 0; i < this->ChildProcesses.Num(); i++)
-    {
+    for(int i = 0; i < this->ChildProcesses.Num(); i++) {
         UProcess* Child = this->ChildProcesses[i];
-        if(Child->Dead)
+        if(Child->Dead) {
             IndexesToRemove.Push(i);
+        }
         Child->CullDeadChildren();
     }
 
-    while(IndexesToRemove.Num())
-    {
+    while(IndexesToRemove.Num()) {
         int Last = IndexesToRemove.Pop();
         this->ChildProcesses.RemoveAt(Last);
     }
 }
 
-UProcess* UProcess::Fork(FString InName)
-{
+UProcess* UProcess::Fork(FString InName) {
     // Make sure we are not dead.
     check(!this->IsDead());
 
@@ -105,8 +98,7 @@ UProcess* UProcess::Fork(FString InName)
     return Process;
 }
 
-void UProcess::Initialize(UProcessManager* OwningProcessManager, int InUserID, FString InPath, FString InName)
-{
+void UProcess::Initialize(UProcessManager* OwningProcessManager, int InUserID, FString InPath, FString InName) {
     // Set up all the things we're told about.
     this->ProcessManager = OwningProcessManager;
     this->UserID = InUserID;
@@ -117,34 +109,30 @@ void UProcess::Initialize(UProcessManager* OwningProcessManager, int InUserID, F
     this->ProcessID = this->ProcessManager->GetNextProcessID();
 }
 
-int UProcess::GetProcessID()
-{
+int UProcess::GetProcessID() {
     return this->ProcessID;
 }
 
-void UProcess::CollectProcesses(TArray<UProcess*>& InArray)
-{
+void UProcess::CollectProcesses(TArray<UProcess*>& InArray) {
     // Add ourselves to the array...
     InArray.Add(this);
 
     // And tell our children to collect.
-    for(auto Child : this->ChildProcesses)
+    for(auto Child : this->ChildProcesses) {
         Child->CollectProcesses(InArray);
+    }
 
     // And that, my lovely friends, is how you do recursion!
 }
 
-int UProcess::GetUserID()
-{
+int UProcess::GetUserID() {
     return this->UserID;
 }
 
-FString UProcess::GetProcessName()
-{
+FString UProcess::GetProcessName() {
     return this->Name;
 }
 
-FString UProcess::GetUsername()
-{
+FString UProcess::GetUsername() {
     return this->ProcessManager->OwningSystem->GetUsername(this->UserID);
 }

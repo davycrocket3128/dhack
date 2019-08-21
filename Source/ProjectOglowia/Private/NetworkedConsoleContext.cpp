@@ -31,8 +31,7 @@
 
 #include "NetworkedConsoleContext.h"
 
-void UNetworkedConsoleContext::SetupNetworkedConsole(UConsoleContext* InOutputConsole, UUserContext* InOwningUser)
-{
+void UNetworkedConsoleContext::SetupNetworkedConsole(UConsoleContext* InOutputConsole, UUserContext* InOwningUser) {
     check(InOwningUser);
     check(InOutputConsole);
 
@@ -49,8 +48,7 @@ void UNetworkedConsoleContext::SetupNetworkedConsole(UConsoleContext* InOutputCo
     this->OnTtyUpdate(this->OutputConsole, "InvokeTtyUpdate");
 }
 
-void UNetworkedConsoleContext::GetOutputConsoleSize(int& OutRows, int& OutColumns)
-{
+void UNetworkedConsoleContext::GetOutputConsoleSize(int& OutRows, int& OutColumns) {
     FIntPoint OutputSize = this->OutputConsole->GetTerminalSize();
     OutRows = OutputSize.Y;
     OutColumns = OutputSize.X;

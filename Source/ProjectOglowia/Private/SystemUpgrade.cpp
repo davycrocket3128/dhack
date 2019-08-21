@@ -33,53 +33,46 @@
 #include "SystemContext.h"
 #include "UserContext.h"
 
-bool USystemUpgrade::ShouldShowUpgradeInUserInterface(UUserContext* InPeacegateUser)
-{
-    if(this->UnlockedByDefault)
-    {
+bool USystemUpgrade::ShouldShowUpgradeInUserInterface(UUserContext* InPeacegateUser) {
+    if(this->UnlockedByDefault) {
         return false;
     }
 
-    if(this->IsUnlocked(InPeacegateUser) || this->DependenciesFulfilled(InPeacegateUser))
-    {
+    if(this->IsUnlocked(InPeacegateUser) || this->DependenciesFulfilled(InPeacegateUser)) {
         return true;
     }
 
     return false;
 }
 
-void USystemUpgrade::TriggerUnlock(UUserContext* InUserContext)
-{
-    if(this->IsUnlocked(InUserContext)) return;
-
-    if(InUserContext->HasIdentity())
-    {
-        InUserContext->GetPeacenetIdentity().UnlockedUpgrades.Add(this);
+void USystemUpgrade::TriggerUnlock(UUserContext* InUserContext) {
+    if(!this->IsUnlocked(InUserContext)) {
+        if(InUserContext->HasIdentity()) {
+            InUserContext->GetPeacenetIdentity().UnlockedUpgrades.Add(this);
+        }
     }
 }
 
-bool USystemUpgrade::UpgradeIsUnlockable(UUserContext* InPeacegateUser)
-{
-    if(!this->CanUserUnlock)
+bool USystemUpgrade::UpgradeIsUnlockable(UUserContext* InPeacegateUser) {
+    if(!this->CanUserUnlock) {
         return false;
+    }
 
-    if(!this->IsUnlocked(InPeacegateUser))
+    if(!this->IsUnlocked(InPeacegateUser)) {
         return false;
+    }
 
-    if(this->IsUnlocked(InPeacegateUser))
+    if(this->IsUnlocked(InPeacegateUser)) {
         return false;
+    }
 
     return true;
 }
 
-bool USystemUpgrade::DependenciesFulfilled(UUserContext* InUserContext)
-{
-    if(this->Dependencies.Num())
-    {
-        for(auto Dependency : this->Dependencies)
-        {
-            if(!Dependency->IsUnlocked(InUserContext))
-            {
+bool USystemUpgrade::DependenciesFulfilled(UUserContext* InUserContext) {
+    if(this->Dependencies.Num()) {
+        for(auto Dependency : this->Dependencies) {
+            if(!Dependency->IsUnlocked(InUserContext)) {
                 return false;
             }
         }
@@ -87,21 +80,22 @@ bool USystemUpgrade::DependenciesFulfilled(UUserContext* InUserContext)
     return true;
 }
 
-bool USystemUpgrade::IsUnlocked(UUserContext* InUserContext)
-{
-    if(!InUserContext->HasIdentity())
+bool USystemUpgrade::IsUnlocked(UUserContext* InUserContext) {
+    if(!InUserContext->HasIdentity()) {
         return false;
+    }
 
-    if(!this->DependenciesFulfilled(InUserContext))
+    if(!this->DependenciesFulfilled(InUserContext)) {
         return false;
+    }
 
-    if(this->UnlockedByDefault)
+    if(this->UnlockedByDefault) {
         return true;
+    }
 
     return InUserContext->GetPeacenetIdentity().UnlockedUpgrades.Contains(this);
 }
 
-void USystemUpgrade::BuildManualPage(UManualPageBuilder* InBuilder)
-{
+void USystemUpgrade::BuildManualPage(UManualPageBuilder* InBuilder) {
     // TODO: I bless the rains down in Africa.
 }

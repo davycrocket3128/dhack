@@ -31,32 +31,25 @@
 
 #include "ManualPageBuilder.h"
 
-void UManualPageBuilder::SetItemType(const FText& InItemType)
-{
+void UManualPageBuilder::SetItemType(const FText& InItemType) {
     this->ManualPage.ItemType = InItemType;
 }
 
-void UManualPageBuilder::SetID(FName InManualID)
-{
+void UManualPageBuilder::SetID(FName InManualID) {
     this->ManualPage.ID = InManualID;
 }
 
-void UManualPageBuilder::SetFullName(const FText& InFullName)
-{
+void UManualPageBuilder::SetFullName(const FText& InFullName) {
     this->ManualPage.FullName = InFullName;
 }
 
-void UManualPageBuilder::SetSummary(const FText& InSummary)
-{
+void UManualPageBuilder::SetSummary(const FText& InSummary) {
     this->ManualPage.Summary = InSummary;
 }
 
-void UManualPageBuilder::SetMetadata(const FText& InMetaName, const FText& InMetaContent)
-{
-    for(auto& Metadata : this->ManualPage.ManualMetadata)
-    {
-        if(Metadata.Title.EqualTo(InMetaName))
-        {
+void UManualPageBuilder::SetMetadata(const FText& InMetaName, const FText& InMetaContent) {
+    for(auto& Metadata : this->ManualPage.ManualMetadata) {
+        if(Metadata.Title.EqualTo(InMetaName)) {
             Metadata.Content = InMetaContent;
             return;
         }
@@ -68,7 +61,6 @@ void UManualPageBuilder::SetMetadata(const FText& InMetaName, const FText& InMet
     this->ManualPage.ManualMetadata.Add(NewMeta);
 }
 
-FManualPage UManualPageBuilder::GetManualPage()
-{
+FManualPage UManualPageBuilder::GetManualPage() {
     return this->ManualPage;
 }

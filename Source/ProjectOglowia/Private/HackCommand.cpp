@@ -38,8 +38,7 @@
 #include "ProtocolVersion.h"
 #include "TerminalCommandParserLibrary.h"
 
-bool AHackCommand::ShouldCrashService()
-{
+bool AHackCommand::ShouldCrashService() {
     float volatility = (float)this->CurrentExploit->Volatility / 5.f;
 
     float crashiness = volatility * 0.5f;
@@ -49,8 +48,7 @@ bool AHackCommand::ShouldCrashService()
     return chance < crashiness;
 }
 
-void AHackCommand::OnDisconnect()
-{
+void AHackCommand::OnDisconnect() {
     this->IsPayloadActive = false;
     this->CurrentPayload->Payload->Disconnected.Clear();
     this->GetConsole()->ResetFormatting();
@@ -64,21 +62,18 @@ void AHackCommand::OnDisconnect()
     this->Complete();
 }
 
-FText AHackCommand::GetShellPrompt()
-{
+FText AHackCommand::GetShellPrompt() {
     // The text that will be substituted into the above format string.
     FString Host = this->EnteredHostname;
     FText Exploit = NSLOCTEXT("Gigasploit", "None", "none");
     FText Payload = NSLOCTEXT("Gigasploit", "None", "none");
 
     // Get the actual exploit name.
-    if(this->CurrentExploit)
-    {
+    if(this->CurrentExploit) {
         Exploit = this->CurrentExploit->FullName;
     }
 
-    if(this->CurrentPayload)
-    {
+    if(this->CurrentPayload) {
         Payload = this->CurrentPayload->FullName;
     }
 
@@ -107,12 +102,9 @@ FText AHackCommand::GetShellPrompt()
     return FText::Format(NSLOCTEXT("GsfConsole", "Prompt", "{0}> "), FText::FromString(Host));
 }
 
-void AHackCommand::Tick(float InDeltaSeconds)
-{
-    if(!this->IsTutorialActive())
-    {
-        if(this->IsSet("gigasploit.firstScan"))
-        {
+void AHackCommand::Tick(float InDeltaSeconds) {
+    if(!this->IsTutorialActive()) {
+        if(this->IsSet("gigasploit.firstScan")) {
             this->ShowTutorialIfNotSet("tuts.gigasploit.analyze", 
                 NSLOCTEXT("Tutorials", "GigasploitAnalyzeTitle", "Analyzing a port"),
                 NSLOCTEXT("Tutorials", "GigasploitAnalyze", "While <ui>scanning</> a system will tell you the active <ui>ports</> of the system, if you'd like to see more details about a <ui>specific port</> you need to <ui>analyze</> it.\r\n\r\nThis can be done by running the <cmd>analyze <port></> command.\r\n\r\nThis will tell you more information about the port, such as what server software is running it and what <ui>exploits</> you can use.\r\n\r\n<bad>WARNING</>: Analyzing a port may result in your IP address being logged, thus decreasing your <ui>cover</>.")
@@ -145,30 +137,27 @@ void AHackCommand::Tick(float InDeltaSeconds)
     // in the world state if the new value is below the current.
     float stealthiness = this->AssessStealthiness();
 
-    if(this->LastStealthiness != stealthiness)
-    {
+    if(this->LastStealthiness != stealthiness) {
         this->LastStealthiness = stealthiness;
 
-        if(stealthiness < this->GetUserContext()->GetStealthiness())
-        {
+        if(stealthiness < this->GetUserContext()->GetStealthiness()) {
             this->GetUserContext()->SetStealthiness(stealthiness);
         }
     }
 
     // If the payload is NOT active then we'll call up to our base Tick method to let the
     // shell system take over.
-    if(!this->IsPayloadActive)
-    {
+    if(!this->IsPayloadActive) {
         Super::Tick(InDeltaSeconds);
     }
 }
 
-float AHackCommand::AssessStealthiness()
-{
+float AHackCommand::AssessStealthiness() {
     // If the origin system and remote system are the same, never report anything
     // but pure stealth.  Otherwise the game goes a little apeshit.
-    if(this->GetUserContext()->GetComputer().ID == this->RemoteSystem->GetComputer().ID)
+    if(this->GetUserContext()->GetComputer().ID == this->RemoteSystem->GetComputer().ID) {
         return 1.f;
+    }
 
     // Stealthiness is a percentage value.
     float stealthiness = 1.f;
@@ -188,12 +177,9 @@ float AHackCommand::AssessStealthiness()
     float filesCount = (float) this->RemoteSystem->GetComputer().TextFiles.Num();
     float filesContainingIPAddress = 0.f;
 
-    if(filesCount > 0)
-    {
-        for(auto& file : this->RemoteSystem->GetComputer().TextFiles)
-        {
-            if(file.Content.Contains(this->GetUserContext()->GetIPAddress()))
-            {
+    if(filesCount > 0) {
+        for(auto& file : this->RemoteSystem->GetComputer().TextFiles) {
+            if(file.Content.Contains(this->GetUserContext()->GetIPAddress())) {
                 filesContainingIPAddress += 1.f;
             }
         }
@@ -208,10 +194,8 @@ float AHackCommand::AssessStealthiness()
     float serviceCount = this->RemoteSystem->GetComputer().FirewallRules.Num();
     float crashes = 0.f;
 
-    if(serviceCount > 0)
-    {
-        for(auto& rule : this->RemoteSystem->GetComputer().FirewallRules)
-        {
+    if(serviceCount > 0) {
+        for(auto& rule : this->RemoteSystem->GetComputer().FirewallRules) {
             if(rule.IsCrashed) crashes += 1.f;
         }
 
@@ -225,8 +209,7 @@ float AHackCommand::AssessStealthiness()
     return FMath::Clamp(stealthiness, 0.f, 1.f);
 }
 
-void AHackCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments)
-{
+void AHackCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) {
     // Get the target IP address from docopt.
     FString TargetIP = this->ArgumentMap["<host>"]->AsString();
 
@@ -243,8 +226,7 @@ void AHackCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
     // Try to get a system context for theremote host.
     EConnectionError ConnectionError = EConnectionError::None;
     FComputer RemotePC;
-    if(!InConsole->GetUserContext()->DnsResolve(TargetIP, RemotePC, ConnectionError))
-    {
+    if(!InConsole->GetUserContext()->DnsResolve(TargetIP, RemotePC, ConnectionError)) {
         InConsole->SetBold(true);
         InConsole->SetForegroundColor(EConsoleColor::Red);
         InConsole->WriteLine(FText::Format(NSLOCTEXT("Gigasploit", "ConnectionError", "{0}: could not connect to remote host."), FText::FromString(InArguments[0])));
@@ -266,37 +248,32 @@ void AHackCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
     });
 
     this->ShowTutorialIfNotSet("tuts.gigasploit.welcome",
-            NSLOCTEXT("CommandNames", "Gigasploit", "Gigasploit Framework Console"),
-            NSLOCTEXT("Tutorials", "GigasploitWelcome", "This is the <ui>Gigasploit Framework Console</>.\r\n\r\nMost <bad>hacking</> operations will be performed here.\r\n\r\nTo <bad>hack</> a system, you must select an <ui>exploit</>, a <ui>payload</>, and attack a <ui>service</>.\r\n\r\nTo <ui>scan</> the system for hack-able <ui>services</>, run the <cmd>scan</> command.")
-        );
+        NSLOCTEXT("CommandNames", "Gigasploit", "Gigasploit Framework Console"),
+        NSLOCTEXT("Tutorials", "GigasploitWelcome", "This is the <ui>Gigasploit Framework Console</>.\r\n\r\nMost <bad>hacking</> operations will be performed here.\r\n\r\nTo <bad>hack</> a system, you must select an <ui>exploit</>, a <ui>payload</>, and attack a <ui>service</>.\r\n\r\nTo <ui>scan</> the system for hack-able <ui>services</>, run the <cmd>scan</> command.")
+    );
 
     // Generate all the firewall rules for our remote system if necessary.
     this->RemoteSystem->GetPeacenet()->GetProcgen()->GenerateFirewallRules(this->RemoteSystem->GetComputer());
 }
 
-void AHackCommand::ShowCoverTutorial()
-{
+void AHackCommand::ShowCoverTutorial() {
     this->ShowTutorialIfNotSet("tuts.gameplay.cover",
         NSLOCTEXT("Tutorials", "CoverTitle", "Cover"),
         NSLOCTEXT("Tutorials", "Cover", "During a <bad>hack</>, you must remain under <ui>cover</>.\r\n\r\nYour <ui>cover</> meter is displayed in the top-right corner of the screen.  The lower the percentage, the closer you are to <bad>blowing your cover</>.\r\n\r\nActions such as crashing remote services, analyzing a port, using louder exploits or payloads, and forgetting to delete logs will decrease your <ui>cover meter</>.\r\n\r\nYour cover meter will rise back up to 100% over time if you avoid doing these things.\r\n\r\nIf your cover falls below 45%, you will enter a state of <bad>ALERT</> and will need to <ui>regain your cover</>.")
     );
 }
 
-void AHackCommand::ShowPayloadTutorial()
-{
-        this->ShowTutorialIfNotSet("tuts.gameplay.cover.cleanup",
+void AHackCommand::ShowPayloadTutorial() {
+    this->ShowTutorialIfNotSet("tuts.gameplay.cover.cleanup",
         NSLOCTEXT("Tutorials", "CoverTitle", "Cover"),
         NSLOCTEXT("Tutorials", "CoverCleanup", "Every action you perform on a remote system has the potential of <bad>leaving tracks behind</> in the form of <ui>log files</>.\r\n\r\nTo avoid <bad>blowing your cover</>, be sure to <ui>delete</> any logs left in <cmd>/var/log</>.")
     );
 }
 
-bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command, TArray<FString> Arguments)
-{
-    if(Command == "exploits")
-    {
+bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command, TArray<FString> Arguments) {
+    if(Command == "exploits") {
         FString SearchQuery = "";
-        for(auto Arg : Arguments)
-        {
+        for(auto Arg : Arguments) {
             SearchQuery += Arg + " ";
         }
 
@@ -311,11 +288,9 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
 
         bool FoundExploit = false;
 
-        for(auto Exploit : InConsole->GetUserContext()->GetExploits())
-        {
+        for(auto Exploit : InConsole->GetUserContext()->GetExploits()) {
             FString ExploitName = Exploit->ID.ToString();
-            if(SearchQuery.Len() == 0 || ExploitName.Contains(SearchQuery, ESearchCase::IgnoreCase))
-            {
+            if(SearchQuery.Len() == 0 || ExploitName.Contains(SearchQuery, ESearchCase::IgnoreCase)) {
                 FoundExploit = true;
                 InConsole->SetForegroundColor(EConsoleColor::Yellow);
                 InConsole->WriteLine(FText::FromString(ExploitName), 0.2f);
@@ -323,8 +298,7 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
             }
         }
 
-        if(!FoundExploit)
-        {
+        if(!FoundExploit) {
             InConsole->SetBold(true);
             InConsole->SetForegroundColor(EConsoleColor::Red);
             InConsole->WriteLine(NSLOCTEXT("Gigasploit", "NoExploitsFound", "\tNo exploits found matching that name."));
@@ -335,11 +309,9 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
         return true;
     }
 
-    if(Command == "payloads")
-    {
+    if(Command == "payloads") {
         FString SearchQuery = "";
-        for(auto Arg : Arguments)
-        {
+        for(auto Arg : Arguments) {
             SearchQuery += Arg + " ";
         }
 
@@ -354,11 +326,9 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
 
         bool FoundExploit = false;
 
-        for(auto Exploit : InConsole->GetUserContext()->GetPayloads())
-        {
+        for(auto Exploit : InConsole->GetUserContext()->GetPayloads()) {
             FString ExploitName = Exploit->Name.ToString();
-            if(SearchQuery.Len() == 0 || ExploitName.Contains(SearchQuery, ESearchCase::IgnoreCase))
-            {
+            if(SearchQuery.Len() == 0 || ExploitName.Contains(SearchQuery, ESearchCase::IgnoreCase)) {
                 FoundExploit = true;
                 InConsole->SetForegroundColor(EConsoleColor::Yellow);
                 InConsole->WriteLine(FText::FromString(ExploitName), 0.2f);
@@ -366,8 +336,7 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
             }
         }
 
-        if(!FoundExploit)
-        {
+        if(!FoundExploit) {
             InConsole->SetBold(true);
             InConsole->SetForegroundColor(EConsoleColor::Red);
             InConsole->WriteLine(NSLOCTEXT("Gigasploit", "NoPayloadsFound", "No payloads found matching that query."));
@@ -378,10 +347,8 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
         return true;
     }
 
-    if(Command == "use")
-    {
-        if(!Arguments.Num())
-        {
+    if(Command == "use") {
+        if(!Arguments.Num()) {
             InConsole->SetBold(true);
             InConsole->SetForegroundColor(EConsoleColor::Red);
             InConsole->WriteLine(NSLOCTEXT("Gigasploit", "UseCommandUsage", "error: too few arguments given. Do you want to use an exploit or payload?"));
@@ -393,18 +360,14 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
         Arguments.RemoveAt(0);
 
         FString ExploitName = "";
-        for(FString Arg : Arguments)
-        {
+        for(FString Arg : Arguments) {
             ExploitName += Arg + " ";
         }
         ExploitName = ExploitName.TrimStartAndEnd();
         
-        if(ItemType == "exploit")
-        {
-            for(auto Exploit : InConsole->GetUserContext()->GetExploits())
-            {
-                if(Exploit->ID.ToString() == ExploitName)
-                {
+        if(ItemType == "exploit") {
+            for(auto Exploit : InConsole->GetUserContext()->GetExploits()) {
+                if(Exploit->ID.ToString() == ExploitName) {
                     InConsole->WriteLine(FText::Format(NSLOCTEXT("Gigasploit", "UsingExploit", "Using exploit {0}."), Exploit->FullName));
                     this->CurrentExploit = Exploit;
                     return true;
@@ -416,13 +379,9 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
             InConsole->WriteLine(NSLOCTEXT("Gigasploit", "ExploitDoesNotExist", "error: exploit doesn't exist."));
             InConsole->ResetFormatting();
             return true;
-        }
-        else if(ItemType == "payload")
-        {
-            for(auto Exploit : InConsole->GetUserContext()->GetPayloads())
-            {
-                if(Exploit->Name.ToString() == ExploitName)
-                {
+        } else if(ItemType == "payload") {
+            for(auto Exploit : InConsole->GetUserContext()->GetPayloads()) {
+                if(Exploit->Name.ToString() == ExploitName) {
                     InConsole->WriteLine(FText::Format(NSLOCTEXT("Gigasploit", "UsingPayload", "Using payload {0}."), Exploit->FullName));
                     this->CurrentPayload = Exploit;
                     return true;
@@ -434,9 +393,7 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
             InConsole->WriteLine(NSLOCTEXT("Gigasploit", "PayloadDoesNotExist", "error: payload doesn't exist."));
             InConsole->ResetFormatting();
             return true;
-        }
-        else
-        {
+        } else {
             InConsole->SetBold(true);
             InConsole->SetForegroundColor(EConsoleColor::Red);
             InConsole->WriteLine(NSLOCTEXT("Gigasploit", "InvalidItemType", "error: Invalid item type."));
@@ -445,10 +402,8 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
         }
     }
 
-    if(Command == "attack")
-    {
-        if(!Arguments.Num())
-        {
+    if(Command == "attack") {
+        if(!Arguments.Num()) {
             InConsole->SetBold(true);
             InConsole->SetForegroundColor(EConsoleColor::Red);
             InConsole->WriteLine(NSLOCTEXT("Gigasploit", "AttackUsage", "error: too few arguments. You must specify a port to attack."));
@@ -456,8 +411,7 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
             return true;
         }
 
-        if(!this->CurrentExploit)
-        {
+        if(!this->CurrentExploit) {
             InConsole->SetBold(true);
             InConsole->SetForegroundColor(EConsoleColor::Red);
             InConsole->WriteLine(NSLOCTEXT("Gigasploit", "MustSelectExploit", "error: You must select an exploit to use first."));
@@ -465,8 +419,7 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
             return true;
         }
 
-        if(!this->CurrentPayload)
-        {
+        if(!this->CurrentPayload) {
             InConsole->SetBold(true);
             InConsole->SetForegroundColor(EConsoleColor::Red);
             InConsole->WriteLine(NSLOCTEXT("Gigasploit", "MustSelectPayload", "error: You must select a payload to use first."));
@@ -476,8 +429,7 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
 
         FString EnteredPort = Arguments[0];
         int RealPort = FCString::Atoi(*EnteredPort);
-        if(!RealPort && EnteredPort != "0")
-        {
+        if(!RealPort && EnteredPort != "0") {
             InConsole->SetBold(true);
             InConsole->SetForegroundColor(EConsoleColor::Red);
             InConsole->WriteLine(NSLOCTEXT("Gigasploit", "PortNotNumber", "error: Port is not a number."));
@@ -489,10 +441,8 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
 
         this->RunSpecialCommand(InConsole, "scan", Arguments);
 
-        for(auto& Service : this->RemoteSystem->GetComputer().FirewallRules)
-        {
-            if(Service.Port == RealPort)
-            {
+        for(auto& Service : this->RemoteSystem->GetComputer().FirewallRules) {
+            if(Service.Port == RealPort) {
                 this->SendGameEvent("HackAttempt", {
                     { "Identity", FString::FromInt(this->RemoteSystem->GetCharacter().ID)},
                     { "Computer", FString::FromInt(this->RemoteSystem->GetComputer().ID)},
@@ -503,8 +453,7 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
                     { "ServerSoftware", Service.Service->Name.ToString()}
                 });
 
-                if(Service.IsCrashed)
-                {
+                if(Service.IsCrashed) {
                     InConsole->SetForegroundColor(EConsoleColor::Magenta);
                     InConsole->WriteLine(NSLOCTEXT("Gigasploit", "ConnectionRefused", "Connection refused."));
                     InConsole->ResetFormatting();
@@ -525,8 +474,7 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
 
                 InConsole->WriteLine(FText::Format(NSLOCTEXT("Gigasploit", "ServiceIs", "Service is \x1B[1m{0}\x1B[0m."), Service.Service->Name));
 
-                if(Service.IsFiltered)
-                {
+                if(Service.IsFiltered) {
                     this->RemoteSystem->AppendLog(this->GetUserContext()->GetIPAddress() + ": connection blocked by firewall on port " + FString::FromInt(Service.Port));
 
                     InConsole->SetBold(true);
@@ -554,15 +502,13 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
 
                 this->RemoteSystem->AppendLog(this->GetUserContext()->GetIPAddress() + ": connected to port " + FString::FromInt(Service.Port));
 
-                if(this->CurrentExploit->Targets.Contains(Service.Service))
-                {
+                if(this->CurrentExploit->Targets.Contains(Service.Service)) {
                     InConsole->SetForegroundColor(EConsoleColor::Green);
                     InConsole->WriteLine(FText::Format(NSLOCTEXT("Gigasploit", "ServiceIsVulnerable", "Service is vulnerable to the &6&*{0}&r&7 exploit."), this->CurrentExploit->FullName));
                     InConsole->WriteLine(FText::Format(NSLOCTEXT("Gigasploit", "DeployingPayload", "Deploying {0}..."), this->CurrentPayload->FullName));
                     InConsole->ResetFormatting();
 
-                    if(this->ShouldCrashService())
-                    {
+                    if(this->ShouldCrashService()) {
                         this->RemoteSystem->AppendLog(Service.Service->Name.ToString() + ": service stopped unexpectedly.");
                         this->RemoteSystem->AppendLog(this->GetUserContext()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
                         Service.IsCrashed = true;
@@ -597,9 +543,7 @@ bool AHackCommand::RunSpecialCommand(UConsoleContext* InConsole, FString Command
                     this->RemoteSystem->AppendLog(this->GetUserContext()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
 
                     return true;
-                }
-                else
-                {
+                } else {
                     this->RemoteSystem->AppendLog(this->GetUserContext()->GetIPAddress() + ": disconnected from port " + FString::FromInt(Service.Port));
                     InConsole->SetForegroundColor(EConsoleColor::Magenta);
                     InConsole->WriteLine(NSLOCTEXT("Gigasploit", "ServiceNotVulnerable", "Service is not vulnerable to this exploit. Cannot drop payload."));

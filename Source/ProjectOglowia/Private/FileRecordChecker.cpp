@@ -31,8 +31,7 @@
 
 #include "FileRecordChecker.h"
 
-bool UFileRecordChecker::FileRecordMatches(UUserContext* InUserContext, FString InPath)
-{
+bool UFileRecordChecker::FileRecordMatches(UUserContext* InUserContext, FString InPath) {
     // Check the system context to make sure it's actually valid.
     check(InUserContext);
 
@@ -40,7 +39,9 @@ bool UFileRecordChecker::FileRecordMatches(UUserContext* InUserContext, FString 
     UPeacegateFileSystem* RootFileSystem = InUserContext->GetFilesystem();
 
     // If the file doesn't even exist then it is not the record we're looking for.
-    if(!RootFileSystem->FileExists(InPath)) return false;
+    if(!RootFileSystem->FileExists(InPath)) {
+        return false;
+    }
 
     // Get the file record at the specified path.
     FFileRecord Record = RootFileSystem->GetFileRecord(InPath);

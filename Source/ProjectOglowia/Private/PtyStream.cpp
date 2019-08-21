@@ -31,22 +31,19 @@
 
 #include "PtyStream.h"
 
-UPtyStream::UPtyStream()
-{
+UPtyStream::UPtyStream() {
     this->LineBuffer.AddZeroed(PTY_LINEBUFFER_SIZE);
     this->LineBufferPosition = 0;
 }
 
-UPtyStream::~UPtyStream()
-{
+UPtyStream::~UPtyStream() {
     this->InputStream = nullptr;
     this->OutputStream = nullptr;
     this->LineBuffer.Empty();
     this->LineBufferPosition = 0;
 }
 
-UPtyStream* UPtyStream::ConstructPtyStream(FPtyOptions InOptions, UPtyFifoBuffer* InputBuffer, UPtyFifoBuffer* OutputBuffer, bool InIsMaster)
-{
+UPtyStream* UPtyStream::ConstructPtyStream(FPtyOptions InOptions, UPtyFifoBuffer* InputBuffer, UPtyFifoBuffer* OutputBuffer, bool InIsMaster) {
     UPtyStream* stream = NewObject<UPtyStream>();
 
     stream->IsMaster = InIsMaster;
@@ -57,8 +54,7 @@ UPtyStream* UPtyStream::ConstructPtyStream(FPtyOptions InOptions, UPtyFifoBuffer
     return stream;
 }
 
-void UPtyStream::CreatePty(UPtyStream*& OutMaster, UPtyStream*& OutSlave, FPtyOptions InOptions)
-{
+void UPtyStream::CreatePty(UPtyStream*& OutMaster, UPtyStream*& OutSlave, FPtyOptions InOptions) {
     UPtyFifoBuffer* input = NewObject<UPtyFifoBuffer>();
     UPtyFifoBuffer* output = NewObject<UPtyFifoBuffer>();
 
@@ -66,56 +62,45 @@ void UPtyStream::CreatePty(UPtyStream*& OutMaster, UPtyStream*& OutSlave, FPtyOp
     OutSlave = ConstructPtyStream(InOptions, input, output, false);
 }
 
-void UPtyStream::Write(TArray<TCHAR> Buffer, int Offset, int Count)
-{
-    for(int i = Offset; i < Offset + Count; i++)
-    {
-        if(this->IsMaster)
+void UPtyStream::Write(TArray<TCHAR> Buffer, int Offset, int Count) {
+    for(int i = Offset; i < Offset + Count; i++) {
+        if(this->IsMaster) {
             this->WriteOutput(Buffer[i]);
-        else
+        } else {
             this->WriteInput(Buffer[i]);
+        }
     }
 }
 
-int UPtyStream::Read(TArray<TCHAR>& Buffer, int Offset, int Count)
-{
-    if(!this->IsMaster)
-    {
+int UPtyStream::Read(TArray<TCHAR>& Buffer, int Offset, int Count) {
+    if(!this->IsMaster) {
         return this->OutputStream->Read(Buffer, Offset, Count);
     }
 
     int i;
-    if ((i = this->InputStream->Read(Buffer, Offset, Count)) == 0)
-    {
+    if ((i = this->InputStream->Read(Buffer, Offset, Count)) == 0) {
         return -1;
     }
     return i;
 }
 
-void UPtyStream::FlushLineBuffer()
-{
+void UPtyStream::FlushLineBuffer() {
     this->InputStream->Write(this->LineBuffer, 0, this->LineBufferPosition);
     this->LineBufferPosition = 0;
 }
 
-void UPtyStream::WriteOutput(TCHAR c)
-{
-    if (c == '\n' && (this->Options.OFlag & ONLCR) != 0)
-    {
+void UPtyStream::WriteOutput(TCHAR c) {
+    if (c == '\n' && (this->Options.OFlag & ONLCR) != 0) {
         this->OutputStream->WriteChar('\r');
     }
 
     this->OutputStream->WriteChar(c);
 }
 
-void UPtyStream::WriteInput(TCHAR c)
-{
-    if ((this->Options.LFlag & ICANON) != 0 && !this->InputStream->IsRaw())
-    {
-        if (c == this->Options.C_cc[VERASE])
-        {
-            if (this->LineBufferPosition > 0)
-            {
+void UPtyStream::WriteInput(TCHAR c) {
+    if ((this->Options.LFlag & ICANON) != 0 && !this->InputStream->IsRaw()) {
+        if (c == this->Options.C_cc[VERASE]) {
+            if (this->LineBufferPosition > 0) {
                 this->LineBufferPosition--;
             }
 
@@ -126,8 +111,7 @@ void UPtyStream::WriteInput(TCHAR c)
             return;
         }
 
-        if (c == this->Options.C_cc[VINTR])
-        {
+        if (c == this->Options.C_cc[VINTR]) {
             this->WriteOutput('^');
             this->WriteOutput('C');
             this->WriteOutput('\n');
@@ -140,13 +124,11 @@ void UPtyStream::WriteInput(TCHAR c)
 
         this->LineBuffer[this->LineBufferPosition++] = c;
 
-        if ((this->Options.LFlag & ECHO) != 0)
-        {
+        if ((this->Options.LFlag & ECHO) != 0) {
             this->WriteOutput(c);
         }
 
-        if (c == this->Options.C_cc[VEOL] || c == this->Options.C_cc[VEOL2])
-        {
+        if (c == this->Options.C_cc[VEOL] || c == this->Options.C_cc[VEOL2]) {
             this->FlushLineBuffer();
         }
 
@@ -155,31 +137,29 @@ void UPtyStream::WriteInput(TCHAR c)
     this->InputStream->WriteChar(c);
 }
 
-void UPtyStream::WriteChar(TCHAR c)
-{
+void UPtyStream::WriteChar(TCHAR c) {
     TArray<TCHAR> buf = { c };
     this->Write(buf, 0, 1);
 }
 
-bool UPtyStream::ReadChar(TCHAR& OutChar)
-{
+bool UPtyStream::ReadChar(TCHAR& OutChar) {
     TArray<TCHAR> buf = { '\0' };
     int read = this->Read(buf, 0, 1);
-    if(read < 1)
+    if(read < 1) {
         return false;
+    }
     OutChar = buf[0];
     return true;
 }
 
-void UPtyStream::RawMode(bool value)
-{
+void UPtyStream::RawMode(bool value) {
     this->InputStream->RawMode(value);
-    if(this->InputStream->IsRaw())
+    if(this->InputStream->IsRaw()) {
         this->FlushLineBuffer();
+    }
 }
 
-UPtyStream* UPtyStream::RedirectInto(UPtyFifoBuffer* InBuffer)
-{
+UPtyStream* UPtyStream::RedirectInto(UPtyFifoBuffer* InBuffer) {
     UPtyStream* Redirected = NewObject<UPtyStream>();
     Redirected->OutputStream = InBuffer;
     Redirected->InputStream = this->InputStream;
@@ -188,8 +168,7 @@ UPtyStream* UPtyStream::RedirectInto(UPtyFifoBuffer* InBuffer)
     return Redirected;
 }
 
-UPtyStream* UPtyStream::Pipe(UPtyFifoBuffer* Buffer)
-{
+UPtyStream* UPtyStream::Pipe(UPtyFifoBuffer* Buffer) {
     // Create a new PTY stream...
     UPtyStream* PipeStream = NewObject<UPtyStream>();
 
@@ -209,8 +188,7 @@ UPtyStream* UPtyStream::Pipe(UPtyFifoBuffer* Buffer)
     return PipeStream;
 }
 
-UPtyStream* UPtyStream::Clone()
-{
+UPtyStream* UPtyStream::Clone() {
     UPtyStream* Cloned = NewObject<UPtyStream>();
     Cloned->OutputStream = this->OutputStream;
     Cloned->InputStream = this->InputStream;

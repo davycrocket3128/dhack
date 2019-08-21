@@ -31,16 +31,13 @@
 
 #include "DelayTask.h"
 
-void UDelayTask::NativeStart()
-{
+void UDelayTask::NativeStart() {
     this->TimeLeft = this->DelayTime;
 }
 
-void UDelayTask::NativeTick(float InDeltaTime)
-{
+void UDelayTask::NativeTick(float InDeltaTime) {
     this->TimeLeft -= InDeltaTime;
-    if(this->TimeLeft <= 0.0f)
-    {
+    if(this->TimeLeft <= 0.0f) {
         this->Complete();
     }
 }
