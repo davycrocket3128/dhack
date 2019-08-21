@@ -38,6 +38,7 @@
 #include "PeacegateDaemon.h"
 #include "Profile.h"
 #include "DaemonType.h"
+#include "Computer.h"
 #include "PeacenetGameInstance.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSettingsAppliedEvent, UPeacenetSettings*, InSettings);
@@ -89,6 +90,18 @@ protected:
 	UFUNCTION()
 	void RegisterDaemons();
 
+	UFUNCTION()
+	int GetNextSaveSlotId();
+
+	UFUNCTION()
+	void GeneratePeacegateData(FProfileData& InProfile);
+
+	UFUNCTION()
+	void GenerateImportantPlayerFiles(FProfileData& InProfileData, FComputer& InComputer);
+
+	UFUNCTION()
+	void WriteHomeFolders(FComputer& InComputer, FFolder& InParent);
+
 public:
 	UPROPERTY()
 	TArray<UPeacenetGameTypeAsset*> GameTypes;
@@ -129,6 +142,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool LoadGame(APlayerController* InPlayerController, FString Username, FString Password, APeacenetWorldStateActor*& WorldState);
+
+	UFUNCTION(BlueprintCallable)
+	bool CreateNewUser(FString InUsername, FString InPassword);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	TArray<FProfileData> GetProfiles();

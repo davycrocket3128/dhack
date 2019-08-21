@@ -378,6 +378,201 @@ void UPeacenetGameInstance::Shutdown() {
 	Super::Shutdown();
 }
 
+int UPeacenetGameInstance::GetNextSaveSlotId() {
+	int result = 0;
+	TArray<int> taken;
+	for(auto ProfileData : this->Profile->ProfileData) {
+		taken.Add(ProfileData.SlotId);
+	}
+	while(taken.Contains(result)) {
+		result++;
+	}
+	return result;
+}
+
+bool UPeacenetGameInstance::CreateNewUser(FString InUsername, FString InPassword) {
+	// Is there an existing save with that username?
+	bool UserExists = false;
+
+	// Look for existing usernames...
+	for(auto ProfileData : this->Profile->ProfileData) {
+		if(ProfileData.Username == InUsername) {
+			UserExists = true;
+			break;
+		}
+	}
+
+	// Debug assert or refuse if user exists.
+	check(!UserExists);
+	if(!UserExists) {
+		// Create a new profile.
+		FProfileData NewProfile;
+		NewProfile.Username = InUsername;
+		NewProfile.Password = InPassword;
+		NewProfile.SlotId = this->GetNextSaveSlotId();
+		NewProfile.Created = FDateTime::Now();
+		NewProfile.LastPlayed = FDateTime::Now();
+
+		// Add it to the profile
+		this->Profile->ProfileData.Add(NewProfile);
+
+		// Generate the initial save state for the profile.
+		this->GeneratePeacegateData(this->Profile->ProfileData[this->Profile->ProfileData.Num() - 1]);
+
+		// We're golden! :)
+		return true;
+	} else {
+		return false;
+	}
+}
+
+void UPeacenetGameInstance::GeneratePeacegateData(FProfileData& InProfileData) {
+	// If a game exists, nuke the fuck out of it.
+	if(UGameplayStatics::DoesSaveGameExist("PeacegateOS", InProfileData.SlotId)) {
+		UGameplayStatics::DeleteGameInSlot("PeacegateOS", InProfileData.SlotId);
+	}
+
+	// Create a new save file object.
+	UPeacenetSaveGame* Save = NewObject<UPeacenetSaveGame>();
+
+	// Create the player's computer...
+	FComputer PlayerComputer;
+	PlayerComputer.ID = 0;
+	PlayerComputer.ComputerType = EComputerType::Personal;
+	PlayerComputer.OwnerType = EComputerOwnerType::Player;
+	PlayerComputer.SystemIdentity = -1;
+	PlayerComputer.CurrentWallpaper = nullptr;
+	PlayerComputer.HasWallpaperBeenSet = false;
+	PlayerComputer.PeacenetSite = nullptr;
+	
+	// Create the root user.
+	FUser Root;
+	Root.Username = "root";
+	Root.ID = 0;
+	Root.Domain = EUserDomain::Administrator;
+
+	// Create the player user.
+	FUser PlayerUser;
+	PlayerUser.ID = 1;
+	PlayerUser.Username = UCommonUtils::Aliasify(InProfileData.Username);
+	PlayerUser.Password = InProfileData.Password;
+	PlayerUser.Domain = EUserDomain::PowerUser;
+
+	// If the player username ends up being the same as root then set the player username to "toor".
+	if(PlayerUser.Username == Root.Username) {
+		PlayerUser.Username = "toor";
+	}
+
+	// Add the users to the computer.
+	PlayerComputer.Users.Add(Root);
+	PlayerComputer.Users.Add(PlayerUser);
+
+	// Format the Peacegate filesystem of the computer.
+	UFileUtilities::FormatFilesystem(PlayerComputer.Filesystem);
+
+	// The root folder of the filesystem has been created so let's now generate important system folders.
+	this->GenerateImportantPlayerFiles(InProfileData, PlayerComputer);
+
+	// Now we can add the player computer to the save file and then save the game.
+	Save->Computers.Add(PlayerComputer);
+	Save->PlayerComputerID = 0;
+	Save->PlayerUserID = 1;
+	
+	// Save it to the slot.
+	UGameplayStatics::SaveGameToSlot(Save, "PeacegateOS", InProfileData.SlotId);
+}
+
+void UPeacenetGameInstance::GenerateImportantPlayerFiles(FProfileData& InProfileData, FComputer& InComputer) {
+	// Quickly grab a reference to the root folder.
+	FFolder& Root = InComputer.Filesystem[0];
+
+	// Create a text file and associated record containing the system hostname.
+	FTextFile HostnameFile;
+	HostnameFile.ID = 0;
+	HostnameFile.Content = UCommonUtils::Aliasify(InProfileData.Username) + "-pc";
+
+	FFileRecord HostnameRecord;
+	HostnameRecord.ID = 0;
+	HostnameRecord.RecordType = EFileRecordType::Text;
+	HostnameRecord.ContentID = 0;
+	HostnameRecord.Name = "hostname";
+
+	// Add the record and file data.
+	InComputer.TextFiles.Add(HostnameFile);
+	InComputer.FileRecords.Add(HostnameRecord);
+
+	// Create the /etc folder with the hostname file inside it.
+	FFolder Etc;
+	Etc.FolderID = InComputer.Filesystem.Num();
+	Etc.ParentID = Root.FolderID;
+	Etc.FolderName = "etc";
+	Etc.FileRecords.Add(HostnameRecord.ID);
+
+	// This adds the 'etc' folder to the root, thus mounting it at /etc.
+	InComputer.Filesystem.Add(Etc);
+	Root.SubFolders.Add(Etc.FolderID);
+
+	// The "/root" folder is for the root user, it's their home folder.
+	FFolder RootHome;
+	RootHome.FolderID = InComputer.Filesystem.Num();
+	RootHome.ParentID = Root.FolderID;
+	RootHome.FolderName = "root";
+	Root.SubFolders.Add(RootHome.FolderID);
+	InComputer.Filesystem.Add(RootHome);
+
+	// Writes the usual home subfolders into the root home dir.
+	this->WriteHomeFolders(InComputer, RootHome);
+
+	// Creates the actual /home folder for other users' home dirs.
+	FFolder Home;
+	Home.FolderID = InComputer.Filesystem.Num();
+	Home.FolderName = "home";
+	Home.ParentID = Root.FolderID;
+	Root.SubFolders.Add(Home.FolderID);
+	InComputer.Filesystem.Add(Home);
+
+	// Creates a home directory for every user except root.
+	for(auto User : InComputer.Users) {
+		if(User.ID == 0) {
+			continue;
+		}
+
+		FFolder UserHome;
+		UserHome.FolderID = InComputer.Filesystem.Num();
+		UserHome.FolderName = User.Username;
+		UserHome.ParentID = Home.FolderID;
+		Home.SubFolders.Add(UserHome.FolderID);
+		InComputer.Filesystem.Add(UserHome);
+
+		// Write the home folders inside...
+		this->WriteHomeFolders(InComputer, UserHome);
+	}
+
+	// System contexts will do the rest so, we're done.
+}
+
+void UPeacenetGameInstance::WriteHomeFolders(FComputer& InComputer, FFolder& InParent) {
+	// All the names of the folders we must create:
+	TArray<FString> FolderNames = {
+		"Desktop",
+		"Documents",
+		"Downloads",
+		"Music",
+		"Videos",
+		"Pictures"
+	};
+
+	for(FString FolderName : FolderNames) {
+		// Create a new folder.
+		FFolder Folder;
+		Folder.FolderID = InComputer.Filesystem.Num();
+		Folder.FolderName = FolderName;
+		Folder.ParentID = InParent.FolderID;
+		InParent.SubFolders.Add(Folder.FolderID);
+		InComputer.Filesystem.Add(Folder);
+	}
+}
+
 TArray<FDaemonInfo> UPeacenetGameInstance::GetDaemonsForSystem(USystemContext* InSystemContext) {
 	TArray<FDaemonInfo> Ret;
 
