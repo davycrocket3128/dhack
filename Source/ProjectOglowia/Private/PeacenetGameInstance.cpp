@@ -435,12 +435,24 @@ void UPeacenetGameInstance::GeneratePeacegateData(FProfileData& InProfileData) {
 	// Create a new save file object.
 	UPeacenetSaveGame* Save = NewObject<UPeacenetSaveGame>();
 
+	// Create the player's Identity.
+	FPeacenetIdentity PlayerID;
+	PlayerID.ID = 0;
+	PlayerID.CharacterName = InProfileData.Username;
+	PlayerID.PreferredAlias = InProfileData.Username;
+	PlayerID.EmailAddress = UCommonUtils::Aliasify(InProfileData.Username) + "@mail.ncci.gov";
+	PlayerID.CharacterType = EIdentityType::Player;
+	PlayerID.ComputerID = 0;
+	PlayerID.Skill = 0;
+	PlayerID.Reputation = 0.f;
+	Save->Characters.Add(PlayerID);
+
 	// Create the player's computer...
 	FComputer PlayerComputer;
 	PlayerComputer.ID = 0;
 	PlayerComputer.ComputerType = EComputerType::Personal;
 	PlayerComputer.OwnerType = EComputerOwnerType::Player;
-	PlayerComputer.SystemIdentity = -1;
+	PlayerComputer.SystemIdentity = 0;
 	PlayerComputer.CurrentWallpaper = nullptr;
 	PlayerComputer.HasWallpaperBeenSet = false;
 	PlayerComputer.PeacenetSite = nullptr;
