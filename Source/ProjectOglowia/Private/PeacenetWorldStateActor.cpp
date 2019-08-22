@@ -821,12 +821,16 @@ bool APeacenetWorldStateActor::IsTutorialActive() {
 	return this->GetTutorialState()->IsPromptActive();
 }
 
+UPeacenetGameInstance* APeacenetWorldStateActor::GetGameInstance() {
+	return Cast<UPeacenetGameInstance>(this->GetWorld()->GetGameInstance());
+}
+
 void APeacenetWorldStateActor::StartGame(TSubclassOf<UDesktopWidget> InDesktopClass, TSubclassOf<UWindow> InWindowClass) {
 	check(HasExistingOS() || this->SaveGame);
 
 	if(!this->SaveGame) {
-		if(this->HasExistingOS(this->MySlotId)) {
-			this->SaveGame = Cast<UPeacenetSaveGame>(UGameplayStatics::LoadGameFromSlot("PeacegateOS", this->MySlotId));
+		if(this->GetGameInstance()->ProfileExists(this->MySlotId)) {
+			this->SaveGame = Cast<UPeacenetSaveGame>(UGameplayStatics::LoadGameFromSlot(this->GetGameInstance()->GetSlotName(this->MySlotId), 0));
 		} else {
 			this->SaveGame = NewObject<UPeacenetSaveGame>();
 		}
@@ -909,6 +913,7 @@ FText APeacenetWorldStateActor::GetTimeOfDay() {
 	return FText::FromString(HoursString + TEXT(":") + MinutesString);
 }
 
+// COMPATIBILITY WITH 0.2.0.
 bool APeacenetWorldStateActor::HasExistingOS(int SlotId) {
 	return UGameplayStatics::DoesSaveGameExist(TEXT("PeacegateOS"), SlotId);
 }
@@ -917,7 +922,7 @@ void APeacenetWorldStateActor::SaveWorld() {
 	// Save the game if we are not currently in a mission (saving the main state while in a mission
 	// has the possibility of fucking up the game's state later on)
 	if(!this->IsInMission()) {
-		UGameplayStatics::SaveGameToSlot(this->SaveGame, TEXT("PeacegateOS"), this->MySlotId);
+		this->GetGameInstance()->SaveProfile(this->MySlotId, this->SaveGame);
 	}
 }
 
@@ -966,22 +971,4 @@ void APeacenetWorldStateActor::RegisterDomain(FString DomainName, FString Destin
 
 int APeacenetWorldStateActor::GetWorldSeed() {
 	return this->SaveGame->WorldSeed;
-}
-
-APeacenetWorldStateActor* APeacenetWorldStateActor::BootOS(const APlayerController* InPlayerController, bool InDeleteExistingSaveFile) {
-	// If we have an existing OS then we'll load that in if, and only if, we aren't deleting the existing OS.
-	if(APeacenetWorldStateActor::HasExistingOS()) {
-		if(InDeleteExistingSaveFile) {
-			UGameplayStatics::DeleteGameInSlot(TEXT("PeacegateOS"), 0);
-		} else {
-			return APeacenetWorldStateActor::LoadExistingOS(InPlayerController);
-		}
-	}
-
-	// Spawn a new Peacenet actor.
-	UWorld* world = InPlayerController->GetWorld();
-	APeacenetWorldStateActor* actor = world->SpawnActor<APeacenetWorldStateActor>();
-	actor->SaveGame = NewObject<UPeacenetSaveGame>();
-	actor->SaveGame->WorldSeed = FDateTime::Now().ToUnixTimestamp();
-	return actor;
 }

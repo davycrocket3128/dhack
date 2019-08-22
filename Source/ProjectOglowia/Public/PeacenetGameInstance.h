@@ -74,6 +74,8 @@ public:
 UCLASS(BlueprintType)
 class PROJECTOGLOWIA_API UPeacenetGameInstance : public UGameInstance
 {
+	friend APeacenetWorldStateActor;
+
 	GENERATED_BODY()
 
 private:
@@ -84,6 +86,18 @@ private:
 	TMap<FName, FDaemonInfo> RegisteredDaemons;
 
 protected:
+	UFUNCTION()
+	void WipeInvalidProfiles();
+
+	UFUNCTION()
+	void SaveProfile(int SlotID, UPeacenetSaveGame* InSaveGame);
+
+	UFUNCTION()
+	bool ProfileExists(int SlotID);
+
+	UFUNCTION()
+	FString GetSlotName(int SlotID);
+
 	UFUNCTION()
 	void RegisterPeacegateDaemon(TSubclassOf<UPeacegateDaemon> InDaemonClass, FName Name, FText FriendlyName, FText Description, EDaemonType DaemonType = EDaemonType::AllSystems);
 
@@ -133,9 +147,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool HasOldSaveFile();
-
-	UFUNCTION(BlueprintCallable)
-	void LoadAndConvertOldSave();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool GetMostRecentCredentials(FString& Username, FString& Password);

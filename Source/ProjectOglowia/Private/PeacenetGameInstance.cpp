@@ -289,6 +289,9 @@ void UPeacenetGameInstance::Init() {
 		this->Profile = NewObject<UProfile>();
 	}
 
+	// Nuke all invalid profiles.
+	this->WipeInvalidProfiles();
+
 	Super::Init();
 }
 
@@ -296,31 +299,6 @@ bool UPeacenetGameInstance::HasOldSaveFile() {
 	// If there is no profile data yet there is still a Peacegate state file, then we have an old pre-0.3.x save file we can
 	// convert if the player chooses to.
 	return APeacenetWorldStateActor::HasExistingOS() && !this->Profile->ProfileData.Num();
-}
-
-void UPeacenetGameInstance::LoadAndConvertOldSave() {
-	if(this->HasOldSaveFile())  {
-		// Old saves are on PeacegateOS (user 0).
-		UPeacenetSaveGame* OldSave = Cast<UPeacenetSaveGame>(UGameplayStatics::LoadGameFromSlot("PeacegateOS", 0));
-
-		// We can create a profile slot out of the player's computer data.  Password will just be "oldsave".
-		FComputer OldPC;
-		int OldIndex;
-		bool result = OldSave->GetComputerByID(OldSave->PlayerComputerID, OldPC, OldIndex);
-		check(result);
-
-		if(result) {
-			// Create new profile data.
-			FProfileData NewProfile;
-			NewProfile.Username = OldPC.Users[OldPC.Users.Num() - 1].Username; // give it the actual username
-			NewProfile.Password = "oldsave"; // I wasn't fucking kidding about the password.
-			NewProfile.Created = FDateTime::Now();
-			NewProfile.LastPlayed = NewProfile.Created;
-
-			// Add it to the profile list.
-			this->Profile->ProfileData.Add(NewProfile);
-		}
-	}
 }
 
 bool UPeacenetGameInstance::LoadGame(APlayerController* InPlayerController, FString Username, FString Password, APeacenetWorldStateActor*& WorldState) {
@@ -428,8 +406,8 @@ bool UPeacenetGameInstance::CreateNewUser(FString InUsername, FString InPassword
 
 void UPeacenetGameInstance::GeneratePeacegateData(FProfileData& InProfileData) {
 	// If a game exists, nuke the fuck out of it.
-	if(UGameplayStatics::DoesSaveGameExist("PeacegateOS", InProfileData.SlotId)) {
-		UGameplayStatics::DeleteGameInSlot("PeacegateOS", InProfileData.SlotId);
+	if(UGameplayStatics::DoesSaveGameExist(this->GetSlotName(InProfileData.SlotId), 0)) {
+		UGameplayStatics::DeleteGameInSlot(this->GetSlotName(InProfileData.SlotId), 0);
 	}
 
 	// Create a new save file object.
@@ -491,7 +469,42 @@ void UPeacenetGameInstance::GeneratePeacegateData(FProfileData& InProfileData) {
 	Save->PlayerUserID = 1;
 	
 	// Save it to the slot.
-	UGameplayStatics::SaveGameToSlot(Save, "PeacegateOS", InProfileData.SlotId);
+	this->SaveProfile(InProfileData.SlotId, Save);
+}
+
+void UPeacenetGameInstance::WipeInvalidProfiles() {
+	TArray<int> Indexes;
+	for(int i = 0; i < this->Profile->ProfileData.Num(); i++) {
+		FProfileData Data = this->Profile->ProfileData[i];
+		if(!UGameplayStatics::DoesSaveGameExist(this->GetSlotName(Data.SlotId), 0)) {
+			Indexes.Push(i);
+		}
+	}
+	while(Indexes.Num()) {
+		int Last = Indexes.Pop();
+		this->Profile->ProfileData.RemoveAt(Last);
+	}
+}
+
+void UPeacenetGameInstance::SaveProfile(int SlotID, UPeacenetSaveGame* SaveGame) {
+	check(SaveGame);
+	if(SaveGame) {
+		UGameplayStatics::SaveGameToSlot(SaveGame, this->GetSlotName(SlotID), 0);
+	}
+}
+
+bool UPeacenetGameInstance::ProfileExists(int SlotID) {
+	for(auto ProfileData : this->Profile->ProfileData) {
+		if(ProfileData.SlotId == SlotID) {
+			return UGameplayStatics::DoesSaveGameExist(this->GetSlotName(SlotID), 0);
+		}
+	}
+	return false;
+}
+
+FString UPeacenetGameInstance::GetSlotName(int SlotID) {
+	FString ret = "Peacegate_User" + FString::FromInt(SlotID);
+	return ret;
 }
 
 void UPeacenetGameInstance::GenerateImportantPlayerFiles(FProfileData& InProfileData, FComputer& InComputer) {
