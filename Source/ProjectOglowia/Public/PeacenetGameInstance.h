@@ -127,6 +127,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Settings")
 	FSettingsAppliedEvent SettingsApplied;
 
+	UFUNCTION(BlueprintCallable)
+	bool ConvertOldSave(FString InUsername, FString& OutUsername, FString& OutPassword, FText& OutError);
+
 	UFUNCTION(BlueprintCallable, Category = "Settings")
 	UPeacenetSettings* GetSettings();
 

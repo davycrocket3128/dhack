@@ -502,6 +502,111 @@ bool UPeacenetGameInstance::ProfileExists(int SlotID) {
 	return false;
 }
 
+bool UPeacenetGameInstance::ConvertOldSave(FString InUsername, FString& OutUsername, FString& OutPassword, FText& OutError) {
+	if(UGameplayStatics::DoesSaveGameExist("PeacegateOS", 0)) {
+		UPeacenetSaveGame* SaveGame = Cast<UPeacenetSaveGame>(UGameplayStatics::LoadGameFromSlot("PeacegateOS", 0));
+
+		// The player should have a computer NO MATTER WHAT if the save exists.
+		int ComputerIndex = -1;
+		for(int i = 0; i < SaveGame->Computers.Num(); i++) {
+			if(SaveGame->Computers[i].OwnerType == EComputerOwnerType::Player) {
+				ComputerIndex = i;
+				break;
+			}
+		}
+
+		if(ComputerIndex == -1) {
+			OutError = NSLOCTEXT("SaveErrors", "NoPlayerComputer", "The save game does not have a player computer.");
+		} else {
+			FComputer& PlayerPC = SaveGame->Computers[ComputerIndex];
+
+			// Allow the game to retrieve the player computer more easily at boot.
+			SaveGame->PlayerComputerID = PlayerPC.ID;
+
+			// Now we have a computer, it's time to find an Identity.
+			int CharacterIndex = -1;
+			for(int i = 0; i < SaveGame->Characters.Num(); i++) {
+				if(SaveGame->Characters[i].CharacterType == EIdentityType::Player) {
+					CharacterIndex = i;
+					break;
+				}
+			}
+
+			if(CharacterIndex == -1) {
+				// Character not found; create a new player.
+				FPeacenetIdentity NewPlayer;
+				NewPlayer.ID = 8675309;
+				NewPlayer.CharacterName = InUsername;
+				NewPlayer.CharacterType = EIdentityType::Player;
+				NewPlayer.ComputerID = PlayerPC.ID;
+				NewPlayer.PreferredAlias = UCommonUtils::Aliasify(InUsername);
+				NewPlayer.Skill = 0;
+				NewPlayer.Reputation = 0.f;
+				SaveGame->Characters.Add(NewPlayer);
+				CharacterIndex = SaveGame->Characters.Num() - 1;
+			}
+
+			FPeacenetIdentity& PlayerIdentity = SaveGame->Characters[CharacterIndex];
+
+			// If the preferred alias is blank, set it to the character name.
+			if(PlayerIdentity.PreferredAlias.Len() < 1) {
+				PlayerIdentity.PreferredAlias = PlayerIdentity.CharacterName;
+			}
+
+			// Assign an "@mail.ncci.gov" email to the player - for story sake
+			PlayerIdentity.EmailAddress = UCommonUtils::Aliasify(PlayerIdentity.PreferredAlias) + "@mail.ncci.gov";
+
+			// 0.2.0 didn't have support for non-owned computers, 0.3.0 does, so the computer
+			// needs to know who owns it (explicitly).  So this ensures the player owns it.
+			PlayerPC.SystemIdentity = PlayerIdentity.ID;
+
+			// Because early 0.3.0 builds had the player create a non-root user during the Tutorial,
+			// if the player computer doesn't have a non-root user, we need to create one now.
+			if(PlayerPC.Users.Num() <= 1) {
+				FUser NonRootUser;
+				NonRootUser.Username = UCommonUtils::Aliasify(PlayerIdentity.PreferredAlias);
+				NonRootUser.Password = "oldsave";
+				NonRootUser.ID = 1;
+				NonRootUser.Domain = EUserDomain::PowerUser;
+				PlayerPC.Users.Add(NonRootUser);
+			}
+
+			// Ensure that the game uses the non-root user.
+			for(FUser User : PlayerPC.Users) {
+				if(User.Domain == EUserDomain::PowerUser) {
+					SaveGame->PlayerUserID = User.ID;
+					break;
+				}
+			}
+
+			// Delete the old save game data.
+			UGameplayStatics::DeleteGameInSlot("PeacegateOS", 0);
+
+			// Create a new profile.
+			FProfileData Data;
+			Data.Username = PlayerIdentity.CharacterName;
+			Data.Password = "oldsave";
+			Data.Created = FDateTime::Now();
+			Data.LastPlayed = FDateTime::Now();
+			Data.SlotId = this->GetNextSaveSlotId();
+			this->Profile->ProfileData.Add(Data);
+
+			// Save to the new slot.
+			this->SaveProfile(Data.SlotId, SaveGame);
+
+			// Hand out credentials
+			OutUsername = Data.Username;
+			OutPassword = Data.Password;
+
+			// Good to go.
+			return true;
+		}
+	}
+
+	OutError = NSLOCTEXT("SaveErrors", "NoSave", "There are no old saves to convert.");
+	return false;
+}
+
 FString UPeacenetGameInstance::GetSlotName(int SlotID) {
 	FString ret = "Peacegate_User" + FString::FromInt(SlotID);
 	return ret;
