@@ -915,7 +915,7 @@ FText APeacenetWorldStateActor::GetTimeOfDay() {
 
 // COMPATIBILITY WITH 0.2.0.
 bool APeacenetWorldStateActor::HasExistingOS(int SlotId) {
-	return UGameplayStatics::DoesSaveGameExist(TEXT("PeacegateOS"), SlotId);
+	return UGameplayStatics::DoesSaveGameExist("Peacegate_User" + FString::FromInt(SlotId), 0);
 }
 
 void APeacenetWorldStateActor::SaveWorld() {

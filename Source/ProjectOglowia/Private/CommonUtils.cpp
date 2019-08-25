@@ -379,6 +379,24 @@ FLinearColor UCommonUtils::GetConsoleColor(EConsoleColor InConsoleColor) {
 	}
 }
 
+float UCommonUtils::GetLogDelayTime(const FText& InText) {
+	FString AsString = InText.ToString();
+
+	if(AsString.Contains("[") && AsString.Contains("]")) {
+		int Index = -1;
+		if(AsString.FindChar(']', Index)) {
+			FString Timestamp = AsString.Left(Index);
+			Timestamp.RemoveAt(0, 1);
+			Timestamp = Timestamp.TrimStartAndEnd();
+			return FCString::Atof(*Timestamp);
+		} else {
+			return 0.f;
+		}
+	} else {
+		return 0.f;
+	}
+}
+
 TArray<FText> UCommonUtils::GetKernelMessages() {
 	TArray<FText> ret;
 

@@ -298,7 +298,7 @@ void UPeacenetGameInstance::Init() {
 bool UPeacenetGameInstance::HasOldSaveFile() {
 	// If there is no profile data yet there is still a Peacegate state file, then we have an old pre-0.3.x save file we can
 	// convert if the player chooses to.
-	return APeacenetWorldStateActor::HasExistingOS() && !this->Profile->ProfileData.Num();
+	return UGameplayStatics::DoesSaveGameExist("PeacegateOS", 0);
 }
 
 bool UPeacenetGameInstance::LoadGame(APlayerController* InPlayerController, FString Username, FString Password, APeacenetWorldStateActor*& WorldState) {
