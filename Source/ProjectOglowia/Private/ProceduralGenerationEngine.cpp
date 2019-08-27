@@ -58,3 +58,31 @@ void UProceduralGenerationEngine::Update(float DeltaTime) {
 
     // TODO
 }
+
+void UProceduralGenerationEngine::ResetState() {
+    // Define some hardcoded constants for the world.
+    const int MAX_NPC_IDENTITIES = 1000;
+    const int MAX_EMAIL_SERVERS = 20;
+
+    // Determine the world's seed and re-initialize the random number stream.
+    
+    // Determine which story characters need to spawn.
+
+    // Determine which story computers need to spawn.
+
+    // Determine which systems need a public IP address.
+
+    // Determine which domain names need to be spawned.
+
+    // Dtermine how many identities need to spawn.
+
+    // Determine how many computers need to spawn.
+
+}
+
+void UProceduralGenerationEngine::GiveSaveGame(UPeacenetSaveGame* InSaveGame) {
+    if(this->SaveGame != InSaveGame) {
+        this->SaveGame = InSaveGame;
+        this->ResetState();
+    }
+}

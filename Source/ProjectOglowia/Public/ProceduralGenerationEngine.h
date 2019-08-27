@@ -57,10 +57,20 @@ private:
     UPROPERTY()
     APeacenetWorldStateActor* Peacenet = nullptr;
 
+    UPROPERTY()
+    UPeacenetSaveGame* SaveGame = nullptr;
+
+protected:
+    UFUNCTION()
+    void ResetState();
+
 public:
     UFUNCTION()
     void Setup(APeacenetWorldStateActor* InPeacenet);
 
     UFUNCTION()
     void Update(float DeltaTime);
+
+    UFUNCTION()
+    void GiveSaveGame(UPeacenetSaveGame* InSaveGame);
 };

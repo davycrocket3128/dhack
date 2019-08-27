@@ -771,7 +771,8 @@ void APeacenetWorldStateActor::Tick(float DeltaTime) {
 
 	// Is the save loaded?
 	if (SaveGame) {
-		// Tick the world generator.
+		// Allow the world generator to update.
+		this->WorldGenerator->GiveSaveGame(this->SaveGame);
 		this->WorldGenerator->Update(DeltaTime);
 
 		// Get time of day
