@@ -696,11 +696,6 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 		this->GetCharacter().PreferredAlias = this->GetCharacter().CharacterName;
 	}
 
-	// Do we not have an email address?
-	if(!this->GetCharacter().EmailAddress.Len()) {
-		this->GetCharacter().EmailAddress = this->GetCharacter().PreferredAlias.Replace(TEXT(" "), TEXT("_")) + "@" + this->GetPeacenet()->GetProcgen()->ChooseEmailDomain();
-	}
-
 	// Now we need a filesystem.
 	UPeacegateFileSystem* fs = this->GetFilesystem(0);
 
@@ -734,17 +729,12 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 
 	// Go through every user on the system.
 	for(auto& user : this->GetComputer().Users) {
-		// should we generate loots after this?
-		bool generateLoots = false;
-
 		// Get the home directory for the user.
 		FString home = this->GetUserHomeDirectory(user.ID);
 
 		// If the user's home directory doesn't exist, create it.
 		if(!fs->DirectoryExists(home)) {
 			fs->CreateDirectory(home, fsStatus);
-			generateLoots = true;
-
 			this->AppendLog("Creating home directory " + home + " for user " + user.Username);
 		}
 
@@ -760,13 +750,8 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 
 		for(auto subDir : homeDirs) {
 			if(!fs->DirectoryExists(home + "/" + subDir)) {
-				generateLoots = true;
 				fs->CreateDirectory(home + "/" + subDir, fsStatus);
 			}
-		}
-
-		if(generateLoots) {
-			this->GetPeacenet()->GetProcgen()->PlaceLootableFiles(this->GetUserContext(user.ID));
 		}
 	}
 

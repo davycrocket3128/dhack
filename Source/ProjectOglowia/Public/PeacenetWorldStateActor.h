@@ -51,7 +51,6 @@ class USystemContext;
 class UWallpaperAsset;
 class UComputerService;
 class UMarkovTrainingDataAsset;
-class UProceduralGenerationEngine;
 class UPeacegateProgramAsset;
 class UTerminalCommand;
 class UExploit;
@@ -93,7 +92,6 @@ class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
 
 	mystalkeris AMissionActor; // AMissionActor's more clingy to the fucking save file than I was to Nick Ensor.  That's...annoying....
 	myotherstalkeris UMissionTask; // For the love of Kaylin...
-	myotherstalkeris UProceduralGenerationEngine;
 	myotherstalkeris UTutorialTask;
 
 	GENERATED_BODY()
@@ -170,9 +168,6 @@ private: // Properties
 
 	UPROPERTY()
 	TArray<FManualPage> ManualPages;
-
-	UPROPERTY()
-	UProceduralGenerationEngine* Procgen;
 
 	UPROPERTY()
 	TArray<USystemContext*> SystemContexts;
@@ -355,11 +350,7 @@ public:	// Functions
 	AMissionActor* GetMissionActor();
 
 	UFUNCTION()
-	void StartMission(UMissionAsset* InMission);
-
-	UFUNCTION()
-	UProceduralGenerationEngine* GetProcgen();
-
+	void StartMission(UMissionAsset* InMission); 
 	UFUNCTION()
 	bool GetOwningIdentity(FComputer& InComputer, int& OutIdentityID);
 
@@ -380,7 +371,7 @@ public:	// Functions
 
 	UFUNCTION()
 	TArray<FString> GetPlayerKnownHosts();
-
+\
 	UFUNCTION()
 	void SaveWorld();
 

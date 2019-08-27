@@ -177,9 +177,6 @@ bool APeacenetWorldStateActor::DnsResolve(FString InHost, FComputer& OutComputer
 		return false;
 	}
 
-	// Now we force the game to generate firewall rules for the system.
-	this->Procgen->GenerateFirewallRules(this->GetComputerByID(Entity));
-
 	// And now we give the computer to the caller.
 	OutComputer = this->GetComputerByID(Entity);
 
@@ -327,9 +324,6 @@ void APeacenetWorldStateActor::QuitGame() {
 }
 
 TArray<FString> APeacenetWorldStateActor::GetLinkedHosts(USystemContext* InSystem) {
-	// Generate any links that need to be generated.
-	this->Procgen->GenerateLinks(InSystem->GetComputer());
-
 	// Get all of the linked entities for the system.
 	TArray<int> LinkedPCs = this->SaveGame->GetLinkedSystems(InSystem->GetComputer());
 
@@ -381,10 +375,6 @@ void APeacenetWorldStateActor::FailMission(const FText& InFailMessage) {
 	this->MissionFailed.Broadcast(this->CurrentMission, InFailMessage);
 }
 
-UProceduralGenerationEngine* APeacenetWorldStateActor::GetProcgen() {
-	return this->Procgen;
-}
-
 // Sets default values
 APeacenetWorldStateActor::APeacenetWorldStateActor() {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -424,8 +414,7 @@ void APeacenetWorldStateActor::AbortMission() {
 
 bool APeacenetWorldStateActor::IsPortOpen(FString InIPAddress, int InPort) {
 	check(this->SaveGame);
-	check(this->Procgen);
-
+	
 	check(this->SaveGame->ComputerIPMap.Contains(InIPAddress));
 
 	int EntityID = this->SaveGame->ComputerIPMap[InIPAddress];
@@ -434,8 +423,6 @@ bool APeacenetWorldStateActor::IsPortOpen(FString InIPAddress, int InPort) {
 	int ComputerIndex;
 	bool result = this->SaveGame->GetComputerByID(EntityID, Computer, ComputerIndex);
 	check(result);
-
-	this->Procgen->GenerateFirewallRules(this->SaveGame->Computers[ComputerIndex]);
 
 	for(FFirewallRule& Rule : this->SaveGame->Computers[ComputerIndex].FirewallRules) {
 		if(Rule.Port == InPort) {
@@ -502,7 +489,6 @@ bool APeacenetWorldStateActor::ResolveHost(FString InHost, FComputer& OutCompute
 
 bool APeacenetWorldStateActor::ScanForServices(FString InIPAddress, TArray<FFirewallRule>& OutRules) {
 	check(this->SaveGame);
-	check(this->Procgen);
 
 	if(!this->SaveGame->IPAddressAllocated(InIPAddress)) {
 		return false;
@@ -517,8 +503,6 @@ bool APeacenetWorldStateActor::ScanForServices(FString InIPAddress, TArray<FFire
 	check(result);
 
 	FComputer& RefComputer = this->SaveGame->Computers[ComputerIndex];
-
-	this->Procgen->GenerateFirewallRules(RefComputer);
 
 	OutRules = RefComputer.FirewallRules;
 
@@ -549,18 +533,15 @@ bool APeacenetWorldStateActor::IsTrue(FString InSaveBoolean) {
 
 FString APeacenetWorldStateActor::GetIPAddress(FComputer& InComputer) {
 	check(this->SaveGame);
-	check(this->Procgen);
-
+	
 	for(auto& IP : this->SaveGame->ComputerIPMap) {
 		if(IP.Value == InComputer.ID) {
 			return IP.Key;
 		}
 	}
 
-	// Peacenet 0.2.x: IP addresses do not, under any circumstances, require Peacenet Identities.
-	FString IP = this->Procgen->GenerateIPAddress();
-	this->SaveGame->ComputerIPMap.Add(IP, InComputer.ID);
-	return IP;
+	// The Peacenet 0.3.0 (worldgen overhaul) - World generator should be taking care of IP generation.
+	return "0.0.0.0";
 }
 
 // Loads all the terminal commands in the game
@@ -742,9 +723,6 @@ void APeacenetWorldStateActor::BeginPlay() {
 	// Load terminal command assets, build usage strings, populate command map.
 	this->LoadTerminalCommands();
 
-	// Spin up the procedural generation engine.
-	this->Procgen = NewObject<UProceduralGenerationEngine>(this);
-
 	// Load all mission assets.
 	TArray<UMissionAsset*> TempMissions;
 
@@ -786,8 +764,6 @@ void APeacenetWorldStateActor::EndPlay(const EEndPlayReason::Type InReason) {
 // Called every frame
 void APeacenetWorldStateActor::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
-
-	this->Procgen->Update(DeltaTime);
 
 	// Is the save loaded?
 	if (SaveGame) {
@@ -858,8 +834,6 @@ void APeacenetWorldStateActor::StartGame(TSubclassOf<UDesktopWidget> InDesktopCl
 		SaveGame->Computers.Add(pc);
 		SaveGame->PlayerComputerID = pc.ID;
 	}
-
-	Procgen->Initialize(this);
 
 	// Create a system context.
 	USystemContext* PlayerSystemContext = NewObject<USystemContext>(this);
