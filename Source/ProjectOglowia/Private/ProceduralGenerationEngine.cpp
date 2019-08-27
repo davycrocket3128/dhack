@@ -45,3 +45,16 @@
 #include "MarkovChain.h"
 #include "PeacenetSiteAsset.h"
 #include "PeacenetWorldStateActor.h"
+
+void UProceduralGenerationEngine::Setup(APeacenetWorldStateActor* InPeacenet) {
+    check(InPeacenet);
+    check(!this->Peacenet);
+
+    this->Peacenet = InPeacenet;
+}
+
+void UProceduralGenerationEngine::Update(float DeltaTime) {
+    check(this->Peacenet);
+
+    // TODO
+}

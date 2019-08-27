@@ -679,6 +679,10 @@ void APeacenetWorldStateActor::SetStealthiness(FPeacenetIdentity& InIdentity, fl
 void APeacenetWorldStateActor::BeginPlay() {
 	Super::BeginPlay();
 
+	// Spawn the world generator.
+	this->WorldGenerator = NewObject<UProceduralGenerationEngine>(this);
+	this->WorldGenerator->Setup(this);
+
 	// Spawn in the alert manager.
 	FVector Location(0.0f, 0.0f, 0.0f);
 	 FRotator Rotation(0.0f, 0.0f, 0.0f);
@@ -767,6 +771,9 @@ void APeacenetWorldStateActor::Tick(float DeltaTime) {
 
 	// Is the save loaded?
 	if (SaveGame) {
+		// Tick the world generator.
+		this->WorldGenerator->Update(DeltaTime);
+
 		// Get time of day
 		float TimeOfDay = SaveGame->EpochTime;
 

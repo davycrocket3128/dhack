@@ -52,4 +52,15 @@ UCLASS()
 class PROJECTOGLOWIA_API UProceduralGenerationEngine : public UObject
 {
     GENERATED_BODY()
+
+private:
+    UPROPERTY()
+    APeacenetWorldStateActor* Peacenet = nullptr;
+
+public:
+    UFUNCTION()
+    void Setup(APeacenetWorldStateActor* InPeacenet);
+
+    UFUNCTION()
+    void Update(float DeltaTime);
 };

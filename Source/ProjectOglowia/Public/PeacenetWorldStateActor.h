@@ -58,6 +58,7 @@ class UCommandInfo;
 class UPayloadAsset;
 class UWindow;
 class UMissionAsset;
+class UProceduralGenerationEngine;
 class USystemUpgrade;
 
 // Because literally anything that requires the world state to be friends with it is fucking clingy
@@ -144,6 +145,9 @@ public: // Constructors
 private: // Properties
 	UPROPERTY()
 	UPeacenetSaveGame* SaveGame;
+
+	UPROPERTY()
+	UProceduralGenerationEngine* WorldGenerator = nullptr;
 
 	UPROPERTY()
 	AAlertManager* AlertManager;
@@ -371,7 +375,7 @@ public:	// Functions
 
 	UFUNCTION()
 	TArray<FString> GetPlayerKnownHosts();
-\
+
 	UFUNCTION()
 	void SaveWorld();
 
