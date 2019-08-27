@@ -47,6 +47,7 @@ class UProtocolVersion;
 class APeacenetWorldStateActor;
 class UPeacenetSaveGame;
 class UStoryCharacter;
+class UStoryComputer;
 
 UCLASS()
 class PROJECTOGLOWIA_API UProceduralGenerationEngine : public UObject
@@ -55,16 +56,52 @@ class PROJECTOGLOWIA_API UProceduralGenerationEngine : public UObject
 
 private:
     UPROPERTY()
+    bool JustUpdated = false;
+
+    UPROPERTY()
+    FPeacenetIdentity InvalidIdentity;
+
+    UPROPERTY()
     APeacenetWorldStateActor* Peacenet = nullptr;
 
     UPROPERTY()
     UPeacenetSaveGame* SaveGame = nullptr;
 
+    UPROPERTY()
+    FRandomStream Rng;
+
+    UPROPERTY()
+    TArray<UStoryCharacter*> StoryCharacters;
+
+    UPROPERTY()
+    TArray<UStoryComputer*> StoryComputers;
+
+    UPROPERTY()
+    TArray<int> StoryCharactersToUpdate;
+
+    UPROPERTY()
+    TArray<int> StoryComputersToUpdate;
+
 protected:
     UFUNCTION()
     void ResetState();
 
+    UFUNCTION()
+    int CreateIdentity();
+
+    UFUNCTION()
+    FPeacenetIdentity& GetIdentity(int Identity);
+
+    UFUNCTION()
+    void UpdateStoryCharacter(UStoryCharacter* InStoryCharacter);
+
+    UFUNCTION()
+    void UpdateStoryComputer(UStoryComputer* InStoryComputer);
+
 public:
+    UFUNCTION()
+    bool IsDoneGeneratingStoryCharacters();
+
     UFUNCTION()
     void Setup(APeacenetWorldStateActor* InPeacenet);
 

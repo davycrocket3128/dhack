@@ -585,6 +585,8 @@ TArray<USystemUpgrade*> APeacenetWorldStateActor::GetAllSystemUpgrades() {
 
 void APeacenetWorldStateActor::SendMissionMail(UMissionAsset* InMission) {
 	check(InMission);
+	check(this->WorldGenerator);
+	check(this->WorldGenerator->IsDoneGeneratingStoryCharacters());
 
 	FEmail MissionEmail;
 	MissionEmail.ID = this->SaveGame->EmailMessages.Num();
@@ -794,6 +796,8 @@ void APeacenetWorldStateActor::Tick(float DeltaTime) {
 
 		// Tick the tutorial prompt state.
 		this->TutorialState->Tick(DeltaTime);
+
+		
 	}
 }
 
@@ -856,11 +860,6 @@ void APeacenetWorldStateActor::StartGame(TSubclassOf<UDesktopWidget> InDesktopCl
 	this->SystemContexts.Add(PlayerSystemContext);
 
 	this->PlayerSystemReady.Broadcast(PlayerSystemContext);
-
-	// This allows the game to notify the player of any new missions.
-	if(this->SaveGame->PlayerHasIdentity()) {
-		this->SendAvailableMissions();
-	}
 }
 
 bool APeacenetWorldStateActor::FindProgramByName(FName InName, UPeacegateProgramAsset *& OutProgram) {
