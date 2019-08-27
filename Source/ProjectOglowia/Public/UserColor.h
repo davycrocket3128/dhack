@@ -34,8 +34,9 @@
 
 #include "CoreMinimal.h"
 #include "UserColor.generated.h"
+
 /**
- * Represents a Terminal color.
+ * Represents a User Color.
  */
 UENUM(BlueprintType)
 enum class EUserColor : uint8
