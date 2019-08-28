@@ -377,6 +377,11 @@ void UProceduralGenerationEngine::Update(float DeltaTime) {
     } else if(StoryComputersToUpdate.Num()) {
         int Index = StoryComputersToUpdate.Pop();
         this->UpdateStoryComputer(this->StoryComputers[Index]);
+    } else if(ComputersNeedingIPAddresses.Num()) {
+        // Generate an IP address for any computer that needs one.
+        int ComputerID = this->ComputersNeedingIPAddresses.Pop();
+        FString IPAddress = this->GenerateIPAddress();
+        this->SaveGame->ComputerIPMap.Add(IPAddress, ComputerID);
     } else {
         // Send mission emails if we've just updated.
         if(this->JustUpdated) {
@@ -455,6 +460,18 @@ void UProceduralGenerationEngine::ResetState() {
 
     // Clear all used human names.
     this->UsedHumanNames.Empty();
+
+    // Determine which computers need IP addresses.
+    this->ComputersNeedingIPAddresses.Empty();
+    TArray<int> IPs;
+    for(auto& IP : this->SaveGame->ComputerIPMap) {
+        IPs.Add(IP.Value);
+    }
+    for(auto& Computer : this->SaveGame->Computers) {
+        if(!IPs.Contains(Computer.ID)) {
+            this->ComputersNeedingIPAddresses.Push(Computer.ID);
+        }
+    }
 }
 
 void UProceduralGenerationEngine::GiveSaveGame(UPeacenetSaveGame* InSaveGame) {

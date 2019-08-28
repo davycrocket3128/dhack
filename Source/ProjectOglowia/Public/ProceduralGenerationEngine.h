@@ -113,6 +113,9 @@ private:
     UPROPERTY()
     TArray<FString> UsedHumanNames;
 
+    UPROPERTY()
+    TArray<int> ComputersNeedingIPAddresses;
+
 protected:
     UFUNCTION()
     void GenerateHumanName(FPeacenetIdentity& Identity);
