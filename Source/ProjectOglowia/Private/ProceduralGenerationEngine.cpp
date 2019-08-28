@@ -314,6 +314,25 @@ void UProceduralGenerationEngine::GenerateNPC() {
 
     // Generate a unique name for this identity.
     this->GenerateHumanName(Identity);
+
+    // Set the preferred alias and email username for the identity.
+    Identity.PreferredAlias = Identity.CharacterName;
+    Identity.EmailAddress = UCommonUtils::Aliasify(Identity.PreferredAlias);
+
+    // Create a Peacegate user for the identity's Computer.
+    FString FirstName = UCommonUtils::GetFirstName(FText::FromString(Identity.CharacterName)).ToString();
+    this->CreateUser(Computer, UCommonUtils::Aliasify(FirstName), false);
+
+    // Get a filesystem context for the computer to make writing files easier...
+    USystemContext* SystemContext = this->Peacenet->GetSystemContext(Computer.ID);
+    UPeacegateFileSystem* FS = SystemContext->GetFilesystem(0);
+
+    // Create the /etc directory if not found, then write the hostname to /etc/hostname.
+    if(!FS->DirectoryExists("/etc")) {
+        EFilesystemStatusCode Status = EFilesystemStatusCode::OK;
+        FS->CreateDirectory("/etc", Status);
+    }
+    FS->WriteText("/etc/hostname", UCommonUtils::Aliasify(FirstName) + "-pc");
 }
 
 void UProceduralGenerationEngine::GenerateHumanName(FPeacenetIdentity& Identity) {
