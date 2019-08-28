@@ -85,12 +85,18 @@ private:
     UPROPERTY()
     TArray<int> StoryComputersToUpdate;
 
+    UPROPERTY()
+    int NonPlayerIdentitiesToGenerate = 0;
+
 protected:
     UFUNCTION()
     void ResetState();
 
     UFUNCTION()
     int CreateIdentity();
+
+    UFUNCTION()
+    void GenerateNPC();
 
     UFUNCTION()
     int CreateComputer();

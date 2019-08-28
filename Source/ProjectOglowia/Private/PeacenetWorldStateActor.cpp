@@ -894,7 +894,6 @@ FText APeacenetWorldStateActor::GetTimeOfDay() {
 	return FText::FromString(HoursString + TEXT(":") + MinutesString);
 }
 
-// COMPATIBILITY WITH 0.2.0.
 bool APeacenetWorldStateActor::HasExistingOS(int SlotId) {
 	return UGameplayStatics::DoesSaveGameExist("Peacegate_User" + FString::FromInt(SlotId), 0);
 }

@@ -79,6 +79,9 @@ int UProceduralGenerationEngine::CreateIdentity() {
     FPeacenetIdentity NewIdentity = FPeacenetIdentity();
     NewIdentity.ID = EntityID;
 
+// Logging
+    UE_LOG(LogTemp, Log, TEXT("Generated Peacenet Identity entity ID %s"), *FString::FromInt(NewIdentity.ID));
+
     // Add to the save file; return the ID.
     this->SaveGame->Characters.Add(NewIdentity);
     return NewIdentity.ID;
@@ -158,6 +161,9 @@ int UProceduralGenerationEngine::CreateComputer() {
     // Assign a public IP for the computer.
     this->SaveGame->ComputerIPMap.Add(this->GenerateIPAddress(), NewPC.ID);
 
+    // Logging
+    UE_LOG(LogTemp, Log, TEXT("Generated computer entity ID %s"), *FString::FromInt(NewPC.ID));
+
     // Add the computer to the save file; return its ID
     this->SaveGame->Computers.Add(NewPC);
     return NewPC.ID;
@@ -198,6 +204,9 @@ FString UProceduralGenerationEngine::GenerateIPAddress() {
 
         IPAddress = FString::FromInt(First) + "." + FString::FromInt(Second) + "." + FString::FromInt(Third) + "." + FString::FromInt(Fourth);
     } while(this->SaveGame->ComputerIPMap.Contains(IPAddress));
+
+// Logging
+    UE_LOG(LogTemp, Log, TEXT("Generated IP address: %s"), *IPAddress);
 
     return IPAddress;
 }
@@ -281,6 +290,23 @@ void UProceduralGenerationEngine::UpdateStoryComputer(UStoryComputer* InStoryCom
     Map.Entity = Computer.ID;    
 }
 
+void UProceduralGenerationEngine::GenerateNPC() {
+    // Generate an entity ID.
+    int Entity = this->CreateIdentity();
+
+    // Get a reference to the entity.
+    FPeacenetIdentity& Identity = this->GetIdentity(Entity);
+
+    // Create a computer for the entity.
+    int ComputerEntity = this->CreateComputer();
+    FComputer& Computer = this->GetComputer(ComputerEntity);
+
+    // Assign the entity to the computer, and mark them both as non-player.
+    Identity.CharacterType = EIdentityType::NonPlayer;
+    Computer.SystemIdentity = Identity.ID;
+    Computer.OwnerType = EComputerOwnerType::NPC;
+}
+
 void UProceduralGenerationEngine::Update(float DeltaTime) {
     check(this->Peacenet);
 
@@ -296,6 +322,12 @@ void UProceduralGenerationEngine::Update(float DeltaTime) {
         if(this->JustUpdated) {
             this->Peacenet->SendAvailableMissions();
             this->JustUpdated = false;
+        }
+        
+        // Generate any non-player identities that are left.
+        if(this->NonPlayerIdentitiesToGenerate > 0) {
+            this->GenerateNPC();
+            this->NonPlayerIdentitiesToGenerate--;
         }
     }
 }
@@ -324,11 +356,16 @@ void UProceduralGenerationEngine::ResetState() {
         this->StoryComputersToUpdate.Push(i);
     }
 
-    // Determine which systems need a public IP address.
-
-    // Determine which domain names need to be spawned.
-
     // Dtermine how many identities need to spawn.
+    this->NonPlayerIdentitiesToGenerate = MAX_NPC_IDENTITIES;
+    for(FPeacenetIdentity& Identity : this->SaveGame->Characters) {
+        if(Identity.CharacterType == EIdentityType::NonPlayer) {
+            this->NonPlayerIdentitiesToGenerate--;
+            if(this->NonPlayerIdentitiesToGenerate <= 0) {
+                break;
+            }
+        }
+    }
 
     // Determine how many computers need to spawn.
 
