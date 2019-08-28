@@ -61,6 +61,10 @@ void UProceduralGenerationEngine::Setup(APeacenetWorldStateActor* InPeacenet) {
 
     // Markov training data:
     this->Peacenet->LoadAssets<UMarkovTrainingDataAsset>("MarkovTrainingDataAsset", this->MarkovTrainingData);
+
+    // Protocols.
+    this->Peacenet->LoadAssets<UComputerService>("ComputerService", this->ComputerServices);
+    this->Peacenet->LoadAssets<UProtocolVersion>("ProtocolVersion", this->Protocols);
 }
 
 int UProceduralGenerationEngine::CreateIdentity() {
@@ -506,6 +510,53 @@ void UProceduralGenerationEngine::SpawnServices(int ComputerID) {
     // If we still don't have any protocols then, either the computer is an NPC (non-story) computer, or it's a 
     // story computer but the creator of the asset didn't define any services.
     if(!Computer.FirewallRules.Num()) {
-        // TODO.
+        // These are the protocol types we want to spawn.
+        TArray<UComputerService*> ProtocolTypesToSpawn;
+
+        // How many unique ones do we want to spawn?
+        // TODO: Service spawn conditions.
+        int AmountToSpawn = this->Rng.RandRange(1, this->ComputerServices.Num());
+
+        // Pick service types at random.
+        while(AmountToSpawn) {
+            int i = this->Rng.RandRange(0, this->ComputerServices.Num() - 1);
+            if(!ProtocolTypesToSpawn.Contains(this->ComputerServices[i])) {
+                ProtocolTypesToSpawn.Add(this->ComputerServices[i]);
+                AmountToSpawn--;
+            }
+        }
+
+        // Now we pick protocol implementations for each service.
+        for(auto ServiceType : ProtocolTypesToSpawn) {
+            int i = 0;
+            int ChooserCounter = this->Protocols.Num() * 10;
+            UProtocolVersion* Protocol = nullptr;
+            do {
+                UProtocolVersion* Candidate = this->Protocols[i];
+                if(Candidate->Protocol == ServiceType) {
+                    Protocol = Candidate;
+                    ChooserCounter -= this->Rng.RandRange(1, 5);
+                }
+                i++;
+                if(i >= this->Protocols.Num()) {
+                    // If a candidate has not yet been chosen yet we have hit the end of the list, break
+                    // out of this fucking loop because 0.3.0 is supposed to fix that infinite loop bug.
+                    if(!Protocol) {
+                        break;
+                    }
+                    i = 0;
+                }
+            } while (!Protocol && ChooserCounter > 0);
+            
+            // Spawn the firewall rule! But only if we chose a protocol.
+            if(Protocol) {
+                FFirewallRule FirewallRule;
+                FirewallRule.IsCrashed = false;
+                FirewallRule.IsFiltered = this->Rng.RandRange(1, 6) % 2;
+                FirewallRule.Service = Protocol;
+                FirewallRule.Port = FirewallRule.Service->Protocol->Port;
+                Computer.FirewallRules.Add(FirewallRule);
+            }
+        }
     }
 }

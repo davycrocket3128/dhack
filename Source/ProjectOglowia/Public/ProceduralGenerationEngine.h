@@ -50,6 +50,7 @@ class UProtocolVersion;
 class APeacenetWorldStateActor;
 class UPeacenetSaveGame;
 class UStoryCharacter;
+class UComputerService;
 class UStoryComputer;
 
 UCLASS()
@@ -78,6 +79,12 @@ private:
 
     UPROPERTY()
     UMarkovChain* FemaleNameGenerator = nullptr;
+
+    UPROPERTY()
+    TArray<UComputerService*> ComputerServices;
+
+    UPROPERTY()
+    TArray<UProtocolVersion*> Protocols;
 
     UPROPERTY()
     UMarkovChain* LastNameGenerator = nullptr;
