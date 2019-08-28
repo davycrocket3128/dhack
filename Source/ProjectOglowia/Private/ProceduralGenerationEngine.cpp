@@ -140,6 +140,8 @@ int UProceduralGenerationEngine::CreateComputer() {
     FComputer NewPC;
     NewPC.ID = EntityID;
     NewPC.SystemIdentity = -1;
+    NewPC.PeacenetSite = nullptr;
+    NewPC.CurrentWallpaper = nullptr;
 
     // Format its filesystem.
     UFileUtilities::FormatFilesystem(NewPC.Filesystem);
