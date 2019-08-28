@@ -103,7 +103,13 @@ private:
     UPROPERTY()
     TArray<UMarkovTrainingDataAsset*> MarkovTrainingData;
 
+    UPROPERTY()
+    TArray<FString> UsedHumanNames;
+
 protected:
+    UFUNCTION()
+    void GenerateHumanName(FPeacenetIdentity& Identity);
+
     UFUNCTION()
     ESex DetermineSex();
 

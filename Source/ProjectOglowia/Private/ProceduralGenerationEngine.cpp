@@ -311,6 +311,36 @@ void UProceduralGenerationEngine::GenerateNPC() {
     // Determine the biolgical sex of the Peacenet Identity so we know whether to generate a male or female
     // first name if the game decides that the name to generate is not uni-sex.
     Identity.Sex = this->DetermineSex();
+
+    // Generate a unique name for this identity.
+    this->GenerateHumanName(Identity);
+}
+
+void UProceduralGenerationEngine::GenerateHumanName(FPeacenetIdentity& Identity) {
+    do {
+        FString First = "";
+        FString Last = "";
+
+        // TODO: Unisex names
+        // The first name depends on the sex of the identity.
+        if(Identity.Sex == ESex::Male) {
+            First = this->MaleNameGenerator->GetMarkovString(0);
+        } else {
+            First = this->FemaleNameGenerator->GetMarkovString(0);
+        }
+
+        // Last name doesn't matter
+        Last = this->LastNameGenerator->GetMarkovString(0);
+
+        // Set the character name.
+        Identity.CharacterName = First + " " + Last;
+    } while(this->UsedHumanNames.Contains(Identity.CharacterName));
+
+    // Prevent this exact name from being generated again.
+    this->UsedHumanNames.Add(Identity.CharacterName);
+
+    // Logging.
+    UE_LOG(LogTemp, Log, TEXT("Identity %d is now named %s."), Identity.ID, *Identity.CharacterName);
 }
 
 void UProceduralGenerationEngine::Update(float DeltaTime) {
@@ -342,6 +372,7 @@ void UProceduralGenerationEngine::ResetState() {
     // Define some hardcoded constants for the world.
     const int MAX_NPC_IDENTITIES = 1000;
     const int MAX_EMAIL_SERVERS = 20;
+    const int MARKOV_HUMAN_NAME_READABILITY = 4;
 
     // Determine the world's seed and re-initialize the random number stream.
     if(this->SaveGame->IsNewGame) {
@@ -373,8 +404,33 @@ void UProceduralGenerationEngine::ResetState() {
         }
     }
 
-    // Determine how many computers need to spawn.
+    // MARKOV DATA FOR IDENTITIES
+    // TODO: Unisex names
+    TArray<FString> MaleFirstNames;
+    TArray<FString> LastNames;
+    TArray<FString> FemaleFirstNames;
 
+    // Sift through the metric fuckton of markov training data in this game
+    for(auto TrainingData : this->MarkovTrainingData) {
+        if(TrainingData->Usage == EMarkovTrainingDataUsage::FemaleFirstNames) {
+            FemaleFirstNames.Append(TrainingData->TrainingData);
+        } else if(TrainingData->Usage == EMarkovTrainingDataUsage::MaleFirstNames) {
+            MaleFirstNames.Append(TrainingData->TrainingData);
+        } else if(TrainingData->Usage == EMarkovTrainingDataUsage::LastNames) {
+            LastNames.Append(TrainingData->TrainingData);
+        }
+    }
+
+    // Create markov chains with our current RNG and training data
+    this->MaleNameGenerator = NewObject<UMarkovChain>(this);
+    this->FemaleNameGenerator = NewObject<UMarkovChain>(this);
+    this->LastNameGenerator = NewObject<UMarkovChain>(this);
+    this->MaleNameGenerator->Init(MaleFirstNames, MARKOV_HUMAN_NAME_READABILITY, this->Rng);
+    this->FemaleNameGenerator->Init(FemaleFirstNames, MARKOV_HUMAN_NAME_READABILITY, this->Rng);
+    this->LastNameGenerator->Init(LastNames, MARKOV_HUMAN_NAME_READABILITY, this->Rng);
+
+    // Clear all used human names.
+    this->UsedHumanNames.Empty();
 }
 
 void UProceduralGenerationEngine::GiveSaveGame(UPeacenetSaveGame* InSaveGame) {
