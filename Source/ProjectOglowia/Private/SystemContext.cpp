@@ -618,11 +618,11 @@ bool USystemContext::DnsResolve(FString InHost, FComputer& OutComputer, EConnect
 
 	// TODO: /etc/hosts support.
 
-	// If the host is "localhost" or "127.0.0.1" or our hostname we'll return our own computer.
+	// Map localhost, 127.0.0.1, and the system hostname to our public IP address, since 0.3.0
+	// doesn't have a concept of LANs, network address traversal, etc.
 	if(InHost == "127.0.0.1" || InHost == "localhost" || InHost == this->GetHostname()) {
 
-		OutComputer = this->GetComputer();
-		return true;
+		InHost = this->GetIPAddress();
 	}
 
 	// It's your fucking problem now, world state.
