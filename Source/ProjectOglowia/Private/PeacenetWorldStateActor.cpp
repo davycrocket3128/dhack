@@ -177,6 +177,9 @@ bool APeacenetWorldStateActor::DnsResolve(FString InHost, FComputer& OutComputer
 		return false;
 	}
 
+	// This is also where we generate firewall rules.
+	this->WorldGenerator->SpawnServices(pc.ID);
+
 	// And now we give the computer to the caller.
 	OutComputer = this->GetComputerByID(Entity);
 

@@ -145,6 +145,9 @@ protected:
 
 public:
     UFUNCTION()
+    void SpawnServices(int ComputerID);
+
+    UFUNCTION()
     bool IsDoneGeneratingStoryCharacters();
 
     UFUNCTION()

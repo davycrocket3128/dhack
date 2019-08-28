@@ -289,7 +289,8 @@ void UProceduralGenerationEngine::UpdateStoryComputer(UStoryComputer* InStoryCom
     }
     FStoryComputerMap Map;
     Map.StoryComputer = InStoryComputer;
-    Map.Entity = Computer.ID;    
+    Map.Entity = Computer.ID;
+    this->SaveGame->StoryComputerIDs.Add(Map);
 }
 
 void UProceduralGenerationEngine::GenerateNPC() {
@@ -470,5 +471,41 @@ ESex UProceduralGenerationEngine::DetermineSex() {
         return ESex::Male;
     } else {
         return ESex::Female;
+    }
+}
+
+void UProceduralGenerationEngine::SpawnServices(int ComputerID) {
+    // Get a reference to the computer with this ID.
+    FComputer& Computer = this->GetComputer(ComputerID);
+
+    // Since story computers can explicitly define services to spawn, we need to figure out if this is a
+    // story computer and spawn those if possible.
+    for(auto& StoryComputer : this->SaveGame->StoryComputerIDs) {
+        if(StoryComputer.Entity == Computer.ID) {
+            TArray<FFirewallRule> FirewallRules;
+            for(auto Protocol : StoryComputer.StoryComputer->Services) {
+                if(Protocol.ProtocolVersion) {
+                    // Spawn the service right here since the story computer asset knows whether the firewall should filter
+                    // it
+                    FFirewallRule FirewallRule;
+                    FirewallRule.IsCrashed = false;
+                    FirewallRule.IsFiltered = Protocol.Filtered;
+                    FirewallRule.Service = Protocol.ProtocolVersion;
+                    FirewallRule.Port = FirewallRule.Service->Protocol->Port;
+                    FirewallRules.Add(FirewallRule);
+                }
+            }
+
+            // If we ended up spawning firewall rules then we'll overwrite those found in the computer.
+            if(FirewallRules.Num()) {
+                Computer.FirewallRules = FirewallRules;
+            }
+        }
+    }
+
+    // If we still don't have any protocols then, either the computer is an NPC (non-story) computer, or it's a 
+    // story computer but the creator of the asset didn't define any services.
+    if(!Computer.FirewallRules.Num()) {
+        // TODO.
     }
 }
