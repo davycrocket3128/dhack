@@ -44,7 +44,9 @@
 #include "StoryCharacter.h"
 #include "MarkovChain.h"
 #include "PeacenetSiteAsset.h"
+#include "PeacegateFileSystem.h"
 #include "StoryComputer.h"
+#include "FileUtilities.h"
 #include "PeacenetWorldStateActor.h"
 
 void UProceduralGenerationEngine::Setup(APeacenetWorldStateActor* InPeacenet) {
@@ -120,8 +122,161 @@ void UProceduralGenerationEngine::UpdateStoryCharacter(UStoryCharacter* InStoryC
     this->SaveGame->AssignStoryCharacterID(InStoryCharacter, EntityID);
 }
 
-void UProceduralGenerationEngine::UpdateStoryComputer(UStoryComputer* InStoryComputer) {
+int UProceduralGenerationEngine::CreateComputer() {
+    int EntityID = 0;
 
+    // Collect all taken computer IDs
+    TArray<int> Taken;
+    for(FComputer& Computer : this->SaveGame->Computers) {
+        Taken.Add(Computer.ID);
+    }
+
+    // Find the first computer ID that isn't taken.
+    while(Taken.Contains(EntityID)) {
+        EntityID++;
+    }
+
+    // Create a computer with this ID
+    FComputer NewPC;
+    NewPC.ID = EntityID;
+    NewPC.SystemIdentity = -1;
+
+    // Format its filesystem.
+    UFileUtilities::FormatFilesystem(NewPC.Filesystem);
+
+    // Create a root user account.
+    FUser Root;
+    Root.ID = 0;
+    Root.Username = "root";
+    Root.Domain = EUserDomain::Administrator;
+
+    // Add the root user to the computer.
+    NewPC.Users.Add(Root);
+
+    // Assign a public IP for the computer.
+    this->SaveGame->ComputerIPMap.Add(this->GenerateIPAddress(), NewPC.ID);
+
+    // Add the computer to the save file; return its ID
+    this->SaveGame->Computers.Add(NewPC);
+    return NewPC.ID;
+}
+
+FComputer& UProceduralGenerationEngine::GetComputer(int EntityID) {
+    for(FComputer& Computer : this->SaveGame->Computers) {
+        if(Computer.ID == EntityID) {
+            return Computer;
+        }
+    }
+    return this->InvalidPC;
+}
+
+void UProceduralGenerationEngine::CreateUser(FComputer& InComputer, FString InUsername, bool Sudoer) {
+    for(FUser& User : InComputer.Users) {
+        if(User.Username == InUsername) {
+            User.Domain = (Sudoer) ? EUserDomain::PowerUser : EUserDomain::User;
+            return;
+        }
+    }
+
+    FUser NewUser;
+    NewUser.ID = InComputer.Users.Num();
+    NewUser.Username = InUsername;
+    NewUser.Domain = (Sudoer) ? EUserDomain::PowerUser : EUserDomain::User;
+    InComputer.Users.Add(NewUser);
+}
+
+FString UProceduralGenerationEngine::GenerateIPAddress() {
+    FString IPAddress;
+
+    do {
+        int First = this->Rng.RandRange(16, 254);
+        int Second = this->Rng.RandRange(0, 255);
+        int Third = this->Rng.RandRange(0, 255);
+        int Fourth = this->Rng.RandRange(0, 255);
+
+        IPAddress = FString::FromInt(First) + "." + FString::FromInt(Second) + "." + FString::FromInt(Third) + "." + FString::FromInt(Fourth);
+    } while(this->SaveGame->ComputerIPMap.Contains(IPAddress));
+
+    return IPAddress;
+}
+
+void UProceduralGenerationEngine::UpdateStoryComputer(UStoryComputer* InStoryComputer) {
+    // Find the computer ID for the story computer.
+    int EntityID = -1;
+    for(auto ComputerMap : this->SaveGame->StoryComputerIDs) {
+        if(ComputerMap.StoryComputer == InStoryComputer) {
+            EntityID = ComputerMap.Entity;
+            break;
+        }
+    }
+
+    // If it doesn't exist, create a new one.
+    if(EntityID == -1) {
+        EntityID = this->CreateComputer();
+    }
+
+    // Get a reference to the computer so we can update system identity, users,
+    // other stuff like that.
+    FComputer& Computer = this->GetComputer(EntityID);
+
+    // Update the system identity if possible.
+    Computer.SystemIdentity = -1;
+    if(InStoryComputer->OwningCharacter) {
+        this->SaveGame->GetStoryCharacterID(InStoryComputer->OwningCharacter, Computer.SystemIdentity);
+    } 
+
+    // Create all users that don't exist.
+    for(auto Username : InStoryComputer->Users) {
+        FString Unixified = UCommonUtils::Aliasify(Username);
+        if(Unixified.Len()) {
+            this->CreateUser(Computer, Unixified, false);
+        }
+    }
+
+    // Get a system context for the computer.
+    USystemContext* SystemContext = this->Peacenet->GetSystemContext(Computer.ID);
+
+    // Get a root user context.
+    UUserContext* UserContext = SystemContext->GetUserContext(0);
+
+    // Update the hostname.
+    EFilesystemStatusCode Status = EFilesystemStatusCode::OK;
+    UPeacegateFileSystem* FS = UserContext->GetFilesystem();
+    if(!FS->DirectoryExists("/etc")) {
+        FS->CreateDirectory("/etc", Status);
+    }
+    FString Host = UCommonUtils::Aliasify(InStoryComputer->Hostname);
+    if(Host.Len()) {
+        FS->WriteText("/etc/hostname", Host);
+    } else {
+        FS->WriteText("/etc/hostname", "localhost");
+    }
+
+    // Assign the domain name for the computer.
+    FString Domain = UCommonUtils::Aliasify(InStoryComputer->DomainName);
+    if(Domain.Len()) {
+        FString IP = this->Peacenet->GetIPAddress(Computer);
+        if(this->SaveGame->DomainNameMap.Contains(Domain)) {
+            this->SaveGame->DomainNameMap[Domain] = IP;
+        } else {
+            this->SaveGame->DomainNameMap.Add(Domain, IP);
+        }
+    }
+
+    // Set firewall rules.
+
+    // Spawn/update file lootables.
+
+    // Assign the computer ID to the computer asset.
+    for(auto& CompMap : this->SaveGame->StoryComputerIDs) {
+        if(CompMap.StoryComputer == InStoryComputer) {
+            CompMap.Entity = Computer.ID;
+            return;
+        }
+    }
+    FStoryComputerMap Map;
+    Map.StoryComputer = InStoryComputer;
+    Map.Entity = Computer.ID;    
 }
 
 void UProceduralGenerationEngine::Update(float DeltaTime) {

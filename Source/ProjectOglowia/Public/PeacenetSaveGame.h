@@ -41,6 +41,7 @@
 #include "StoryCharacterIDMap.h"
 #include "ComputerLink.h"
 #include "Email.h"
+#include "StoryComputerMap.h"
 #include "PeacenetSaveGame.generated.h"
 
 class UDesktopWidget;
@@ -111,6 +112,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = "Missions")
 	TArray<FName> Missions;
+
+	UPROPERTY(VisibleAnywhere, Category = "Procgen")
+	TArray<FStoryComputerMap> StoryComputerIDs;
 
 	UPROPERTY(VisibleAnywhere, Category = "Procgen")
 	TMap<FString, int> ComputerIPMap;

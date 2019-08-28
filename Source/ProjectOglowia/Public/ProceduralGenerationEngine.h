@@ -59,6 +59,9 @@ private:
     bool JustUpdated = false;
 
     UPROPERTY()
+    FComputer InvalidPC;
+
+    UPROPERTY()
     FPeacenetIdentity InvalidIdentity;
 
     UPROPERTY()
@@ -90,7 +93,19 @@ protected:
     int CreateIdentity();
 
     UFUNCTION()
+    int CreateComputer();
+
+    UFUNCTION()
     FPeacenetIdentity& GetIdentity(int Identity);
+
+    UFUNCTION()
+    FComputer& GetComputer(int EntityID);
+
+    UFUNCTION()
+    void CreateUser(FComputer& InComputer, FString InUsername, bool Sudoer);
+
+    UFUNCTION()
+    FString GenerateIPAddress();
 
     UFUNCTION()
     void UpdateStoryCharacter(UStoryCharacter* InStoryCharacter);
