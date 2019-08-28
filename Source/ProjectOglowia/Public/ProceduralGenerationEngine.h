@@ -37,6 +37,9 @@
 #include "PeacenetIdentity.h"
 #include "MarkovTrainingDataAsset.h"
 #include "RandomStream.h"
+#include "MarkovTrainingDataAsset.h"
+#include "MarkovChain.h"
+#include "Sex.h"
 #include "ProceduralGenerationEngine.generated.h"
 
 class ULootableFile;
@@ -71,6 +74,15 @@ private:
     UPeacenetSaveGame* SaveGame = nullptr;
 
     UPROPERTY()
+    UMarkovChain* MaleNameGenerator = nullptr;
+
+    UPROPERTY()
+    UMarkovChain* FemaleNameGenerator = nullptr;
+
+    UPROPERTY()
+    UMarkovChain* LastNameGenerator = nullptr;
+
+    UPROPERTY()
     FRandomStream Rng;
 
     UPROPERTY()
@@ -88,7 +100,13 @@ private:
     UPROPERTY()
     int NonPlayerIdentitiesToGenerate = 0;
 
+    UPROPERTY()
+    TArray<UMarkovTrainingDataAsset*> MarkovTrainingData;
+
 protected:
+    UFUNCTION()
+    ESex DetermineSex();
+
     UFUNCTION()
     void ResetState();
 

@@ -29,64 +29,16 @@
  *
  ********************************************************************************/
 
-
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SystemUpgrade.h"
-#include "Sex.h"
-#include "PeacenetIdentity.generated.h"
+#include "Sex.generated.h"
 
 /**
- * Represents a type of Peacenet character identity.
+ * Represents the biological sex assigned to a Peacenet Identity's human counter-part during birth.
  */
 UENUM(BlueprintType)
-enum class EIdentityType : uint8
-{
-	Player,
-	NonPlayer,
-	Story
-};
-
-/**
- * Represents a character's identity within The Peacenet.
- */
-USTRUCT(BlueprintType)
-struct PROJECTOGLOWIA_API FPeacenetIdentity
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	int ID;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FString CharacterName;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FString EmailAddress;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FString PreferredAlias;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	int Skill;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	int ComputerID;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float Reputation;	
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TArray<USystemUpgrade*> UnlockedUpgrades;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	EIdentityType CharacterType;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	bool IsMissionImportant = false;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	ESex Sex = ESex::Male;
+enum class ESex : uint8 {
+    Male,
+    Female
 };

@@ -58,7 +58,9 @@ void UProceduralGenerationEngine::Setup(APeacenetWorldStateActor* InPeacenet) {
     // Load story entity data
     this->Peacenet->LoadAssets<UStoryCharacter>("StoryCharacter", this->StoryCharacters);
     this->Peacenet->LoadAssets<UStoryComputer>("StoryComputer", this->StoryComputers);
-    
+
+    // Markov training data:
+    this->Peacenet->LoadAssets<UMarkovTrainingDataAsset>("MarkovTrainingDataAsset", this->MarkovTrainingData);
 }
 
 int UProceduralGenerationEngine::CreateIdentity() {
@@ -305,6 +307,10 @@ void UProceduralGenerationEngine::GenerateNPC() {
     Identity.CharacterType = EIdentityType::NonPlayer;
     Computer.SystemIdentity = Identity.ID;
     Computer.OwnerType = EComputerOwnerType::NPC;
+
+    // Determine the biolgical sex of the Peacenet Identity so we know whether to generate a male or female
+    // first name if the game decides that the name to generate is not uni-sex.
+    Identity.Sex = this->DetermineSex();
 }
 
 void UProceduralGenerationEngine::Update(float DeltaTime) {
@@ -381,4 +387,13 @@ void UProceduralGenerationEngine::GiveSaveGame(UPeacenetSaveGame* InSaveGame) {
 
 bool UProceduralGenerationEngine::IsDoneGeneratingStoryCharacters() {
     return !this->StoryCharactersToUpdate.Num();
+}
+
+ESex UProceduralGenerationEngine::DetermineSex() {
+    int DiceRoll = this->Rng.RandRange(1, 6);
+    if(DiceRoll % 2) {
+        return ESex::Male;
+    } else {
+        return ESex::Female;
+    }
 }
