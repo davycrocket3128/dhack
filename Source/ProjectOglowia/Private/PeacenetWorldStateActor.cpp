@@ -48,6 +48,7 @@
 #include "MissionActor.h"
 #include "SystemUpgrade.h"
 #include "TutorialTask.h"
+#include "PeacenetCheatManager.h"
 #include "Window.h"
 
 FEmail& APeacenetWorldStateActor::GetMessageData(int ID) {

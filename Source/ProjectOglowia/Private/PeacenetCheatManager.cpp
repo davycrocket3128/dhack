@@ -30,22 +30,48 @@
  ********************************************************************************/
 
 #include "CommonUtils.h"
+#include "PeacenetWorldStateActor.h"
+#include "UserContext.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "PeacenetCheatManager.h"
 
-void UPeacenetCheatManager::PrintMessage(FString Message) {
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, *Message);
-}
-
-void UPeacenetCheatManager::PeacenetStat() {
+APeacenetWorldStateActor* UPeacenetCheatManager::GetPeacenet() {
     // Acquire a world context through our owning player.
-    this->PrintMessage("Finding Peacenet World State Actor through current Player Controller...");
     APlayerController* Player = this->GetOuterAPlayerController();
 
     // Try to acquire the player's Peacegate user.
     UUserContext* User = nullptr;
     if(UCommonUtils::GetPlayerUserContext(Player, User)) {
-        this->PrintMessage("Peacenet is currently active.");
+        return User->GetPeacenet();
     } else {
-        this->PrintMessage("Peacenet is not currently active!");
+        return nullptr;
+    }
+}
+
+void UPeacenetCheatManager::PrintMessage(FString Message) {
+    UKismetSystemLibrary::PrintString(this->GetOuterAPlayerController(), Message, true, true, FLinearColor(0x1B, 0xAA, 0xF7, 0xFF), 5.f);
+}
+
+void UPeacenetCheatManager::PeacenetStat() {
+    if(this->GetPeacenet()) {
+        this->PrintMessage("Peacenet is currently active and running all simulations.");
+    } else {
+        this->PrintMessage("Peacenet is currently inactive and not running any simulations.");
+    }
+}
+
+void UPeacenetCheatManager::DnsTable() {
+    auto Peacenet = this->GetPeacenet();
+    if (Peacenet) {
+        this->PrintMessage("IP Address to Computer ID Map\r\n===============\r\n\r\n");
+        for(auto IPMap : Peacenet->SaveGame->ComputerIPMap) {
+            this->PrintMessage(IPMap.Key + " => " + FString::FromInt(IPMap.Value));
+        }
+        this->PrintMessage("Domain Name Map\r\n===============\r\n\r\n");
+        for(auto DnsMap : Peacenet->SaveGame->DomainNameMap) {
+            this->PrintMessage(DnsMap.Key + " => " + DnsMap.Value);
+        }
+    } else {
+        this->PrintMessage("Peacenet isn't currently active, can't see DNS table.");
     }
 }

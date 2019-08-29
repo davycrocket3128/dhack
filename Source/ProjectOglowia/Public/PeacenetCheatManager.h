@@ -35,6 +35,8 @@
 #include "GameFramework/CheatManager.h"
 #include "PeacenetCheatManager.generated.h"
 
+class APeacenetWorldStateActor;
+
 UCLASS(BlueprintType)
 class PROJECTOGLOWIA_API UPeacenetCheatManager : public UCheatManager {
     GENERATED_BODY()
@@ -43,7 +45,13 @@ protected:
     UFUNCTION()
     void PrintMessage(FString Message);
 
+    UFUNCTION()
+    APeacenetWorldStateActor* GetPeacenet();
+
 public:
     UFUNCTION(Exec)
     void PeacenetStat();
+
+    UFUNCTION(Exec)
+    void DnsTable();
 };

@@ -60,6 +60,7 @@ class UWindow;
 class UMissionAsset;
 class UProceduralGenerationEngine;
 class USystemUpgrade;
+class UPeacenetCheatManager;
 
 // Because literally anything that requires the world state to be friends with it is fucking clingy
 // as fuck.
@@ -94,6 +95,7 @@ class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
 	mystalkeris AMissionActor; // AMissionActor's more clingy to the fucking save file than I was to Nick Ensor.  That's...annoying....
 	myotherstalkeris UMissionTask; // For the love of Kaylin...
 	myotherstalkeris UTutorialTask;
+	myotherstalkeris UPeacenetCheatManager;
 
 	GENERATED_BODY()
 	
