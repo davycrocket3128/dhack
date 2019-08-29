@@ -65,6 +65,24 @@ void UProceduralGenerationEngine::Setup(APeacenetWorldStateActor* InPeacenet) {
     // Protocols.
     this->Peacenet->LoadAssets<UComputerService>("ComputerService", this->ComputerServices);
     this->Peacenet->LoadAssets<UProtocolVersion>("ProtocolVersion", this->Protocols);
+
+    // Top-level domains - hard-coded right now.
+    this->TopLevelDomains = {
+        ".com",
+        ".net",
+        ".org",
+        ".mail",
+        ".xyz",
+        ".space",
+        ".sos",
+        ".os",
+        ".info",
+        ".abc"
+    };
+}
+
+FString UProceduralGenerationEngine::PickTopLevelDomain() {
+    return this->TopLevelDomains[this->Rng.RandRange(0, this->TopLevelDomains.Num() - 1)];
 }
 
 int UProceduralGenerationEngine::CreateIdentity() {
@@ -386,6 +404,12 @@ void UProceduralGenerationEngine::Update(float DeltaTime) {
         this->GenerateEmailServer();
         this->EmailServersToGenerate--;
     } else {
+        // Generate domain names for email servers.
+        if(this->EmailServersNeedingDomains.Num()) {
+            int Entity = this->EmailServersNeedingDomains.Pop();
+            this->SetDomainName(Entity);
+        }
+
         // Send mission emails if we've just updated.
         if(this->JustUpdated) {
             this->Peacenet->SendAvailableMissions();
@@ -411,6 +435,9 @@ void UProceduralGenerationEngine::GenerateEmailServer() {
     Computer.ComputerType = EComputerType::EmailServer;
     Computer.SystemIdentity = -1;
     Computer.OwnerType = EComputerOwnerType::None;
+
+    // Queue this server to receive a domain name.
+    this->EmailServersNeedingDomains.Add(Computer.ID);
 }
 
 void UProceduralGenerationEngine::ResetState() {
@@ -418,6 +445,7 @@ void UProceduralGenerationEngine::ResetState() {
     const int MAX_NPC_IDENTITIES = 1000;
     const int MAX_EMAIL_SERVERS = 20;
     const int MARKOV_HUMAN_NAME_READABILITY = 4;
+    const int HOSTNAME_READABILITY = 3;
 
     // Determine the world's seed and re-initialize the random number stream.
     if(this->SaveGame->IsNewGame) {
@@ -454,6 +482,7 @@ void UProceduralGenerationEngine::ResetState() {
     TArray<FString> MaleFirstNames;
     TArray<FString> LastNames;
     TArray<FString> FemaleFirstNames;
+    TArray<FString> Hostnames;
 
     // Sift through the metric fuckton of markov training data in this game
     for(auto TrainingData : this->MarkovTrainingData) {
@@ -463,6 +492,8 @@ void UProceduralGenerationEngine::ResetState() {
             MaleFirstNames.Append(TrainingData->TrainingData);
         } else if(TrainingData->Usage == EMarkovTrainingDataUsage::LastNames) {
             LastNames.Append(TrainingData->TrainingData);
+        } else if(TrainingData->Usage == EMarkovTrainingDataUsage::Hostnames) {
+            Hostnames.Append(TrainingData->TrainingData);
         }
     }
 
@@ -470,9 +501,11 @@ void UProceduralGenerationEngine::ResetState() {
     this->MaleNameGenerator = NewObject<UMarkovChain>(this);
     this->FemaleNameGenerator = NewObject<UMarkovChain>(this);
     this->LastNameGenerator = NewObject<UMarkovChain>(this);
+    this->DomainNameGenerator = NewObject<UMarkovChain>(this);
     this->MaleNameGenerator->Init(MaleFirstNames, MARKOV_HUMAN_NAME_READABILITY, this->Rng);
     this->FemaleNameGenerator->Init(FemaleFirstNames, MARKOV_HUMAN_NAME_READABILITY, this->Rng);
     this->LastNameGenerator->Init(LastNames, MARKOV_HUMAN_NAME_READABILITY, this->Rng);
+    this->DomainNameGenerator->Init(Hostnames, HOSTNAME_READABILITY, this->Rng);
 
     // Clear all used human names.
     this->UsedHumanNames.Empty();
@@ -491,9 +524,23 @@ void UProceduralGenerationEngine::ResetState() {
 
     // Determine how many email servers we need to generate.
     this->EmailServersToGenerate = MAX_EMAIL_SERVERS;
+    this->EmailServersNeedingDomains.Empty();
     for(FComputer& Computer : this->SaveGame->Computers) {
         if(Computer.ComputerType == EComputerType::EmailServer) {
             this->EmailServersToGenerate--;
+            for(auto& IPAddress : this->SaveGame->ComputerIPMap) {
+                if(IPAddress.Value == Computer.ID) {
+                    bool HasDomain = false;
+                    for(auto& Domain : this->SaveGame->DomainNameMap) {
+                        HasDomain = true;
+                        break;
+                    }
+                    if(!HasDomain) {
+                        this->EmailServersNeedingDomains.Add(Computer.ID);
+                    }
+                    break;
+                }
+            }
         }
     }
 }
@@ -600,4 +647,31 @@ void UProceduralGenerationEngine::SpawnServices(int ComputerID) {
             }
         }
     }
+}
+
+void UProceduralGenerationEngine::SetDomainName(int Entity) {
+    // Retrieve a reference to the computer.
+    FComputer& Computer = this->GetComputer(Entity);
+
+    // Retrieve the IP address of the computer so we can map a domain name
+    // to it.
+    FString IPAddress = "";
+    for(auto& IPMap : this->SaveGame->ComputerIPMap) {
+        if(IPMap.Value == Computer.ID) {
+            IPAddress = IPMap.Key;
+            break;
+        }
+    }
+
+    // If the computer does not have an IP address we'll generate one.
+    if(!IPAddress.Len()) {
+        IPAddress = this->GenerateIPAddress();
+        this->SaveGame->ComputerIPMap.Add(IPAddress, Computer.ID);
+    }
+
+    // Generate a unique domain name for the computer.
+    FString DomainName = "";
+    do {
+        DomainName = UCommonUtils::Aliasify(this->DomainNameGenerator->GetMarkovString(0)) + this->PickTopLevelDomain();
+    } while(this->SaveGame->DomainNameMap.Contains(DomainName));
 }

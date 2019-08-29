@@ -90,6 +90,12 @@ private:
     UMarkovChain* LastNameGenerator = nullptr;
 
     UPROPERTY()
+    UMarkovChain* DomainNameGenerator = nullptr;
+
+    UPROPERTY()
+    TArray<FString> TopLevelDomains;
+
+    UPROPERTY()
     FRandomStream Rng;
 
     UPROPERTY()
@@ -100,6 +106,9 @@ private:
 
     UPROPERTY()
     TArray<int> StoryCharactersToUpdate;
+
+    UPROPERTY()
+    TArray<int> EmailServersNeedingDomains;
 
     UPROPERTY()
     TArray<int> StoryComputersToUpdate;
@@ -120,6 +129,12 @@ private:
     int EmailServersToGenerate = 0;
 
 protected:
+    UFUNCTION()
+    FString PickTopLevelDomain();
+
+    UFUNCTION()
+    void SetDomainName(int Entity);
+
     UFUNCTION()
     void GenerateHumanName(FPeacenetIdentity& Identity);
 
