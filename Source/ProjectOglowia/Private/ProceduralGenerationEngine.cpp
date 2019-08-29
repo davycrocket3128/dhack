@@ -382,6 +382,9 @@ void UProceduralGenerationEngine::Update(float DeltaTime) {
         int ComputerID = this->ComputersNeedingIPAddresses.Pop();
         FString IPAddress = this->GenerateIPAddress();
         this->SaveGame->ComputerIPMap.Add(IPAddress, ComputerID);
+    } else if(this->EmailServersToGenerate > 0) {
+        this->GenerateEmailServer();
+        this->EmailServersToGenerate--;
     } else {
         // Send mission emails if we've just updated.
         if(this->JustUpdated) {
@@ -395,6 +398,17 @@ void UProceduralGenerationEngine::Update(float DeltaTime) {
             this->NonPlayerIdentitiesToGenerate--;
         }
     }
+}
+
+void UProceduralGenerationEngine::GenerateEmailServer() {
+    // Generate a computer ID.
+    int Entity = this->CreateComputer();
+
+    // Get the computer as a reference.
+    FComputer& Computer = this->GetComputer(Entity);
+
+    // Assign the computer type as an Email Server.
+    Computer.ComputerType = EComputerType::EmailServer;
 }
 
 void UProceduralGenerationEngine::ResetState() {
@@ -470,6 +484,14 @@ void UProceduralGenerationEngine::ResetState() {
     for(auto& Computer : this->SaveGame->Computers) {
         if(!IPs.Contains(Computer.ID)) {
             this->ComputersNeedingIPAddresses.Push(Computer.ID);
+        }
+    }
+
+    // Determine how many email servers we need to generate.
+    this->EmailServersToGenerate = MAX_EMAIL_SERVERS;
+    for(FComputer& Computer : this->SaveGame->Computers) {
+        if(Computer.ComputerType == EComputerType::EmailServer) {
+            this->EmailServersToGenerate--;
         }
     }
 }

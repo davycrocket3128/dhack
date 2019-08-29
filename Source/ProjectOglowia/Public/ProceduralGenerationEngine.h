@@ -116,9 +116,15 @@ private:
     UPROPERTY()
     TArray<int> ComputersNeedingIPAddresses;
 
+    UPROPERTY()
+    int EmailServersToGenerate = 0;
+
 protected:
     UFUNCTION()
     void GenerateHumanName(FPeacenetIdentity& Identity);
+
+    UFUNCTION()
+    void GenerateEmailServer();
 
     UFUNCTION()
     ESex DetermineSex();
