@@ -48,10 +48,73 @@ protected:
     UFUNCTION()
     APeacenetWorldStateActor* GetPeacenet();
 
+    UFUNCTION()
+    UUserContext* GetPlayerUser();
+
 public:
     UFUNCTION(Exec)
     void PeacenetStat();
 
     UFUNCTION(Exec)
     void DnsTable();
+
+    UFUNCTION(Exec)
+    void Missions();
+
+    UFUNCTION(Exec)
+    void UnlockMission(FString MissionName);
+
+    UFUNCTION(Exec)
+    void Upgrades();
+
+    UFUNCTION(Exec)
+    void UnlockUpgrade(FString Upgrade);
+
+    UFUNCTION(Exec)
+    void ComputerInfo(int EntityID);
+
+    UFUNCTION(Exec)
+    void IdentityInfo(int EntityID);
+
+    UFUNCTION(Exec)
+    void ResetFirewall(int EntityID);
+
+    UFUNCTION(Exec)
+    void OpenPort(int EntityID, int Port);
+
+    UFUNCTION(Exec)
+    void CompleteMission();
+
+    UFUNCTION(Exec)
+    void EndMission();
+
+    UFUNCTION(Exec)
+    void Panic();
+
+    UFUNCTION(Exec)
+    void ForceTextMode();
+
+    UFUNCTION(Exec)
+    void UnforceTextMode();
+
+    UFUNCTION(Exec)
+    void SetCover(float Percentage);
+
+    UFUNCTION(Exec)
+    void Uncrash(int EntityID);
+
+    UFUNCTION(Exec)
+    void UncrashService(int EntityID, int Port);
+
+    UFUNCTION(Exec)
+    void LockUpgrade(FString Upgrade);
+
+    UFUNCTION(Exec)
+    void SetSkill(int Skill);
+
+    UFUNCTION(Exec)
+    void AddSkill(int Skill);
+    
+    UFUNCTION(Exec)
+    void RemoveSkill(int Skill);
 };
