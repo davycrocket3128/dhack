@@ -409,6 +409,8 @@ void UProceduralGenerationEngine::GenerateEmailServer() {
 
     // Assign the computer type as an Email Server.
     Computer.ComputerType = EComputerType::EmailServer;
+    Computer.SystemIdentity = -1;
+    Computer.OwnerType = EComputerOwnerType::None;
 }
 
 void UProceduralGenerationEngine::ResetState() {
