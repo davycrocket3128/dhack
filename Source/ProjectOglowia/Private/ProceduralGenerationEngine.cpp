@@ -674,4 +674,16 @@ void UProceduralGenerationEngine::SetDomainName(int Entity) {
     do {
         DomainName = UCommonUtils::Aliasify(this->DomainNameGenerator->GetMarkovString(0)) + this->PickTopLevelDomain();
     } while(this->SaveGame->DomainNameMap.Contains(DomainName));
+
+    // Assign the domain name.
+    this->SaveGame->DomainNameMap.Add(DomainName, IPAddress);
+
+    // Acquire a filesystem and write the domain name to /etc/hostname
+    USystemContext* SystemContext = this->Peacenet->GetSystemContext(Computer.ID);
+    UPeacegateFileSystem* FS = SystemContext->GetFilesystem(0);
+    if(!FS->DirectoryExists("/etc")) {
+        EFilesystemStatusCode Status;
+        FS->CreateDirectory("/etc", Status);
+    }
+    FS->WriteText("/etc/hostname", DomainName);
 }
