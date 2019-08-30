@@ -47,8 +47,8 @@ FString ResolvePath(FString InPath) {
             if(CurrentPart.Len()) {
                 SplitParts.Add(CurrentPart);
                 CurrentPart = "";
-                continue;
             }
+            continue;
         }
         CurrentPart += InPath[i];
     }
@@ -66,12 +66,9 @@ FString ResolvePath(FString InPath) {
         PartStack.Push(Part);
     }
 
-    FString AbsolutePath = "/";
+    FString AbsolutePath = "";
     while(PartStack.Num()) {
-        if(!AbsolutePath.EndsWith("/")) {
-            AbsolutePath += "/";
-        }
-        AbsolutePath += PartStack.Pop();
+        AbsolutePath = "/" + PartStack.Pop() + AbsolutePath;
     }
     return AbsolutePath;
 }
