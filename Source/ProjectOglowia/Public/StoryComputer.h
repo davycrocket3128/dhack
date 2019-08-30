@@ -37,7 +37,7 @@
 #include "Engine/DataAsset.h"
 #include "StoryCharacter.h"
 #include "ExplicitComputerService.h"
-#include "LootableFile.h"
+#include "LootableSpawnInfo.h"
 #include "StoryComputer.generated.h"
 
 /**
@@ -93,5 +93,5 @@ public:
      * player to retrieve a file.
      */
     UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "File System")
-    TArray<ULootableFile*> LootableFiles;
+    TArray<FLootableSpawnInfo> LootableFiles;
 };
