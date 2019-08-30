@@ -92,7 +92,7 @@ void UPeacenetCheatManager::Missions() {
 }
 
 void UPeacenetCheatManager::UnlockMission(FString MissionName) {
-
+    
 }
 
 void UPeacenetCheatManager::Upgrades() {
@@ -105,7 +105,17 @@ void UPeacenetCheatManager::Upgrades() {
 }
 
 void UPeacenetCheatManager::UnlockUpgrade(FString Upgrade) {
-
+    if(this->GetPlayerUser()) {
+        for(auto& UpgradeAsset : this->GetPeacenet()->GetAllSystemUpgrades()) {
+            if(UpgradeAsset->GetFName().ToString() == Upgrade) {
+                if(!this->GetPlayerUser()->GetPeacenetIdentity().UnlockedUpgrades.Contains(UpgradeAsset)) {
+                    this->GetPlayerUser()->GetPeacenetIdentity().UnlockedUpgrades.Add(UpgradeAsset);
+                    this->PrintMessage("Unlocked upgrade successfully.");
+                    return;
+                }
+            }
+        }
+    }
 }
 
 void UPeacenetCheatManager::ComputerInfo(int EntityID) {
