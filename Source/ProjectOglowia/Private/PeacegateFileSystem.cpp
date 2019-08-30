@@ -36,6 +36,10 @@
 #include "PeacenetWorldStateActor.h"
 #include "SystemContext.h"
 
+FComputer& UPeacegateFileSystem::GetComputer() {
+	return this->SystemContext->GetComputer();
+}
+
 TArray<FFileRecord> UPeacegateFileSystem::GetFileRecords(FFolder& Folder) {
 	TArray<FFileRecord> Records;
 	for(auto RecordID : Folder.FileRecords) {

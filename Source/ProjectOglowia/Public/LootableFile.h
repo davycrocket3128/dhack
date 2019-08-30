@@ -49,9 +49,9 @@ public:
 
 public:
     UFUNCTION()
-    void Spawn(UPeacegateFileSystem* TargetFileSystem);
+    void Spawn(UPeacegateFileSystem* TargetFileSystem, FRandomStream& Rng);
 
 public:
     UFUNCTION()
-    static void StaticSpawn(UPeacegateFileSystem* TargetFileSystem, FLootableSpawnInfo SpawnInfo);
+    static void StaticSpawn(UPeacegateFileSystem* TargetFileSystem, FLootableSpawnInfo SpawnInfo, FRandomStream& Rng);
 };

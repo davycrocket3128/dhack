@@ -163,6 +163,9 @@ public:
 	UFUNCTION()
 	FFileRecord GetFileRecord(FString InPath);
 
+	UFUNCTION()
+	FComputer& GetComputer();
+
 public:
 	UFUNCTION(BlueprintCallable, Category="Filesystem")
 	static bool IsValidAsFileName(const FString& InFileName);

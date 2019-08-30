@@ -37,3 +37,7 @@ void ULootableFileContents::SpawnFile (FString Path, UPeacegateFileSystem* Files
     this->NativeSpawnFile(Path, Filesystem);
     this->OnFileSpawn(Path, Filesystem);
 }
+
+bool ULootableFileContents::FileMatches(FString InPath, UPeacegateFileSystem* InFileSystem) {
+    return this->NativeFileMatches(InPath, InFileSystem) || this->DetermineFileMatches(InPath, InFileSystem);
+}

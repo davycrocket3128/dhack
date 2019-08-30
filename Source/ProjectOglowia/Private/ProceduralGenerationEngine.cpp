@@ -726,11 +726,11 @@ void UProceduralGenerationEngine::SpawnLootableFiles(FComputer& Computer) {
 
     // Spawn all of the lootable assets.
     for(auto Asset : LootableAssets) {
-        Asset->Spawn(FileSystem);
+        Asset->Spawn(FileSystem, this->Rng);
     }
 
     // And the custom files
     for(auto CustomFile : StaticSpawns) {
-        ULootableFile::StaticSpawn(FileSystem, CustomFile);
+        ULootableFile::StaticSpawn(FileSystem, CustomFile, this->Rng);
     }
 }

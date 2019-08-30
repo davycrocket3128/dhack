@@ -32,25 +32,125 @@
 #include "PeacegateFileSystem.h"
 #include "LootableFile.h"
 
-void ULootableFile::Spawn(UPeacegateFileSystem* TargetFileSystem) {
+void ULootableFile::Spawn(UPeacegateFileSystem* TargetFileSystem, FRandomStream& Rng) {
     // This method simply wraps the static version that does the actual work.
-    ULootableFile::StaticSpawn(TargetFileSystem, this->LootableSpawnInfo);
+    ULootableFile::StaticSpawn(TargetFileSystem, this->LootableSpawnInfo, Rng);
 }
 
-void ULootableFile::StaticSpawn(UPeacegateFileSystem* TargetFileSystem, FLootableSpawnInfo SpawnInfo) {
-    // Check that there is a directory path provided, that the path is valid, and that it doesn't
-    // exist as a file.
+FString ResolvePath(FString InPath) {
+    TArray<FString> SplitParts;
+    TArray<FString> PartStack;
+
+    FString CurrentPart = "";
+    for(int i = 0; i <= InPath.Len(); i++) {
+        if(i == InPath.Len() || InPath[i] == '/') {
+            if(CurrentPart.Len()) {
+                SplitParts.Add(CurrentPart);
+                CurrentPart = "";
+                continue;
+            }
+        }
+        CurrentPart += InPath[i];
+    }
+
+    for(auto Part : SplitParts) {
+        if(Part == ".") {
+            continue;
+        }
+        if(Part == "..") {
+            if(PartStack.Num()) {
+                PartStack.Pop();
+                continue;
+            }
+        }
+        PartStack.Push(Part);
+    }
+
+    FString AbsolutePath = "/";
+    while(PartStack.Num()) {
+        if(!AbsolutePath.EndsWith("/")) {
+            AbsolutePath += "/";
+        }
+        AbsolutePath += PartStack.Pop();
+    }
+    return AbsolutePath;
+}
+
+void ULootableFile::StaticSpawn(UPeacegateFileSystem* TargetFileSystem, FLootableSpawnInfo SpawnInfo, FRandomStream& Rng) {
+    // Check FS validity.
+    check(TargetFileSystem);
+    
+    // Check that the directory path is not blank, and that it either starts with / or %home (random home directory)
+    FString TrimmedDirectoryPath = SpawnInfo.TargetDirectory.TrimStartAndEnd();
+    check(TrimmedDirectoryPath.Len());
+    check(TrimmedDirectoryPath.StartsWith("/") || TrimmedDirectoryPath.StartsWith("%home/"));
+    
+    // The absolute directory path we'll use.
+    FString AbsolutePath = "";
+
+    // If the directory path starts with "%home" this means we need to pick a random home directory.
+    // We also need to "jail" the path so the lootable doesn't spawn outside of this home directory.
+    if(TrimmedDirectoryPath.StartsWith("%home/")) {
+        // Get the path without the prefix.
+        FString Relative = TrimmedDirectoryPath;
+        Relative.RemoveAt(0, FString("%home").Len());
+        
+        // Resolve things like "..", ".", etc treating the relative path above as if it is relative to the fs root.
+        FString Resolved = ResolvePath(Relative);
+
+        // Now we need to pick a random Peacegate user...
+        FComputer& Computer = TargetFileSystem->GetComputer();
+        FUser& User = Computer.Users[Rng.RandRange(0, Computer.Users.Num() - 1)];
+
+        // If it's root then we spawn in '/root'
+        if(User.ID == 0) {
+            AbsolutePath = "/root" + Resolved;
+        } else {
+            AbsolutePath = "/home/" + User.Username + Resolved;
+        }
+    } else {
+        // Simply write relative to /
+        AbsolutePath = ResolvePath(TrimmedDirectoryPath);
+    }
 
     // Check that the file contents we'll write are valid, gracefully stop if not.
+    check(SpawnInfo.Content);
+    if(!SpawnInfo.Content) {
+        return;
+    }
 
     // Create the directory if it does not yet exist.
+    if(!TargetFileSystem->DirectoryExists(AbsolutePath)) {
+        EFilesystemStatusCode Status;
+        TargetFileSystem->CreateDirectory(AbsolutePath, Status);
+    }
 
     // If there is a file in the directory with the same name as stated in the
     // lootablee info and said name isn't blank, proceed to generate a new file name.
+    bool GenerateNewFileName = true;
+    if(SpawnInfo.FileName.Len()) {
+        if(TargetFileSystem->FileExists(AbsolutePath + "/" + SpawnInfo.FileName)) {
+            if(SpawnInfo.Content->FileMatches(AbsolutePath + "/" + SpawnInfo.FileName, TargetFileSystem)) {
+                return;
+            }
+            GenerateNewFileName = true;
+        } else {
+            GenerateNewFileName = false;
+        }
+    }
 
     // Generate a new file name until the file doesn't exist in the directory.
+    if(GenerateNewFileName) {
+        FString ExistingName = SpawnInfo.FileName;
+        if(!ExistingName.Len()) {
+            ExistingName = "Untitled";
+        }
+        do {
+            SpawnInfo.FileName = ExistingName + "_" + FString::FromInt(Rng.RandRange(0, 4096));
+        } while(TargetFileSystem->FileExists(AbsolutePath + "/" + SpawnInfo.FileName));
+    }
 
     // Construct the full path to the file and pass it to the file contents object so
     // the content can be written.
-    
+    SpawnInfo.Content->SpawnFile(AbsolutePath + "/" + SpawnInfo.FileName, TargetFileSystem);
 }
