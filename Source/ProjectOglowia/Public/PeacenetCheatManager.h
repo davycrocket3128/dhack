@@ -132,4 +132,7 @@ public:
 
     UFUNCTION(Exec)
     void ForceRegenerateRandomLootables(int EntityID);
+
+    UFUNCTION(Exec)
+    void DnsResolve(FString Host);
 };

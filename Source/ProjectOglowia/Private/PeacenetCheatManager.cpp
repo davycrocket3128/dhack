@@ -378,3 +378,28 @@ void UPeacenetCheatManager::ForceRegenerateRandomLootables(int EntityID) {
         this->PrintMessage("Computer not found.");
     }
 }
+
+void UPeacenetCheatManager::DnsResolve(FString Host) {
+    if(this->GetPeacenet()) {
+        FComputer Computer;
+        EConnectionError Error = EConnectionError::None;
+        if(this->GetPeacenet()->DnsResolve(Host, Computer, Error)) {
+            this->PrintMessage(FString::FromInt(Computer.ID));
+        } else {
+            switch(Error) {
+                case EConnectionError::HostNotFound:
+                    this->PrintMessage("Host not found.");
+                    break;
+                case EConnectionError::ConnectionTimedOut:
+                    this->PrintMessage("Connection time-out.");
+                    break;
+                case EConnectionError::ConnectionRefused:
+                    this->PrintMessage("Connection refused.");
+                    break;
+                default:
+                    this->PrintMessage("Unknown DNS resolution result.");
+                    break;
+            }
+        }
+    }
+}
