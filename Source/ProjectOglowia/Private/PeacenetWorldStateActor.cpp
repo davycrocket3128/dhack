@@ -184,6 +184,9 @@ bool APeacenetWorldStateActor::DnsResolve(FString InHost, FComputer& OutComputer
 	// And now we give the computer to the caller.
 	OutComputer = this->GetComputerByID(Entity);
 
+	// Spawn lootable files.
+	this->WorldGenerator->SpawnLootableFiles(OutComputer);
+
 	// Now we have a computer.  I can see the truth.  Only returning true.
 	return true;
 }
@@ -582,6 +585,22 @@ TArray<UPayloadAsset*> APeacenetWorldStateActor::GetAllPayloads() {
 TArray<FManualPage> APeacenetWorldStateActor::GetManualPages() {
 	return this->ManualPages;
 }
+
+// Hey there!
+//
+// I see you're either looking at the commit diff for this file or you're just carefully reading through it.  Or maybe you
+// scrolled by and saw this sore thumb just sitting there in the code.  Whatever the case, I'm highly caffeinated and I have
+// the proper permission as lead dev to write this.
+//
+// I feel like writing this, and have the ability to revert any commits and deny any pull requests that try to remove
+// it, so SMELL THAT FINGER, QUAHOG!
+//
+// Anyway, you've just...completely wasted your time.  Unless you want to know that Lucario is my favorite Pokemon now.
+//
+// Sincerely,
+// Your beloved dickhead programmer, Michael.
+//
+// P.S. Visual Studio Code underlined "Michael" as a spelling error.  I want to light a pillow on fire now.
 
 TArray<USystemUpgrade*> APeacenetWorldStateActor::GetAllSystemUpgrades() {
 	return this->UserUnlockableUpgrades;

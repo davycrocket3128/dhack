@@ -709,6 +709,16 @@ void UProceduralGenerationEngine::SpawnLootableFiles(FComputer& Computer) {
     }
 
     // Pick random files to spawn with any story files that were queued above
+    if(!Computer.SpawnedRandomLootables) {
+        for(auto Lootable : this->Lootables) {
+            if(this->Rng.RandRange(1, 6) % 2) {
+                if(!LootableAssets.Contains(Lootable)) {
+                    LootableAssets.Add(Lootable);
+                }
+            }
+        }
+        Computer.SpawnedRandomLootables = true;
+    }
 
     // Acquire a system context and then a filesystem.
     USystemContext* SystemContext = this->Peacenet->GetSystemContext(Computer.ID);

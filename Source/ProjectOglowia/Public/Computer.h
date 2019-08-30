@@ -171,4 +171,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Computer")
 	TArray<FName> DisabledDaemons;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	bool SpawnedRandomLootables = false;
 };

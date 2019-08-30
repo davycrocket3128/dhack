@@ -334,5 +334,19 @@ void UPeacenetCheatManager::DropLootable(int EntityID, FString Lootable) {
 }
 
 void UPeacenetCheatManager::DropLootablePlayer(FString Lootable) {
-    
+
+}
+
+void UPeacenetCheatManager::ForceRegenerateRandomLootables(int EntityID) {
+    if(this->GetPeacenet()) {
+        for(auto& Computer : this->GetPeacenet()->SaveGame->Computers) {
+            if(Computer.ID == EntityID) {
+                this->PrintMessage("Random lootable spawn state reset for this computer.");
+                this->PrintMessage(" >> Next time the computer is DNS-resolved in-game (nmap, gsfconsole, etc), new random lootables will be generated.");
+                Computer.SpawnedRandomLootables = false;
+                return;
+            }
+        }
+        this->PrintMessage("Computer not found.");
+    }
 }

@@ -129,4 +129,7 @@ public:
 
     UFUNCTION(Exec)
     void DropLootablePlayer(FString Lootable);
+
+    UFUNCTION(Exec)
+    void ForceRegenerateRandomLootables(int EntityID);
 };
