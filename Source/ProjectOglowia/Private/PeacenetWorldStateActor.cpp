@@ -578,6 +578,10 @@ TArray<UExploit*> APeacenetWorldStateActor::GetExploits() {
 	return this->Exploits;
 }
 
+FRandomStream& APeacenetWorldStateActor::GetWorldGeneratorRng() {
+	return this->WorldGenerator->GetRng();
+}
+
 TArray<UPayloadAsset*> APeacenetWorldStateActor::GetAllPayloads() {
 	return this->Payloads;
 }

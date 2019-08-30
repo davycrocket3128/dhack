@@ -195,4 +195,7 @@ public:
 
     UFUNCTION()
     void GiveSaveGame(UPeacenetSaveGame* InSaveGame);
+
+    UFUNCTION()
+    FRandomStream& GetRng();
 };

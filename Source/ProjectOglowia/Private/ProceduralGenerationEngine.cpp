@@ -734,3 +734,7 @@ void UProceduralGenerationEngine::SpawnLootableFiles(FComputer& Computer) {
         ULootableFile::StaticSpawn(FileSystem, CustomFile, this->Rng);
     }
 }
+
+FRandomStream& UProceduralGenerationEngine::GetRng() {
+    return this->Rng;
+}

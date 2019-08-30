@@ -33,6 +33,7 @@
 #include "PeacenetWorldStateActor.h"
 #include "UserContext.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "LootableFile.h"
 #include "PeacenetCheatManager.h"
 
 UUserContext* UPeacenetCheatManager::GetPlayerUser() {
@@ -326,15 +327,42 @@ void UPeacenetCheatManager::RemoveSkill(int Skill) {
 }
 
 void UPeacenetCheatManager::Lootables() {
-
+    if(this->GetPeacenet()) {
+        TArray<ULootableFile*> LootableFiles;
+        this->GetPeacenet()->LoadAssets<ULootableFile>("LootableFile", LootableFiles);
+        for(auto Lootable : LootableFiles) {
+            this->PrintMessage(Lootable->GetFName().ToString());
+        }
+    }
 }
 
 void UPeacenetCheatManager::DropLootable(int EntityID, FString Lootable) {
-
+    if(this->GetPeacenet()) {
+        TArray<ULootableFile*> LootableFiles;
+        this->GetPeacenet()->LoadAssets<ULootableFile>("LootableFile", LootableFiles);
+        for(auto LootableAsset : LootableFiles) {
+            if(LootableAsset->GetFName().ToString() == Lootable) {
+                for(FComputer& Computer : this->GetPeacenet()->SaveGame->Computers) {
+                    if(Computer.ID == EntityID) {
+                        USystemContext* SystemContext = this->GetPeacenet()->GetSystemContext(Computer.ID);
+                        UPeacegateFileSystem* FileSystem = SystemContext->GetFilesystem(0);
+                        LootableAsset->Spawn(FileSystem, this->GetPeacenet()->GetWorldGeneratorRng());
+                        this->PrintMessage("Lootable successfully dropped into filesystem.");
+                        return;
+                    }
+                    this->PrintMessage("Computer entity not found.");
+                }
+                return;
+            }
+        }
+        this->PrintMessage("Lootable file data not found.");
+    }
 }
 
 void UPeacenetCheatManager::DropLootablePlayer(FString Lootable) {
-
+    if(this->GetPeacenet()) {
+        this->DropLootable(this->GetPeacenet()->SaveGame->PlayerComputerID, Lootable);
+    }
 }
 
 void UPeacenetCheatManager::ForceRegenerateRandomLootables(int EntityID) {

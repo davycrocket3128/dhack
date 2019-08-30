@@ -329,6 +329,9 @@ public:	// Functions
 	FComputer& GetNewComputer();
 
 	UFUNCTION()
+	FRandomStream& GetWorldGeneratorRng();
+
+	UFUNCTION()
 	bool CharacterNameExists(FString InCharacterName);
 
 	UFUNCTION()
