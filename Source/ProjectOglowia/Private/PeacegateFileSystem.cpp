@@ -304,6 +304,9 @@ bool UPeacegateFileSystem::CreateDirectory(const FString InPath, EFilesystemStat
 	// Tell Peacegate that we created a directory - the mission system can consume this event.
 	FilesystemOperation.Broadcast(EFilesystemEventType::CreateDirectory, ResolvedPath);
 
+	// Force other filesystems to re-build folder navigators.
+	this->SystemContext->RebuildFilesystemNavigators();
+
 	// Success.
 	return true;
 }
@@ -430,6 +433,9 @@ bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, 
 
 		// Remove the just deleted navigator from its parent
 		ParentNav->SubFolders.Remove(Filename);
+
+		// Force other filesystems to re-build folder navigators.
+		this->SystemContext->RebuildFilesystemNavigators();
 	} else {
 		// Get the parent folder data.
 		FFolder ParentFolder = GetFolderByID(ParentNav->FolderIndex);
@@ -967,6 +973,9 @@ bool UPeacegateFileSystem::MoveFolder(const FString & Source, const FString & De
 
 	//Update FS
 	SetFolderByID(SourceChildData.FolderID, SourceChildData);
+
+	// Force other filesystems to re-build folder navigators.
+	this->SystemContext->RebuildFilesystemNavigators();
 
 	return true;
 }

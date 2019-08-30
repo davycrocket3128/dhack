@@ -49,6 +49,12 @@
 #include "TerminalCommand.h"
 #include "Process.h"
 
+void USystemContext::RebuildFilesystemNavigators() {
+	for(auto FS : this->RegisteredFilesystems) {
+		FS.Value->BuildFolderNavigator();
+	}
+}
+
 bool USystemContext::IsDaemonRunning(FName InDaemonName) {
 	return this->DaemonManager && this->DaemonManager->IsDaemonRunning(InDaemonName);
 }

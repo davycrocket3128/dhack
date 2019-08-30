@@ -106,6 +106,7 @@ public:
 	UFUNCTION()
 	int GetNextTextFileID();
 
+	UFUNCTION()
 	void BuildFolderNavigator();
 
 	UFUNCTION(BlueprintCallable, Category = "Filesystem")

@@ -215,6 +215,9 @@ public: // Property getters
 
 public:
 	UFUNCTION()
+	void RebuildFilesystemNavigators();
+
+	UFUNCTION()
 	void AppendLog(FString InLogText);
 
 	UFUNCTION()
