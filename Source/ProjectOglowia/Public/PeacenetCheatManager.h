@@ -52,6 +52,9 @@ protected:
     UUserContext* GetPlayerUser();
 
 public:
+    /**
+     * Prints whether or not The Peacenet is actively running gameplay simulations.
+     */
     UFUNCTION(Exec)
     void PeacenetStat();
 
@@ -117,4 +120,13 @@ public:
     
     UFUNCTION(Exec)
     void RemoveSkill(int Skill);
+
+    UFUNCTION(Exec)
+    void Lootables();
+
+    UFUNCTION(Exec)
+    void DropLootable(int EntityID, FString Lootable);
+
+    UFUNCTION(Exec)
+    void DropLootablePlayer(FString Lootable);
 };

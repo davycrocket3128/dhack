@@ -33,9 +33,10 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "FileSpawnLocation.h"
-#include "LootableFileContents.h"
+#include "LootableSpawnInfo.h"
 #include "LootableFile.generated.h"
+
+class UPeacegateFileSystem;
 
 UCLASS(Blueprintable, BlueprintType)
 class PROJECTOGLOWIA_API ULootableFile : public UDataAsset
@@ -43,12 +44,14 @@ class PROJECTOGLOWIA_API ULootableFile : public UDataAsset
     GENERATED_BODY()
 
 public:
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Metadata")
-    FName FileName;
+    UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Lootable Spawn Info")
+    FLootableSpawnInfo LootableSpawnInfo;
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Metadata")
-    EFileSpawnLocation SpawnLocation = EFileSpawnLocation::Anywhere;
+public:
+    UFUNCTION()
+    void Spawn(UPeacegateFileSystem* TargetFileSystem);
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Instanced, Category = "File Contents")
-    ULootableFileContents* FileContents;
+public:
+    UFUNCTION()
+    static void StaticSpawn(UPeacegateFileSystem* TargetFileSystem, FLootableSpawnInfo SpawnInfo);
 };

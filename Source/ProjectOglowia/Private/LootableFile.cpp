@@ -29,24 +29,28 @@
  *
  ********************************************************************************/
 
-#pragma once
+#include "PeacegateFileSystem.h"
+#include "LootableFile.h"
 
-#include "CoreMinimal.h"
-#include "LootableFileContents.h"
-#include "LootableSpawnInfo.generated.h"
+void ULootableFile::Spawn(UPeacegateFileSystem* TargetFileSystem) {
+    // This method simply wraps the static version that does the actual work.
+    ULootableFile::StaticSpawn(TargetFileSystem, this->LootableSpawnInfo);
+}
 
-USTRUCT(BlueprintType)
-struct FLootableSpawnInfo {
-    GENERATED_BODY()
+void ULootableFile::StaticSpawn(UPeacegateFileSystem* TargetFileSystem, FLootableSpawnInfo SpawnInfo) {
+    // Check that there is a directory path provided, that the path is valid, and that it doesn't
+    // exist as a file.
 
-public:
-    UPROPERTY(BlueprintReadOnly, EditAnywhere)
-    FString TargetDirectory = "/";
+    // Check that the file contents we'll write are valid, gracefully stop if not.
 
-    UPROPERTY(BlueprintReadOnly, EditAnywhere)
-    FString FileName = "";
+    // Create the directory if it does not yet exist.
 
-    UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced)
-    ULootableFileContents* Content = nullptr;
-};
+    // If there is a file in the directory with the same name as stated in the
+    // lootablee info and said name isn't blank, proceed to generate a new file name.
 
+    // Generate a new file name until the file doesn't exist in the directory.
+
+    // Construct the full path to the file and pass it to the file contents object so
+    // the content can be written.
+    
+}

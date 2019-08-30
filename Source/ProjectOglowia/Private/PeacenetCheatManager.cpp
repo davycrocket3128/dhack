@@ -324,3 +324,15 @@ void UPeacenetCheatManager::RemoveSkill(int Skill) {
         this->PrintMessage("Removed " + FString::FromInt(Skill) + " from player skill points.");
     }
 }
+
+void UPeacenetCheatManager::Lootables() {
+
+}
+
+void UPeacenetCheatManager::DropLootable(int EntityID, FString Lootable) {
+
+}
+
+void UPeacenetCheatManager::DropLootablePlayer(FString Lootable) {
+    
+}

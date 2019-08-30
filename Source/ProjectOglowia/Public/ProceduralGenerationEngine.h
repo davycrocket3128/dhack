@@ -120,6 +120,9 @@ private:
     TArray<UMarkovTrainingDataAsset*> MarkovTrainingData;
 
     UPROPERTY()
+    TArray<ULootableFile*> Lootables;
+
+    UPROPERTY()
     TArray<FString> UsedHumanNames;
 
     UPROPERTY()
@@ -175,6 +178,9 @@ protected:
     void UpdateStoryComputer(UStoryComputer* InStoryComputer);
 
 public:
+    UFUNCTION()
+    void SpawnLootableFiles(FComputer& InComputer);
+
     UFUNCTION()
     void SpawnServices(int ComputerID);
 

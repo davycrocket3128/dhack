@@ -47,6 +47,8 @@
 #include "PeacegateFileSystem.h"
 #include "StoryComputer.h"
 #include "FileUtilities.h"
+#include "LootableFile.h"
+#include "LootableSpawnInfo.h"
 #include "PeacenetWorldStateActor.h"
 
 void UProceduralGenerationEngine::Setup(APeacenetWorldStateActor* InPeacenet) {
@@ -79,6 +81,9 @@ void UProceduralGenerationEngine::Setup(APeacenetWorldStateActor* InPeacenet) {
         ".info",
         ".abc"
     };
+
+    // Lootables.
+    this->Peacenet->LoadAssets<ULootableFile>("LootableFile", this->Lootables);
 }
 
 FString UProceduralGenerationEngine::PickTopLevelDomain() {
@@ -686,4 +691,36 @@ void UProceduralGenerationEngine::SetDomainName(int Entity) {
         FS->CreateDirectory("/etc", Status);
     }
     FS->WriteText("/etc/hostname", DomainName);
+}
+
+void UProceduralGenerationEngine::SpawnLootableFiles(FComputer& Computer) {
+    // Below arrays contain the files we're going to write to the computer's FS
+    TArray<ULootableFile*> LootableAssets;
+    TArray<FLootableSpawnInfo> StaticSpawns; // For story computers since they can define custom files
+
+    // Figure out if the computer is a story computer, and queue the story computer's files for
+    // spawning.
+    for(auto& StoryID : this->SaveGame->StoryComputerIDs) {
+        if(StoryID.Entity == Computer.ID && StoryID.StoryComputer) {
+            LootableAssets.Append(StoryID.StoryComputer->LootableFiles);
+            StaticSpawns.Append(StoryID.StoryComputer->CustomLootableFiles);
+            break;
+        }
+    }
+
+    // Pick random files to spawn with any story files that were queued above
+
+    // Acquire a system context and then a filesystem.
+    USystemContext* SystemContext = this->Peacenet->GetSystemContext(Computer.ID);
+    UPeacegateFileSystem* FileSystem = SystemContext->GetFilesystem(0);
+
+    // Spawn all of the lootable assets.
+    for(auto Asset : LootableAssets) {
+        Asset->Spawn(FileSystem);
+    }
+
+    // And the custom files
+    for(auto CustomFile : StaticSpawns) {
+        ULootableFile::StaticSpawn(FileSystem, CustomFile);
+    }
 }

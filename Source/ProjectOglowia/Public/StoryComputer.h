@@ -37,6 +37,7 @@
 #include "Engine/DataAsset.h"
 #include "StoryCharacter.h"
 #include "ExplicitComputerService.h"
+#include "LootableFile.h"
 #include "LootableSpawnInfo.h"
 #include "StoryComputer.generated.h"
 
@@ -89,9 +90,15 @@ public:
     TArray<FExplicitComputerService> Services;
 
     /**
-     * A list of files to spawn on the computer.  This is useful for missions that require the
-     * player to retrieve a file.
+     * A list of pre-defined lootable files that are spawned with this computer along with the ones
+     * chosen by the game's procedural generator.
      */
     UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "File System")
-    TArray<FLootableSpawnInfo> LootableFiles;
+    TArray<ULootableFile*> LootableFiles;
+
+    /**
+     * A list of custom lootable files specific to this computer.
+     */
+    UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "File System")
+    TArray<FLootableSpawnInfo> CustomLootableFiles;
 };
