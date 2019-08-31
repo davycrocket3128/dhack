@@ -76,8 +76,6 @@ protected:
     UFUNCTION()
     UUserContext* GetPlayerUser();
 
-    virtual bool ProcessConsoleExec(const TCHAR* Cmd, FOutputDevice& Ar, UObject* Executor) override;
-
 public:
     /**
      * Prints whether or not The Peacenet is actively running gameplay simulations.
@@ -165,4 +163,7 @@ public:
 
     UFUNCTION(Exec)
     void ExecBinary(FString Path);
+
+    UFUNCTION(Exec)
+    void StdIn(FString Text);
 };

@@ -112,6 +112,13 @@ private:
 	void WriteToPty(FString str);
 
 public:
+	UPROPERTY()
+	bool AllowANSI = true;
+
+	UPROPERTY()
+	bool AllowLineEditing = true;
+
+public:
 	UFUNCTION()
 	void OnTtyUpdate(UObject* Callee, FName FunctionName);
 

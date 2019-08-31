@@ -252,6 +252,9 @@ UConsoleContext* UConsoleContext::Pipe() {
 	PipeConsole->UpdateTty = this->UpdateTty;
 	PipeConsole->GetSizeDelegate = this->GetSizeDelegate;
 
+	PipeConsole->AllowANSI = this->AllowANSI;
+	PipeConsole->AllowLineEditing = this->AllowLineEditing;
+
 	return PipeConsole;
 }
 
@@ -263,6 +266,9 @@ UConsoleContext* UConsoleContext::Redirect(UPtyFifoBuffer* InBuffer) {
 	// And now all we need to do is simply have the redirected pty output to the buffer!
 	RedirectedConsole->Pty->OutputStream = InBuffer;
 
+	RedirectedConsole->AllowLineEditing = false;
+	RedirectedConsole->AllowANSI = false;
+
 	// All good.
 	return RedirectedConsole;
 }
@@ -273,6 +279,8 @@ UConsoleContext* UConsoleContext::Clone() {
 	Cloned->WorkingDirectory = this->WorkingDirectory;
 	Cloned->UpdateTty = this->UpdateTty;
 	Cloned->GetSizeDelegate = this->GetSizeDelegate;
+	Cloned->AllowANSI = this->AllowANSI;
+	Cloned->AllowLineEditing = this->AllowLineEditing;
 	return Cloned;
 }
 
@@ -287,6 +295,10 @@ UPtyStream* UConsoleContext::GetPty() {
 }
 
 FIntPoint UConsoleContext::GetCursorPosition() {
+	if(!this->AllowANSI) {
+		return FIntPoint(0, 0);
+	}
+
 	this->WriteToPty("\x1B[6n");
 	FString Line;
 	while(!this->GetLine(Line)) {
@@ -342,7 +354,9 @@ int UConsoleContext::GetColumns() {
 }
 
 void UConsoleContext::Beep() {
-	this->WriteToPty("\x7");
+	if(this->AllowANSI) {
+		this->WriteToPty("\x7");
+	}
 }
 
 void UConsoleContext::CancelAdvancedReadLine() {
@@ -354,14 +368,22 @@ void UConsoleContext::CancelAdvancedReadLine() {
 }
 
 void UConsoleContext::InitAdvancedGetLine(FString Prompt) {
-	check(!this->LineNoise);
+	if(this->AllowLineEditing) {
+		check(!this->LineNoise);
 
-	this->LineNoise = NewObject<ULineNoise>();
-	this->LineNoise->SetMultiline(true);
-	this->LineNoise->SetConsole(this, Prompt);
+		this->LineNoise = NewObject<ULineNoise>();
+		this->LineNoise->SetMultiline(true);
+		this->LineNoise->SetConsole(this, Prompt);
+	} else {
+		this->WriteLine(FText::FromString(Prompt));
+	}
 }
 
 bool UConsoleContext::UpdateAdvancedGetLine(FString& Line) {
+	if(!this->AllowLineEditing) {
+		return this->GetLine(Line);
+	}
+	
 	if(!this->LineNoise) {
 		Line = "";
 		return true;
@@ -380,59 +402,61 @@ bool UConsoleContext::UpdateAdvancedGetLine(FString& Line) {
 // the terminal modes that correspond to this context's current formatting
 // settings.  Use this when these settings change to have them take effect.
 void UConsoleContext::SetTerminalMode() {
-	// Start by resetting the terminal mode to default.
-	this->WriteToPty("\x1B[0");
+	if(this->AllowANSI) {
+		// Start by resetting the terminal mode to default.
+		this->WriteToPty("\x1B[0");
 
-	// The above is an unterminated escape sequence, I know.  But
-	// we're going to help the game out by batching the terminal modes
-	// into one massive escape sequence since the terminal mode escape
-	// code allows for unlimited arguments.
+		// The above is an unterminated escape sequence, I know.  But
+		// we're going to help the game out by batching the terminal modes
+		// into one massive escape sequence since the terminal mode escape
+		// code allows for unlimited arguments.
 
-	// And this is the list of arguments we'll send.
-	TArray<int> args;
+		// And this is the list of arguments we'll send.
+		TArray<int> args;
 
-	// Send the foreground and background colors as necessary.
-	if(this->IsBackgroundColorSet) {
-		args.Add(40 + (int)this->BackgroundColor);
-	} else if(this->IsForegroundColorSet) {
-		args.Add(30 + (int)this->ForegroundColor);
-	}
+		// Send the foreground and background colors as necessary.
+		if(this->IsBackgroundColorSet) {
+			args.Add(40 + (int)this->BackgroundColor);
+		} else if(this->IsForegroundColorSet) {
+			args.Add(30 + (int)this->ForegroundColor);
+		}
 	
-	// Now for the font attributes...
-	if(this->IsBold) {
-		args.Add(1);
-	}
-	// Thank you Victor Tran! Didn't know this was an accepted mode.
-	if(this->IsItalic) { 
-		args.Add(3);
-	}
-	if(this->IsUnderline) {
-		args.Add(4);
-	}
+		// Now for the font attributes...
+		if(this->IsBold) {
+			args.Add(1);
+		}
+		// Thank you Victor Tran! Didn't know this was an accepted mode.
+		if(this->IsItalic) { 
+			args.Add(3);
+		}
+		if(this->IsUnderline) {
+			args.Add(4);
+		}
 
-	// Color modes.
-	if(this->IsReversed) {
-		args.Add(7);
-	}
-	if(this->IsDim) {
-		args.Add(2);
-	}
+		// Color modes.
+		if(this->IsReversed) {
+			args.Add(7);
+		}
+		if(this->IsDim) {
+			args.Add(2);
+		}
 
-	// Blinking and other effects.
-	if(this->IsHidden) {
-		args.Add(8);
-	}
-	if(this->IsBlinking) {
-		args.Add(5);
-	}
+		// Blinking and other effects.
+		if(this->IsHidden) {
+			args.Add(8);
+		}
+		if(this->IsBlinking) {
+			args.Add(5);
+		}
 
-	// Loop through the above arguments and send them.
-	for(int a : args) {
-		this->WriteToPty(";" + FString::FromInt(a));
-	}
+		// Loop through the above arguments and send them.
+		for(int a : args) {
+			this->WriteToPty(";" + FString::FromInt(a));
+		}
 
-	// Finish the escape sequence off with the "m" (terminal mode) mode.
-	this->WriteToPty("m");
+		// Finish the escape sequence off with the "m" (terminal mode) mode.
+		this->WriteToPty("m");
+	}
 }
 
 FString UConsoleContext::Tab() {

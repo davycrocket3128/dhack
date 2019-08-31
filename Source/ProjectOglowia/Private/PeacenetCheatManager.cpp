@@ -60,6 +60,10 @@ void UPeacenetCheatManager::CreateDebugConsoleContext() {
         this->ConsoleContext = NewObject<UConsoleContext>(this);
         this->ConsoleContext->Setup(this->Master, this->GetPlayerUser());
 
+        // The UE4 console does *NOT* support ANSI, and has line-editing built in.
+        this->ConsoleContext->AllowANSI = false;
+        this->ConsoleContext->AllowLineEditing = false;
+
         // Make sure we can read/write.
         TScriptDelegate<> WriteEvent;
         WriteEvent.BindUFunction(this, "HandleWrite");
@@ -83,20 +87,6 @@ UUserContext* UPeacenetCheatManager::GetPlayerUser() {
     UUserContext* User;
     UCommonUtils::GetPlayerUserContext(this->GetOuterAPlayerController(), User);
     return User;
-}
-
-bool UPeacenetCheatManager::ProcessConsoleExec(const TCHAR* Cmd, FOutputDevice& Ar, UObject* Executor) {
-    if(this->ConsoleContext) {
-        FString Str = FString(Cmd);
-        for(TCHAR c : Str) {
-            this->Slave->WriteChar(c);
-        }
-        this->Slave->WriteChar('\r');
-        this->Slave->WriteChar('\n');
-        return true;
-    } else {
-        return Super::ProcessConsoleExec(Cmd, Ar, Executor);
-    }
 }
 
 APeacenetWorldStateActor* UPeacenetCheatManager::GetPeacenet() {
@@ -472,5 +462,19 @@ void UPeacenetCheatManager::DnsResolve(FString Host) {
                     break;
             }
         }
+    }
+}
+
+void UPeacenetCheatManager::StdIn(FString Text) {
+    if(this->Slave) {
+        for(TCHAR c : Text) {
+            this->Slave->WriteChar(c);
+        }
+        this->Slave->WriteChar('\r');
+        this->Slave->WriteChar('\n');
+    } else {
+        this->PrintMessage("!!! ERROR !!! You shouldn't be using this command right now.  This command is meant to be used in conjunction with the Peacenet 'ExecBinary' command, to allow you to write text into the standard input stream of a Peacenet binary's console while said binary is running inside the Unreal console.  So, instead, try:");
+        this->PrintMessage(" >> ExecBinary /bin/bash");
+        this->PrintMessage(" >> StdIn " + Text);
     }
 }
