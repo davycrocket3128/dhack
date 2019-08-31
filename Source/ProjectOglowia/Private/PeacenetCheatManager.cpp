@@ -34,12 +34,69 @@
 #include "UserContext.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "LootableFile.h"
+#include "Process.h"
+#include "FileRecordUtils.h"
 #include "PeacenetCheatManager.h"
+
+void UPeacenetCheatManager::DestroyDebugConsoleContext() {
+    this->ConsoleContext = nullptr;
+    this->Master = nullptr;
+    this->Slave = nullptr;
+}
+
+void UPeacenetCheatManager::CreateDebugConsoleContext() {
+    if(!this->ConsoleContext) {
+    // Set up the terminal options
+        FPtyOptions options;
+        options.LFlag = ICANON;
+        options.C_cc[VERASE] = '\b';
+        options.C_cc[VEOL] = '\r';
+        options.C_cc[VEOL2] = '\n';
+
+        // Create the pseudo terminal streams.
+        UPtyStream::CreatePty(this->Master, this->Slave, options);
+
+        // Create and initialize the console context.
+        this->ConsoleContext = NewObject<UConsoleContext>(this);
+        this->ConsoleContext->Setup(this->Master, this->GetPlayerUser());
+
+        // Make sure we can read/write.
+        TScriptDelegate<> WriteEvent;
+        WriteEvent.BindUFunction(this, "HandleWrite");
+        this->Master->OnWritten.Add(WriteEvent);
+        this->Slave->OnWritten.Add(WriteEvent);
+    }
+}
+
+void UPeacenetCheatManager::HandleWrite() {
+    TCHAR c;
+    while(this->Slave->ReadChar(c)) {
+        if(this->Buffer.EndsWith("\n")) {
+            this->PrintMessage(this->Buffer.TrimEnd());
+            this->Buffer = "";
+        }
+        this->Buffer += c;
+    }
+}
 
 UUserContext* UPeacenetCheatManager::GetPlayerUser() {
     UUserContext* User;
     UCommonUtils::GetPlayerUserContext(this->GetOuterAPlayerController(), User);
     return User;
+}
+
+bool UPeacenetCheatManager::ProcessConsoleExec(const TCHAR* Cmd, FOutputDevice& Ar, UObject* Executor) {
+    if(this->ConsoleContext) {
+        FString Str = FString(Cmd);
+        for(TCHAR c : Str) {
+            this->Slave->WriteChar(c);
+        }
+        this->Slave->WriteChar('\r');
+        this->Slave->WriteChar('\n');
+        return true;
+    } else {
+        return Super::ProcessConsoleExec(Cmd, Ar, Executor);
+    }
 }
 
 APeacenetWorldStateActor* UPeacenetCheatManager::GetPeacenet() {
@@ -376,6 +433,20 @@ void UPeacenetCheatManager::ForceRegenerateRandomLootables(int EntityID) {
             }
         }
         this->PrintMessage("Computer not found.");
+    }
+}
+
+void UPeacenetCheatManager::ExecBinary(FString Path, TArray<FString> Arguments) {
+    if(this->GetPlayerUser()) {
+        this->CreateDebugConsoleContext();
+        UProcess* Process = nullptr;
+        if(UFileRecordUtils::LaunchProcess(Path, Arguments, this->ConsoleContext, nullptr, Process)) {
+            TScriptDelegate<> Killed;
+            Killed.BindUFunction(this, "DestroyDebugConsoleContext");
+            Process->OnKilled.Add(Killed);
+        } else {
+            this->PrintMessage("Binary not found.");
+        }
     }
 }
 

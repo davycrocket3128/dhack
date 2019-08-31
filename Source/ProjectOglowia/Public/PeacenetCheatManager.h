@@ -33,6 +33,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/CheatManager.h"
+#include "PtyStream.h"
+#include "ConsoleContext.h"
 #include "PeacenetCheatManager.generated.h"
 
 class APeacenetWorldStateActor;
@@ -40,6 +42,26 @@ class APeacenetWorldStateActor;
 UCLASS(BlueprintType)
 class PROJECTOGLOWIA_API UPeacenetCheatManager : public UCheatManager {
     GENERATED_BODY()
+
+private:
+    UPROPERTY()
+    FString Buffer = "";
+
+protected:
+    UFUNCTION()
+    void HandleWrite();
+
+    UFUNCTION()
+    void DestroyDebugConsoleContext();
+
+    UPROPERTY()
+    UConsoleContext* ConsoleContext = nullptr;
+
+    UPROPERTY()
+    UPtyStream* Master = nullptr;
+
+    UPROPERTY()
+    UPtyStream* Slave = nullptr;
 
 protected:
     UFUNCTION()
@@ -49,7 +71,12 @@ protected:
     APeacenetWorldStateActor* GetPeacenet();
 
     UFUNCTION()
+    void CreateDebugConsoleContext();
+
+    UFUNCTION()
     UUserContext* GetPlayerUser();
+
+    virtual bool ProcessConsoleExec(const TCHAR* Cmd, FOutputDevice& Ar, UObject* Executor) override;
 
 public:
     /**
@@ -135,4 +162,7 @@ public:
 
     UFUNCTION(Exec)
     void DnsResolve(FString Host);
+
+    UFUNCTION(Exec)
+    void ExecBinary(FString Path, TArray<FString> Arguments);
 };
