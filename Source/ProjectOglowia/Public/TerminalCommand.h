@@ -128,9 +128,15 @@ protected:
 	UFUNCTION()
 	UProcess* GetProcess();
 
+	UFUNCTION()
+	void Run();
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Terminal Command")
 	void Complete();
+
+	UFUNCTION()
+	void Launch(UConsoleContext* InConsoleContext, UProcess* Process, TArray<FString> Arguments);
 
 public:
 	template<typename T>

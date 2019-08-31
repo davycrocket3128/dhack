@@ -578,6 +578,12 @@ TArray<UExploit*> APeacenetWorldStateActor::GetExploits() {
 	return this->Exploits;
 }
 
+void APeacenetWorldStateActor::RunNextFrame(UObject* Object, FName InFunctionName) {
+	FNextFrameEvent Event;
+	Event.BindUFunction(Object, InFunctionName);
+	this->NextFrameActions.Push(Event);
+}
+
 FRandomStream& APeacenetWorldStateActor::GetWorldGeneratorRng() {
 	return this->WorldGenerator->GetRng();
 }
@@ -800,6 +806,12 @@ void APeacenetWorldStateActor::Tick(float DeltaTime) {
 
 	// Is the save loaded?
 	if (SaveGame) {
+		// Run a single queued action, if any.
+		if(this->NextFrameActions.Num()) {
+			FNextFrameEvent Event = this->NextFrameActions.Pop();
+			Event.Execute();
+		}
+
 		// Allow the world generator to update.
 		this->WorldGenerator->GiveSaveGame(this->SaveGame);
 		this->WorldGenerator->Update(DeltaTime);

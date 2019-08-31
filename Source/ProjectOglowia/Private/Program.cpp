@@ -91,6 +91,27 @@ void UProgram::RequestPlayerAttention(bool PlaySound) {
 	this->PlayerAttentionNeeded.Broadcast(PlaySound);
 }
 
+void UProgram::Launch(UConsoleContext* InConsoleContext, UProcess* OwningProcess) {
+	// Don't allow launch if we already have a process.
+	check(!this->MyProcess);
+	if(this->MyProcess) {
+		return;
+	}
+
+	// Assign user context and process.
+	this->Window->SetUserContext(InConsoleContext->GetUserContext());
+	this->MyProcess = OwningProcess;
+
+	// Kill the process when the window is closed.
+	TScriptDelegate<> CloseDelegate;
+	CloseDelegate.BindUFunction(this, "OwningWindowClosed");
+	this->Window->NativeWindowClosed.Add(CloseDelegate);
+
+	// Show ourselves on the workspace.
+	this->SetupContexts();
+	this->GetUserContext()->ShowProgramOnWorkspace(this);
+}
+
 UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSubclassOf<UProgram> InProgramClass, UUserContext* InUserContext, UWindow*& OutWindow, FString InProcessName, UProcess* OwnerProcess, bool DoContextSetup) {
 	// Preventative: make sure the system context isn't null.
 	check(InUserContext);

@@ -69,6 +69,9 @@ public:
 	UFUNCTION()
 	void ActiveProgramCloseEvent();
 
+	UFUNCTION()
+	void Launch(UConsoleContext* InConsoleContext, UProcess* OwningProcess);
+
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Desktop")
 	void PushNotification(const FText& InNotificationMessage);
