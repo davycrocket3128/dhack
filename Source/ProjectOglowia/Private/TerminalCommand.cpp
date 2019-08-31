@@ -114,7 +114,7 @@ void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Ar
 
 	Argv.RemoveAt(0);
 
-	if(this->CommandInfo->UsageStrings.Num()) {
+	if(this->CommandInfo && this->CommandInfo->UsageStrings.Num()) {
 		FString Usage = "usage: ";
 		for(auto UsageString : this->CommandInfo->UsageStrings) {
 			Usage += "\n    " + this->CommandName + " " + UsageString;

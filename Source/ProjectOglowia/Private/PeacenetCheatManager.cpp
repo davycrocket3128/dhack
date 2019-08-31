@@ -436,11 +436,11 @@ void UPeacenetCheatManager::ForceRegenerateRandomLootables(int EntityID) {
     }
 }
 
-void UPeacenetCheatManager::ExecBinary(FString Path, TArray<FString> Arguments) {
+void UPeacenetCheatManager::ExecBinary(FString Path) {
     if(this->GetPlayerUser()) {
         this->CreateDebugConsoleContext();
         UProcess* Process = nullptr;
-        if(UFileRecordUtils::LaunchProcess(Path, Arguments, this->ConsoleContext, nullptr, Process)) {
+        if(UFileRecordUtils::LaunchProcess(Path, TArray<FString>{ Path }, this->ConsoleContext, nullptr, Process)) {
             TScriptDelegate<> Killed;
             Killed.BindUFunction(this, "DestroyDebugConsoleContext");
             Process->OnKilled.Add(Killed);

@@ -164,5 +164,5 @@ public:
     void DnsResolve(FString Host);
 
     UFUNCTION(Exec)
-    void ExecBinary(FString Path, TArray<FString> Arguments);
+    void ExecBinary(FString Path);
 };

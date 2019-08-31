@@ -98,8 +98,8 @@ bool UFileRecordUtils::LaunchProcess(FString InFilePath, TArray<FString> Argumen
  	        FActorSpawnParameters SpawnInfo;
 
 	        ATerminalCommand* Command = InConsoleContext->GetUserContext()->GetPeacenet()->GetWorld()->SpawnActor<ATerminalCommand>(CommandInfo->CommandClass, Location, Rotation, SpawnInfo);
-	        Command->Launch(InConsoleContext, Forked, Arguments);
-	        return true;
+	        Command->CommandInfo = CommandInfo;
+            Command->Launch(InConsoleContext, Forked, Arguments);
         } else {
             Forked->Kill();
             InConsoleContext->WriteLine(ERR_WHATTHEFUCK);
