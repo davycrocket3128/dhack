@@ -35,6 +35,7 @@
 #include "Window.h"
 #include "Program.h"
 #include "TerminalCommand.h"
+#include "DesktopWidget.h"
 #include "PeacenetWorldStateActor.h"
 
 #define ERR_FILENOTFOUND NSLOCTEXT("FileSystem", "FileNotFound", "File not found.")
@@ -60,7 +61,7 @@ bool UFileRecordUtils::GetExecutable(APeacenetWorldStateActor* Peacenet, FFileRe
     return false;
 }
 
-bool UFileRecordUtils::LaunchProcess(FString InFilePath, TArray<FString> Arguments, UConsoleContext* InConsoleContext, UProcess* OwningProcess, UProcess*& OutProcess) {
+bool UFileRecordUtils::LaunchProcess(FString InFilePath, TArray<FString> Arguments, UConsoleContext* InConsoleContext, UProcess* OwningProcess, UProcess*& OutProcess, UDesktopWidget* TargetDesktop) {
     // Get a filesystem context.
     UPeacegateFileSystem* FileSystem = InConsoleContext->GetUserContext()->GetFilesystem();
 
@@ -91,7 +92,7 @@ bool UFileRecordUtils::LaunchProcess(FString InFilePath, TArray<FString> Argumen
             UWindow* Window = CreateWidget<UWindow, APlayerController>(MyPlayer, InConsoleContext->GetUserContext()->GetPeacenet()->WindowClass);
             UProgram* Program = CreateWidget<UProgram, APlayerController>(MyPlayer, ProgramAsset->ProgramClass);
             Program->Window = Window;
-            Program->Launch(InConsoleContext, Forked);
+            Program->Launch(InConsoleContext, Forked, TargetDesktop);
         } else if(CommandInfo) {
             FVector Location(0.0f, 0.0f, 0.0f);
 	        FRotator Rotation(0.0f, 0.0f, 0.0f);

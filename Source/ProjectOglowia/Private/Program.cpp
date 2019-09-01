@@ -41,6 +41,7 @@
 #include "PeacenetWorldStateActor.h"
 #include "PeacenetSiteAsset.h"
 #include "PeacegateFileSystem.h"
+#include "DesktopWidget.h"
 #include "Process.h"
 #include "CommandInfo.h"
 #include "TerminalCommand.h"
@@ -91,7 +92,7 @@ void UProgram::RequestPlayerAttention(bool PlaySound) {
 	this->PlayerAttentionNeeded.Broadcast(PlaySound);
 }
 
-void UProgram::Launch(UConsoleContext* InConsoleContext, UProcess* OwningProcess) {
+void UProgram::Launch(UConsoleContext* InConsoleContext, UProcess* OwningProcess, UDesktopWidget* TargetDesktop) {
 	// Don't allow launch if we already have a process.
 	check(!this->MyProcess);
 	if(this->MyProcess) {
@@ -109,7 +110,11 @@ void UProgram::Launch(UConsoleContext* InConsoleContext, UProcess* OwningProcess
 
 	// Show ourselves on the workspace.
 	this->SetupContexts();
-	this->GetUserContext()->ShowProgramOnWorkspace(this);
+	if(TargetDesktop) {
+		TargetDesktop->ShowProgramOnWorkspace(this);
+	} else {
+		this->GetUserContext()->ShowProgramOnWorkspace(this);
+	}
 }
 
 UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSubclassOf<UProgram> InProgramClass, UUserContext* InUserContext, UWindow*& OutWindow, FString InProcessName, UProcess* OwnerProcess, bool DoContextSetup) {

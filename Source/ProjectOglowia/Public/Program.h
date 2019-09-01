@@ -49,6 +49,7 @@ class UWindow;
 class UCommandInfo;
 class ATerminalCommand;
 class UProcess;
+class UDesktopWidget;
 
 UCLASS(Blueprintable, BlueprintType)
 class PROJECTOGLOWIA_API UProgram : public UUserWidget
@@ -70,7 +71,7 @@ public:
 	void ActiveProgramCloseEvent();
 
 	UFUNCTION()
-	void Launch(UConsoleContext* InConsoleContext, UProcess* OwningProcess);
+	void Launch(UConsoleContext* InConsoleContext, UProcess* OwningProcess, UDesktopWidget* TargetDesktop = nullptr);
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Desktop")

@@ -44,6 +44,35 @@ void UPeacenetCheatManager::DestroyDebugConsoleContext() {
     this->Slave = nullptr;
 }
 
+void UPeacenetCheatManager::CreateDebugConsoleAs(UUserContext* User) {
+    if(!this->ConsoleContext) {
+    // Set up the terminal options
+        FPtyOptions options;
+        options.LFlag = ICANON;
+        options.C_cc[VERASE] = '\b';
+        options.C_cc[VEOL] = '\r';
+        options.C_cc[VEOL2] = '\n';
+
+        // Create the pseudo terminal streams.
+        UPtyStream::CreatePty(this->Master, this->Slave, options);
+
+        // Create and initialize the console context.
+        this->ConsoleContext = NewObject<UConsoleContext>(this);
+        this->ConsoleContext->Setup(this->Master, User);
+
+        // The UE4 console does *NOT* support ANSI, and has line-editing built in.
+        this->ConsoleContext->AllowANSI = false;
+        this->ConsoleContext->AllowLineEditing = false;
+
+        // Make sure we can read/write.
+        TScriptDelegate<> WriteEvent;
+        WriteEvent.BindUFunction(this, "HandleWrite");
+        this->Master->OnWritten.Add(WriteEvent);
+        this->Slave->OnWritten.Add(WriteEvent);
+    }
+}
+
+
 void UPeacenetCheatManager::CreateDebugConsoleContext() {
     if(!this->ConsoleContext) {
     // Set up the terminal options
@@ -476,5 +505,35 @@ void UPeacenetCheatManager::StdIn(FString Text) {
         this->PrintMessage("!!! ERROR !!! You shouldn't be using this command right now.  This command is meant to be used in conjunction with the Peacenet 'ExecBinary' command, to allow you to write text into the standard input stream of a Peacenet binary's console while said binary is running inside the Unreal console.  So, instead, try:");
         this->PrintMessage(" >> ExecBinary /bin/bash");
         this->PrintMessage(" >> StdIn " + Text);
+    }
+}
+
+void UPeacenetCheatManager::ExecBinaryAs(int Entity, int UserID, FString Path) {
+    if(this->GetPeacenet()) {
+        for(auto& Computer : this->GetPeacenet()->SaveGame->Computers) {
+            if(Computer.ID == Entity) {
+                for(auto& User : Computer.Users) {
+                    if(User.ID == UserID) {
+                        // Get a system context.
+                        USystemContext* SysCtx = this->GetPeacenet()->GetSystemContext(Entity);
+                        // And a user context.
+                        UUserContext* UserCtx = SysCtx->GetUserContext(UserID);
+                        // Create a debug console context for the user.
+                        this->CreateDebugConsoleAs(UserCtx);
+                        UProcess* Process = nullptr;
+                        if(UFileRecordUtils::LaunchProcess(Path, TArray<FString>{ Path }, this->ConsoleContext, nullptr, Process, this->GetPlayerUser()->GetDesktop())) {
+                            TScriptDelegate<> Killed;
+                            Killed.BindUFunction(this, "DestroyDebugConsoleContext");
+                            Process->OnKilled.Add(Killed);
+                        } else {
+                            this->PrintMessage("Binary not found.");
+                        }
+                    }
+                }
+                this->PrintMessage("User not found.");
+                return;
+            }
+        }
+        this->PrintMessage("Computer not found.");
     }
 }

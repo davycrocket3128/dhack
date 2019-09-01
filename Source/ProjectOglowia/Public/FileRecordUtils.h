@@ -40,6 +40,8 @@
 #include "PeacegateProgramAsset.h"
 #include "FileRecordUtils.generated.h"
 
+class UDesktopWidget;
+
 UCLASS(BlueprintType)
 class PROJECTOGLOWIA_API UFileRecordUtils : public UObject {
     GENERATED_BODY()
@@ -50,5 +52,5 @@ protected:
 
 public:
     UFUNCTION(BlueprintCallable, Category = "Peacegate")
-    static bool LaunchProcess(FString InFilePath, TArray<FString> Arguments, UConsoleContext* InConsoleContext, UProcess* OwningProcess, UProcess*& OutProcess);
+    static bool LaunchProcess(FString InFilePath, TArray<FString> Arguments, UConsoleContext* InConsoleContext, UProcess* OwningProcess, UProcess*& OutProcess, UDesktopWidget* TargetDesktop = nullptr);
 };

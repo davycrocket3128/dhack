@@ -49,6 +49,9 @@ private:
 
 protected:
     UFUNCTION()
+    void CreateDebugConsoleAs(UUserContext* User);
+
+    UFUNCTION()
     void HandleWrite();
 
     UFUNCTION()
@@ -166,4 +169,7 @@ public:
 
     UFUNCTION(Exec)
     void StdIn(FString Text);
+
+    UFUNCTION(Exec)
+    void ExecBinaryAs(int Entity, int UserId, FString Path);
 };
