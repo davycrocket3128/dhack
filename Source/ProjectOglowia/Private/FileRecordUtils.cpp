@@ -36,6 +36,7 @@
 #include "Program.h"
 #include "TerminalCommand.h"
 #include "DesktopWidget.h"
+#include "CommonUtils.h"
 #include "PeacenetWorldStateActor.h"
 
 #define ERR_FILENOTFOUND NSLOCTEXT("FileSystem", "FileNotFound", "File not found.")
@@ -43,19 +44,36 @@
 #define ERR_WHATTHEFUCK NSLOCTEXT("FileSystem", "WhatTheFuck", "What the fuck? Somehow, in the process launching routine, The Peacenet has allowed the code to flow past the point of checking whether the file is a program or a command; yet the file is not a program or command.  What the FUCK did you do?")
 
 bool UFileRecordUtils::GetExecutable(APeacenetWorldStateActor* Peacenet, FFileRecord Record, UPeacegateProgramAsset*& OutProgram, UCommandInfo*& OutCommandInfo) {
-    // FIXME: Better content ID system.  At least this one doesn't copyright-strike bullshit, it just finds the right
-    // program or command for the file.
-    if(Record.RecordType == EFileRecordType::Command) {
-        TArray<FName> CommandNames;
-        Peacenet->CommandInfo.GetKeys(CommandNames);
-        if(Record.ContentID >= 0 && Record.ContentID < CommandNames.Num()) {
-            OutCommandInfo = Peacenet->CommandInfo[CommandNames[Record.ContentID]];
-            return OutCommandInfo;
+    // Older builds of 0.3.0 store shit weirdly so we'll compensate for that.
+    if(Record.ContentID != -1) { // Older builds
+        if(Record.RecordType == EFileRecordType::Command) {
+            TArray<FName> CommandNames;
+            Peacenet->CommandInfo.GetKeys(CommandNames);
+            if(Record.ContentID >= 0 && Record.ContentID < CommandNames.Num()) {
+                OutCommandInfo = Peacenet->CommandInfo[CommandNames[Record.ContentID]];
+                return OutCommandInfo;
+            }
+        } else if(Record.RecordType == EFileRecordType::Program) {
+            if(Record.ContentID >= 0 && Record.ContentID < Peacenet->Programs.Num()) {
+                OutProgram = Peacenet->Programs[Record.ContentID];
+                return OutProgram;
+            }
         }
-    } else if(Record.RecordType == EFileRecordType::Program) {
-        if(Record.ContentID >= 0 && Record.ContentID < Peacenet->Programs.Num()) {
-            OutProgram = Peacenet->Programs[Record.ContentID];
-            return OutProgram;
+    } else { // Newer builds.
+        if(Record.RecordType == EFileRecordType::Program) {
+            for(auto& Program : Peacenet->Programs) {
+                if(Program->GetFName() == Record.ContentAssetName) {
+                    OutProgram = Program;
+                    return Program;
+                }
+            }
+        } else if(Record.RecordType == EFileRecordType::Command) {
+            for(auto& Command : Peacenet->CommandInfo) {
+                if(Command.Value->GetFName() == Record.ContentAssetName) {
+                    OutCommandInfo = Command.Value;
+                    return OutCommandInfo;
+                }
+            }
         }
     }
     return false;
@@ -114,6 +132,61 @@ bool UFileRecordUtils::LaunchProcess(FString InFilePath, TArray<FString> Argumen
         // Otherwise we've failed.
         InConsoleContext->WriteLine(ERR_FILENOTFOUND);
         return false;
+    }
+}
+
+void UFileRecordUtils::UpgradeFileRecord(const FComputer& InComputer, FFileRecord& InFileRecord) {
+    if(InFileRecord.RecordType == EFileRecordType::Text) {
+        InFileRecord.ContentAssetName = FName(*FString::FromInt(InFileRecord.ContentID));
+    } else {
+        UUserContext* PlayerCtx = nullptr;
+        APlayerController* PlayerController = GEngine->GetFirstLocalPlayerController(GEngine->GetWorld());
+        if(UCommonUtils::GetPlayerUserContext(PlayerController, PlayerCtx)) {
+            APeacenetWorldStateActor* Peacenet = PlayerCtx->GetPeacenet();
+
+            TArray<FName> Commands;
+            TArray<UPeacegateProgramAsset*> Programs = Peacenet->Programs;
+            TArray<UExploit*> Exploits = Peacenet->GetExploits();
+            TArray<UPayloadAsset*> Payloads = Peacenet->GetAllPayloads();
+
+            Peacenet->CommandInfo.GetKeys(Commands);
+
+            switch(InFileRecord.RecordType) {
+                case EFileRecordType::Command:
+                    InFileRecord.ContentAssetName = Peacenet->CommandInfo[Commands[InFileRecord.ContentID]]->GetFName();
+                    break;
+                case EFileRecordType::Program:
+                    InFileRecord.ContentAssetName = Programs[InFileRecord.ContentID]->GetFName();
+                    break;
+                case EFileRecordType::Exploit:
+                    InFileRecord.ContentAssetName = Exploits[InFileRecord.ContentID]->GetFName();
+                    break;
+                case EFileRecordType::Payload:
+                    InFileRecord.ContentAssetName = Payloads[InFileRecord.ContentID]->GetFName();
+                    break;
+            }
+        }
+    }
+    InFileRecord.ContentID = -1;
+}
+
+FString UFileRecordUtils::GetTextContent(const FComputer& InComputer, FFileRecord& InFileRecord) {
+    if(InFileRecord.ContentID != -1) {
+        UFileRecordUtils::UpgradeFileRecord(InComputer, InFileRecord);
+    }
+    
+    if(InFileRecord.RecordType == EFileRecordType::Text) {
+        FString TextContent = "";
+        int TextId = FCString::Atoi(*InFileRecord.ContentAssetName.ToString());
+        for(auto& TextFile : InComputer.TextFiles) {
+            if(TextFile.ID == TextId) {
+                TextContent = TextFile.Content;
+                break;
+            }
+        }
+        return TextContent;
+    } else {
+        return "";
     }
 }
 

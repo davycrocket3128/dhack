@@ -34,6 +34,7 @@
 #include "Base64.h"
 #include "FileUtilities.h"
 #include "PeacenetWorldStateActor.h"
+#include "FileRecordUtils.h"
 #include "SystemContext.h"
 
 FComputer& UPeacegateFileSystem::GetComputer() {
@@ -797,14 +798,7 @@ bool UPeacegateFileSystem::ReadText(const FString & InPath, FString& OutText, EF
 	}
 
 	OutStatusCode = EFilesystemStatusCode::OK;
-	// File contents are in base 64.
-	if(FoundFile.RecordType == EFileRecordType::Text) {
-		for(auto& TextFile : this->SystemContext->GetComputer().TextFiles) {
-			if(TextFile.ID == FoundFile.ContentID) {
-				OutText = TextFile.Content;
-			}
-		}
-	}
+	OutText = UFileRecordUtils::GetTextContent(this->GetComputer(), FoundFile);
 	return true;
 }
 

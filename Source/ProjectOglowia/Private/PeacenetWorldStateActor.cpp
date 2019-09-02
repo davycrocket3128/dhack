@@ -863,6 +863,10 @@ void APeacenetWorldStateActor::StartGame(TSubclassOf<UDesktopWidget> InDesktopCl
 		}
 	}
 
+	if(this->SaveGame->SaveVersion < UPeacenetSaveGame::SAVE_VERSION_CURRENT) {
+		this->SaveGame->Upgrade();
+	}
+
 	this->DesktopClass = InDesktopClass;
 	this->WindowClass = InWindowClass;
 

@@ -51,5 +51,8 @@ public:
     EFileRecordType RecordType = EFileRecordType::Text;
 
     UPROPERTY(BlueprintReadOnly, EditAnywhere)
+    FName ContentAssetName;
+
+    UPROPERTY(BlueprintReadOnly, EditAnywhere)
     int ContentID = 0;
 };
