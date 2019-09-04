@@ -718,13 +718,17 @@ void UPeacegateFileSystem::WriteText(const FString & InPath, const FString & InT
 					FTextFile NewTextFile;
 					NewTextFile.ID = this->GetNextTextFileID();
 
-					File.ContentID = NewTextFile.ID;
+					File.ContentAssetName = FName(*FString::FromInt(NewTextFile.ID));
 					NewTextFile.Content = InText;
 					
 					this->SystemContext->GetComputer().TextFiles.Add(NewTextFile);
 				} else {
+					if(File.ContentID != -1) {
+						File.ContentAssetName = FName(*FString::FromInt(File.ContentID));
+						File.ContentID = -1;
+					}
 					for(auto& TextFile : this->SystemContext->GetComputer().TextFiles) {
-						if(TextFile.ID == File.ContentID) {
+						if(TextFile.ID == FCString::Atoi(*File.ContentAssetName.ToString())) {
 							TextFile.Content = InText;
 						}
 					}
@@ -747,7 +751,7 @@ void UPeacegateFileSystem::WriteText(const FString & InPath, const FString & InT
 
 		this->SystemContext->GetComputer().TextFiles.Add(TextFile);
 
-		NewFile.ContentID = TextFile.ID;
+		NewFile.ContentAssetName = FName(*FString::FromInt(TextFile.ID));
 
 		this->SystemContext->GetComputer().FileRecords.Add(NewFile);
 

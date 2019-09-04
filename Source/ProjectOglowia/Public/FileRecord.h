@@ -54,5 +54,5 @@ public:
     FName ContentAssetName;
 
     UPROPERTY(BlueprintReadOnly, EditAnywhere)
-    int ContentID = 0;
+    int ContentID = -1;
 };
