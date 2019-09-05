@@ -29,14 +29,13 @@
  *
  ********************************************************************************/
 
-#include "CommonUtils.h"
-#include "PeacenetWorldStateActor.h"
-#include "UserContext.h"
-#include "Kismet/KismetSystemLibrary.h"
-#include "LootableFile.h"
-#include "Process.h"
-#include "FileRecordUtils.h"
 #include "PeacenetCheatManager.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "UserContext.h"
+#include "PeacenetWorldStateActor.h"
+#include "FileRecordUtils.h"
+#include "CommonUtils.h"
+#include "LootableFile.h"
 
 void UPeacenetCheatManager::DestroyDebugConsoleContext() {
     this->ConsoleContext = nullptr;

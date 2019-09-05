@@ -45,6 +45,12 @@
 #include "Process.h"
 #include "CommandInfo.h"
 #include "TerminalCommand.h"
+#include "Process.h"
+#include "FileRecordUtils.h"
+#include "UserContext.h"
+#include "LootableFile.h"
+#include "CommonUtils.h"
+#include "PeacenetSiteWidget.h"
 
 ATerminalCommand* UProgram::ForkCommand(UCommandInfo* InCommandInfo, UConsoleContext* InConsole) {
 	// Fork a Peacegate process for this command.

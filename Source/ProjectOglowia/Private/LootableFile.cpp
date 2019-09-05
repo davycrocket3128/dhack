@@ -29,8 +29,12 @@
  *
  ********************************************************************************/
 
-#include "PeacegateFileSystem.h"
 #include "LootableFile.h"
+#include "CommonUtils.h"
+#include "PeacegateFileSystem.h"
+#include "UserContext.h"
+#include "FileRecord.h"
+#include "PeacenetWorldStateActor.h"
 
 void ULootableFile::Spawn(UPeacegateFileSystem* TargetFileSystem, FRandomStream& Rng) {
     // This method simply wraps the static version that does the actual work.

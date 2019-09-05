@@ -35,9 +35,10 @@
 #include "CoreMinimal.h"
 #include "Text.h"
 #include "Dialog.h"
-#include "PeacenetSiteWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "Program.generated.h"
+
+class UPeacenetSiteWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerAttentionNeededEvent, bool, PlaySound);
 
