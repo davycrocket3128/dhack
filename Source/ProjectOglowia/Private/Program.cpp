@@ -98,6 +98,22 @@ void UProgram::RequestPlayerAttention(bool PlaySound) {
 	this->PlayerAttentionNeeded.Broadcast(PlaySound);
 }
 
+bool UProgram::OpenFile(FString FilePath, bool Fork) {
+	UPeacegateFileSystem* Filesystem = this->GetUserContext()->GetFilesystem();
+	if(Filesystem->FileExists(FilePath)) {
+		FFileRecord Record = Filesystem->GetFileRecord(FilePath);
+		if(Record.RecordType == EFileRecordType::Program || Record.RecordType == EFileRecordType::Command) {
+			UProcess* ChildProcess = nullptr;
+			UFileRecordUtils::LaunchProcess(FilePath, TArray<FString> { FilePath }, this->Console, (Fork) ? this->MyProcess : nullptr, ChildProcess);
+			return ChildProcess;
+		} else {
+			return false;
+		}
+	} else {
+		return false;
+	}
+}
+
 void UProgram::Launch(UConsoleContext* InConsoleContext, UProcess* OwningProcess, UDesktopWidget* TargetDesktop) {
 	// Don't allow launch if we already have a process.
 	check(!this->MyProcess);

@@ -82,6 +82,15 @@ protected:
 	void RequestPlayerAttention(bool PlaySound);
 
 public:
+	/**
+	 * Opens the specified file in the correct Peacegate program that handles the file's type.
+	 * 
+	 * @param FilePath The path to the file to open.
+	 * @param Fork Whether the process manager should fork from this program (closing it closes the file) or from the user context.
+	 */
+	UFUNCTION(BlueprintCallable)
+	bool OpenFile(FString FilePath, bool Fork);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	int GetProcessID();
 
