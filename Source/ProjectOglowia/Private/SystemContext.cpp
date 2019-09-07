@@ -277,7 +277,6 @@ bool USystemContext::OpenProgram(FName InExecutableName, UProgram*& OutProgram, 
 	if(!PeacegateProgram->IsUnlocked(this)) {
 		return false;
 	}
-	
 
 	UProgram* Program = this->GetDesktop()->SpawnProgramFromClass(PeacegateProgram->ProgramClass, PeacegateProgram->FullName, PeacegateProgram->AppLauncherItem.Icon, PeacegateProgram->EnableMinimizeAndMaximize);
 
