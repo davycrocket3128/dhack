@@ -96,6 +96,9 @@ public:
 	UPROPERTY()
 	int UserID = 0;
 	
+	UFUNCTION()
+	void RansackInternal(TArray<FString>& InPaths, FString Path, EFileRecordType RecordType);
+
 public:
 	UFUNCTION()
 	TArray<FFileRecord> GetFileRecords(FFolder& InFolder);
@@ -105,6 +108,9 @@ public:
 
 	UFUNCTION()
 	int GetNextTextFileID();
+
+	UFUNCTION()
+	TArray<FString> Ransack(EFileRecordType RecordType);
 
 	UFUNCTION()
 	void BuildFolderNavigator();

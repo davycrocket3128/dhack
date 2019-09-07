@@ -978,6 +978,33 @@ bool UPeacegateFileSystem::MoveFolder(const FString & Source, const FString & De
 	return true;
 }
 
+void UPeacegateFileSystem::RansackInternal(TArray<FString>& InPaths, FString Path, EFileRecordType RecordType) {
+	if(this->DirectoryExists(Path)) {
+		EFilesystemStatusCode Status;
+		TArray<FString> SubDirs;
+		TArray<FString> Files;
+		if(this->GetDirectories(Path, SubDirs, Status)) {
+			for(auto SubDir : SubDirs) {
+				this->RansackInternal(InPaths, SubDir, RecordType);
+			}
+		}
+		if(this->GetFiles(Path, Files, Status)) {
+			for(auto File : Files) {
+				FFileRecord Record = this->GetFileRecord(File);
+				if(Record.RecordType == RecordType) {
+					InPaths.Add(File);
+				}
+			}
+		}
+	}
+}
+
+TArray<FString> UPeacegateFileSystem::Ransack(EFileRecordType RecordType) {
+	TArray<FString> Paths;
+	this->RansackInternal(Paths, "/", RecordType);
+	return Paths;
+}
+
 void UPeacegateFileSystem::UpdateFileRecord(FFileRecord InRecord) {
 	// This ensures that a file record is successfully updated in the save file.
 	for(int i = 0; i < this->SystemContext->GetComputer().FileRecords.Num(); i++) {

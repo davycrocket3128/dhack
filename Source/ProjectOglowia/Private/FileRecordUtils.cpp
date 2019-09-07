@@ -190,6 +190,46 @@ FString UFileRecordUtils::GetTextContent(const FComputer& InComputer, FFileRecor
     }
 }
 
+TArray<FProgramFile> UFileRecordUtils::GetInstalledPrograms(UPeacegateFileSystem* FileSystem) {
+    // The returned list of programs.
+    TArray<FProgramFile> ProgramFiles;
+
+    // Ransack the filesystem for all program records.
+    TArray<FString> ProgramPaths = FileSystem->Ransack(EFileRecordType::Program);
+
+    // For every program file, get the record and retrieve the asset, and add the data to the
+    // array we'll return.
+    for(auto Path : ProgramPaths) {
+        FFileRecord Record = FileSystem->GetFileRecord(Path);
+        UPeacegateProgramAsset* ProgramAsset = nullptr;
+        UCommandInfo* Command = nullptr;
+        if(UFileRecordUtils::GetExecutable(FileSystem->SystemContext->GetPeacenet(), Record, ProgramAsset, Command)) {
+            if(ProgramAsset) {
+                FProgramFile PFile;
+                PFile.FilePath = Path;
+                PFile.ProgramAsset = ProgramAsset;
+                ProgramFiles.Add(PFile);
+            }
+        }
+    }
+
+    return ProgramFiles;
+}
+
+bool UFileRecordUtils::LaunchSuitableProgram(FString InFilePath, UConsoleContext* InConsoleContext, UProcess*& OutProcess, UProcess* OwningProcess, UDesktopWidget* TargetDesktop) {
+    TArray<FProgramFile> ProgramFiles = UFileRecordUtils::GetInstalledPrograms(InConsoleContext->GetUserContext()->GetFilesystem());
+    for(auto& File : ProgramFiles) {
+        if(File.ProgramAsset && File.ProgramAsset->SupportedFileExtensions.Num()) {
+            for(auto Ext : File.ProgramAsset->SupportedFileExtensions) {
+                if(InFilePath.ToLower().EndsWith(Ext)) {
+                    return UFileRecordUtils::LaunchProcess(File.FilePath, TArray<FString> { File.FilePath, InFilePath }, InConsoleContext, OwningProcess, OutProcess, TargetDesktop);
+                }
+            }
+        }
+    }
+    return false;
+}
+
 #undef ERR_FILENOTFOUND
 #undef ERR_WHATTHEFUCK
 #undef ERR_NOEXEC

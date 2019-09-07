@@ -32,38 +32,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FileRecord.h"
-#include "UserContext.h"
-#include "Process.h"
-#include "ProgramFile.h"
-#include "ConsoleContext.h"
-#include "CommandInfo.h"
 #include "PeacegateProgramAsset.h"
-#include "FileRecordUtils.generated.h"
+#include "ProgramFile.generated.h"
 
-class UDesktopWidget;
-
-UCLASS(BlueprintType)
-class PROJECTOGLOWIA_API UFileRecordUtils : public UObject {
+USTRUCT()
+struct FProgramFile {
     GENERATED_BODY()
 
-protected:
-    UFUNCTION()
-    static bool GetExecutable(APeacenetWorldStateActor* Peacenet, FFileRecord Record, UPeacegateProgramAsset*& OutProgram, UCommandInfo*& OutCommandInfo);
-
-    UFUNCTION()
-    static void UpgradeFileRecord(const FComputer& InComputer, FFileRecord& FileRecord);
-
 public:
-    UFUNCTION()
-    static FString GetTextContent(const FComputer& InComputer, FFileRecord& InFileRecord);
+    UPROPERTY()
+    FString FilePath;
 
-    UFUNCTION()
-    static TArray<FProgramFile> GetInstalledPrograms(UPeacegateFileSystem* InFileSystem);
-
-    UFUNCTION(BlueprintCallable, Category = "Peacegate")
-    static bool LaunchProcess(FString InFilePath, TArray<FString> Arguments, UConsoleContext* InConsoleContext, UProcess* OwningProcess, UProcess*& OutProcess, UDesktopWidget* TargetDesktop = nullptr);
-
-    UFUNCTION(BlueprintCallable, Category = "Peacegate")
-    static bool LaunchSuitableProgram(FString InFilePath, UConsoleContext* InConsoleContext, UProcess*& OutProcess, UProcess* OwningProcess, UDesktopWidget* TargetDesktop);
+    UPROPERTY()
+    UPeacegateProgramAsset* ProgramAsset;
 };
