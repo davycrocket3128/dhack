@@ -107,7 +107,9 @@ bool UProgram::OpenFile(FString FilePath, bool Fork) {
 			UFileRecordUtils::LaunchProcess(FilePath, TArray<FString> { FilePath }, this->Console, (Fork) ? this->MyProcess : nullptr, ChildProcess);
 			return ChildProcess;
 		} else {
-			return false;
+			UProcess* ChildProcess = nullptr;
+			bool result =  UFileRecordUtils::LaunchSuitableProgram(FilePath, this->Console, ChildProcess, (Fork) ? this->MyProcess : nullptr, nullptr);
+			return ChildProcess && result;
 		}
 	} else {
 		return false;
