@@ -165,7 +165,7 @@ public:
 	void UpdateFileRecord(FFileRecord InRecord);
 
 	UFUNCTION()
-	void SetFileRecord(FString InPath, EFileRecordType RecordType, int ContentID);
+	void SetFileRecord(FString InPath, EFileRecordType RecordType, FName ContentID);
 
 	UFUNCTION()
 	FFileRecord GetFileRecord(FString InPath);

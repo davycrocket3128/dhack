@@ -531,7 +531,7 @@ FFileRecord UPeacegateFileSystem::GetFileRecord(FString InPath) {
 	return FoundFile;
 }
 
-void UPeacegateFileSystem::SetFileRecord(FString InPath, EFileRecordType RecordType, int ContentID) {
+void UPeacegateFileSystem::SetFileRecord(FString InPath, EFileRecordType RecordType, FName ContentID) {
 	if (InPath.EndsWith(TEXT("/"))) {
 		return;
 	}
@@ -573,7 +573,7 @@ void UPeacegateFileSystem::SetFileRecord(FString InPath, EFileRecordType RecordT
 			if(File.ID == RecordID && File.Name == FileName) {
 				// Set the record type and content ID of the file.
 				File.RecordType = RecordType;
-				File.ContentID = ContentID;
+				File.ContentAssetName = ContentID;
 
 				FoundFile = true;
 				break;
@@ -586,7 +586,7 @@ void UPeacegateFileSystem::SetFileRecord(FString InPath, EFileRecordType RecordT
 		NewFile.ID = this->GetNextFileRecordID();
 		NewFile.Name = FileName;
 		NewFile.RecordType = RecordType;
-		NewFile.ContentID = ContentID;
+		NewFile.ContentAssetName = ContentID;
 
 		this->SystemContext->GetComputer().FileRecords.Add(NewFile);
 

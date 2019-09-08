@@ -197,7 +197,7 @@ bool UUserContext::DnsResolve(FString InHost, FComputer& OutComputer, EConnectio
 	return this->GetOwningSystem()->DnsResolve(InHost, OutComputer, OutError);
 }
 
-TArray<UPeacegateProgramAsset*> UUserContext::GetInstalledPrograms() {
+TArray<FProgramFile> UUserContext::GetInstalledPrograms() {
 	return this->GetOwningSystem()->GetInstalledPrograms();
 }
 

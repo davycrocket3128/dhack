@@ -39,6 +39,7 @@
 #include "UserColor.h"
 #include "Computer.h"
 #include "PeacenetIdentity.h"
+#include "ProgramFile.h"
 #include "UserContext.generated.h"
 
 class USystemContext;
@@ -130,7 +131,7 @@ public:
     bool IsPowerUser();
 
     UFUNCTION()
-    TArray<UPeacegateProgramAsset*> GetInstalledPrograms();
+    TArray<FProgramFile> GetInstalledPrograms();
 
     UFUNCTION()
     TArray<UCommandInfo*> GetInstalledCommands();

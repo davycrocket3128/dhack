@@ -47,6 +47,7 @@
 #include "PayloadAsset.h"
 #include "SystemUpgrade.h"
 #include "TerminalCommand.h"
+#include "FileRecordUtils.h"
 #include "Process.h"
 
 void USystemContext::RebuildFilesystemNavigators() {
@@ -227,18 +228,10 @@ FString USystemContext::GetHostname() {
 	return CurrentHostname;
 }
 
-TArray<UPeacegateProgramAsset*> USystemContext::GetInstalledPrograms() {
+TArray<FProgramFile> USystemContext::GetInstalledPrograms() {
 	check(Peacenet);
 
-	TArray<UPeacegateProgramAsset*> OutArray;
-
-	for(auto Program : this->GetPeacenet()->Programs) {
-		if(Program->IsUnlocked(this)) {
-			OutArray.Add(Program);
-		}
-	}
-
-	return OutArray;
+	return UFileRecordUtils::GetInstalledPrograms(this->GetFilesystem(0));
 }
 
 TArray<UCommandInfo*> USystemContext::GetInstalledCommands() {
@@ -423,8 +416,8 @@ bool USystemContext::Authenticate(const FString & Username, const FString & Pass
 
 bool USystemContext::GetSuitableProgramForFileExtension(const FString & InExtension, UPeacegateProgramAsset *& OutProgram) {
 	for(auto Program : this->GetInstalledPrograms()) {
-		if (Program->SupportedFileExtensions.Contains(InExtension)) {
-			OutProgram = Program;
+		if (Program.ProgramAsset->SupportedFileExtensions.Contains(InExtension)) {
+			OutProgram = Program.ProgramAsset;
 			return true;
 		}
 	}
@@ -768,20 +761,10 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	for(int i = 0; i < CommandKeys.Num(); i++) {
 		UCommandInfo* CommandInfo = this->GetPeacenet()->CommandInfo[CommandKeys[i]];
 		if(InstalledCommands.Contains(CommandInfo)) {
-			fs->SetFileRecord("/bin/" + CommandInfo->ID.ToString(), EFileRecordType::Command, i);
+			fs->SetFileRecord("/bin/" + CommandInfo->ID.ToString(), EFileRecordType::Command, CommandInfo->GetFName());
 		}
 	}
 
-
-	// Make all programs show in /bin.
-	TArray<UPeacegateProgramAsset*> InstalledPrograms = this->GetInstalledPrograms();
-
-	for(int i = 0; i < this->GetPeacenet()->Programs.Num(); i++) {
-		UPeacegateProgramAsset* ProgramAsset = this->GetPeacenet()->Programs[i];
-		if(InstalledPrograms.Contains(ProgramAsset)) {
-			fs->SetFileRecord("/bin/" + ProgramAsset->ID.ToString(), EFileRecordType::Program, i);
-		}
-	}
 
 	// If the cryptowallets directory exists, delete it.
 	if(fs->DirectoryExists("/usr/share/wallets")) {
@@ -797,8 +780,31 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 
 	}
 
+	// Populate program files
+	this->PopulateInstalledPrograms();
+
 	// Create and initialize the daemon manager.
 	this->InitDaemonManager();
+}
+
+void USystemContext::PopulateInstalledPrograms() {
+	UPeacegateFileSystem* FS = this->GetFilesystem(0);
+	EFilesystemStatusCode Status;
+	for(auto File : this->GetInstalledPrograms()) {
+		if(!File.ProgramAsset) {
+			FS->Delete(File.FilePath, true, Status);
+		} else if(File.ProgramAsset->RequiredUpgrade && !File.ProgramAsset->RequiredUpgrade->IsUnlocked(this->GetUserContext(0))) {
+			FS->Delete(File.FilePath, true, Status);
+		}
+	}
+	if(!FS->DirectoryExists("/bin")) {
+		FS->CreateDirectory("/bin", Status);
+	}
+	for(auto Program : this->GetPeacenet()->Programs) {
+		if(!Program->RequiredUpgrade || Program->RequiredUpgrade->IsUnlocked(this->GetUserContext(0))) {
+			FS->SetFileRecord("/bin/" + Program->ID.ToString(), EFileRecordType::Program, Program->GetFName());
+		}
+	}
 }
 
 bool USystemContext::GetDaemonManager(UUserContext* InUserContext, UDaemonManager*& OutDaemonManager) {

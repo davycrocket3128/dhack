@@ -41,6 +41,7 @@
 #include "ConnectionError.h"
 #include "ProcessManager.h"
 #include "DaemonManager.h"
+#include "ProgramFile.h"
 #include "SystemContext.generated.h"
 
 class UHackable;
@@ -50,7 +51,6 @@ class USystemUpgrade;
 class UProgram;
 class UExploit;
 class APeacenetWorldStateActor;
-class UPeacegateProgramAsset;
 
 /**
  * Represents the state and allows access/modification of an NPC or player computer in Peacenet.
@@ -112,6 +112,9 @@ protected:
 protected:
 	UFUNCTION()
 	void HandleFileSystemEvent(EFilesystemEventType InType, FString InPath);
+
+	UFUNCTION()
+	void PopulateInstalledPrograms();
 
 	UFUNCTION()
 	void Crash();
@@ -211,7 +214,7 @@ public: // Property getters
 	FString GetHostname();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "System Context")
-	TArray<UPeacegateProgramAsset*> GetInstalledPrograms();
+	TArray<FProgramFile> GetInstalledPrograms();
 
 public:
 	UFUNCTION()

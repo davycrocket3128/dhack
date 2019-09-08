@@ -462,3 +462,30 @@ void UConsoleContext::SetTerminalMode() {
 FString UConsoleContext::Tab() {
 	return "\t";
 }
+
+UConsoleContext* UConsoleContext::CreateNullConsole(UUserContext* InUserContext) {
+	check(InUserContext);
+
+	// Set up the terminal options
+    FPtyOptions options;
+    options.LFlag = ICANON;
+    options.C_cc[VERASE] = '\b';
+    options.C_cc[VEOL] = '\r';
+    options.C_cc[VEOL2] = '\n';
+
+	// Create the pseudo terminal streams.
+    UPtyStream* Master = nullptr;
+	UPtyStream* Slave = nullptr;
+	UPtyStream::CreatePty(Master, Slave, options);
+
+    // Create and initialize the console context.
+    UConsoleContext* ConsoleContext = NewObject<UConsoleContext>();
+    ConsoleContext->Setup(Master, InUserContext);
+
+    // Disable all forms of cool stuff because this console outputs to nowhere.
+    ConsoleContext->AllowANSI = false;
+    ConsoleContext->AllowLineEditing = false;
+
+	// Done!
+    return ConsoleContext;
+}

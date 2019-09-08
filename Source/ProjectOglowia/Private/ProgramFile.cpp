@@ -29,12 +29,5 @@
  *
  ********************************************************************************/
 
-#include "ReverseShell.h"
-#include "ReverseShellCommandHandler.h"
-#include "UserContext.h"
-#include "PeacegateFileSystem.h"
-#include "FileUtilities.h"
-
-bool AReverseShell::RunSpecialCommand(UConsoleContext* InConsole, FString InCommand, TArray<FString> Arguments)  {    
-    return false;
-}
+#include "ProgramFile.h"
+#include "PeacegateProgramAsset.h"

@@ -331,9 +331,9 @@ void UDesktopWidget::ResetAppLauncher() {
 	// Collect app launcher categories.
 	TArray<FString> CategoryNames;
 	for (auto Program : this->SystemContext->GetInstalledPrograms()) {
-		if (!CategoryNames.Contains(Program->AppLauncherItem.Category.ToString())) {
-			CategoryNames.Add(Program->AppLauncherItem.Category.ToString());
-			this->AddAppLauncherMainMenuItem(Program->AppLauncherItem.Category);
+		if (!CategoryNames.Contains(Program.ProgramAsset->AppLauncherItem.Category.ToString())) {
+			CategoryNames.Add(Program.ProgramAsset->AppLauncherItem.Category.ToString());
+			this->AddAppLauncherMainMenuItem(Program.ProgramAsset->AppLauncherItem.Category);
 		}
 	}
 }
@@ -425,15 +425,15 @@ void UDesktopWidget::ShowAppLauncherCategory(const FString& InCategoryName) {
 
 	// Add all the programs.
 	for (auto Program : this->SystemContext->GetInstalledPrograms()) {
-		if (Program->AppLauncherItem.Category.ToString() != InCategoryName) {
+		if (Program.ProgramAsset->AppLauncherItem.Category.ToString() != InCategoryName) {
 			continue;
 		}
 
-		// because Blueprints hate strings being passed by-value.
-		FString ProgramName = Program->ID.ToString();
+		// In 0.2.x, we used the manpage id for this but 0.3.0 uses the file path.
+		FString ProgramName = Program.FilePath;
 
 		// Add the item. Woohoo.
-		this->AddAppLauncherSubMenuItem(Program->FullName, Program->Summary, ProgramName, Program->AppLauncherItem.Icon, Program->AppLauncherItem.Category);
+		this->AddAppLauncherSubMenuItem(Program.ProgramAsset->FullName, Program.ProgramAsset->Summary, ProgramName, Program.ProgramAsset->AppLauncherItem.Icon, Program.ProgramAsset->AppLauncherItem.Category);
 	}
 }
 

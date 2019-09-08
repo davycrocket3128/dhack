@@ -32,17 +32,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PeacegateProgramAsset.h"
 #include "ProgramFile.generated.h"
 
-USTRUCT()
-struct FProgramFile {
+class UPeacegateProgramAsset;
+
+USTRUCT(BlueprintType)
+struct PROJECTOGLOWIA_API FProgramFile {
     GENERATED_BODY()
 
 public:
-    UPROPERTY()
-    FString FilePath;
-
-    UPROPERTY()
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     UPeacegateProgramAsset* ProgramAsset;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    FString FilePath;
 };

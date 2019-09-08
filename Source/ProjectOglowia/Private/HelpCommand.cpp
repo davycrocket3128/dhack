@@ -36,7 +36,7 @@
 
 void AHelpCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) {
     // Get all installed commands and programs.
-    TArray<UPeacegateProgramAsset*> Programs = InConsole->GetUserContext()->GetInstalledPrograms();
+    TArray<FProgramFile> Programs = InConsole->GetUserContext()->GetInstalledPrograms();
     TArray<UCommandInfo*> Commands = InConsole->GetUserContext()->GetInstalledCommands();
 
     // user interface bullshitfucks
@@ -55,11 +55,11 @@ void AHelpCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
 
     for(auto Program : Programs) {
         // Add it to the list of shit to display.
-        NameMap.Add(Program->ID.ToString(), Program->Summary.ToString());
+        NameMap.Add(Program.ProgramAsset->ID.ToString(), Program.ProgramAsset->Summary.ToString());
 
         // Update the length if we need to.
-        if(NameLength < Program->ID.ToString().Len()) {
-            NameLength = Program->ID.ToString().Len();
+        if(NameLength < Program.ProgramAsset->ID.ToString().Len()) {
+            NameLength = Program.ProgramAsset->ID.ToString().Len();
         }
     }
     

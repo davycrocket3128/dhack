@@ -119,6 +119,9 @@ public:
 	bool AllowLineEditing = true;
 
 public:
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	static UConsoleContext* CreateNullConsole(UUserContext* InUserContext);
+
 	UFUNCTION()
 	void OnTtyUpdate(UObject* Callee, FName FunctionName);
 
