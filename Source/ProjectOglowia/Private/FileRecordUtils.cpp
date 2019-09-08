@@ -111,6 +111,12 @@ bool UFileRecordUtils::LaunchProcess(FString InFilePath, TArray<FString> Argumen
             UProgram* Program = CreateWidget<UProgram, APlayerController>(MyPlayer, ProgramAsset->ProgramClass);
             Program->Window = Window;
             Program->Launch(InConsoleContext, Forked, TargetDesktop);
+
+            if(Arguments.Num() > 1) {
+                if(InConsoleContext->GetUserContext()->GetFilesystem()->FileExists(Arguments[1])) {
+                    Program->FileOpened(Arguments[1]);
+                }
+            }
         } else if(CommandInfo) {
             FVector Location(0.0f, 0.0f, 0.0f);
 	        FRotator Rotation(0.0f, 0.0f, 0.0f);
