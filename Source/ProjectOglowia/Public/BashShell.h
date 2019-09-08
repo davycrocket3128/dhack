@@ -41,8 +41,8 @@ class PROJECTOGLOWIA_API ABashShell : public ACommandShell
     GENERATED_BODY()
 
 protected:
+    virtual UProcess* LaunchProcess(UConsoleContext* TargetConsole, FString InCommandName, TArray<FString> Arguments) override;
     virtual bool AllowPipes() override { return true; }
     virtual bool AllowRedirection() override { return true; }
-    virtual ATerminalCommand* GetCommand(FString Command) override;
     virtual FText GetShellPrompt() override;
 };

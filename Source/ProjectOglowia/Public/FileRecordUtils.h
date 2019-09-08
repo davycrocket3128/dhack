@@ -49,12 +49,12 @@ class PROJECTOGLOWIA_API UFileRecordUtils : public UObject {
 
 protected:
     UFUNCTION()
-    static bool GetExecutable(APeacenetWorldStateActor* Peacenet, FFileRecord Record, UPeacegateProgramAsset*& OutProgram, UCommandInfo*& OutCommandInfo);
-
-    UFUNCTION()
     static void UpgradeFileRecord(const FComputer& InComputer, FFileRecord& FileRecord);
 
 public:
+    UFUNCTION()
+    static bool GetExecutable(APeacenetWorldStateActor* Peacenet, FFileRecord Record, UPeacegateProgramAsset*& OutProgram, UCommandInfo*& OutCommandInfo);
+
     UFUNCTION()
     static FString GetTextContent(const FComputer& InComputer, FFileRecord& InFileRecord);
 

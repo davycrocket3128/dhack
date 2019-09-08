@@ -32,42 +32,36 @@
 #include "BashShell.h"
 #include "UserContext.h"
 #include "CommandInfo.h"
+#include "Path.h"
+#include "FileRecordUtils.h"
 #include "GraphicalTerminalCommand.h"
 
-ATerminalCommand* ABashShell::GetCommand(FString Command) {
-    ATerminalCommand* CommandObject = nullptr;
-    FString InternalUsage;
-    FString FriendlyUsage;
+UProcess* ABashShell::LaunchProcess(UConsoleContext* TargetConsole, FString InCommandName, TArray<FString> Arguments) {
+	// TODO: Proper path env var.
+	// These are the folders that bash will look in for an executable.
+	TArray<FString> Paths = {
+		"/bin",
+		"/usr/bin",
+		"/sbin",
+		"/usr/sbin",
+		TargetConsole->GetWorkingDirectory()
+	};
 
-    if(this->GetUserContext()->GetFilesystem()->FileExists(this->GetConsole()->CombineWithWorkingDirectory(Command))) {
-		FFileRecord Record = this->GetUserContext()->GetFilesystem()->GetFileRecord(this->GetConsole()->CombineWithWorkingDirectory(Command));
-		if(Record.RecordType == EFileRecordType::Command) {
-			TArray<FName> CommandKeys;
-			this->GetUserContext()->GetPeacenet()->CommandInfo.GetKeys(CommandKeys);
+	// Try to find an executable in these paths.
+	for(FString Path : Paths) {
+		// Combine the paths.
+		FString FullPath = UPath::Combine(TArray<FString> { Path, InCommandName });
 
-			if(Record.ContentID < CommandKeys.Num()) {
-				UCommandInfo* Info = this->GetUserContext()->GetPeacenet()->CommandInfo[CommandKeys[Record.ContentID]];
-				ATerminalCommand* CommandImpl = ATerminalCommand::CreateCommandFromAsset(this->GetUserContext(), Info, this->ForkProcess(Info->ID.ToString()));
-
-                return CommandImpl;
-			}
-		} else if(Record.RecordType == EFileRecordType::Program) {
-			if(Record.ContentID < this->GetUserContext()->GetPeacenet()->Programs.Num()) {
-				UPeacegateProgramAsset* ProgramAsset = this->GetUserContext()->GetPeacenet()->Programs[Record.ContentID];
-				FVector Location(0.0f, 0.0f, 0.0f);
-	 			FRotator Rotation(0.0f, 0.0f, 0.0f);
-				FActorSpawnParameters SpawnInfo;
-
-				AGraphicalTerminalCommand* GraphicalCommand = Cast<AGraphicalTerminalCommand>(ATerminalCommand::SpawnCommand<AGraphicalTerminalCommand>(this->ForkProcess(ProgramAsset->ID.ToString())));
-				GraphicalCommand->ProgramAsset = ProgramAsset;
-				GraphicalCommand->CommandInfo = this->GetUserContext()->GetPeacenet()->CommandInfo[ProgramAsset->ID];
-				return GraphicalCommand;
-			}
+		// Try to launch a process.
+		UProcess* ChildProcess = nullptr;
+		TArray<FString> Args = { FullPath };
+		Args.Append(Arguments);
+		UFileRecordUtils::LaunchProcess(FullPath, Args, TargetConsole, this->GetProcess(), ChildProcess, TargetConsole->GetUserContext()->GetDesktop());
+		if(ChildProcess) {
+			return ChildProcess;
 		}
-	} else if (this->GetUserContext()->TryGetTerminalCommand(FName(*Command), this->GetProcess(), CommandObject, InternalUsage, FriendlyUsage)) {
-		return CommandObject;
 	}
-    return nullptr;
+	return nullptr;
 }
 
 FText ABashShell::GetShellPrompt() {

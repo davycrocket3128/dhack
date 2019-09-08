@@ -284,20 +284,16 @@ void ACommandShell::ExecuteNextCommand() {
         return;
     }
 
-    // If the above ends up failing then we'll try to spawn in a terminal command actor.
-    this->CurrentCommand = this->GetCommand(this->Instructions[0].Command);
+	// Now try to launch a process with the command and arguments.
+	this->CurrentProcess = this->LaunchProcess(this->CurrentConsole, this->Instructions[0].Command, SpecialArgs);
+	if(this->CurrentProcess) {
+		// When the process is killed, complete the command.
+		TScriptDelegate<> KilledDelegate;
+		KilledDelegate.BindUFunction(this, "CommandCompleted");
+		this->CurrentProcess->OnKilled.Add(KilledDelegate);
+		return;
+	}
 
-    if(this->CurrentCommand) {
-        // Ensure that we advance to the next command when the current one completes.
-        TScriptDelegate<> CompletedDelegate;
-        CompletedDelegate.BindUFunction(this, "CommandCompleted");
-        this->CurrentCommand->Completed.Add(CompletedDelegate);
-
-        // Run the command.
-        this->CurrentCommand->RunCommand(this->CurrentConsole, this->Instructions[0].Arguments);
-        return;
-    }
-    
     // Command not found.
     this->CurrentConsole->WriteLine(FText::Format(NSLOCTEXT("Shell", "CommandNotFound", "{0}: Command not found."), FText::FromString(this->Instructions[0].Command)));
     this->CommandCompleted();
@@ -308,7 +304,7 @@ void ACommandShell::CommandCompleted() {
     this->LastConsole = this->CurrentConsole;
 
     // Current Command becomes nullptr.
-    this->CurrentCommand = nullptr;
+    this->CurrentProcess = nullptr;
 
     // Remove the current command from the queue.
     this->Instructions.RemoveAt(0);
