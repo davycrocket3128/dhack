@@ -44,9 +44,14 @@ protected:
     UFUNCTION(BlueprintImplementableEvent)
     void OnFileSpawn(const FString& InPath, UPeacegateFileSystem* InFilesystem);
 
-    virtual void NativeSpawnFile(FString Path, UPeacegateFileSystem* Filesystem) {}
+    UFUNCTION(BlueprintImplementableEvent)
+    bool DetermineFileMatches(const FString& InPath, UPeacegateFileSystem* InFilesystem);
 
+    virtual void NativeSpawnFile(FString Path, UPeacegateFileSystem* Filesystem) {}
+    virtual bool NativeFileMatches(FString Path, UPeacegateFileSystem* Filesystem) { return false; }
 public:
     // UFUNCTION()
     void SpawnFile(FString Path, UPeacegateFileSystem* Filesystem);
+
+    bool FileMatches(FString Path, UPeacegateFileSystem* Filesystem);
 };

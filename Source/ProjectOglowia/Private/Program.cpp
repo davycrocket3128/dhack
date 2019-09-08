@@ -41,9 +41,16 @@
 #include "PeacenetWorldStateActor.h"
 #include "PeacenetSiteAsset.h"
 #include "PeacegateFileSystem.h"
+#include "DesktopWidget.h"
 #include "Process.h"
 #include "CommandInfo.h"
 #include "TerminalCommand.h"
+#include "Process.h"
+#include "FileRecordUtils.h"
+#include "UserContext.h"
+#include "LootableFile.h"
+#include "CommonUtils.h"
+#include "PeacenetSiteWidget.h"
 
 ATerminalCommand* UProgram::ForkCommand(UCommandInfo* InCommandInfo, UConsoleContext* InConsole) {
 	// Fork a Peacegate process for this command.
@@ -89,6 +96,52 @@ void UProgram::PushNotification(const FText & InNotificationMessage) {
 
 void UProgram::RequestPlayerAttention(bool PlaySound) {
 	this->PlayerAttentionNeeded.Broadcast(PlaySound);
+}
+
+bool UProgram::OpenFile(FString FilePath, bool Fork) {
+	UPeacegateFileSystem* Filesystem = this->GetUserContext()->GetFilesystem();
+	if(Filesystem->FileExists(FilePath)) {
+		FFileRecord Record = Filesystem->GetFileRecord(FilePath);
+		if(Record.RecordType == EFileRecordType::Program || Record.RecordType == EFileRecordType::Command) {
+			UProcess* ChildProcess = nullptr;
+			UFileRecordUtils::LaunchProcess(FilePath, TArray<FString> { FilePath }, this->Console, (Fork) ? this->MyProcess : nullptr, ChildProcess);
+			return ChildProcess;
+		} else {
+			UProcess* ChildProcess = nullptr;
+			bool result =  UFileRecordUtils::LaunchSuitableProgram(FilePath, this->Console, ChildProcess, (Fork) ? this->MyProcess : nullptr, nullptr);
+			return ChildProcess && result;
+		}
+	} else {
+		return false;
+	}
+}
+
+void UProgram::Launch(UConsoleContext* InConsoleContext, UProcess* OwningProcess, UDesktopWidget* TargetDesktop) {
+	// Don't allow launch if we already have a process.
+	check(!this->MyProcess);
+	if(this->MyProcess) {
+		return;
+	}
+
+	// assigh console context.
+	this->Console = InConsoleContext;
+
+	// Assign user context and process.
+	this->Window->SetUserContext(InConsoleContext->GetUserContext());
+	this->MyProcess = OwningProcess;
+
+	// Kill the process when the window is closed.
+	TScriptDelegate<> CloseDelegate;
+	CloseDelegate.BindUFunction(this, "OwningWindowClosed");
+	this->Window->NativeWindowClosed.Add(CloseDelegate);
+
+	// Show ourselves on the workspace.
+	this->SetupContexts();
+	if(TargetDesktop) {
+		TargetDesktop->ShowProgramOnWorkspace(this);
+	} else {
+		this->GetUserContext()->ShowProgramOnWorkspace(this);
+	}
 }
 
 UProgram* UProgram::CreateProgram(const TSubclassOf<UWindow> InWindow, const TSubclassOf<UProgram> InProgramClass, UUserContext* InUserContext, UWindow*& OutWindow, FString InProcessName, UProcess* OwnerProcess, bool DoContextSetup) {

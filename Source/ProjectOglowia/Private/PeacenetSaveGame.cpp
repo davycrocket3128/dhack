@@ -493,3 +493,7 @@ TArray<FEmail> UPeacenetSaveGame::GetEmailsForIdentity(FPeacenetIdentity& InIden
 
 	return Ret;
 }
+
+void UPeacenetSaveGame::Upgrade() {
+	// No upgrades... yet.
+}

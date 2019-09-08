@@ -41,6 +41,7 @@
 #include "StoryCharacterIDMap.h"
 #include "ComputerLink.h"
 #include "Email.h"
+#include "StoryComputerMap.h"
 #include "PeacenetSaveGame.generated.h"
 
 class UDesktopWidget;
@@ -55,6 +56,14 @@ class PROJECTOGLOWIA_API UPeacenetSaveGame : public USaveGame
 	GENERATED_BODY()
 
 public:
+	static const int SAVE_VERSION_030 = 3;
+
+	static const int SAVE_VERSION_CURRENT = SAVE_VERSION_030;
+
+public:
+	UPROPERTY(VisibleAnywhere, Category = "Save Version")
+	int SaveVersion = SAVE_VERSION_CURRENT;
+
 	UPROPERTY(VisibleAnywhere, Category = "Missions")
 	TArray<UMissionAsset*> CompletedMissions;
 
@@ -111,6 +120,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = "Missions")
 	TArray<FName> Missions;
+
+	UPROPERTY(VisibleAnywhere, Category = "Procgen")
+	TArray<FStoryComputerMap> StoryComputerIDs;
 
 	UPROPERTY(VisibleAnywhere, Category = "Procgen")
 	TMap<FString, int> ComputerIPMap;
@@ -176,4 +188,7 @@ public:
 
 	UFUNCTION()
 	int GetSkillOf(FComputer& InComputer);
+
+	UFUNCTION()
+	void Upgrade();
 };

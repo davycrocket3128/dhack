@@ -51,7 +51,6 @@ class USystemContext;
 class UWallpaperAsset;
 class UComputerService;
 class UMarkovTrainingDataAsset;
-class UProceduralGenerationEngine;
 class UPeacegateProgramAsset;
 class UTerminalCommand;
 class UExploit;
@@ -59,7 +58,9 @@ class UCommandInfo;
 class UPayloadAsset;
 class UWindow;
 class UMissionAsset;
+class UProceduralGenerationEngine;
 class USystemUpgrade;
+class UPeacenetCheatManager;
 
 // Because literally anything that requires the world state to be friends with it is fucking clingy
 // as fuck.
@@ -85,6 +86,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FGameEventSent, FString, InEventNam
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMissionCompleteEvent, UMissionAsset*, InMission);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FQuitRequestEvent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FUpdateKnownHostsEvent);
+DECLARE_DYNAMIC_DELEGATE(FNextFrameEvent);
 
 UCLASS()
 class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
@@ -93,8 +95,8 @@ class PROJECTOGLOWIA_API APeacenetWorldStateActor : public AActor
 
 	mystalkeris AMissionActor; // AMissionActor's more clingy to the fucking save file than I was to Nick Ensor.  That's...annoying....
 	myotherstalkeris UMissionTask; // For the love of Kaylin...
-	myotherstalkeris UProceduralGenerationEngine;
 	myotherstalkeris UTutorialTask;
+	myotherstalkeris UPeacenetCheatManager;
 
 	GENERATED_BODY()
 	
@@ -104,6 +106,9 @@ private:
 
 	UPROPERTY()
 	int MySlotId = -1;
+
+	UPROPERTY()
+	TArray<FNextFrameEvent> NextFrameActions;
 
 public: // Constructors
 	// Sets default values for this actor's properties
@@ -148,6 +153,9 @@ private: // Properties
 	UPeacenetSaveGame* SaveGame;
 
 	UPROPERTY()
+	UProceduralGenerationEngine* WorldGenerator = nullptr;
+
+	UPROPERTY()
 	AAlertManager* AlertManager;
 	
 	UPROPERTY()
@@ -170,9 +178,6 @@ private: // Properties
 
 	UPROPERTY()
 	TArray<FManualPage> ManualPages;
-
-	UPROPERTY()
-	UProceduralGenerationEngine* Procgen;
 
 	UPROPERTY()
 	TArray<USystemContext*> SystemContexts;
@@ -328,6 +333,12 @@ public:	// Functions
 	FComputer& GetNewComputer();
 
 	UFUNCTION()
+	FRandomStream& GetWorldGeneratorRng();
+
+	UFUNCTION()
+	void RunNextFrame(UObject* Object, FName FunctionName);
+
+	UFUNCTION()
 	bool CharacterNameExists(FString InCharacterName);
 
 	UFUNCTION()
@@ -355,11 +366,7 @@ public:	// Functions
 	AMissionActor* GetMissionActor();
 
 	UFUNCTION()
-	void StartMission(UMissionAsset* InMission);
-
-	UFUNCTION()
-	UProceduralGenerationEngine* GetProcgen();
-
+	void StartMission(UMissionAsset* InMission); 
 	UFUNCTION()
 	bool GetOwningIdentity(FComputer& InComputer, int& OutIdentityID);
 

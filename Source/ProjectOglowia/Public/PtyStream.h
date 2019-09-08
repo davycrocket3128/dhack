@@ -35,6 +35,8 @@
 #include "PtyFifoBuffer.h"
 #include "PtyStream.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPtyStreamWriteEvent);
+
 #define PTY_LINEBUFFER_SIZE 1024
 
 #define VEOF 0
@@ -109,6 +111,10 @@ private:
 private:
     void WriteOutput(TCHAR c);
     void WriteInput(TCHAR c);
+
+public:
+    UPROPERTY()
+    FPtyStreamWriteEvent OnWritten;
 
 public:
     UPtyStream();

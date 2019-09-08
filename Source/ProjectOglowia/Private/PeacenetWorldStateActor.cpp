@@ -48,6 +48,7 @@
 #include "MissionActor.h"
 #include "SystemUpgrade.h"
 #include "TutorialTask.h"
+#include "PeacenetCheatManager.h"
 #include "Window.h"
 
 FEmail& APeacenetWorldStateActor::GetMessageData(int ID) {
@@ -177,11 +178,14 @@ bool APeacenetWorldStateActor::DnsResolve(FString InHost, FComputer& OutComputer
 		return false;
 	}
 
-	// Now we force the game to generate firewall rules for the system.
-	this->Procgen->GenerateFirewallRules(this->GetComputerByID(Entity));
+	// This is also where we generate firewall rules.
+	this->WorldGenerator->SpawnServices(pc.ID);
 
 	// And now we give the computer to the caller.
 	OutComputer = this->GetComputerByID(Entity);
+
+	// Spawn lootable files.
+	this->WorldGenerator->SpawnLootableFiles(OutComputer);
 
 	// Now we have a computer.  I can see the truth.  Only returning true.
 	return true;
@@ -327,9 +331,6 @@ void APeacenetWorldStateActor::QuitGame() {
 }
 
 TArray<FString> APeacenetWorldStateActor::GetLinkedHosts(USystemContext* InSystem) {
-	// Generate any links that need to be generated.
-	this->Procgen->GenerateLinks(InSystem->GetComputer());
-
 	// Get all of the linked entities for the system.
 	TArray<int> LinkedPCs = this->SaveGame->GetLinkedSystems(InSystem->GetComputer());
 
@@ -381,10 +382,6 @@ void APeacenetWorldStateActor::FailMission(const FText& InFailMessage) {
 	this->MissionFailed.Broadcast(this->CurrentMission, InFailMessage);
 }
 
-UProceduralGenerationEngine* APeacenetWorldStateActor::GetProcgen() {
-	return this->Procgen;
-}
-
 // Sets default values
 APeacenetWorldStateActor::APeacenetWorldStateActor() {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -424,8 +421,7 @@ void APeacenetWorldStateActor::AbortMission() {
 
 bool APeacenetWorldStateActor::IsPortOpen(FString InIPAddress, int InPort) {
 	check(this->SaveGame);
-	check(this->Procgen);
-
+	
 	check(this->SaveGame->ComputerIPMap.Contains(InIPAddress));
 
 	int EntityID = this->SaveGame->ComputerIPMap[InIPAddress];
@@ -434,8 +430,6 @@ bool APeacenetWorldStateActor::IsPortOpen(FString InIPAddress, int InPort) {
 	int ComputerIndex;
 	bool result = this->SaveGame->GetComputerByID(EntityID, Computer, ComputerIndex);
 	check(result);
-
-	this->Procgen->GenerateFirewallRules(this->SaveGame->Computers[ComputerIndex]);
 
 	for(FFirewallRule& Rule : this->SaveGame->Computers[ComputerIndex].FirewallRules) {
 		if(Rule.Port == InPort) {
@@ -502,7 +496,6 @@ bool APeacenetWorldStateActor::ResolveHost(FString InHost, FComputer& OutCompute
 
 bool APeacenetWorldStateActor::ScanForServices(FString InIPAddress, TArray<FFirewallRule>& OutRules) {
 	check(this->SaveGame);
-	check(this->Procgen);
 
 	if(!this->SaveGame->IPAddressAllocated(InIPAddress)) {
 		return false;
@@ -517,8 +510,6 @@ bool APeacenetWorldStateActor::ScanForServices(FString InIPAddress, TArray<FFire
 	check(result);
 
 	FComputer& RefComputer = this->SaveGame->Computers[ComputerIndex];
-
-	this->Procgen->GenerateFirewallRules(RefComputer);
 
 	OutRules = RefComputer.FirewallRules;
 
@@ -549,18 +540,15 @@ bool APeacenetWorldStateActor::IsTrue(FString InSaveBoolean) {
 
 FString APeacenetWorldStateActor::GetIPAddress(FComputer& InComputer) {
 	check(this->SaveGame);
-	check(this->Procgen);
-
+	
 	for(auto& IP : this->SaveGame->ComputerIPMap) {
 		if(IP.Value == InComputer.ID) {
 			return IP.Key;
 		}
 	}
 
-	// Peacenet 0.2.x: IP addresses do not, under any circumstances, require Peacenet Identities.
-	FString IP = this->Procgen->GenerateIPAddress();
-	this->SaveGame->ComputerIPMap.Add(IP, InComputer.ID);
-	return IP;
+	// The Peacenet 0.3.0 (worldgen overhaul) - World generator should be taking care of IP generation.
+	return "0.0.0.0";
 }
 
 // Loads all the terminal commands in the game
@@ -590,6 +578,16 @@ TArray<UExploit*> APeacenetWorldStateActor::GetExploits() {
 	return this->Exploits;
 }
 
+void APeacenetWorldStateActor::RunNextFrame(UObject* Object, FName InFunctionName) {
+	FNextFrameEvent Event;
+	Event.BindUFunction(Object, InFunctionName);
+	this->NextFrameActions.Push(Event);
+}
+
+FRandomStream& APeacenetWorldStateActor::GetWorldGeneratorRng() {
+	return this->WorldGenerator->GetRng();
+}
+
 TArray<UPayloadAsset*> APeacenetWorldStateActor::GetAllPayloads() {
 	return this->Payloads;
 }
@@ -598,12 +596,30 @@ TArray<FManualPage> APeacenetWorldStateActor::GetManualPages() {
 	return this->ManualPages;
 }
 
+// Hey there!
+//
+// I see you're either looking at the commit diff for this file or you're just carefully reading through it.  Or maybe you
+// scrolled by and saw this sore thumb just sitting there in the code.  Whatever the case, I'm highly caffeinated and I have
+// the proper permission as lead dev to write this.
+//
+// I feel like writing this, and have the ability to revert any commits and deny any pull requests that try to remove
+// it, so SMELL THAT FINGER, QUAHOG!
+//
+// Anyway, you've just...completely wasted your time.  Unless you want to know that Lucario is my favorite Pokemon now.
+//
+// Sincerely,
+// Your beloved dickhead programmer, Michael.
+//
+// P.S. Visual Studio Code underlined "Michael" as a spelling error.  I want to light a pillow on fire now.
+
 TArray<USystemUpgrade*> APeacenetWorldStateActor::GetAllSystemUpgrades() {
 	return this->UserUnlockableUpgrades;
 }
 
 void APeacenetWorldStateActor::SendMissionMail(UMissionAsset* InMission) {
 	check(InMission);
+	check(this->WorldGenerator);
+	check(this->WorldGenerator->IsDoneGeneratingStoryCharacters());
 
 	FEmail MissionEmail;
 	MissionEmail.ID = this->SaveGame->EmailMessages.Num();
@@ -698,6 +714,10 @@ void APeacenetWorldStateActor::SetStealthiness(FPeacenetIdentity& InIdentity, fl
 void APeacenetWorldStateActor::BeginPlay() {
 	Super::BeginPlay();
 
+	// Spawn the world generator.
+	this->WorldGenerator = NewObject<UProceduralGenerationEngine>(this);
+	this->WorldGenerator->Setup(this);
+
 	// Spawn in the alert manager.
 	FVector Location(0.0f, 0.0f, 0.0f);
 	 FRotator Rotation(0.0f, 0.0f, 0.0f);
@@ -742,9 +762,6 @@ void APeacenetWorldStateActor::BeginPlay() {
 	// Load terminal command assets, build usage strings, populate command map.
 	this->LoadTerminalCommands();
 
-	// Spin up the procedural generation engine.
-	this->Procgen = NewObject<UProceduralGenerationEngine>(this);
-
 	// Load all mission assets.
 	TArray<UMissionAsset*> TempMissions;
 
@@ -787,10 +804,18 @@ void APeacenetWorldStateActor::EndPlay(const EEndPlayReason::Type InReason) {
 void APeacenetWorldStateActor::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
-	this->Procgen->Update(DeltaTime);
-
 	// Is the save loaded?
 	if (SaveGame) {
+		// Run a single queued action, if any.
+		if(this->NextFrameActions.Num()) {
+			FNextFrameEvent Event = this->NextFrameActions.Pop();
+			Event.Execute();
+		}
+
+		// Allow the world generator to update.
+		this->WorldGenerator->GiveSaveGame(this->SaveGame);
+		this->WorldGenerator->Update(DeltaTime);
+
 		// Get time of day
 		float TimeOfDay = SaveGame->EpochTime;
 
@@ -810,6 +835,8 @@ void APeacenetWorldStateActor::Tick(float DeltaTime) {
 
 		// Tick the tutorial prompt state.
 		this->TutorialState->Tick(DeltaTime);
+
+		
 	}
 }
 
@@ -836,6 +863,10 @@ void APeacenetWorldStateActor::StartGame(TSubclassOf<UDesktopWidget> InDesktopCl
 		}
 	}
 
+	if(this->SaveGame->SaveVersion < UPeacenetSaveGame::SAVE_VERSION_CURRENT) {
+		this->SaveGame->Upgrade();
+	}
+
 	this->DesktopClass = InDesktopClass;
 	this->WindowClass = InWindowClass;
 
@@ -859,8 +890,6 @@ void APeacenetWorldStateActor::StartGame(TSubclassOf<UDesktopWidget> InDesktopCl
 		SaveGame->PlayerComputerID = pc.ID;
 	}
 
-	Procgen->Initialize(this);
-
 	// Create a system context.
 	USystemContext* PlayerSystemContext = NewObject<USystemContext>(this);
 
@@ -874,11 +903,6 @@ void APeacenetWorldStateActor::StartGame(TSubclassOf<UDesktopWidget> InDesktopCl
 	this->SystemContexts.Add(PlayerSystemContext);
 
 	this->PlayerSystemReady.Broadcast(PlayerSystemContext);
-
-	// This allows the game to notify the player of any new missions.
-	if(this->SaveGame->PlayerHasIdentity()) {
-		this->SendAvailableMissions();
-	}
 }
 
 bool APeacenetWorldStateActor::FindProgramByName(FName InName, UPeacegateProgramAsset *& OutProgram) {
@@ -913,7 +937,6 @@ FText APeacenetWorldStateActor::GetTimeOfDay() {
 	return FText::FromString(HoursString + TEXT(":") + MinutesString);
 }
 
-// COMPATIBILITY WITH 0.2.0.
 bool APeacenetWorldStateActor::HasExistingOS(int SlotId) {
 	return UGameplayStatics::DoesSaveGameExist("Peacegate_User" + FString::FromInt(SlotId), 0);
 }

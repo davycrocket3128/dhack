@@ -41,6 +41,5 @@ enum class EFileRecordType : uint8
     Program,
     Command,
     Exploit,
-    Payload,
-    Picture
+    Payload
 };

@@ -39,6 +39,7 @@
 #include "UserColor.h"
 #include "Computer.h"
 #include "PeacenetIdentity.h"
+#include "ProgramFile.h"
 #include "UserContext.generated.h"
 
 class USystemContext;
@@ -93,9 +94,6 @@ public:
     UFUNCTION(BlueprintPure, BlueprintCallable, Category = "User Context")
     FText GetFirstName();
 
-    UFUNCTION(BlueprintCallable, Category = "Story Utils")
-    void CreateFirstIdentity(const FText& IdentityName, const FText& AliasName, bool UseAliasAsEmail = true);
-
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Peacegate")
     bool GetDaemonManager(UDaemonManager*& OutDaemonManager);
 
@@ -132,8 +130,8 @@ public:
     UFUNCTION()
     bool IsPowerUser();
 
-    UFUNCTION()
-    TArray<UPeacegateProgramAsset*> GetInstalledPrograms();
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    TArray<FProgramFile> GetInstalledPrograms();
 
     UFUNCTION()
     TArray<UCommandInfo*> GetInstalledCommands();

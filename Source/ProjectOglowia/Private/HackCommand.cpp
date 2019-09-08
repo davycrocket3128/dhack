@@ -135,20 +135,22 @@ void AHackCommand::Tick(float InDeltaSeconds) {
     // Assess the player's stealthiness.  If it's different than
     // before then we need to set the player's stealthiness value
     // in the world state if the new value is below the current.
-    float stealthiness = this->AssessStealthiness();
+    if(this->RemoteSystem) {
+        float stealthiness = this->AssessStealthiness();
 
-    if(this->LastStealthiness != stealthiness) {
-        this->LastStealthiness = stealthiness;
+        if(this->LastStealthiness != stealthiness) {
+            this->LastStealthiness = stealthiness;
 
-        if(stealthiness < this->GetUserContext()->GetStealthiness()) {
-            this->GetUserContext()->SetStealthiness(stealthiness);
+            if(stealthiness < this->GetUserContext()->GetStealthiness()) {
+                this->GetUserContext()->SetStealthiness(stealthiness);
+            }
         }
-    }
-
-    // If the payload is NOT active then we'll call up to our base Tick method to let the
-    // shell system take over.
-    if(!this->IsPayloadActive) {
-        Super::Tick(InDeltaSeconds);
+        
+        // If the payload is NOT active then we'll call up to our base Tick method to let the
+        // shell system take over.
+        if(!this->IsPayloadActive) {
+            Super::Tick(InDeltaSeconds);
+        }
     }
 }
 
@@ -251,9 +253,6 @@ void AHackCommand::NativeRunCommand(UConsoleContext* InConsole, TArray<FString> 
         NSLOCTEXT("CommandNames", "Gigasploit", "Gigasploit Framework Console"),
         NSLOCTEXT("Tutorials", "GigasploitWelcome", "This is the <ui>Gigasploit Framework Console</>.\r\n\r\nMost <bad>hacking</> operations will be performed here.\r\n\r\nTo <bad>hack</> a system, you must select an <ui>exploit</>, a <ui>payload</>, and attack a <ui>service</>.\r\n\r\nTo <ui>scan</> the system for hack-able <ui>services</>, run the <cmd>scan</> command.")
     );
-
-    // Generate all the firewall rules for our remote system if necessary.
-    this->RemoteSystem->GetPeacenet()->GetProcgen()->GenerateFirewallRules(this->RemoteSystem->GetComputer());
 }
 
 void AHackCommand::ShowCoverTutorial() {

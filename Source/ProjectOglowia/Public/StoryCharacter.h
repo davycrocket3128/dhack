@@ -53,22 +53,6 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Email")
     FString EmailAlias;
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
-    bool UseNameForHostname = false;
-
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
-    FString Hostname = "";
-
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
-    bool UseEmailAliasAsUsername = true;
-
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
-    bool ShouldLinkToPlayer = true;
-
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Computer")
-    FString Username;
-
-    // A list of exploits which the resulting character's computer will definitely spawn with.
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Loots")
-    TArray<UExploit*> Exploits;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Email")
+    FString EmailDomain = "";
 };

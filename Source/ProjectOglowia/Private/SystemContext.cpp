@@ -47,7 +47,15 @@
 #include "PayloadAsset.h"
 #include "SystemUpgrade.h"
 #include "TerminalCommand.h"
+#include "FileRecordUtils.h"
+#include "Path.h"
 #include "Process.h"
+
+void USystemContext::RebuildFilesystemNavigators() {
+	for(auto FS : this->RegisteredFilesystems) {
+		FS.Value->BuildFolderNavigator();
+	}
+}
 
 bool USystemContext::IsDaemonRunning(FName InDaemonName) {
 	return this->DaemonManager && this->DaemonManager->IsDaemonRunning(InDaemonName);
@@ -221,18 +229,10 @@ FString USystemContext::GetHostname() {
 	return CurrentHostname;
 }
 
-TArray<UPeacegateProgramAsset*> USystemContext::GetInstalledPrograms() {
+TArray<FProgramFile> USystemContext::GetInstalledPrograms() {
 	check(Peacenet);
 
-	TArray<UPeacegateProgramAsset*> OutArray;
-
-	for(auto Program : this->GetPeacenet()->Programs) {
-		if(Program->IsUnlocked(this)) {
-			OutArray.Add(Program);
-		}
-	}
-
-	return OutArray;
+	return UFileRecordUtils::GetInstalledPrograms(this->GetFilesystem(0));
 }
 
 TArray<UCommandInfo*> USystemContext::GetInstalledCommands() {
@@ -271,7 +271,6 @@ bool USystemContext::OpenProgram(FName InExecutableName, UProgram*& OutProgram, 
 	if(!PeacegateProgram->IsUnlocked(this)) {
 		return false;
 	}
-	
 
 	UProgram* Program = this->GetDesktop()->SpawnProgramFromClass(PeacegateProgram->ProgramClass, PeacegateProgram->FullName, PeacegateProgram->AppLauncherItem.Icon, PeacegateProgram->EnableMinimizeAndMaximize);
 
@@ -418,8 +417,8 @@ bool USystemContext::Authenticate(const FString & Username, const FString & Pass
 
 bool USystemContext::GetSuitableProgramForFileExtension(const FString & InExtension, UPeacegateProgramAsset *& OutProgram) {
 	for(auto Program : this->GetInstalledPrograms()) {
-		if (Program->SupportedFileExtensions.Contains(InExtension)) {
-			OutProgram = Program;
+		if (Program.ProgramAsset->SupportedFileExtensions.Contains(InExtension)) {
+			OutProgram = Program.ProgramAsset;
 			return true;
 		}
 	}
@@ -618,11 +617,11 @@ bool USystemContext::DnsResolve(FString InHost, FComputer& OutComputer, EConnect
 
 	// TODO: /etc/hosts support.
 
-	// If the host is "localhost" or "127.0.0.1" or our hostname we'll return our own computer.
+	// Map localhost, 127.0.0.1, and the system hostname to our public IP address, since 0.3.0
+	// doesn't have a concept of LANs, network address traversal, etc.
 	if(InHost == "127.0.0.1" || InHost == "localhost" || InHost == this->GetHostname()) {
 
-		OutComputer = this->GetComputer();
-		return true;
+		InHost = this->GetIPAddress();
 	}
 
 	// It's your fucking problem now, world state.
@@ -696,11 +695,6 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 		this->GetCharacter().PreferredAlias = this->GetCharacter().CharacterName;
 	}
 
-	// Do we not have an email address?
-	if(!this->GetCharacter().EmailAddress.Len()) {
-		this->GetCharacter().EmailAddress = this->GetCharacter().PreferredAlias.Replace(TEXT(" "), TEXT("_")) + "@" + this->GetPeacenet()->GetProcgen()->ChooseEmailDomain();
-	}
-
 	// Now we need a filesystem.
 	UPeacegateFileSystem* fs = this->GetFilesystem(0);
 
@@ -734,17 +728,12 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 
 	// Go through every user on the system.
 	for(auto& user : this->GetComputer().Users) {
-		// should we generate loots after this?
-		bool generateLoots = false;
-
 		// Get the home directory for the user.
 		FString home = this->GetUserHomeDirectory(user.ID);
 
 		// If the user's home directory doesn't exist, create it.
 		if(!fs->DirectoryExists(home)) {
 			fs->CreateDirectory(home, fsStatus);
-			generateLoots = true;
-
 			this->AppendLog("Creating home directory " + home + " for user " + user.Username);
 		}
 
@@ -760,42 +749,9 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 
 		for(auto subDir : homeDirs) {
 			if(!fs->DirectoryExists(home + "/" + subDir)) {
-				generateLoots = true;
 				fs->CreateDirectory(home + "/" + subDir, fsStatus);
 			}
 		}
-
-		if(generateLoots) {
-			this->GetPeacenet()->GetProcgen()->PlaceLootableFiles(this->GetUserContext(user.ID));
-		}
-	}
-
-	// Now we'll get all the installed terminal commands to show in /bin.
-	TArray<UCommandInfo*> InstalledCommands = this->GetInstalledCommands();
-	TArray<FName> CommandKeys;
-	this->GetPeacenet()->CommandInfo.GetKeys(CommandKeys);
-	
-	for(int i = 0; i < CommandKeys.Num(); i++) {
-		UCommandInfo* CommandInfo = this->GetPeacenet()->CommandInfo[CommandKeys[i]];
-		if(InstalledCommands.Contains(CommandInfo)) {
-			fs->SetFileRecord("/bin/" + CommandInfo->ID.ToString(), EFileRecordType::Command, i);
-		}
-	}
-
-
-	// Make all programs show in /bin.
-	TArray<UPeacegateProgramAsset*> InstalledPrograms = this->GetInstalledPrograms();
-
-	for(int i = 0; i < this->GetPeacenet()->Programs.Num(); i++) {
-		UPeacegateProgramAsset* ProgramAsset = this->GetPeacenet()->Programs[i];
-		if(InstalledPrograms.Contains(ProgramAsset)) {
-			fs->SetFileRecord("/bin/" + ProgramAsset->ID.ToString(), EFileRecordType::Program, i);
-		}
-	}
-
-	// If the cryptowallets directory exists, delete it.
-	if(fs->DirectoryExists("/usr/share/wallets")) {
-		fs->Delete("/usr/share/wallets", true, fsStatus);
 	}
 
 	if(!fs->DirectoryExists("/usr")) {
@@ -807,8 +763,31 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 
 	}
 
-	// Create and initialize the daemon manager.
+	// Populate program files
+	this->PopulateInstalledPrograms();
+
+	// Create and initialize t	he daemon manager.
 	this->InitDaemonManager();
+}
+
+void USystemContext::PopulateInstalledPrograms() {
+	UPeacegateFileSystem* FS = this->GetFilesystem(0);
+	EFilesystemStatusCode Status;
+	for(auto File : this->GetInstalledPrograms()) {
+		if(!File.ProgramAsset) {
+			FS->Delete(File.FilePath, true, Status);
+		} else if(File.ProgramAsset->RequiredUpgrade && !File.ProgramAsset->RequiredUpgrade->IsUnlocked(this->GetUserContext(0))) {
+			FS->Delete(File.FilePath, true, Status);
+		}
+	}
+	if(!FS->DirectoryExists("/bin")) {
+		FS->CreateDirectory("/bin", Status);
+	}
+	for(auto Program : this->GetPeacenet()->Programs) {
+		if(!Program->RequiredUpgrade || Program->RequiredUpgrade->IsUnlocked(this->GetUserContext(0))) {
+			FS->SetFileRecord(UPath::Combine(TArray<FString> { "bin", Program->ID.ToString() }), EFileRecordType::Program, Program->GetFName());
+		}
+	}
 }
 
 bool USystemContext::GetDaemonManager(UUserContext* InUserContext, UDaemonManager*& OutDaemonManager) {

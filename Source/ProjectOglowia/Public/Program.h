@@ -35,9 +35,10 @@
 #include "CoreMinimal.h"
 #include "Text.h"
 #include "Dialog.h"
-#include "PeacenetSiteWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "Program.generated.h"
+
+class UPeacenetSiteWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerAttentionNeededEvent, bool, PlaySound);
 
@@ -49,6 +50,7 @@ class UWindow;
 class UCommandInfo;
 class ATerminalCommand;
 class UProcess;
+class UDesktopWidget;
 
 UCLASS(Blueprintable, BlueprintType)
 class PROJECTOGLOWIA_API UProgram : public UUserWidget
@@ -69,6 +71,9 @@ public:
 	UFUNCTION()
 	void ActiveProgramCloseEvent();
 
+	UFUNCTION()
+	void Launch(UConsoleContext* InConsoleContext, UProcess* OwningProcess, UDesktopWidget* TargetDesktop = nullptr);
+
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Desktop")
 	void PushNotification(const FText& InNotificationMessage);
@@ -77,6 +82,15 @@ protected:
 	void RequestPlayerAttention(bool PlaySound);
 
 public:
+	/**
+	 * Opens the specified file in the correct Peacegate program that handles the file's type.
+	 * 
+	 * @param FilePath The path to the file to open.
+	 * @param Fork Whether the process manager should fork from this program (closing it closes the file) or from the user context.
+	 */
+	UFUNCTION(BlueprintCallable)
+	bool OpenFile(FString FilePath, bool Fork);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	int GetProcessID();
 

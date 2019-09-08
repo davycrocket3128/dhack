@@ -34,6 +34,7 @@
 
 #include "CoreMinimal.h"
 #include "SystemUpgrade.h"
+#include "Sex.h"
 #include "PeacenetIdentity.generated.h"
 
 /**
@@ -85,4 +86,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	bool IsMissionImportant = false;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	ESex Sex = ESex::Male;
 };

@@ -47,6 +47,7 @@
 #include "MissionAsset.h"
 #include "Process.h"
 #include "CommandInfo.h"
+#include "FileRecordUtils.h"
 #include "TerminalCommand.h"
 
 UUserWidget* UDesktopWidget::CreateWidgetOwnedByDesktop(TSubclassOf<UUserWidget> InWidgetClass) {
@@ -331,9 +332,9 @@ void UDesktopWidget::ResetAppLauncher() {
 	// Collect app launcher categories.
 	TArray<FString> CategoryNames;
 	for (auto Program : this->SystemContext->GetInstalledPrograms()) {
-		if (!CategoryNames.Contains(Program->AppLauncherItem.Category.ToString())) {
-			CategoryNames.Add(Program->AppLauncherItem.Category.ToString());
-			this->AddAppLauncherMainMenuItem(Program->AppLauncherItem.Category);
+		if (!CategoryNames.Contains(Program.ProgramAsset->AppLauncherItem.Category.ToString())) {
+			CategoryNames.Add(Program.ProgramAsset->AppLauncherItem.Category.ToString());
+			this->AddAppLauncherMainMenuItem(Program.ProgramAsset->AppLauncherItem.Category);
 		}
 	}
 }
@@ -367,7 +368,6 @@ void UDesktopWidget::ActivateSession(UUserContext* user) {
 	this->SessionActive = true;
 
 	this->ResetDesktopIcons();
-	this->ResetAppLauncher();
 
 	// Grab the user's home directory.
 	this->UserHomeDirectory = this->SystemContext->GetUserHomeDirectory(this->UserID);
@@ -425,24 +425,30 @@ void UDesktopWidget::ShowAppLauncherCategory(const FString& InCategoryName) {
 
 	// Add all the programs.
 	for (auto Program : this->SystemContext->GetInstalledPrograms()) {
-		if (Program->AppLauncherItem.Category.ToString() != InCategoryName) {
+		if (Program.ProgramAsset->AppLauncherItem.Category.ToString() != InCategoryName) {
 			continue;
 		}
 
-		// because Blueprints hate strings being passed by-value.
-		FString ProgramName = Program->ID.ToString();
+		// In 0.2.x, we used the manpage id for this but 0.3.0 uses the file path.
+		FString ProgramName = Program.FilePath;
 
 		// Add the item. Woohoo.
-		this->AddAppLauncherSubMenuItem(Program->FullName, Program->Summary, ProgramName, Program->AppLauncherItem.Icon, Program->AppLauncherItem.Category);
+		this->AddAppLauncherSubMenuItem(Program.ProgramAsset->FullName, Program.ProgramAsset->Summary, ProgramName, Program.ProgramAsset->AppLauncherItem.Icon, Program.ProgramAsset->AppLauncherItem.Category);
 	}
 }
 
-bool UDesktopWidget::OpenProgram(const FName InExecutableName, UProgram*& OutProgram) {
+bool UDesktopWidget::OpenProgram(FString InExecutableName, UProgram*& OutProgram) {
 	if(!IsSessionActive()) {
 		return false;
 	}
 
-	return this->SystemContext->OpenProgram(InExecutableName, OutProgram);
+	// Create a null console context for the current user.
+	UConsoleContext* NullConsole = UConsoleContext::CreateNullConsole(this->GetUserContext());
+
+	// Launch the program from disk.
+	UProcess* ChildProcess = nullptr;
+	bool result = UFileRecordUtils::LaunchSuitableProgram(InExecutableName, NullConsole, ChildProcess, nullptr, this);
+	return result && ChildProcess;
 }
 
 void UDesktopWidget::FinishShowingNotification() {

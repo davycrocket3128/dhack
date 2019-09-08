@@ -37,6 +37,9 @@
 #include "PeacenetIdentity.h"
 #include "MarkovTrainingDataAsset.h"
 #include "RandomStream.h"
+#include "MarkovTrainingDataAsset.h"
+#include "MarkovChain.h"
+#include "Sex.h"
 #include "ProceduralGenerationEngine.generated.h"
 
 class ULootableFile;
@@ -47,6 +50,8 @@ class UProtocolVersion;
 class APeacenetWorldStateActor;
 class UPeacenetSaveGame;
 class UStoryCharacter;
+class UComputerService;
+class UStoryComputer;
 
 UCLASS()
 class PROJECTOGLOWIA_API UProceduralGenerationEngine : public UObject
@@ -55,99 +60,142 @@ class PROJECTOGLOWIA_API UProceduralGenerationEngine : public UObject
 
 private:
     UPROPERTY()
-    APeacenetWorldStateActor* Peacenet;
+    bool JustUpdated = false;
 
     UPROPERTY()
-    TArray<UPeacenetSiteAsset*> PeacenetSites;
+    FComputer InvalidPC;
 
     UPROPERTY()
-    FRandomStream RNG;
+    FPeacenetIdentity InvalidIdentity;
 
     UPROPERTY()
-    TArray<UProtocolVersion*> ProtocolVersions;
+    APeacenetWorldStateActor* Peacenet = nullptr;
 
     UPROPERTY()
-    TArray<ULootableFile*> LootableFiles;
+    UPeacenetSaveGame* SaveGame = nullptr;
 
     UPROPERTY()
-    UMarkovChain* MaleNameGenerator;
+    UMarkovChain* MaleNameGenerator = nullptr;
 
     UPROPERTY()
-    UMarkovChain* DomainGenerator;
+    UMarkovChain* FemaleNameGenerator = nullptr;
 
     UPROPERTY()
-    UMarkovChain* UsernameGenerator;
+    TArray<UComputerService*> ComputerServices;
 
     UPROPERTY()
-    UMarkovChain* FemaleNameGenerator;
+    TArray<UProtocolVersion*> Protocols;
 
     UPROPERTY()
-    UMarkovChain* LastNameGenerator;
+    UMarkovChain* LastNameGenerator = nullptr;
 
-private:
-    TArray<FString> GetMarkovData(EMarkovTrainingDataUsage InUsage);
+    UPROPERTY()
+    UMarkovChain* DomainNameGenerator = nullptr;
+
+    UPROPERTY()
+    TArray<FString> TopLevelDomains;
+
+    UPROPERTY()
+    FRandomStream Rng;
+
+    UPROPERTY()
+    TArray<UStoryCharacter*> StoryCharacters;
+
+    UPROPERTY()
+    TArray<UStoryComputer*> StoryComputers;
+
+    UPROPERTY()
+    TArray<int> StoryCharactersToUpdate;
+
+    UPROPERTY()
+    TArray<int> EmailServersNeedingDomains;
+
+    UPROPERTY()
+    TArray<int> StoryComputersToUpdate;
+
+    UPROPERTY()
+    int NonPlayerIdentitiesToGenerate = 0;
+
+    UPROPERTY()
+    TArray<UMarkovTrainingDataAsset*> MarkovTrainingData;
+
+    UPROPERTY()
+    TArray<ULootableFile*> Lootables;
+
+    UPROPERTY()
+    TArray<FString> UsedHumanNames;
+
+    UPROPERTY()
+    TArray<int> ComputersNeedingIPAddresses;
+
+    UPROPERTY()
+    int EmailServersToGenerate = 0;
+
+protected:
+    UFUNCTION()
+    FString PickTopLevelDomain();
 
     UFUNCTION()
-    void GenerateEmailServers();
-
-public:
-    UFUNCTION()
-    void SpawnPeacenetSites();
+    void SetDomainName(int Entity);
 
     UFUNCTION()
-    bool GetNextLink(FComputer& InOrigin, int& OutLinkId);
+    void GenerateHumanName(FPeacenetIdentity& Identity);
 
     UFUNCTION()
-    bool HasAnyValidVersion(UComputerService* InService);
+    void GenerateEmailServer();
 
     UFUNCTION()
-    void UpdateStoryCharacter(UStoryCharacter* InStoryCharacter);
+    ESex DetermineSex();
 
     UFUNCTION()
-    void GenerateLinks(FComputer& InOrigin);
+    void ResetState();
 
     UFUNCTION()
-    UProtocolVersion* GetProtocol(UComputerService* InService, int InSkill);
+    int CreateIdentity();
 
     UFUNCTION()
-    void GenerateFirewallRules(FComputer& InComputer);
+    void GenerateNPC();
 
     UFUNCTION()
-    void GenerateNonPlayerCharacters();
+    int CreateComputer();
 
     UFUNCTION()
-    FPeacenetIdentity& GenerateNonPlayerCharacter();
+    FPeacenetIdentity& GetIdentity(int Identity);
 
     UFUNCTION()
-    FString GeneratePassword(int InLength);
+    FComputer& GetComputer(int EntityID);
 
     UFUNCTION()
-    void ClearNonPlayerEntities();
-
-    UFUNCTION()
-    FComputer& GenerateComputer(FString InHostname, EComputerType InComputerType, EComputerOwnerType InOwnerType);
-
-    UFUNCTION()
-    void UpdateStoryComputer(UStoryCharacter* InStoryCharacter);
+    void CreateUser(FComputer& InComputer, FString InUsername, bool Sudoer);
 
     UFUNCTION()
     FString GenerateIPAddress();
 
     UFUNCTION()
-    void Update(float InDeltaSeconds);
+    void UpdateStoryCharacter(UStoryCharacter* InStoryCharacter);
 
     UFUNCTION()
-    void UpdateStoryIdentities();
+    void UpdateStoryComputer(UStoryComputer* InStoryComputer);
+
+public:
+    UFUNCTION()
+    void SpawnLootableFiles(FComputer& InComputer);
 
     UFUNCTION()
-    void PlaceLootableFiles(UUserContext* InUserContext);
+    void SpawnServices(int ComputerID);
 
     UFUNCTION()
-    void Initialize(APeacenetWorldStateActor* InPeacenet);
+    bool IsDoneGeneratingStoryCharacters();
 
     UFUNCTION()
-    FRandomStream& GetRNG();
+    void Setup(APeacenetWorldStateActor* InPeacenet);
 
     UFUNCTION()
-    FString ChooseEmailDomain();
+    void Update(float DeltaTime);
+
+    UFUNCTION()
+    void GiveSaveGame(UPeacenetSaveGame* InSaveGame);
+
+    UFUNCTION()
+    FRandomStream& GetRng();
 };

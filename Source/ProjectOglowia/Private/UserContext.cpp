@@ -53,65 +53,6 @@ bool UUserContext::IsDaemonRunning(FName InDaemonName) {
 	return this->GetOwningSystem()->IsDaemonRunning(InDaemonName);
 }
 
-void UUserContext::CreateFirstIdentity(const FText& IdentityName, const FText& AliasName, bool UseAliasAsEmail) {
-	// Only do this if we don't have an identity.
-	if(!this->HasIdentity()) {
-		// Get a new Peacenet identity to store our shit in:
-		FPeacenetIdentity& OurNewIdentity = this->GetPeacenet()->GetNewIdentity();
-
-		// Initialize gameplay-related data:
-		OurNewIdentity.Skill = 0;
-		OurNewIdentity.Reputation = 0.f; //unused - possible removal in 0.4.0.
-		OurNewIdentity.CharacterType = EIdentityType::Player;
-		OurNewIdentity.ComputerID = this->GetComputer().ID;
-
-		// Store the character name and preferred alias.
-		OurNewIdentity.CharacterName = IdentityName.ToString();
-		OurNewIdentity.PreferredAlias = UCommonUtils::Aliasify((UseAliasAsEmail) ? AliasName.ToString() : IdentityName.ToString());
-
-		// Generate an email address for the character:
-		OurNewIdentity.EmailAddress = OurNewIdentity.PreferredAlias + "@" + this->GetPeacenet()->GetProcgen()->ChooseEmailDomain();
-
-		// Assign the identity to our system:
-		this->GetComputer().SystemIdentity = OurNewIdentity.ID;
-
-		// Debug assert if, after all of this, we don't have an identity.
-		check(this->HasIdentity());
-
-		// Since we're root, we might as well set the hostname for the computer.
-		// This is done by writing text to /etc/hostname in the filesystem.
-		UPeacegateFileSystem* Filesystem = this->GetFilesystem();
-		EFilesystemStatusCode StatusCode = EFilesystemStatusCode::OK;
-
-		// Ensure the /etc folder exists.
-		if(!Filesystem->DirectoryExists("/etc")) {
-			// Create the directory and assert on error
-			Filesystem->CreateDirectory("/etc", StatusCode);
-			check(StatusCode == EFilesystemStatusCode::OK);
-		}
-
-		// Write the hostname file to disk
-		Filesystem->WriteText("/etc/hostname", UCommonUtils::Aliasify(OurNewIdentity.PreferredAlias) + "-pc");
-
-		// Create a user account for the player and we'll possess it as this user context.
-		FUser PlayerUser;
-		PlayerUser.Username = UCommonUtils::Aliasify(OurNewIdentity.PreferredAlias);
-		PlayerUser.Password = "";
-		PlayerUser.Domain = EUserDomain::PowerUser;
-		PlayerUser.UserColor = this->GetUserColor();
-		PlayerUser.ID = this->GetComputer().Users.Num();
-		
-		// Add the user to the computer
-		this->GetComputer().Users.Add(PlayerUser);
-
-		// Update our user ID.
-		this->UserID = PlayerUser.ID;
-
-		// Repossess the desktop.
-		this->GetDesktop()->ResetSession(this);
-	}
-}
-
 bool UUserContext::GetDaemonManager(UDaemonManager*& OutDaemonManager) {
 	return this->GetOwningSystem()->GetDaemonManager(this, OutDaemonManager);
 }
@@ -256,7 +197,7 @@ bool UUserContext::DnsResolve(FString InHost, FComputer& OutComputer, EConnectio
 	return this->GetOwningSystem()->DnsResolve(InHost, OutComputer, OutError);
 }
 
-TArray<UPeacegateProgramAsset*> UUserContext::GetInstalledPrograms() {
+TArray<FProgramFile> UUserContext::GetInstalledPrograms() {
 	return this->GetOwningSystem()->GetInstalledPrograms();
 }
 

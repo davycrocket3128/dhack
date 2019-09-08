@@ -1,10 +1,12 @@
 {
 	"files.exclude": {
 		"C:/Users/Michael/Documents/Projects/the-peacenet/.git": true,
+		"C:/Users/Michael/Documents/Projects/the-peacenet/.vs": true,
 		"C:/Users/Michael/Documents/Projects/the-peacenet/.vscode": true,
 		"C:/Users/Michael/Documents/Projects/the-peacenet/Content": true,
 		"C:/Users/Michael/Documents/Projects/the-peacenet/Intermediate": true,
 		"C:/Users/Michael/Documents/Projects/the-peacenet/Readme": true,
-		"C:/Users/Michael/Documents/Projects/the-peacenet/Saved": true
+		"C:/Users/Michael/Documents/Projects/the-peacenet/Saved": true,
+		"C:/Users/Michael/Documents/Projects/the-peacenet/Plugins/DocoptForUnreal/Intermediate": true
 	}
 }

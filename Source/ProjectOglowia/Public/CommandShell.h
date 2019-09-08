@@ -60,7 +60,7 @@ private:
     UConsoleContext* CurrentConsole = nullptr;
 
     UPROPERTY()
-    ATerminalCommand* CurrentCommand = nullptr;
+    UProcess* CurrentProcess = nullptr;
 
     UPROPERTY()
     UPtyFifoBuffer* FileBuffer = nullptr;
@@ -85,7 +85,7 @@ protected:
     virtual bool AllowRedirection() { return false; }
     virtual bool AllowPipes() { return false; }
     virtual bool AutoCompleteSpecials() { return true; }
-    virtual ATerminalCommand* GetCommand(FString Command) { return nullptr; }
+    virtual UProcess* LaunchProcess(UConsoleContext* TargetConsole, FString InCommandName, TArray<FString> Arguments) { return nullptr; }
     virtual bool RunSpecialCommand(UConsoleContext* InConsole, FString Command, TArray<FString> Arguments) { return false; }
     virtual FText GetShellPrompt() { return NSLOCTEXT("Shell", "DefaultPrompt", "> "); }
 

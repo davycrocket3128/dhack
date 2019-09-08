@@ -44,906 +44,697 @@
 #include "StoryCharacter.h"
 #include "MarkovChain.h"
 #include "PeacenetSiteAsset.h"
+#include "PeacegateFileSystem.h"
+#include "StoryComputer.h"
+#include "FileUtilities.h"
+#include "LootableFile.h"
+#include "LootableSpawnInfo.h"
 #include "PeacenetWorldStateActor.h"
 
-void UProceduralGenerationEngine::GenerateLinks(FComputer& InOrigin) {
-    // COMPUTER LINK GENERATION
-    //
-    // Computer Links are the game's underlying representation of the Peacenet
-    // network.  They are used internally by nmap for adjacent node scanning.
-    //
-    // Prerequisites:
-    //  - A computer should have no more than 5 links, and no less than one link.
-    //  - Two computers should be linked together if they own the same
-    //    Peacenet Identity.  This is an exception to the max links rule.
-    //  - A player computer must have at least one hackable link.
-    //  - Story computers should be linked to the player if their
-    //    Story Character metadata states as such.
-    // 
-    // Story computers and same-identity computers are considered "special"
-    // by the game and thus DO NOT count against the max-links limit.  However
-    // they do count as meeting the minimum requirement of one link.
-    //
-    // This is so that a computer doesn't HAVE to be linked to a non-special link
-    // if there are enough special links to meet the minimum link requirement.
+void UProceduralGenerationEngine::Setup(APeacenetWorldStateActor* InPeacenet) {
+    check(InPeacenet);
+    check(!this->Peacenet);
+
+    this->Peacenet = InPeacenet;
+
+    // Load story entity data
+    this->Peacenet->LoadAssets<UStoryCharacter>("StoryCharacter", this->StoryCharacters);
+    this->Peacenet->LoadAssets<UStoryComputer>("StoryComputer", this->StoryComputers);
+
+    // Markov training data:
+    this->Peacenet->LoadAssets<UMarkovTrainingDataAsset>("MarkovTrainingDataAsset", this->MarkovTrainingData);
+
+    // Protocols.
+    this->Peacenet->LoadAssets<UComputerService>("ComputerService", this->ComputerServices);
+    this->Peacenet->LoadAssets<UProtocolVersion>("ProtocolVersion", this->Protocols);
+
+    // Top-level domains - hard-coded right now.
+    this->TopLevelDomains = {
+        ".com",
+        ".net",
+        ".org",
+        ".mail",
+        ".xyz",
+        ".space",
+        ".sos",
+        ".os",
+        ".info",
+        ".abc"
+    };
+
+    // Lootables.
+    this->Peacenet->LoadAssets<ULootableFile>("LootableFile", this->Lootables);
+}
+
+FString UProceduralGenerationEngine::PickTopLevelDomain() {
+    return this->TopLevelDomains[this->Rng.RandRange(0, this->TopLevelDomains.Num() - 1)];
+}
+
+int UProceduralGenerationEngine::CreateIdentity() {
+    int EntityID = 0;
+    TArray<int> Taken;
+
+    // Collect all taken entity IDs.
+    for(auto Identity : this->SaveGame->Characters) {
+        Taken.Add(Identity.ID);
+    }
     
-
-    // First we'll start with same-identity links.  This only happens
-    // if the computer given to us has an identity.
-    if(InOrigin.SystemIdentity > -1) {
-        // Iterate through all computers in the game.
-        for(FComputer& Computer : this->Peacenet->SaveGame->Computers) {
-            // Check if the identity matches.
-            if(Computer.SystemIdentity == InOrigin.SystemIdentity) {
-                // If the two computers are not linked, add a link.
-                if(!this->Peacenet->SaveGame->GetLinkedSystems(InOrigin).Contains(Computer.ID)) {
-                    FComputerLink NewLink;
-                    NewLink.ComputerA = InOrigin.ID;
-                    NewLink.ComputerB = Computer.ID;
-                    this->Peacenet->SaveGame->ComputerLinks.Add(NewLink);
-                }
-            }
-        }
+    // Find the lowest entity ID that's not taken.
+    while(Taken.Contains(EntityID)) {
+        EntityID++;
     }
 
-    // Now, we'll go through all of the story characters in the game.
-    if(InOrigin.OwnerType == EComputerOwnerType::Player) {
-        for(auto StoryChar : this->Peacenet->SaveGame->StoryCharacterIDs) {
-            // Check if the character should link to the player.
-            if(StoryChar.CharacterAsset->ShouldLinkToPlayer) {
-                // Find the computer whose system identity matches the story character.
-                for(FComputer& Computer : this->Peacenet->SaveGame->Computers)    {
-                    if(Computer.SystemIdentity == StoryChar.Identity) {
-                        // Add a link if these systems are not linked.
-                        if(!this->Peacenet->SaveGame->GetLinkedSystems(InOrigin).Contains(Computer.ID)) {
-                            FComputerLink NewLink;
-                            NewLink.ComputerA = InOrigin.ID;
-                            NewLink.ComputerB = Computer.ID;
-                            this->Peacenet->SaveGame->ComputerLinks.Add(NewLink);
-                        }
-                    }
-                }
-            }
-        }
-    }
+    // Create the new identity.
+    FPeacenetIdentity NewIdentity = FPeacenetIdentity();
+    NewIdentity.ID = EntityID;
 
-    // Determine how many non-special systems we need to link.
-    int LinksToFulfill = 5;
-    int Specials = 0;
-    for(int Link : this->Peacenet->SaveGame->GetLinkedSystems(InOrigin)) {
-        FComputer LinkedSys;
-        int LinkedIndex = -1;
-        this->Peacenet->SaveGame->GetComputerByID(Link, LinkedSys, LinkedIndex);
+// Logging
+    UE_LOG(LogTemp, Log, TEXT("Generated Peacenet Identity entity ID %s"), *FString::FromInt(NewIdentity.ID));
 
-        if(LinkedSys.SystemIdentity == InOrigin.SystemIdentity && InOrigin.SystemIdentity > -1)  {
-            Specials++;
-            continue;
-        }
-
-        bool IsStory = false;
-        if(InOrigin.OwnerType == EComputerOwnerType::Player) {
-            for(auto StoryChar : this->Peacenet->SaveGame->StoryCharacterIDs) {
-                if(StoryChar.CharacterAsset->ShouldLinkToPlayer && StoryChar.Identity == LinkedSys.SystemIdentity) {   
-                    Specials++;
-                    IsStory = true;
-                    break;
-                }
-            }
-        }
-
-        if(!IsStory) LinksToFulfill--;
-
-        if(LinksToFulfill <= 0) break;
-    }
-
-    // Generate non-special links while we still need to.
-    int NextLinkId = -1;
-    while(LinksToFulfill && this->GetNextLink(InOrigin, NextLinkId)) {
-        // Link the fucker!
-        FComputerLink NewLink;
-        NewLink.ComputerA = InOrigin.ID;
-        NewLink.ComputerB = NextLinkId;
-        this->Peacenet->SaveGame->ComputerLinks.Add(NewLink);
-
-        LinksToFulfill--;
-    }
-
-    // Check to make sure the computer has the minimum amount of links.
-    check(this->Peacenet->SaveGame->GetLinkedSystems(InOrigin).Num() > 0);
-
-    // Check to make sure there are no more than 5 non-special links.
-    check(this->Peacenet->SaveGame->GetLinkedSystems(InOrigin).Num() - Specials <= 5);
+    // Add to the save file; return the ID.
+    this->SaveGame->Characters.Add(NewIdentity);
+    return NewIdentity.ID;
 }
 
-bool UProceduralGenerationEngine::GetNextLink(FComputer& InOrigin, int& OutLinkId) {
-    // Reset link id.
-    OutLinkId = -1;
-
-    // Go through all computers in the save file.
-    for(FComputer& Computer : this->Peacenet->SaveGame->Computers) {
-        // Avoid the origin.
-        if(Computer.ID == InOrigin.ID) {
-            continue;
+FPeacenetIdentity& UProceduralGenerationEngine::GetIdentity(int EntityID) {
+    for(FPeacenetIdentity& Identity : this->SaveGame->Characters) {
+        if(Identity.ID == EntityID) {
+            return Identity;
         }
-
-        // Avoid same-identity computers.
-        if(Computer.SystemIdentity == InOrigin.SystemIdentity && InOrigin.SystemIdentity > -1) {
-            continue;
-        }
-
-        // Avoid already-linked computers.
-        if(this->Peacenet->SaveGame->GetLinkedSystems(InOrigin).Contains(Computer.ID)) {
-            continue;
-        }
-
-        // Avoid any computers that already have 5 non-special links.
-        int NonSpecialLinks = 0;
-        for(int Link : this->Peacenet->SaveGame->GetLinkedSystems(Computer)) {
-            // Retrieve the computer of the link.
-            FComputer LinkedSys;
-            int LinkedIndex = -1;
-            this->Peacenet->SaveGame->GetComputerByID(Link, LinkedSys, LinkedIndex);
-
-            // If the system identities match it's a special link.
-            if(Computer.SystemIdentity == LinkedSys.SystemIdentity && Computer.SystemIdentity > -1) {
-                continue;
-            }
-            
-            // If the computer is a player and the linked system is a story character that should be
-            // linked to the player then it is a special.
-            if(Computer.OwnerType == EComputerOwnerType::Player) {
-                bool IsStory = false;
-                for(auto StoryChar : this->Peacenet->SaveGame->StoryCharacterIDs) {
-                    if(StoryChar.CharacterAsset->ShouldLinkToPlayer && StoryChar.Identity == LinkedSys.SystemIdentity) {
-                        IsStory = true;
-                        break;
-                    }
-                }
-                if(IsStory) {
-                    continue;
-                }
-            }
-
-            // Increase non-special links count.
-            NonSpecialLinks++;
-        }
-
-        if(NonSpecialLinks > 5) continue;
-
-        // We should be fine.
-        OutLinkId = Computer.ID;
-        break;
     }
-    return OutLinkId > -1;
-}
-
-void UProceduralGenerationEngine::UpdateStoryIdentities() {
-    // Load in all of the story character assets.
-    TArray<UStoryCharacter*> StoryCharacters;
-    this->Peacenet->LoadAssets<UStoryCharacter>("StoryCharacter", StoryCharacters);
-
-    // Updates all the story characters in the game. If one
-    // doesn't exist, it gets created.
-    for(auto Character : StoryCharacters) {
-        this->UpdateStoryCharacter(Character);
-    }
+    return this->InvalidIdentity;
 }
 
 void UProceduralGenerationEngine::UpdateStoryCharacter(UStoryCharacter* InStoryCharacter) {
-    // The entity ID and identity of the current (or new)
-    // character.
+    // Find the entity IF of the story character.
     int EntityID = -1;
-
-    // Does the save file already know about this character?
-    if(this->Peacenet->GetStoryCharacterID(InStoryCharacter, EntityID)) {
-        // Fetch the identity from the save file.
-        // Debug builds crash if this fails. The save file should report that it couldn't find
-        // an entity if the entity ID is invalid.
-        check(this->Peacenet->IdentityExists(EntityID));
-    }
-
-    // Are we creating a new identity or editing an existing one?
-    bool create = EntityID == -1;
-
-    // Get a new identity or existing identity memory address based on the result of the above.
-    FPeacenetIdentity& Identity = (create) ? this->Peacenet->GetNewIdentity() : this->Peacenet->GetCharacterByID(EntityID);
-
-    // If we're creating, we need to do a few things.
-    if(create) {
-        // This makes sure there's definitely no computer for the NPC.
-        // This is done later.
-        Identity.ComputerID = -1;
-        
-        // Make sure it's a story character.
-        Identity.CharacterType = EIdentityType::Story;
-    }
-
-    // Update the character's name.
-    Identity.CharacterName = InStoryCharacter->Name.ToString();
-
-    // Preferred alias of the identity is determined by whether we want to use the name
-    // as the email address.
-    if(InStoryCharacter->UseNameForEmail) {
-        // Use the character's name as the alias.
-        Identity.PreferredAlias = Identity.CharacterName;
-    } else {
-        // Use the email alias value as the preferred alias.
-        Identity.PreferredAlias = InStoryCharacter->EmailAlias;
-    }
-
-    // So that the identity's email doesn't keep changing providers
-    // every time the save file is loaded, we're going to check if it starts
-    // with the preferred alias before we choose a new email.  That way we
-    // are forced to preemptively generate the username part of the email.
-    FString EmailUser = Identity.PreferredAlias.ToLower().Replace(TEXT(" "), TEXT("_"));
-
-    if(!Identity.EmailAddress.StartsWith(EmailUser)) {
-        // NOW we can re-assign the email address.
-        Identity.EmailAddress = EmailUser + "@" + this->ChooseEmailDomain();
-    }
-
-    // If the identity doesn't have a computer ID, we need to generate one.
-    if(Identity.ComputerID == -1) {
-        // Create the actual computer.
-        FComputer& StoryComputer = this->GenerateComputer("tempsys", EComputerType::Personal, EComputerOwnerType::Story);
-
-        // Assign the computer ID to the identity.
-        Identity.ComputerID = StoryComputer.ID;
-    }
-
-    // Reassign the character's entity ID.
-    this->Peacenet->AssignStoryCharacterID(InStoryCharacter, Identity);
-
-    // Now we can update the story computer.
-    this->UpdateStoryComputer(InStoryCharacter);
-}
-
-void UProceduralGenerationEngine::UpdateStoryComputer(UStoryCharacter* InStoryCharacter) {
-    // Get the identity of the story character so we can get its computer ID.
-    int StoryEntityID = 0;
-    bool StoryEntityIDResult = this->Peacenet->GetStoryCharacterID(InStoryCharacter, StoryEntityID);
-    check(StoryEntityIDResult);
-
-    // Check that the story character exists already.
-    check(this->Peacenet->IdentityExists(StoryEntityID));
-
-    // Retrieve a reference to the story character data.
-    FPeacenetIdentity& Identity = this->Peacenet->GetCharacterByID(StoryEntityID);
-
-    // We have a computer ID, so we're going to create a TEMPORARY System Context to make
-    // updating easier.
-    USystemContext* SystemContext = NewObject<USystemContext>();
-    SystemContext->Setup(Identity.ComputerID, Identity.ID, this->Peacenet);
-
-    // Peacenet 0.1.x would do this before the system context was allocated but
-    // since we can no longer access the save file we'll do this now.
-    // This sort-of abstracts things.
-    //
-    // Oh yeah, we're updating the computer's user table.
-
-    for(auto& User : SystemContext->GetComputer().Users) {
-        if(User.ID == 1) {
-            if(InStoryCharacter->UseEmailAliasAsUsername) {
-                if(InStoryCharacter->UseNameForEmail) {
-                    User.Username = InStoryCharacter->Name.ToString().ToLower().Replace(TEXT(" "), TEXT("_"));
-                } else {
-                    User.Username = InStoryCharacter->EmailAlias.ToLower().Replace(TEXT(" "), TEXT("_"));
-                }
-            } else {
-                User.Username = InStoryCharacter->Username.ToLower().Replace(TEXT(" "), TEXT("_"));
-            }
+    for(auto Map : this->SaveGame->StoryCharacterIDs) {
+        if(Map.CharacterAsset == InStoryCharacter) {
+            EntityID = Map.Identity;
             break;
         }
     }
 
-
-    // Get a filesystem with root privileges from the system context.
-    UPeacegateFileSystem* RootFS = SystemContext->GetFilesystem(0);
-
-    // Collect filesystem errors.
-    EFilesystemStatusCode Status = EFilesystemStatusCode::OK;
-
-    // Update the hostname.
-    FString Host = InStoryCharacter->Hostname;
-    if(InStoryCharacter->UseNameForHostname) {
-        Host = InStoryCharacter->Name.ToString().ToLower().Replace(TEXT(" "), TEXT("_")) + "-pc";
+    // If the entity is not valid then create a new one.
+    if(EntityID == -1) {
+        EntityID = this->CreateIdentity();
     }
-    RootFS->WriteText("/etc/hostname", Host);
 
-    // Now we'll start looking at exploits.
-    for(auto Exploit : InStoryCharacter->Exploits) {
-        // Do we already have a file on the system that refers to this exploit?
-        bool ExploitExists = false;
+    // Get a reference to the entity.
+    FPeacenetIdentity& Identity = this->GetIdentity(EntityID);
 
-        // Go through all file records within the system.
-        for(auto& Record : SystemContext->GetComputer().FileRecords) {
-            // Only check exploit records.
-            if(Record.RecordType == EFileRecordType::Exploit) {
-                // Check the ID first.
-                if(Record.ContentID >= 0 && Record.ContentID < this->Peacenet->GetExploits().Num()) {
-                    // Get the file exploit data.
-                    UExploit* FileExploit = this->Peacenet->GetExploits()[Record.ContentID];
-                    
-                    // If the exploit IDs match, then this exploit DOES NOT need to spawn.
-                    if(FileExploit->ID == Exploit->ID) {
-                        ExploitExists = true;
-                        break;
-                    }
-                }
-            }
-        }
+    // Update the entity's data based on what's in the story character asset.
+    Identity.CharacterName = InStoryCharacter->Name.ToString();
+    Identity.CharacterType = EIdentityType::Story;
+    Identity.ComputerID = -1;
+    Identity.PreferredAlias = (InStoryCharacter->UseNameForEmail || !InStoryCharacter->EmailAlias.Len()) ? Identity.CharacterName : InStoryCharacter->EmailAlias;
+    Identity.EmailAddress = UCommonUtils::Aliasify(Identity.PreferredAlias);
 
-        // DO NOT SPAWN THE EXPLOIT if the exploit already exists.
-        if(ExploitExists) {
-            continue;
-        }
-
-        // TODO: random exploit spawn folders.
-        for(int i = 0; i < this->Peacenet->GetExploits().Num(); i++) {
-            if(this->Peacenet->GetExploits()[i]->ID == Exploit->ID) {
-                RootFS->SetFileRecord("/root/" + Exploit->ID.ToString() + ".gsf", EFileRecordType::Exploit, i);
-            }
-        }
-    }
+    // Assign the entity to the story character asset.
+    this->SaveGame->AssignStoryCharacterID(InStoryCharacter, EntityID);
 }
 
-FRandomStream& UProceduralGenerationEngine::GetRNG() {
-    return this->RNG;
-}
+int UProceduralGenerationEngine::CreateComputer() {
+    int EntityID = 0;
 
-void UProceduralGenerationEngine::PlaceLootableFiles(UUserContext* InUserContext) {
-    // Only do this if the given user context is not that of a player.
-    if(InUserContext->GetPeacenetIdentity().CharacterType != EIdentityType::Player) {
-        // The amount of lootables we are EVER allowed to generate in an NPC.
-        int MaxLootables = this->LootableFiles.Num() / 2;
-
-        // If that ends up being 0, then we stop right there.
-        if(MaxLootables > 0) {
-            // The amount of lootables this NPC gets.
-            int LootableCount = RNG.RandRange(0, MaxLootables);
-
-            // Get a filesystem context for this user.
-            UPeacegateFileSystem* Filesystem = InUserContext->GetFilesystem();
-
-            // Keep going while there are lootables to generate.
-            while(LootableCount) {
-                // Pick a random lootable! Any lootable!
-                ULootableFile* Lootable = this->LootableFiles[RNG.RandRange(0, this->LootableFiles.Num() - 1)];
-
-                // This is where the file will go.
-                FString BaseDirectory = "/";
-
-                // Desktop or documents?
-                int Dice = RNG.RandRange(0, 6);
-
-                // Where should it go?
-                switch(Lootable->SpawnLocation) {
-                    case EFileSpawnLocation::Anywhere:
-                        // TODO: Support picking of random folders.
-                        break;
-                    case EFileSpawnLocation::HomeFolder:
-                        BaseDirectory = InUserContext->GetHomeDirectory();
-                        break;
-                    case EFileSpawnLocation::Binaries:
-                        BaseDirectory = "/bin";
-                        break;
-                    case EFileSpawnLocation::DesktopOrDocuments:
-                        if(Dice % 2 == 0) {
-                            BaseDirectory = InUserContext->GetHomeDirectory() + "/Desktop";
-                        } else {
-                            BaseDirectory = InUserContext->GetHomeDirectory() + "/Documents";
-                        }
-                        break;
-                    case EFileSpawnLocation::Pictures:
-                        BaseDirectory = InUserContext->GetHomeDirectory() + "/Pictures";
-                        break;
-                    case EFileSpawnLocation::Downloads:
-                        BaseDirectory = InUserContext->GetHomeDirectory() + "/Downloads";
-                        break;
-                    case EFileSpawnLocation::Music:
-                        BaseDirectory = InUserContext->GetHomeDirectory() + "/Music";
-                        break;
-                    case EFileSpawnLocation::Videos:
-                        BaseDirectory = InUserContext->GetHomeDirectory() + "/Videos";
-                        break;
-                }
-
-                // Now that we have a base directory, get the file path.
-                FString FilePath = BaseDirectory + "/" + Lootable->FileName.ToString();
-
-                // If the file already exists, continue.
-                if(Filesystem->FileExists(FilePath)) {
-                    continue;
-                }
-
-                // Spawn the file.
-                Lootable->FileContents->SpawnFile(FilePath, Filesystem);
-
-                // Decrease the lootable count.
-                LootableCount--;
-            }
-        }
-    }
-}
-
-void UProceduralGenerationEngine::GenerateFirewallRules(FComputer& InComputer) {
-    // Don't do this if the computer already has firewall rules!
-    if(!InComputer.FirewallRules.Num()) {
-        TArray<UComputerService*> Services = this->Peacenet->GetServicesFor(InComputer.ComputerType);
-
-        // This gets the skill level of this computer's owning entity if any.
-        int Skill = (this->Peacenet->IdentityExists(InComputer.SystemIdentity)) ? this->Peacenet->GetCharacterByID(InComputer.SystemIdentity).Skill : 0;
-
-        for(int i = 0; i < Services.Num(); i++) {
-            if((Services[i]->IsDefault || RNG.RandRange(0, 6) % 2) && this->HasAnyValidVersion(Services[i]))  {
-                FFirewallRule Rule;
-                Rule.Port = Services[i]->Port;
-                Rule.Service = this->GetProtocol(Services[i], Skill);
-                Rule.IsFiltered = false;
-                InComputer.FirewallRules.Add(Rule);
-            }
-        }
-    }
-}
-
-bool UProceduralGenerationEngine::HasAnyValidVersion(UComputerService* InComputerService) {
-    for(auto Version : this->ProtocolVersions) {
-        if(Version->Protocol == InComputerService) return true;
+    // Collect all taken computer IDs
+    TArray<int> Taken;
+    for(FComputer& Computer : this->SaveGame->Computers) {
+        Taken.Add(Computer.ID);
     }
 
-    return false;
-}
-
-UProtocolVersion* UProceduralGenerationEngine::GetProtocol(UComputerService* InService, int InSkill) {
-    int i = 0;
-    int count = 100;
-    UProtocolVersion* protocol = nullptr;
-
-    while(count > 0) {
-        UProtocolVersion* protocolVersion = this->ProtocolVersions[i];
-        if(protocolVersion->Protocol != InService) {
-            i++;
-            if(i >= this->ProtocolVersions.Num()) {
-                i=0;
-            }
-            continue;
-        }
-
-        protocol = protocolVersion;
-
-        i++;
-        if(i >= this->ProtocolVersions.Num()) {
-            i=0;
-        }
-        count -= RNG.RandRange(0, 10);
+    // Find the first computer ID that isn't taken.
+    while(Taken.Contains(EntityID)) {
+        EntityID++;
     }
 
-    return protocol;
+    // Create a computer with this ID
+    FComputer NewPC;
+    NewPC.ID = EntityID;
+    NewPC.SystemIdentity = -1;
+    NewPC.PeacenetSite = nullptr;
+    NewPC.CurrentWallpaper = nullptr;
+
+    // Format its filesystem.
+    UFileUtilities::FormatFilesystem(NewPC.Filesystem);
+
+    // Create a root user account.
+    FUser Root;
+    Root.ID = 0;
+    Root.Username = "root";
+    Root.Domain = EUserDomain::Administrator;
+
+    // Add the root user to the computer.
+    NewPC.Users.Add(Root);
+
+    // Assign a public IP for the computer.
+    this->SaveGame->ComputerIPMap.Add(this->GenerateIPAddress(), NewPC.ID);
+
+    // Logging
+    UE_LOG(LogTemp, Log, TEXT("Generated computer entity ID %s"), *FString::FromInt(NewPC.ID));
+
+    // Add the computer to the save file; return its ID
+    this->SaveGame->Computers.Add(NewPC);
+    return NewPC.ID;
 }
 
-TArray<FString> UProceduralGenerationEngine::GetMarkovData(EMarkovTrainingDataUsage InUsage) {
-    TArray<FString> Ret;
-    for(auto Markov : this->Peacenet->MarkovData) {
-        if(Markov->Usage == InUsage) {
-            Ret.Append(Markov->TrainingData);
+FComputer& UProceduralGenerationEngine::GetComputer(int EntityID) {
+    for(FComputer& Computer : this->SaveGame->Computers) {
+        if(Computer.ID == EntityID) {
+            return Computer;
         }
     }
-    return Ret;
+    return this->InvalidPC;
+}
+
+void UProceduralGenerationEngine::CreateUser(FComputer& InComputer, FString InUsername, bool Sudoer) {
+    for(FUser& User : InComputer.Users) {
+        if(User.Username == InUsername) {
+            User.Domain = (Sudoer) ? EUserDomain::PowerUser : EUserDomain::User;
+            return;
+        }
+    }
+
+    FUser NewUser;
+    NewUser.ID = InComputer.Users.Num();
+    NewUser.Username = InUsername;
+    NewUser.Domain = (Sudoer) ? EUserDomain::PowerUser : EUserDomain::User;
+    InComputer.Users.Add(NewUser);
 }
 
 FString UProceduralGenerationEngine::GenerateIPAddress() {
-    uint8 Byte1, Byte2, Byte3, Byte4 = 0;
+    FString IPAddress;
 
-    Byte1 = (uint8)RNG.RandRange(0, 255);
+    do {
+        int First = this->Rng.RandRange(16, 254);
+        int Second = this->Rng.RandRange(0, 255);
+        int Third = this->Rng.RandRange(0, 255);
+        int Fourth = this->Rng.RandRange(0, 255);
 
-    // The other three are easy.
-    Byte2 = (uint8)RNG.RandRange(0, 255);
-    Byte3 = (uint8)RNG.RandRange(0, 255);
-    Byte4 = (uint8)RNG.RandRange(0, 255);
-    
-    // We only support IPv4 in 2025 lol.
-    return FString::FromInt(Byte1) + "." + FString::FromInt(Byte2) + "." + FString::FromInt(Byte3) + "." + FString::FromInt(Byte4);
+        IPAddress = FString::FromInt(First) + "." + FString::FromInt(Second) + "." + FString::FromInt(Third) + "." + FString::FromInt(Fourth);
+    } while(this->SaveGame->ComputerIPMap.Contains(IPAddress));
+
+// Logging
+    UE_LOG(LogTemp, Log, TEXT("Generated IP address: %s"), *IPAddress);
+
+    return IPAddress;
 }
 
-void UProceduralGenerationEngine::ClearNonPlayerEntities() {
-    this->Peacenet->ClearNonPlayerEntities();
+void UProceduralGenerationEngine::UpdateStoryComputer(UStoryComputer* InStoryComputer) {
+    // Find the computer ID for the story computer.
+    int EntityID = -1;
+    for(auto ComputerMap : this->SaveGame->StoryComputerIDs) {
+        if(ComputerMap.StoryComputer == InStoryComputer) {
+            EntityID = ComputerMap.Entity;
+            break;
+        }
+    }
+
+    // If it doesn't exist, create a new one.
+    if(EntityID == -1) {
+        EntityID = this->CreateComputer();
+    }
+
+    // Get a reference to the computer so we can update system identity, users,
+    // other stuff like that.
+    FComputer& Computer = this->GetComputer(EntityID);
+
+    // Update the system identity if possible.
+    Computer.SystemIdentity = -1;
+    if(InStoryComputer->OwningCharacter) {
+        this->SaveGame->GetStoryCharacterID(InStoryComputer->OwningCharacter, Computer.SystemIdentity);
+    } 
+
+    // Create all users that don't exist.
+    for(auto Username : InStoryComputer->Users) {
+        FString Unixified = UCommonUtils::Aliasify(Username);
+        if(Unixified.Len()) {
+            this->CreateUser(Computer, Unixified, false);
+        }
+    }
+
+    // Get a system context for the computer.
+    USystemContext* SystemContext = this->Peacenet->GetSystemContext(Computer.ID);
+
+    // Get a root user context.
+    UUserContext* UserContext = SystemContext->GetUserContext(0);
+
+    // Update the hostname.
+    EFilesystemStatusCode Status = EFilesystemStatusCode::OK;
+    UPeacegateFileSystem* FS = UserContext->GetFilesystem();
+    if(!FS->DirectoryExists("/etc")) {
+        FS->CreateDirectory("/etc", Status);
+    }
+    FString Host = UCommonUtils::Aliasify(InStoryComputer->Hostname);
+    if(Host.Len()) {
+        FS->WriteText("/etc/hostname", Host);
+    } else {
+        FS->WriteText("/etc/hostname", "localhost");
+    }
+
+    // Assign the domain name for the computer.
+    FString Domain = UCommonUtils::Aliasify(InStoryComputer->DomainName);
+    if(Domain.Len()) {
+        FString IP = this->Peacenet->GetIPAddress(Computer);
+        if(this->SaveGame->DomainNameMap.Contains(Domain)) {
+            this->SaveGame->DomainNameMap[Domain] = IP;
+        } else {
+            this->SaveGame->DomainNameMap.Add(Domain, IP);
+        }
+    }
+
+    // Set firewall rules.
+
+    // Spawn/update file lootables.
+
+    // Assign the computer ID to the computer asset.
+    for(auto& CompMap : this->SaveGame->StoryComputerIDs) {
+        if(CompMap.StoryComputer == InStoryComputer) {
+            CompMap.Entity = Computer.ID;
+            return;
+        }
+    }
+    FStoryComputerMap Map;
+    Map.StoryComputer = InStoryComputer;
+    Map.Entity = Computer.ID;
+    this->SaveGame->StoryComputerIDs.Add(Map);
 }
 
-void UProceduralGenerationEngine::Update(float InDeltaSeconds) {
-    // stub
+void UProceduralGenerationEngine::GenerateNPC() {
+    // Generate an entity ID.
+    int Entity = this->CreateIdentity();
+
+    // Get a reference to the entity.
+    FPeacenetIdentity& Identity = this->GetIdentity(Entity);
+
+    // Create a computer for the entity.
+    int ComputerEntity = this->CreateComputer();
+    FComputer& Computer = this->GetComputer(ComputerEntity);
+
+    // Assign the entity to the computer, and mark them both as non-player.
+    Identity.CharacterType = EIdentityType::NonPlayer;
+    Computer.SystemIdentity = Identity.ID;
+    Computer.OwnerType = EComputerOwnerType::NPC;
+
+    // Determine the biolgical sex of the Peacenet Identity so we know whether to generate a male or female
+    // first name if the game decides that the name to generate is not uni-sex.
+    Identity.Sex = this->DetermineSex();
+
+    // Generate a unique name for this identity.
+    this->GenerateHumanName(Identity);
+
+    // Set the preferred alias and email username for the identity.
+    Identity.PreferredAlias = Identity.CharacterName;
+    Identity.EmailAddress = UCommonUtils::Aliasify(Identity.PreferredAlias);
+
+    // Create a Peacegate user for the identity's Computer.
+    FString FirstName = UCommonUtils::GetFirstName(FText::FromString(Identity.CharacterName)).ToString();
+    this->CreateUser(Computer, UCommonUtils::Aliasify(FirstName), false);
+
+    // Get a filesystem context for the computer to make writing files easier...
+    USystemContext* SystemContext = this->Peacenet->GetSystemContext(Computer.ID);
+    UPeacegateFileSystem* FS = SystemContext->GetFilesystem(0);
+
+    // Create the /etc directory if not found, then write the hostname to /etc/hostname.
+    if(!FS->DirectoryExists("/etc")) {
+        EFilesystemStatusCode Status = EFilesystemStatusCode::OK;
+        FS->CreateDirectory("/etc", Status);
+    }
+    FS->WriteText("/etc/hostname", UCommonUtils::Aliasify(FirstName) + "-pc");
 }
 
-FString UProceduralGenerationEngine::ChooseEmailDomain() {
-    TArray<FString> Emails = this->Peacenet->GetDomainNames();
+void UProceduralGenerationEngine::GenerateHumanName(FPeacenetIdentity& Identity) {
+    do {
+        FString First = "";
+        FString Last = "";
 
-    int Index = 0;
+        // TODO: Unisex names
+        // The first name depends on the sex of the identity.
+        if(Identity.Sex == ESex::Male) {
+            First = this->MaleNameGenerator->GetMarkovString(0);
+        } else {
+            First = this->FemaleNameGenerator->GetMarkovString(0);
+        }
 
-    int Counter = Emails.Num() * 10;
-    while(Counter > 0) {
-        FString Domain = Emails[Index];
+        // Last name doesn't matter
+        Last = this->LastNameGenerator->GetMarkovString(0);
+
+        // Set the character name.
+        Identity.CharacterName = First + " " + Last;
+    } while(this->UsedHumanNames.Contains(Identity.CharacterName));
+
+    // Prevent this exact name from being generated again.
+    this->UsedHumanNames.Add(Identity.CharacterName);
+
+    // Logging.
+    UE_LOG(LogTemp, Log, TEXT("Identity %d is now named %s."), Identity.ID, *Identity.CharacterName);
+}
+
+void UProceduralGenerationEngine::Update(float DeltaTime) {
+    check(this->Peacenet);
+
+    // Update all story characters, then all story computers, but only do one per frame.
+    if(StoryCharactersToUpdate.Num()) {
+        int Index = StoryCharactersToUpdate.Pop();
+        this->UpdateStoryCharacter(this->StoryCharacters[Index]);
+    } else if(StoryComputersToUpdate.Num()) {
+        int Index = StoryComputersToUpdate.Pop();
+        this->UpdateStoryComputer(this->StoryComputers[Index]);
+    } else if(ComputersNeedingIPAddresses.Num()) {
+        // Generate an IP address for any computer that needs one.
+        int ComputerID = this->ComputersNeedingIPAddresses.Pop();
+        FString IPAddress = this->GenerateIPAddress();
+        this->SaveGame->ComputerIPMap.Add(IPAddress, ComputerID);
+    } else if(this->EmailServersToGenerate > 0) {
+        this->GenerateEmailServer();
+        this->EmailServersToGenerate--;
+    } else {
+        // Generate domain names for email servers.
+        if(this->EmailServersNeedingDomains.Num()) {
+            int Entity = this->EmailServersNeedingDomains.Pop();
+            this->SetDomainName(Entity);
+        }
+
+        // Send mission emails if we've just updated.
+        if(this->JustUpdated) {
+            this->Peacenet->SendAvailableMissions();
+            this->JustUpdated = false;
+        }
         
-        FComputer Computer;
-        EConnectionError Error = EConnectionError::None;
+        // Generate any non-player identities that are left.
+        if(this->NonPlayerIdentitiesToGenerate > 0) {
+            this->GenerateNPC();
+            this->NonPlayerIdentitiesToGenerate--;
+        }
+    }
+}
 
-        if(this->Peacenet->DnsResolve(Domain, Computer, Error)) {
-            if(Computer.ComputerType == EComputerType::EmailServer) {
-                Counter -= RNG.RandRange(5, 10);
-                if(Counter <= 0) {
+void UProceduralGenerationEngine::GenerateEmailServer() {
+    // Generate a computer ID.
+    int Entity = this->CreateComputer();
+
+    // Get the computer as a reference.
+    FComputer& Computer = this->GetComputer(Entity);
+
+    // Assign the computer type as an Email Server.
+    Computer.ComputerType = EComputerType::EmailServer;
+    Computer.SystemIdentity = -1;
+    Computer.OwnerType = EComputerOwnerType::None;
+
+    // Queue this server to receive a domain name.
+    this->EmailServersNeedingDomains.Add(Computer.ID);
+}
+
+void UProceduralGenerationEngine::ResetState() {
+    // Define some hardcoded constants for the world.
+    const int MAX_NPC_IDENTITIES = 1000;
+    const int MAX_EMAIL_SERVERS = 20;
+    const int MARKOV_HUMAN_NAME_READABILITY = 4;
+    const int HOSTNAME_READABILITY = 3;
+
+    // Determine the world's seed and re-initialize the random number stream.
+    if(this->SaveGame->IsNewGame) {
+        this->SaveGame->WorldSeed = (int)FDateTime::Now().ToUnixTimestamp();
+        this->SaveGame->IsNewGame = false;
+    }
+    this->Rng = FRandomStream(this->SaveGame->WorldSeed);
+
+    // Determine which story characters need to spawn.
+    this->StoryCharactersToUpdate.Empty();
+    for(int i = 0; i < this->StoryCharacters.Num(); i++) {
+        this->StoryCharactersToUpdate.Push(i);
+    }
+
+    // Determine which story computers need to spawn.
+    this->StoryComputersToUpdate.Empty();
+    for(int i = 0; i < this->StoryComputers.Num(); i++) {
+        this->StoryComputersToUpdate.Push(i);
+    }
+
+    // Dtermine how many identities need to spawn.
+    this->NonPlayerIdentitiesToGenerate = MAX_NPC_IDENTITIES;
+    for(FPeacenetIdentity& Identity : this->SaveGame->Characters) {
+        if(Identity.CharacterType == EIdentityType::NonPlayer) {
+            this->NonPlayerIdentitiesToGenerate--;
+            if(this->NonPlayerIdentitiesToGenerate <= 0) {
+                break;
+            }
+        }
+    }
+
+    // MARKOV DATA FOR IDENTITIES
+    // TODO: Unisex names
+    TArray<FString> MaleFirstNames;
+    TArray<FString> LastNames;
+    TArray<FString> FemaleFirstNames;
+    TArray<FString> Hostnames;
+
+    // Sift through the metric fuckton of markov training data in this game
+    for(auto TrainingData : this->MarkovTrainingData) {
+        if(TrainingData->Usage == EMarkovTrainingDataUsage::FemaleFirstNames) {
+            FemaleFirstNames.Append(TrainingData->TrainingData);
+        } else if(TrainingData->Usage == EMarkovTrainingDataUsage::MaleFirstNames) {
+            MaleFirstNames.Append(TrainingData->TrainingData);
+        } else if(TrainingData->Usage == EMarkovTrainingDataUsage::LastNames) {
+            LastNames.Append(TrainingData->TrainingData);
+        } else if(TrainingData->Usage == EMarkovTrainingDataUsage::Hostnames) {
+            Hostnames.Append(TrainingData->TrainingData);
+        }
+    }
+
+    // Create markov chains with our current RNG and training data
+    this->MaleNameGenerator = NewObject<UMarkovChain>(this);
+    this->FemaleNameGenerator = NewObject<UMarkovChain>(this);
+    this->LastNameGenerator = NewObject<UMarkovChain>(this);
+    this->DomainNameGenerator = NewObject<UMarkovChain>(this);
+    this->MaleNameGenerator->Init(MaleFirstNames, MARKOV_HUMAN_NAME_READABILITY, this->Rng);
+    this->FemaleNameGenerator->Init(FemaleFirstNames, MARKOV_HUMAN_NAME_READABILITY, this->Rng);
+    this->LastNameGenerator->Init(LastNames, MARKOV_HUMAN_NAME_READABILITY, this->Rng);
+    this->DomainNameGenerator->Init(Hostnames, HOSTNAME_READABILITY, this->Rng);
+
+    // Clear all used human names.
+    this->UsedHumanNames.Empty();
+
+    // Determine which computers need IP addresses.
+    this->ComputersNeedingIPAddresses.Empty();
+    TArray<int> IPs;
+    for(auto& IP : this->SaveGame->ComputerIPMap) {
+        IPs.Add(IP.Value);
+    }
+    for(auto& Computer : this->SaveGame->Computers) {
+        if(!IPs.Contains(Computer.ID)) {
+            this->ComputersNeedingIPAddresses.Push(Computer.ID);
+        }
+    }
+
+    // Determine how many email servers we need to generate.
+    this->EmailServersToGenerate = MAX_EMAIL_SERVERS;
+    this->EmailServersNeedingDomains.Empty();
+    for(FComputer& Computer : this->SaveGame->Computers) {
+        if(Computer.ComputerType == EComputerType::EmailServer) {
+            this->EmailServersToGenerate--;
+            for(auto& IPAddress : this->SaveGame->ComputerIPMap) {
+                if(IPAddress.Value == Computer.ID) {
+                    bool HasDomain = false;
+                    for(auto& Domain : this->SaveGame->DomainNameMap) {
+                        HasDomain = true;
+                        break;
+                    }
+                    if(!HasDomain) {
+                        this->EmailServersNeedingDomains.Add(Computer.ID);
+                    }
                     break;
                 }
             }
         }
-
-        Index++;
-        if(Index >= Emails.Num()) {
-            Index = 0;
-        }
-    }
-    return Emails[Index];
-}
-
-void UProceduralGenerationEngine::GenerateNonPlayerCharacters() {
-    this->ClearNonPlayerEntities();
-    this->GenerateEmailServers();
-    UE_LOG(LogTemp, Display, TEXT("Cleared old NPCs if any..."));
-
-    for(int i = 0; i < 1000; i++) {
-        this->GenerateNonPlayerCharacter();
     }
 }
 
-FPeacenetIdentity& UProceduralGenerationEngine::GenerateNonPlayerCharacter() {
-    FPeacenetIdentity& Identity = this->Peacenet->GetNewIdentity();
-
-    Identity.CharacterType = EIdentityType::NonPlayer;
-
-    bool IsMale = RNG.RandRange(0, 6) % 2;
-
-    FString CharacterName;
-    do {
-        if(IsMale) {
-            CharacterName = MaleNameGenerator->GetMarkovString(0);
-        } else {
-            CharacterName = FemaleNameGenerator->GetMarkovString(0);
-        }
-
-        CharacterName = CharacterName + " " + LastNameGenerator->GetMarkovString(0);
-    } while(this->Peacenet->CharacterNameExists(CharacterName));
-
-    Identity.CharacterName = CharacterName;
-    Identity.PreferredAlias = CharacterName;
-    Identity.Skill = 0;
-
-    float Reputation = RNG.GetFraction();
-    bool IsBadRep = RNG.RandRange(0, 6) % 2;
-    if(IsBadRep) {
-        Reputation = -Reputation;
+void UProceduralGenerationEngine::GiveSaveGame(UPeacenetSaveGame* InSaveGame) {
+    if(this->SaveGame != InSaveGame) {
+        this->SaveGame = InSaveGame;
+        this->ResetState();
+        this->JustUpdated = true;
     }
-    
-    Identity.Reputation = Reputation;
+}
 
-    FString Username;
-    FString Hostname;
+bool UProceduralGenerationEngine::IsDoneGeneratingStoryCharacters() {
+    return !this->StoryCharactersToUpdate.Num();
+}
 
-    if(this->RNG.RandRange(0, 6) % 2) {
-        UCommonUtils::ParseCharacterName(CharacterName, Username, Hostname);
+ESex UProceduralGenerationEngine::DetermineSex() {
+    int DiceRoll = this->Rng.RandRange(1, 6);
+    if(DiceRoll % 2) {
+        return ESex::Male;
     } else {
-        Username = this->UsernameGenerator->GetMarkovString(0);
-        Hostname = Username + "-pc";
-        Identity.PreferredAlias = Username;
-    }
-
-    Identity.EmailAddress = Identity.PreferredAlias.Replace(TEXT(" "), TEXT("_")) + "@" + this->ChooseEmailDomain();
-
-    FComputer& IdentityComputer = this->GenerateComputer(Hostname, EComputerType::Personal, EComputerOwnerType::NPC);
-
-    FUser RootUser;
-    FUser NonRootUser;
-    
-    RootUser.Username = "root";
-    RootUser.ID = 0;
-    RootUser.Domain = EUserDomain::Administrator;
-
-    NonRootUser.ID = 1;
-    NonRootUser.Username = Username;
-    NonRootUser.Domain = EUserDomain::PowerUser;
-
-    RootUser.Password = this->GeneratePassword(Identity.Skill*5);
-    NonRootUser.Password = this->GeneratePassword(Identity.Skill*3);
-    
-    IdentityComputer.Users[0] = RootUser;
-    IdentityComputer.Users[1] = NonRootUser;
-    IdentityComputer.SystemIdentity = Identity.ID;
-
-    Identity.ComputerID = IdentityComputer.ID;
-
-    UE_LOG(LogTemp, Display, TEXT("Generated NPC: %s"), *Identity.CharacterName);
-
-    return Identity;
-}
-
-FString UProceduralGenerationEngine::GeneratePassword(int InLength) {
-    FString Chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890`~!@#$%^&*()_+-=[]{}\\|'\":;?.,<>";
-
-    FString Ret;
-    for(int i = 0; i < InLength; i++) {
-        TCHAR Char = Chars[RNG.RandRange(0, Chars.Len()-1)];
-        Ret.AppendChar(Char);
-    }
-
-    return Ret;
-}
-
-void UProceduralGenerationEngine::Initialize(APeacenetWorldStateActor* InPeacenet) {
-    check(!this->Peacenet);
-    check(InPeacenet);
-
-    this->Peacenet = InPeacenet;
-
-    // Load all the peacenet site assets in the game, checking for duplicate domain names,
-    // and valid website widgets.
-    TArray<UPeacenetSiteAsset*> TempSites;
-    TArray<FString> Domains;
-
-    // Load the assets into the game.
-    this->Peacenet->LoadAssets<UPeacenetSiteAsset>("PeacenetSiteAsset", TempSites);
-
-    // Loop through them to check validity.
-    for(auto Site : TempSites) {
-        // Skip invalid site widgets and empty domain names.
-        if(!Site->PeacenetSite) {
-            continue;
-        }
-        if(!Site->DomainName.Len()) {
-            continue;
-        }
-
-        // Debug assert: two assets with the same domain name.
-        check(!Domains.Contains(Site->DomainName));
-
-        // Release sanity check: skip duplicate domain names.
-        if(Domains.Contains(Site->DomainName)) {
-            continue;
-        }
-
-        // Add the domain name to known list.
-        Domains.Add(Site->DomainName);
-
-        // Fully load the site.
-        this->PeacenetSites.Add(Site);
-    }
-
-
-    // Recall when we set the world seed in the save file?
-    // This is where we need it.
-    this->RNG = FRandomStream(this->Peacenet->GetWorldSeed());
-
-    // Now that we have an RNG, we can begin creating markov chains!
-    this->MaleNameGenerator = NewObject<UMarkovChain>(this);
-    this->FemaleNameGenerator = NewObject<UMarkovChain>(this);
-    this->LastNameGenerator = NewObject<UMarkovChain>(this);
-    this->DomainGenerator = NewObject<UMarkovChain>(this);
-
-    // Create mixed markov input for usernames and hostnames.
-    TArray<FString> UsernameData = this->GetMarkovData(EMarkovTrainingDataUsage::Usernames);
-    UsernameData.Append(this->GetMarkovData(EMarkovTrainingDataUsage::Hostnames));
-
-    // Set them all up with the data they need.
-    this->MaleNameGenerator->Init(this->GetMarkovData(EMarkovTrainingDataUsage::MaleFirstNames), 3, RNG);
-    this->FemaleNameGenerator->Init(this->GetMarkovData(EMarkovTrainingDataUsage::FemaleFirstNames), 3, RNG);
-    this->LastNameGenerator->Init(this->GetMarkovData(EMarkovTrainingDataUsage::LastNames), 3, RNG);
-    this->DomainGenerator->Init(UsernameData, 3, this->RNG);
-
-    // get username generator.
-    this->UsernameGenerator = NewObject<UMarkovChain>(this);
-    
-    // initialize it.
-    this->UsernameGenerator->Init(UsernameData, 3, RNG);
-
-    if(this->Peacenet->IsNewGame()) {
-        // PASS 1: GENERATE NPC IDENTITIES.
-        this->GenerateNonPlayerCharacters();
-
-        // PASS 2: GENERATE STORY CHARACTERS
-        this->UpdateStoryIdentities();
-
-        // PASS 3: SPAWN PEACENET SITES
-        this->SpawnPeacenetSites();
-    }
-
-    // Array of temporary file assets.
-    TArray<ULootableFile*> TempFiles;
-
-    // Populate it with ALL lootable files in the game.
-    this->Peacenet->LoadAssets<ULootableFile>("LootableFile", TempFiles);
-
-    // Filter out any files that have bad contents.
-    for(auto File : TempFiles) {
-        if(!File->FileContents) {
-            continue;
-        }
-
-        // Add it to the REAL lootables list.
-        this->LootableFiles.Add(File);
-    }
-
-    // Now we do that but for all the protocol versions in the game.
-    TArray<UProtocolVersion*> Protocols;
-    this->Peacenet->LoadAssets<UProtocolVersion>("ProtocolVersion", Protocols);
-
-    for(auto Protocol : Protocols) {
-        if(!Protocol->Protocol) {
-            continue;
-        }
-
-        this->ProtocolVersions.Add(Protocol);
+        return ESex::Female;
     }
 }
 
-void UProceduralGenerationEngine::SpawnPeacenetSites() {
-    // Loop through all the Peacenet sites that we know of.
-    for(auto Site : this->PeacenetSites) {
-        // If the domain name, for some UNGODLY fucking reason, was taken
-        // by a procgen'd system, we're going to give that system a new domain.
-        //
-        // This may result in NPCs ending up with invalid email addresses so we'll
-        // fix those too.
-        if(this->Peacenet->GetDomainNames().Contains(Site->DomainName)) {
-            // This generates a new domain which is guaranteed not to be taken.
-            FString NewDomain;
-            do {
-                NewDomain = this->DomainGenerator->GetMarkovString(0).ToLower() + ".com";
-            } while(NewDomain == Site->DomainName || this->Peacenet->GetDomainNames().Contains(NewDomain));
+void UProceduralGenerationEngine::SpawnServices(int ComputerID) {
+    // Get a reference to the computer with this ID.
+    FComputer& Computer = this->GetComputer(ComputerID);
 
-            // Remove the old domain and add the new domain.
-            this->Peacenet->ReplaceDomain(Site->DomainName, NewDomain);
-            
-            // Get the entity ID of the IP address so we can check the computer to see
-            // if it's an email server.  If that's the case, then we need to reset
-            // all NPCs in the game with the old domain as an email address.
-            FComputer ComputerTemp;
-            EConnectionError Error = EConnectionError::None;
-            bool result = this->Peacenet->DnsResolve(NewDomain, ComputerTemp, Error);
-            check(result);
-
-            FComputer& Computer = this->Peacenet->GetComputerByID(ComputerTemp.ID);
-
-            if(Computer.ComputerType == EComputerType::EmailServer) {
-                // Go through all characters in the save file.
-                for(auto& Character : this->Peacenet->GetCharacters()) {
-                    // If the character's email address ends with the old domain we need to
-                    // set it to the new domain.
-                    if(Character.EmailAddress.EndsWith(Site->DomainName)) {
-                        FString Alias = Character.CharacterName;
-                        if(Character.PreferredAlias.Len()) {
-                            Alias = Character.PreferredAlias;
-                        }
-
-                        Character.EmailAddress = Alias.ToLower().Replace(TEXT(" "), TEXT("_")) + "@" + NewDomain;
-                    }
+    // Since story computers can explicitly define services to spawn, we need to figure out if this is a
+    // story computer and spawn those if possible.
+    for(auto& StoryComputer : this->SaveGame->StoryComputerIDs) {
+        if(StoryComputer.Entity == Computer.ID) {
+            TArray<FFirewallRule> FirewallRules;
+            for(auto Protocol : StoryComputer.StoryComputer->Services) {
+                if(Protocol.ProtocolVersion) {
+                    // Spawn the service right here since the story computer asset knows whether the firewall should filter
+                    // it
+                    FFirewallRule FirewallRule;
+                    FirewallRule.IsCrashed = false;
+                    FirewallRule.IsFiltered = Protocol.Filtered;
+                    FirewallRule.Service = Protocol.ProtocolVersion;
+                    FirewallRule.Port = FirewallRule.Service->Protocol->Port;
+                    FirewallRules.Add(FirewallRule);
                 }
+            }
+
+            // If we ended up spawning firewall rules then we'll overwrite those found in the computer.
+            if(FirewallRules.Num()) {
+                Computer.FirewallRules = FirewallRules;
+            }
+        }
+    }
+
+    // If we still don't have any protocols then, either the computer is an NPC (non-story) computer, or it's a 
+    // story computer but the creator of the asset didn't define any services.
+    if(!Computer.FirewallRules.Num()) {
+        // These are the protocol types we want to spawn.
+        TArray<UComputerService*> ProtocolTypesToSpawn;
+
+        // How many unique ones do we want to spawn?
+        // TODO: Service spawn conditions.
+        int AmountToSpawn = this->Rng.RandRange(1, this->ComputerServices.Num());
+
+        // Pick service types at random.
+        while(AmountToSpawn) {
+            int i = this->Rng.RandRange(0, this->ComputerServices.Num() - 1);
+            if(!ProtocolTypesToSpawn.Contains(this->ComputerServices[i])) {
+                ProtocolTypesToSpawn.Add(this->ComputerServices[i]);
+                AmountToSpawn--;
             }
         }
 
-        // That ordeal should be done now...
-        // The next step is to generate a computer for the Peacenet site.
-        FComputer& SiteComputer = this->GenerateComputer(Site->DomainName, EComputerType::PeacenetSite, EComputerOwnerType::None);
-
-        // Assign the peacenet site asset to the computer.
-        SiteComputer.PeacenetSite = Site;
-
-        // Generate an IP address for the computer.
-        FString IPAddress = this->Peacenet->GetIPAddress(SiteComputer);
-
-        // Register the new domain.
-        this->Peacenet->RegisterDomain(Site->DomainName, IPAddress);
-    }
-}
-
-void UProceduralGenerationEngine::GenerateEmailServers() {
-    const int MIN_EMAIL_SERVERS = 10;
-    const int MAX_EMAIL_SERVERS = 25;
-
-    int ServersToGenerate = this->RNG.RandRange(MIN_EMAIL_SERVERS, MAX_EMAIL_SERVERS);
-
-    while(ServersToGenerate > 0) {
-        FString NewHostname = this->DomainGenerator->GetMarkovString(0).ToLower() + ".com";
-        while(this->Peacenet->GetDomainNames().Contains(NewHostname)) {
-            NewHostname = this->DomainGenerator->GetMarkovString(0).ToLower() + ".com";
+        // Now we pick protocol implementations for each service.
+        for(auto ServiceType : ProtocolTypesToSpawn) {
+            int i = 0;
+            int ChooserCounter = this->Protocols.Num() * 10;
+            UProtocolVersion* Protocol = nullptr;
+            do {
+                UProtocolVersion* Candidate = this->Protocols[i];
+                if(Candidate->Protocol == ServiceType) {
+                    Protocol = Candidate;
+                    ChooserCounter -= this->Rng.RandRange(1, 5);
+                }
+                i++;
+                if(i >= this->Protocols.Num()) {
+                    // If a candidate has not yet been chosen yet we have hit the end of the list, break
+                    // out of this fucking loop because 0.3.0 is supposed to fix that infinite loop bug.
+                    if(!Protocol) {
+                        break;
+                    }
+                    i = 0;
+                }
+            } while (!Protocol && ChooserCounter > 0);
+            
+            // Spawn the firewall rule! But only if we chose a protocol.
+            if(Protocol) {
+                FFirewallRule FirewallRule;
+                FirewallRule.IsCrashed = false;
+                FirewallRule.IsFiltered = this->Rng.RandRange(1, 6) % 2;
+                FirewallRule.Service = Protocol;
+                FirewallRule.Port = FirewallRule.Service->Protocol->Port;
+                Computer.FirewallRules.Add(FirewallRule);
+            }
         }
-
-        FComputer& Server = this->GenerateComputer(NewHostname, EComputerType::EmailServer, EComputerOwnerType::None);
-
-        FString IPAddress = this->Peacenet->GetIPAddress(Server);
-
-        check(IPAddress.Len());
-
-        this->Peacenet->RegisterDomain(NewHostname, IPAddress);
-
-        ServersToGenerate--;
     }
 }
 
-FComputer& UProceduralGenerationEngine::GenerateComputer(FString InHostname, EComputerType InComputerType, EComputerOwnerType InOwnerType) {
-    FComputer& Ret = this->Peacenet->GetNewComputer();
+void UProceduralGenerationEngine::SetDomainName(int Entity) {
+    // Retrieve a reference to the computer.
+    FComputer& Computer = this->GetComputer(Entity);
 
-    // Set up the core metadata.
-    Ret.OwnerType = InOwnerType;
-    Ret.ComputerType = InComputerType;
+    // Retrieve the IP address of the computer so we can map a domain name
+    // to it.
+    FString IPAddress = "";
+    for(auto& IPMap : this->SaveGame->ComputerIPMap) {
+        if(IPMap.Value == Computer.ID) {
+            IPAddress = IPMap.Key;
+            break;
+        }
+    }
 
-    // Get a random wallpaper.
-    UWallpaperAsset* Wallpaper = this->Peacenet->Wallpapers[RNG.RandRange(0, this->Peacenet->Wallpapers.Num()-1)];
-    Ret.UnlockedWallpapers.Add(Wallpaper->InternalID);
-    Ret.CurrentWallpaper = Wallpaper->WallpaperTexture;
+    // If the computer does not have an IP address we'll generate one.
+    if(!IPAddress.Len()) {
+        IPAddress = this->GenerateIPAddress();
+        this->SaveGame->ComputerIPMap.Add(IPAddress, Computer.ID);
+    }
 
-    // Create the barebones filesystem.
-    FFolder Root;
-    Root.FolderID = 0;
-    Root.FolderName = "";
-    Root.ParentID = -1;
+    // Generate a unique domain name for the computer.
+    FString DomainName = "";
+    do {
+        DomainName = UCommonUtils::Aliasify(this->DomainNameGenerator->GetMarkovString(0)) + this->PickTopLevelDomain();
+    } while(this->SaveGame->DomainNameMap.Contains(DomainName));
 
-    FFolder RootHome;
-    RootHome.FolderID = 1;
-    RootHome.FolderName = "root";
-    RootHome.ParentID = 0;
+    // Assign the domain name.
+    this->SaveGame->DomainNameMap.Add(DomainName, IPAddress);
 
-    FFolder UserHome;
-    UserHome.FolderID = 2;
-    UserHome.FolderName = "home";
-    UserHome.ParentID = 0;
+    // Acquire a filesystem and write the domain name to /etc/hostname
+    USystemContext* SystemContext = this->Peacenet->GetSystemContext(Computer.ID);
+    UPeacegateFileSystem* FS = SystemContext->GetFilesystem(0);
+    if(!FS->DirectoryExists("/etc")) {
+        EFilesystemStatusCode Status;
+        FS->CreateDirectory("/etc", Status);
+    }
+    FS->WriteText("/etc/hostname", DomainName);
+}
 
-    FFolder Etc;
-    Etc.FolderID = 3;
-    Etc.FolderName = "etc";
-    Etc.ParentID = 0;
+void UProceduralGenerationEngine::SpawnLootableFiles(FComputer& Computer) {
+    // Below arrays contain the files we're going to write to the computer's FS
+    TArray<ULootableFile*> LootableAssets;
+    TArray<FLootableSpawnInfo> StaticSpawns; // For story computers since they can define custom files
 
-    // Write the hostname to a file.
-    FFileRecord HostnameFile;
-    HostnameFile.ID = 0;
-    HostnameFile.Name = "hostname";
-    HostnameFile.RecordType = EFileRecordType::Text;
-    HostnameFile.ContentID = 0;
+    // Figure out if the computer is a story computer, and queue the story computer's files for
+    // spawning.
+    for(auto& StoryID : this->SaveGame->StoryComputerIDs) {
+        if(StoryID.Entity == Computer.ID && StoryID.StoryComputer) {
+            LootableAssets.Append(StoryID.StoryComputer->LootableFiles);
+            StaticSpawns.Append(StoryID.StoryComputer->CustomLootableFiles);
+            break;
+        }
+    }
 
-    FTextFile HostnameText;
-    HostnameText.ID = 0;
-    HostnameText.Content = InHostname;
-    Ret.TextFiles.Add(HostnameText);
-    Ret.FileRecords.Add(HostnameFile);
+    // Pick random files to spawn with any story files that were queued above
+    if(!Computer.SpawnedRandomLootables) {
+        for(auto Lootable : this->Lootables) {
+            if(this->Rng.RandRange(1, 6) % 2) {
+                if(!LootableAssets.Contains(Lootable)) {
+                    LootableAssets.Add(Lootable);
+                }
+            }
+        }
+        Computer.SpawnedRandomLootables = true;
+    }
 
-    // Write the file in /etc.
-    Etc.FileRecords.Add(HostnameFile.ID);
+    // Acquire a system context and then a filesystem.
+    USystemContext* SystemContext = this->Peacenet->GetSystemContext(Computer.ID);
+    UPeacegateFileSystem* FileSystem = SystemContext->GetFilesystem(0);
 
-    // Link up the three folders to the root.
-    Root.SubFolders.Add(RootHome.FolderID);
-    Root.SubFolders.Add(Etc.FolderID);
-    Root.SubFolders.Add(UserHome.FolderID);
-    
-    // Add all the folders to the computer's disk.
-    Ret.Filesystem.Add(Root);
-    Ret.Filesystem.Add(Etc);
-    Ret.Filesystem.Add(RootHome);
-    Ret.Filesystem.Add(UserHome);
-    
-    // Create a root user for the system.
-    FUser RootUser;
-    RootUser.ID = 0;
-    RootUser.Domain = EUserDomain::Administrator;
-    RootUser.Username = "root";
+    // Spawn all of the lootable assets.
+    for(auto Asset : LootableAssets) {
+        Asset->Spawn(FileSystem, this->Rng);
+    }
 
-    // Create a non-root user for the system.
-    FUser NonRoot;
-    NonRoot.ID = 1;
-    NonRoot.Domain = EUserDomain::PowerUser;
-    NonRoot.Username = "user";
+    // And the custom files
+    for(auto CustomFile : StaticSpawns) {
+        ULootableFile::StaticSpawn(FileSystem, CustomFile, this->Rng);
+    }
+}
 
-    // Add the two users to the computer.
-    Ret.Users.Add(RootUser);
-    Ret.Users.Add(NonRoot);
-
-    FString IPAddress = this->Peacenet->GetIPAddress(Ret);
-    
-    UE_LOG(LogTemp, Display, TEXT("Computer generated..."));
-
-    // Return it.
-    return Ret;
+FRandomStream& UProceduralGenerationEngine::GetRng() {
+    return this->Rng;
 }

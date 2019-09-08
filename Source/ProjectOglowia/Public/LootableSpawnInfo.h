@@ -32,42 +32,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "TerminalCommand.h"
-#include "IdentityCommand.generated.h"
+#include "LootableFileContents.h"
+#include "LootableSpawnInfo.generated.h"
 
-UCLASS(BlueprintType)
-class PROJECTOGLOWIA_API AIdentityCommand : public ATerminalCommand
-{
+USTRUCT(BlueprintType)
+struct FLootableSpawnInfo {
     GENERATED_BODY()
 
-private:
-    UPROPERTY()
-    bool HasName = false;
-
-    UPROPERTY()
-    FString IdentityName;
-
-    UPROPERTY()
-    bool UseNameAsAlias = false;
-
-    UPROPERTY()
-    bool HasAlias = false;
-
-    UPROPERTY()
-    bool AliasConfirmed = false;
-
-    UPROPERTY()
-    FString AliasName;
-
 public:
-    AIdentityCommand();
+    UPROPERTY(BlueprintReadOnly, EditAnywhere)
+    FString TargetDirectory = "/";
 
-protected:
-    virtual void NativeRunCommand(UConsoleContext* InConsole, TArray<FString> InArguments) override;
+    UPROPERTY(BlueprintReadOnly, EditAnywhere)
+    FString FileName = "";
 
-    UFUNCTION()
-    const FText MakeAliasFrom(FString InName);
-
-public:
-    virtual void Tick(float DeltaSeconds) override;
+    UPROPERTY(BlueprintReadOnly, EditAnywhere, Instanced)
+    ULootableFileContents* Content = nullptr;
 };
+

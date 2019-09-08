@@ -34,7 +34,13 @@
 #include "Base64.h"
 #include "FileUtilities.h"
 #include "PeacenetWorldStateActor.h"
+#include "FileRecordUtils.h"
+#include "Path.h"
 #include "SystemContext.h"
+
+FComputer& UPeacegateFileSystem::GetComputer() {
+	return this->SystemContext->GetComputer();
+}
 
 TArray<FFileRecord> UPeacegateFileSystem::GetFileRecords(FFolder& Folder) {
 	TArray<FFileRecord> Records;
@@ -300,6 +306,9 @@ bool UPeacegateFileSystem::CreateDirectory(const FString InPath, EFilesystemStat
 	// Tell Peacegate that we created a directory - the mission system can consume this event.
 	FilesystemOperation.Broadcast(EFilesystemEventType::CreateDirectory, ResolvedPath);
 
+	// Force other filesystems to re-build folder navigators.
+	this->SystemContext->RebuildFilesystemNavigators();
+
 	// Success.
 	return true;
 }
@@ -426,6 +435,9 @@ bool UPeacegateFileSystem::Delete(const FString InPath, const bool InRecursive, 
 
 		// Remove the just deleted navigator from its parent
 		ParentNav->SubFolders.Remove(Filename);
+
+		// Force other filesystems to re-build folder navigators.
+		this->SystemContext->RebuildFilesystemNavigators();
 	} else {
 		// Get the parent folder data.
 		FFolder ParentFolder = GetFolderByID(ParentNav->FolderIndex);
@@ -520,7 +532,7 @@ FFileRecord UPeacegateFileSystem::GetFileRecord(FString InPath) {
 	return FoundFile;
 }
 
-void UPeacegateFileSystem::SetFileRecord(FString InPath, EFileRecordType RecordType, int ContentID) {
+void UPeacegateFileSystem::SetFileRecord(FString InPath, EFileRecordType RecordType, FName ContentID) {
 	if (InPath.EndsWith(TEXT("/"))) {
 		return;
 	}
@@ -562,11 +574,15 @@ void UPeacegateFileSystem::SetFileRecord(FString InPath, EFileRecordType RecordT
 			if(File.ID == RecordID && File.Name == FileName) {
 				// Set the record type and content ID of the file.
 				File.RecordType = RecordType;
-				File.ContentID = ContentID;
+				File.ContentAssetName = ContentID;
+				File.ContentID = -1;
 
 				FoundFile = true;
 				break;
 			}
+		}
+		if(FoundFile) {
+			break;
 		}
 	}
 
@@ -574,8 +590,9 @@ void UPeacegateFileSystem::SetFileRecord(FString InPath, EFileRecordType RecordT
 		FFileRecord NewFile;
 		NewFile.ID = this->GetNextFileRecordID();
 		NewFile.Name = FileName;
+		NewFile.ContentID = -1;
 		NewFile.RecordType = RecordType;
-		NewFile.ContentID = ContentID;
+		NewFile.ContentAssetName = ContentID;
 
 		this->SystemContext->GetComputer().FileRecords.Add(NewFile);
 
@@ -606,8 +623,11 @@ bool UPeacegateFileSystem::GetDirectories(const FString & InPath, TArray<FString
 	TArray<FString> Keys;
 	Navigator->SubFolders.GetKeys(Keys);
 
-	for (auto Key : Keys) {
-		OutDirectories.Add(ResolvedPath + TEXT("/") + Key);
+	
+	int n = Keys.Num();
+	for (int i = 0; i < n; i++) {
+		FString Key = Keys[i];
+		OutDirectories.Add(UPath::Combine(TArray<FString> { ResolvedPath, Key }));
 	}
 
 	return true;
@@ -634,7 +654,7 @@ bool UPeacegateFileSystem::GetFiles(const FString & InPath, TArray<FString>& Out
 
 	// loop through each file
 	for (FFileRecord File : this->GetFileRecords(Folder)) {
-		OutFiles.Add(ResolvedPath + TEXT("/") + File.Name);
+		OutFiles.Add(UPath::Combine(TArray<FString> { ResolvedPath, File.Name }));
 	}
 
 	return true;
@@ -707,13 +727,17 @@ void UPeacegateFileSystem::WriteText(const FString & InPath, const FString & InT
 					FTextFile NewTextFile;
 					NewTextFile.ID = this->GetNextTextFileID();
 
-					File.ContentID = NewTextFile.ID;
+					File.ContentAssetName = FName(*FString::FromInt(NewTextFile.ID));
 					NewTextFile.Content = InText;
 					
 					this->SystemContext->GetComputer().TextFiles.Add(NewTextFile);
 				} else {
+					if(File.ContentID != -1) {
+						File.ContentAssetName = FName(*FString::FromInt(File.ContentID));
+						File.ContentID = -1;
+					}
 					for(auto& TextFile : this->SystemContext->GetComputer().TextFiles) {
-						if(TextFile.ID == File.ContentID) {
+						if(TextFile.ID == FCString::Atoi(*File.ContentAssetName.ToString())) {
 							TextFile.Content = InText;
 						}
 					}
@@ -736,7 +760,7 @@ void UPeacegateFileSystem::WriteText(const FString & InPath, const FString & InT
 
 		this->SystemContext->GetComputer().TextFiles.Add(TextFile);
 
-		NewFile.ContentID = TextFile.ID;
+		NewFile.ContentAssetName = FName(*FString::FromInt(TextFile.ID));
 
 		this->SystemContext->GetComputer().FileRecords.Add(NewFile);
 
@@ -787,14 +811,7 @@ bool UPeacegateFileSystem::ReadText(const FString & InPath, FString& OutText, EF
 	}
 
 	OutStatusCode = EFilesystemStatusCode::OK;
-	// File contents are in base 64.
-	if(FoundFile.RecordType == EFileRecordType::Text) {
-		for(auto& TextFile : this->SystemContext->GetComputer().TextFiles) {
-			if(TextFile.ID == FoundFile.ContentID) {
-				OutText = TextFile.Content;
-			}
-		}
-	}
+	OutText = UFileRecordUtils::GetTextContent(this->GetComputer(), FoundFile);
 	return true;
 }
 
@@ -964,7 +981,37 @@ bool UPeacegateFileSystem::MoveFolder(const FString & Source, const FString & De
 	//Update FS
 	SetFolderByID(SourceChildData.FolderID, SourceChildData);
 
+	// Force other filesystems to re-build folder navigators.
+	this->SystemContext->RebuildFilesystemNavigators();
+
 	return true;
+}
+
+void UPeacegateFileSystem::RansackInternal(TArray<FString>& InPaths, FString Path, EFileRecordType RecordType) {
+	if(this->DirectoryExists(Path)) {
+		EFilesystemStatusCode Status;
+		TArray<FString> SubDirs;
+		TArray<FString> Files;
+		if(this->GetDirectories(Path, SubDirs, Status)) {
+			for(auto SubDir : SubDirs) {
+				this->RansackInternal(InPaths, SubDir, RecordType);
+			}
+		}
+		if(this->GetFiles(Path, Files, Status)) {
+			for(auto File : Files) {
+				FFileRecord Record = this->GetFileRecord(File);
+				if(Record.RecordType == RecordType) {
+					InPaths.Add(File);
+				}
+			}
+		}
+	}
+}
+
+TArray<FString> UPeacegateFileSystem::Ransack(EFileRecordType RecordType) {
+	TArray<FString> Paths;
+	this->RansackInternal(Paths, "/", RecordType);
+	return Paths;
 }
 
 void UPeacegateFileSystem::UpdateFileRecord(FFileRecord InRecord) {

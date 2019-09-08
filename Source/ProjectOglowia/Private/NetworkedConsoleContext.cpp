@@ -35,6 +35,9 @@ void UNetworkedConsoleContext::SetupNetworkedConsole(UConsoleContext* InOutputCo
     check(InOwningUser);
     check(InOutputConsole);
 
+    this->AllowANSI = InOutputConsole->AllowANSI;
+    this->AllowLineEditing = InOutputConsole->AllowLineEditing;
+
     this->OutputConsole = InOutputConsole;
     this->OwningUser = InOwningUser;
 

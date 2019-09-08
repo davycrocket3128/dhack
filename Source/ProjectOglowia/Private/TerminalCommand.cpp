@@ -41,6 +41,29 @@ UProcess* ATerminalCommand::ForkProcess(FString InName) {
 	return this->MyProcess->Fork(InName);
 }
 
+void ATerminalCommand::Run() {
+	// TODO: Deprecate the wrapped function.
+	this->RunCommand(this->Console, this->ArgumentList);
+}
+
+void ATerminalCommand::Launch(UConsoleContext* InConsoleContext, UProcess* Process, TArray<FString> Arguments) {
+	// You can only launch once.
+	check(!this->MyProcess);
+	if(this->MyProcess) {
+		return;
+	}
+
+	// Hold a reference to the process.
+	this->MyProcess = Process;
+	
+	// Keep track of the console and arguments.
+	this->Console = InConsoleContext;
+	this->ArgumentList = Arguments;
+
+	// Run the command when the next frame begins, allowing things like bash to hook into process events (0.3.0)
+	this->MyProcess->GetPeacenet()->RunNextFrame(this, "Run");
+}
+
 UProcess* ATerminalCommand::GetProcess() {
 	return this->MyProcess;
 }
@@ -91,7 +114,7 @@ void ATerminalCommand::RunCommand(UConsoleContext* InConsole, TArray<FString> Ar
 
 	Argv.RemoveAt(0);
 
-	if(this->CommandInfo->UsageStrings.Num()) {
+	if(this->CommandInfo && this->CommandInfo->UsageStrings.Num()) {
 		FString Usage = "usage: ";
 		for(auto UsageString : this->CommandInfo->UsageStrings) {
 			Usage += "\n    " + this->CommandName + " " + UsageString;

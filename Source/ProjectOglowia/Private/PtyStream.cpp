@@ -95,6 +95,7 @@ void UPtyStream::WriteOutput(TCHAR c) {
     }
 
     this->OutputStream->WriteChar(c);
+    this->OnWritten.Broadcast();
 }
 
 void UPtyStream::WriteInput(TCHAR c) {
@@ -131,10 +132,11 @@ void UPtyStream::WriteInput(TCHAR c) {
         if (c == this->Options.C_cc[VEOL] || c == this->Options.C_cc[VEOL2]) {
             this->FlushLineBuffer();
         }
-
+        this->OnWritten.Broadcast();
         return;
     }
     this->InputStream->WriteChar(c);
+    this->OnWritten.Broadcast();
 }
 
 void UPtyStream::WriteChar(TCHAR c) {

@@ -112,6 +112,16 @@ private:
 	void WriteToPty(FString str);
 
 public:
+	UPROPERTY()
+	bool AllowANSI = true;
+
+	UPROPERTY()
+	bool AllowLineEditing = true;
+
+public:
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	static UConsoleContext* CreateNullConsole(UUserContext* InUserContext);
+
 	UFUNCTION()
 	void OnTtyUpdate(UObject* Callee, FName FunctionName);
 
