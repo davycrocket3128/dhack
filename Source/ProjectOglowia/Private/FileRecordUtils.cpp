@@ -112,6 +112,10 @@ bool UFileRecordUtils::LaunchProcess(FString InFilePath, TArray<FString> Argumen
             Program->Window = Window;
             Program->Launch(InConsoleContext, Forked, TargetDesktop);
 
+            // Set window title and icon.
+            Window->WindowTitle = ProgramAsset->FullName;
+            Window->Icon = ProgramAsset->AppLauncherItem.Icon;
+
             if(Arguments.Num() > 1) {
                 if(InConsoleContext->GetUserContext()->GetFilesystem()->FileExists(Arguments[1])) {
                     Program->FileOpened(Arguments[1]);
