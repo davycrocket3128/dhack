@@ -34,7 +34,6 @@
 #include "CommandInfo.h"
 #include "Path.h"
 #include "FileRecordUtils.h"
-#include "GraphicalTerminalCommand.h"
 
 UProcess* ABashShell::LaunchProcess(UConsoleContext* TargetConsole, FString InCommandName, TArray<FString> Arguments) {
 	// TODO: Proper path env var.

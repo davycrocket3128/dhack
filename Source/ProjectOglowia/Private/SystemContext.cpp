@@ -42,7 +42,6 @@
 #include "UserContext.h"
 #include "Program.h"
 #include "WallpaperAsset.h"
-#include "GraphicalTerminalCommand.h"
 #include "CommandInfo.h"
 #include "PayloadAsset.h"
 #include "SystemUpgrade.h"
@@ -295,44 +294,7 @@ UPeacegateFileSystem * USystemContext::GetFilesystem(const int UserID) {
 }
 
 bool USystemContext::TryGetTerminalCommand(FName CommandName, UProcess* OwningProcess, ATerminalCommand *& OutCommand, FString& InternalUsage, FString& FriendlyUsage) {
-	check(Peacenet);
-
-	UPeacegateProgramAsset* Program = nullptr;
-	if (GetPeacenet()->FindProgramByName(CommandName, Program)) {
-		if(!Program->IsUnlocked(this)) {
-			return false;
-		}
-
-		AGraphicalTerminalCommand* GraphicalCommand = Cast<AGraphicalTerminalCommand>(ATerminalCommand::SpawnCommand<AGraphicalTerminalCommand>(OwningProcess->Fork(Program->ID.ToString())));
-		GraphicalCommand->ProgramAsset = Program;
-		GraphicalCommand->CommandInfo = Peacenet->CommandInfo[CommandName];
-		OutCommand = GraphicalCommand;
-		return true;
-	}
-
-	if (!GetPeacenet()->CommandInfo.Contains(CommandName)) {
-		return false;
-	}
-
-	UCommandInfo* Info = GetPeacenet()->CommandInfo[CommandName];
-
-	if(!Info->IsUnlocked(this)) {
-		return false;
-	}
-	
- 	FVector Location(0.0f, 0.0f, 0.0f);
-	FRotator Rotation(0.0f, 0.0f, 0.0f);
- 	FActorSpawnParameters SpawnInfo;
-
-	OutCommand = this->GetPeacenet()->GetWorld()->SpawnActor<ATerminalCommand>(Info->CommandClass, Location, Rotation, SpawnInfo);
-
-	if(!OutCommand) return false;
-
-	OutCommand->MyProcess = OwningProcess->Fork(Info->ID.ToString());
-
-	OutCommand->CommandInfo = Info;
-
-	return true;
+	return false;
 }
 
 FString USystemContext::GetIPAddress() {
