@@ -130,7 +130,7 @@ public:
     UFUNCTION()
     bool IsPowerUser();
 
-    UFUNCTION()
+    UFUNCTION(BlueprintCallable, BlueprintPure)
     TArray<FProgramFile> GetInstalledPrograms();
 
     UFUNCTION()

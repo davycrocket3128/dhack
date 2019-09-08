@@ -35,6 +35,7 @@
 #include "FileUtilities.h"
 #include "PeacenetWorldStateActor.h"
 #include "FileRecordUtils.h"
+#include "Path.h"
 #include "SystemContext.h"
 
 FComputer& UPeacegateFileSystem::GetComputer() {
@@ -574,10 +575,14 @@ void UPeacegateFileSystem::SetFileRecord(FString InPath, EFileRecordType RecordT
 				// Set the record type and content ID of the file.
 				File.RecordType = RecordType;
 				File.ContentAssetName = ContentID;
+				File.ContentID = -1;
 
 				FoundFile = true;
 				break;
 			}
+		}
+		if(FoundFile) {
+			break;
 		}
 	}
 
@@ -585,6 +590,7 @@ void UPeacegateFileSystem::SetFileRecord(FString InPath, EFileRecordType RecordT
 		FFileRecord NewFile;
 		NewFile.ID = this->GetNextFileRecordID();
 		NewFile.Name = FileName;
+		NewFile.ContentID = -1;
 		NewFile.RecordType = RecordType;
 		NewFile.ContentAssetName = ContentID;
 
@@ -617,8 +623,11 @@ bool UPeacegateFileSystem::GetDirectories(const FString & InPath, TArray<FString
 	TArray<FString> Keys;
 	Navigator->SubFolders.GetKeys(Keys);
 
-	for (auto Key : Keys) {
-		OutDirectories.Add(ResolvedPath + TEXT("/") + Key);
+	
+	int n = Keys.Num();
+	for (int i = 0; i < n; i++) {
+		FString Key = Keys[i];
+		OutDirectories.Add(UPath::Combine(TArray<FString> { ResolvedPath, Key }));
 	}
 
 	return true;
@@ -645,7 +654,7 @@ bool UPeacegateFileSystem::GetFiles(const FString & InPath, TArray<FString>& Out
 
 	// loop through each file
 	for (FFileRecord File : this->GetFileRecords(Folder)) {
-		OutFiles.Add(ResolvedPath + TEXT("/") + File.Name);
+		OutFiles.Add(UPath::Combine(TArray<FString> { ResolvedPath, File.Name }));
 	}
 
 	return true;

@@ -367,7 +367,6 @@ void UDesktopWidget::ActivateSession(UUserContext* user) {
 	this->SessionActive = true;
 
 	this->ResetDesktopIcons();
-	this->ResetAppLauncher();
 
 	// Grab the user's home directory.
 	this->UserHomeDirectory = this->SystemContext->GetUserHomeDirectory(this->UserID);

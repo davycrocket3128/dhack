@@ -48,6 +48,7 @@
 #include "SystemUpgrade.h"
 #include "TerminalCommand.h"
 #include "FileRecordUtils.h"
+#include "Path.h"
 #include "Process.h"
 
 void USystemContext::RebuildFilesystemNavigators() {
@@ -753,24 +754,6 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 		}
 	}
 
-	// Now we'll get all the installed terminal commands to show in /bin.
-	TArray<UCommandInfo*> InstalledCommands = this->GetInstalledCommands();
-	TArray<FName> CommandKeys;
-	this->GetPeacenet()->CommandInfo.GetKeys(CommandKeys);
-	
-	for(int i = 0; i < CommandKeys.Num(); i++) {
-		UCommandInfo* CommandInfo = this->GetPeacenet()->CommandInfo[CommandKeys[i]];
-		if(InstalledCommands.Contains(CommandInfo)) {
-			fs->SetFileRecord("/bin/" + CommandInfo->ID.ToString(), EFileRecordType::Command, CommandInfo->GetFName());
-		}
-	}
-
-
-	// If the cryptowallets directory exists, delete it.
-	if(fs->DirectoryExists("/usr/share/wallets")) {
-		fs->Delete("/usr/share/wallets", true, fsStatus);
-	}
-
 	if(!fs->DirectoryExists("/usr")) {
 		fs->CreateDirectory("/usr", fsStatus);
 
@@ -783,7 +766,7 @@ void USystemContext::Setup(int InComputerID, int InCharacterID, APeacenetWorldSt
 	// Populate program files
 	this->PopulateInstalledPrograms();
 
-	// Create and initialize the daemon manager.
+	// Create and initialize t	he daemon manager.
 	this->InitDaemonManager();
 }
 
@@ -802,7 +785,7 @@ void USystemContext::PopulateInstalledPrograms() {
 	}
 	for(auto Program : this->GetPeacenet()->Programs) {
 		if(!Program->RequiredUpgrade || Program->RequiredUpgrade->IsUnlocked(this->GetUserContext(0))) {
-			FS->SetFileRecord("/bin/" + Program->ID.ToString(), EFileRecordType::Program, Program->GetFName());
+			FS->SetFileRecord(UPath::Combine(TArray<FString> { "bin", Program->ID.ToString() }), EFileRecordType::Program, Program->GetFName());
 		}
 	}
 }
