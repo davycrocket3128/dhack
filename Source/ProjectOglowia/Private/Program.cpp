@@ -123,6 +123,9 @@ void UProgram::Launch(UConsoleContext* InConsoleContext, UProcess* OwningProcess
 		return;
 	}
 
+	// assigh console context.
+	this->Console = InConsoleContext;
+
 	// Assign user context and process.
 	this->Window->SetUserContext(InConsoleContext->GetUserContext());
 	this->MyProcess = OwningProcess;

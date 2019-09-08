@@ -47,6 +47,7 @@
 #include "MissionAsset.h"
 #include "Process.h"
 #include "CommandInfo.h"
+#include "FileRecordUtils.h"
 #include "TerminalCommand.h"
 
 UUserWidget* UDesktopWidget::CreateWidgetOwnedByDesktop(TSubclassOf<UUserWidget> InWidgetClass) {
@@ -436,12 +437,18 @@ void UDesktopWidget::ShowAppLauncherCategory(const FString& InCategoryName) {
 	}
 }
 
-bool UDesktopWidget::OpenProgram(const FName InExecutableName, UProgram*& OutProgram) {
+bool UDesktopWidget::OpenProgram(FString InExecutableName, UProgram*& OutProgram) {
 	if(!IsSessionActive()) {
 		return false;
 	}
 
-	return this->SystemContext->OpenProgram(InExecutableName, OutProgram);
+	// Create a null console context for the current user.
+	UConsoleContext* NullConsole = UConsoleContext::CreateNullConsole(this->GetUserContext());
+
+	// Launch the program from disk.
+	UProcess* ChildProcess = nullptr;
+	bool result = UFileRecordUtils::LaunchSuitableProgram(InExecutableName, NullConsole, ChildProcess, nullptr, this);
+	return result && ChildProcess;
 }
 
 void UDesktopWidget::FinishShowingNotification() {

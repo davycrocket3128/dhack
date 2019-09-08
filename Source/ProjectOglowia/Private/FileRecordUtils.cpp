@@ -227,7 +227,8 @@ bool UFileRecordUtils::LaunchSuitableProgram(FString InFilePath, UConsoleContext
             }
         }
     }
-    return false;
+    // Fall back to opening the program itself...
+    return UFileRecordUtils::LaunchProcess(InFilePath, TArray<FString> { InFilePath }, InConsoleContext, OwningProcess, OutProcess, TargetDesktop);
 }
 
 #undef ERR_FILENOTFOUND

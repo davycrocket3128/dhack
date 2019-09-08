@@ -306,7 +306,7 @@ protected:
 	void ShowAppLauncherCategory(const FString& InCategory);
 
 	UFUNCTION(BlueprintCallable, Category = "Desktop")
-	bool OpenProgram(const FName InExecutableName, UProgram*& OutProgram);
+	bool OpenProgram(FString InExecutableName, UProgram*& OutProgram);
 
 public:
 	UFUNCTION()
