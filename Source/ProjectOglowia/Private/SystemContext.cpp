@@ -293,10 +293,6 @@ UPeacegateFileSystem * USystemContext::GetFilesystem(const int UserID) {
 	return this->RegisteredFilesystems[UserID];
 }
 
-bool USystemContext::TryGetTerminalCommand(FName CommandName, UProcess* OwningProcess, ATerminalCommand *& OutCommand, FString& InternalUsage, FString& FriendlyUsage) {
-	return false;
-}
-
 FString USystemContext::GetIPAddress() {
 	check(this->GetPeacenet());
 
